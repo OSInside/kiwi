@@ -1,11 +1,7 @@
 import logging
 import importlib
-from unittest.mock import (
-    patch, Mock, MagicMock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock, MagicMock
+from pytest import raises, fixture
 
 from kiwi.defaults import Defaults
 from kiwi.solver.sat import Sat
@@ -13,7 +9,7 @@ from kiwi.solver.sat import Sat
 from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobProblems,
-    KiwiSatSolverJobError
+    KiwiSatSolverJobError,
 )
 
 
@@ -27,19 +23,11 @@ class TestSat:
         self.sat = Sat()
         self.solver = MagicMock()
         self.transaction = Mock()
-        self.transaction.newpackages = Mock(
-            return_value=[Mock()]
-        )
+        self.transaction.newpackages = Mock(return_value=[Mock()])
         self.selection = Mock()
-        self.solver.transaction = Mock(
-            return_value=self.transaction
-        )
-        self.sat.pool.Solver = Mock(
-            return_value=self.solver
-        )
-        self.sat.pool.select = Mock(
-            return_value=self.selection
-        )
+        self.solver.transaction = Mock(return_value=self.transaction)
+        self.sat.pool.Solver = Mock(return_value=self.solver)
+        self.sat.pool.select = Mock(return_value=self.selection)
         mock_import_module.assert_called_once_with('solv')
         self.solv = mock_import_module.return_value
         self.sat.pool.setarch.assert_called_once_with()
@@ -68,9 +56,7 @@ class TestSat:
         self.sat.pool.setdisttype.assert_called_once_with(
             self.solv.Pool.DISTTYPE_DEB
         )
-        self.sat.pool.setarch.assert_called_once_with(
-            'amd64'
-        )
+        self.sat.pool.setarch.assert_called_once_with('amd64')
 
     def test_add_repository(self):
         solver_repository = Mock()
@@ -94,85 +80,57 @@ class TestSat:
         problem = Mock()
         problem.id = 42
         info = Mock()
-        info.problemstr = Mock(
-            return_value='some-problem'
-        )
+        info.problemstr = Mock(return_value='some-problem')
         findproblemrule = Mock()
-        findproblemrule.info = Mock(
-            return_value=info
-        )
+        findproblemrule.info = Mock(return_value=info)
         problem.findproblemrule.return_value = findproblemrule
 
         option = Mock()
-        option.str = Mock(
-            return_value='some-option'
-        )
+        option.str = Mock(return_value='some-option')
         solution = Mock()
         solution.id = 42
-        solution.elements = Mock(
-            return_value=[option]
-        )
+        solution.elements = Mock(return_value=[option])
         problem.solutions.return_value = [solution]
-        self.solver.solve = Mock(
-            return_value=[problem]
-        )
+        self.solver.solve = Mock(return_value=[problem])
         with raises(KiwiSatSolverJobProblems):
             self.sat.solve(packages)
 
     def test_solve_package_not_found_and_skipped(self):
         packages = ['vim']
-        self.solver.solve = Mock(
-            return_value=None
-        )
+        self.solver.solve = Mock(return_value=None)
         self.sat.solv.Selection.SELECTION_PROVIDES = 0
         self.selection.flags = 0
-        self.selection.isempty = Mock(
-            return_value=True
-        )
+        self.selection.isempty = Mock(return_value=True)
         with self._caplog.at_level(logging.INFO):
             self.sat.solve(packages, skip_missing=True)
             assert '--> Package vim not found: skipped' in self._caplog.text
 
     def test_solve_package_not_found_raises(self):
         packages = ['vim']
-        self.solver.solve = Mock(
-            return_value=None
-        )
-        self.selection.isempty = Mock(
-            return_value=True
-        )
+        self.solver.solve = Mock(return_value=None)
+        self.selection.isempty = Mock(return_value=True)
         with raises(KiwiSatSolverJobError):
             self.sat.solve(packages)
 
     def test_solve(self):
         packages = ['vim']
-        self.solver.solve = Mock(
-            return_value=None
-        )
-        self.selection.isempty = Mock(
-            return_value=False
-        )
-        self.selection.jobs = Mock(
-            return_value=packages
-        )
+        self.solver.solve = Mock(return_value=None)
+        self.selection.isempty = Mock(return_value=False)
+        self.selection.jobs = Mock(return_value=packages)
         self.sat.solve(packages)
         self.solver.solve.assert_called_once_with(['vim'])
         self.solver.transaction.assert_called_once_with()
 
     def test_solve_with_capabilities(self):
         packages = ['kernel-base']
-        self.solver.solve = Mock(
-            return_value=None
-        )
+        self.solver.solve = Mock(return_value=None)
         self.sat.solv.Selection.SELECTION_PROVIDES = 1
         self.selection.flags = 1
-        self.selection.isempty = Mock(
-            return_value=False
-        )
-        self.selection.jobs = Mock(
-            return_value=packages
-        )
+        self.selection.isempty = Mock(return_value=False)
+        self.selection.jobs = Mock(return_value=packages)
         with self._caplog.at_level(logging.INFO):
             self.sat.solve(packages)
-            assert '--> Using capability match for kernel-base' in \
-                self._caplog.text
+            assert (
+                '--> Using capability match for kernel-base'
+                in self._caplog.text
+            )

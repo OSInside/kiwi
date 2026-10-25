@@ -19,9 +19,7 @@ import os
 import logging
 import platform
 from tempfile import NamedTemporaryFile
-from typing import (
-    List, Optional
-)
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
@@ -44,18 +42,19 @@ class BoxContainerBuild:
     :param str boxname: name of the box from kiwi_boxed_plugin.yml
     :param str arch: arch name for box
     """
-    def __init__(
-        self, boxname: str, arch: str = ''
-    ) -> None:
+
+    def __init__(self, boxname: str, arch: str = '') -> None:
         self.kiwi_cache = f'/{Defaults.get_shared_cache_location()}'
         self.arch = arch or platform.machine()
         self.box = BoxDownload(boxname, arch)
         self.kiwi_exit: Optional[int] = None
 
     def run(
-        self, kiwi_build_command: List[str],
-        keep_open: bool = False, kiwi_version: Optional[str] = None,
-        custom_shared_path: Optional[str] = None
+        self,
+        kiwi_build_command: List[str],
+        keep_open: bool = False,
+        kiwi_version: Optional[str] = None,
+        custom_shared_path: Optional[str] = None,
     ) -> None:
         """
         Start the build process in a container
@@ -76,12 +75,8 @@ class BoxContainerBuild:
         :param str custom_shared_path: make this path available in the container
         """
         self.kiwi_build_command = kiwi_build_command
-        desc = os.path.abspath(
-            self._pop_arg_param('--description')
-        )
-        target_dir = os.path.abspath(
-            self._pop_arg_param('--target-dir')
-        )
+        desc = os.path.abspath(self._pop_arg_param('--description'))
+        target_dir = os.path.abspath(self._pop_arg_param('--target-dir'))
         BoxBuildDefaults.create_build_target_dir(target_dir)
 
         container_name = self.box.fetch_container()
@@ -92,9 +87,7 @@ class BoxContainerBuild:
         if keep_open:
             container_cmdline.append('kiwi-no-halt')
         if kiwi_version:
-            container_cmdline.append(
-                'kiwi_version=_{0}_'.format(kiwi_version)
-            )
+            container_cmdline.append('kiwi_version=_{0}_'.format(kiwi_version))
         if custom_shared_path:
             custom_shared_path = os.path.abspath(custom_shared_path)
             if not os.path.exists(custom_shared_path):
@@ -106,9 +99,7 @@ class BoxContainerBuild:
             )
 
         if not os.path.exists(desc):
-            raise KiwiBoxBuildError(
-                f'Image description {desc} does not exist'
-            )
+            raise KiwiBoxBuildError(f'Image description {desc} does not exist')
 
         self.cmdline = NamedTemporaryFile(prefix='cmdline')
         with open(self.cmdline.name, 'w') as cmdline:
@@ -118,32 +109,40 @@ class BoxContainerBuild:
         if not os.path.isdir(self.kiwi_cache):
             Command.run(['sudo', 'mkdir', '-p', self.kiwi_cache])
         container_run = [
-            'sudo', 'podman', 'run',
+            'sudo',
+            'podman',
+            'run',
             '--rm',
             '-ti',
             '--privileged',
-            '--net', 'host',
-            '--cap-add', 'AUDIT_WRITE',
-            '--cap-add', 'AUDIT_CONTROL',
-            '--cap-add', 'CAP_MKNOD',
-            '--cap-add', 'CAP_SYS_ADMIN',
-            '--volume', '/var/cache/kiwi:/var/cache/kiwi',
-            '--volume', f'{self.cmdline.name}:/container.cmdline',
-            '--volume', f'{target_dir}:/bundle',
-            '--volume', f'{desc}:/description',
-            '--volume', '/dev:/dev'
+            '--net',
+            'host',
+            '--cap-add',
+            'AUDIT_WRITE',
+            '--cap-add',
+            'AUDIT_CONTROL',
+            '--cap-add',
+            'CAP_MKNOD',
+            '--cap-add',
+            'CAP_SYS_ADMIN',
+            '--volume',
+            '/var/cache/kiwi:/var/cache/kiwi',
+            '--volume',
+            f'{self.cmdline.name}:/container.cmdline',
+            '--volume',
+            f'{target_dir}:/bundle',
+            '--volume',
+            f'{desc}:/description',
+            '--volume',
+            '/dev:/dev',
         ]
         if custom_shared_path:
             container_run.append('--volume')
             container_run.append(f'{custom_shared_path}:{custom_shared_path}')
         container_run.append(container_name)
 
-        log.debug(
-            'Calling podman: {0}'.format(container_run)
-        )
-        os.system(
-            ' '.join(container_run)
-        )
+        log.debug('Calling podman: {0}'.format(container_run))
+        os.system(' '.join(container_run))
 
         exit_code_file = os.sep.join(
             [target_dir, BoxBuildDefaults.result_exitcode_name]
@@ -161,9 +160,7 @@ class BoxContainerBuild:
                 f'Box build failed. Find build log at: {build_log_file!r}'
             )
 
-        log.info(
-            f'Box build done. Find build log at: {build_log_file!r}'
-        )
+        log.info(f'Box build done. Find build log at: {build_log_file!r}')
 
     def _pop_arg_param(self, arg: str) -> str:
         arg_index = self.kiwi_build_command.index(arg)

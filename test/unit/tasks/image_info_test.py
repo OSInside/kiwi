@@ -1,8 +1,6 @@
 import sys
 
-from unittest.mock import (
-    patch, call, Mock, MagicMock
-)
+from unittest.mock import patch, call, Mock, MagicMock
 
 import kiwi
 
@@ -10,71 +8,73 @@ from ..test_helper import argv_kiwi_tests
 
 from kiwi.tasks.image_info import ImageInfoTask
 
-from collections import (
-    namedtuple, OrderedDict
-)
+from collections import namedtuple, OrderedDict
 
 
 class TestImageInfoTask:
     def setup(self):
         sys.argv = [
-            sys.argv[0], 'image', 'info',
-            '--description', '../data/image_info',
-            '--resolve-package-list'
+            sys.argv[0],
+            'image',
+            'info',
+            '--description',
+            '../data/image_info',
+            '--resolve-package-list',
         ]
         result_type = namedtuple(
-            'result_type', [
-                'uri', 'installsize_bytes', 'arch', 'version', 'checksum'
-            ]
+            'result_type',
+            ['uri', 'installsize_bytes', 'arch', 'version', 'checksum'],
         )
         self.result_info = {
             'image': 'LimeJeOS',
             'resolved-packages': {
                 'packagename': {
-                    'version': '0.8.15', 'arch': 'x86_64',
-                    'source': 'uri', 'status': 'added_by_dependency_solver',
-                    'installsize_bytes': 42
+                    'version': '0.8.15',
+                    'arch': 'x86_64',
+                    'source': 'uri',
+                    'status': 'added_by_dependency_solver',
+                    'installsize_bytes': 42,
                 },
                 'filesystem': {
-                    'version': '42', 'arch': 'x86_64',
-                    'source': 'uri', 'status': 'listed_in_kiwi_description',
-                    'installsize_bytes': 0
-                }
-            }
+                    'version': '42',
+                    'arch': 'x86_64',
+                    'source': 'uri',
+                    'status': 'listed_in_kiwi_description',
+                    'installsize_bytes': 0,
+                },
+            },
         }
         self.runtime_checker = Mock()
-        kiwi.tasks.base.RuntimeChecker = Mock(
-            return_value=self.runtime_checker
-        )
+        kiwi.tasks.base.RuntimeChecker = Mock(return_value=self.runtime_checker)
         self.runtime_config = Mock()
-        kiwi.tasks.base.RuntimeConfig = Mock(
-            return_value=self.runtime_config
-        )
+        kiwi.tasks.base.RuntimeConfig = Mock(return_value=self.runtime_config)
         self.solver = MagicMock()
         self.solver.solve = Mock(
             return_value={
                 'packagename': result_type(
-                    uri='uri', installsize_bytes=42,
-                    arch='x86_64', version='0.8.15', checksum='checksum'
+                    uri='uri',
+                    installsize_bytes=42,
+                    arch='x86_64',
+                    version='0.8.15',
+                    checksum='checksum',
                 ),
                 'filesystem': result_type(
-                    uri='uri', installsize_bytes=0,
-                    arch='x86_64', version='42', checksum='checksum'
-                )
+                    uri='uri',
+                    installsize_bytes=0,
+                    arch='x86_64',
+                    version='42',
+                    checksum='checksum',
+                ),
             }
         )
-        kiwi.tasks.image_info.Sat = Mock(
-            return_value=self.solver
-        )
+        kiwi.tasks.image_info.Sat = Mock(return_value=self.solver)
 
         self.solver_repository = Mock()
         kiwi.tasks.image_info.SolverRepository = Mock(
             return_value=self.solver_repository
         )
 
-        kiwi.tasks.image_info.Help = Mock(
-            return_value=Mock()
-        )
+        kiwi.tasks.image_info.Help = Mock(return_value=Mock())
         self.task = ImageInfoTask()
 
     def setup_method(self, cls):
@@ -107,9 +107,7 @@ class TestImageInfoTask:
         self.task.command_args['info'] = True
         self.task.process()
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
-        mock_out.assert_called_once_with(
-            {'image': 'LimeJeOS'}
-        )
+        mock_out.assert_called_once_with({'image': 'LimeJeOS'})
 
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info_color_output(self, mock_out):
@@ -117,9 +115,7 @@ class TestImageInfoTask:
         self.task.command_args['info'] = True
         self.task.global_args['--color-output'] = True
         self.task.process()
-        mock_out.assert_called_once_with(
-            {'image': 'LimeJeOS'}, style='color'
-        )
+        mock_out.assert_called_once_with({'image': 'LimeJeOS'}, style='color')
 
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info_list_profiles(self, mock_out):
@@ -190,9 +186,9 @@ class TestImageInfoTask:
                         ('kiwi_timezone', 'Europe/Berlin'),
                         ('kiwi_type', 'iso'),
                         ('kiwi_vga', 'auto'),
-                        ('kiwi_wwid_wait_timeout', '')
+                        ('kiwi_wwid_wait_timeout', ''),
                     ]
-                )
+                ),
             }
         )
 
@@ -207,9 +203,7 @@ class TestImageInfoTask:
         uri.uri = 'http://example.org/some/path'
         mock_uri.return_value = uri
         mock_get_repo_type.return_value = 'apt-deb'
-        self.solver.set_dist_type.return_value = {
-            'arch': 'amd64'
-        }
+        self.solver.set_dist_type.return_value = {'arch': 'amd64'}
         self._init_command_args()
         self.task.command_args['info'] = True
         self.task.command_args['--resolve-package-list'] = True
@@ -220,21 +214,29 @@ class TestImageInfoTask:
             call(uri='http://us.archive.ubuntu.com/ubuntu/', source_type=''),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'main/binary-amd64', 'apt-deb', ''
+                'main/binary-amd64',
+                'apt-deb',
+                '',
             ),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'multiverse/binary-amd64', 'apt-deb', ''
+                'multiverse/binary-amd64',
+                'apt-deb',
+                '',
             ),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'restricted/binary-amd64', 'apt-deb', ''
+                'restricted/binary-amd64',
+                'apt-deb',
+                '',
             ),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'universe/binary-amd64', 'apt-deb', ''
+                'universe/binary-amd64',
+                'apt-deb',
+                '',
             ),
-            call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md', '')
+            call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md', ''),
         ]
         mock_out.assert_called_once_with(self.result_info)
 
@@ -251,58 +253,148 @@ class TestImageInfoTask:
             'http://example2.com,rpm-md,alias,99,false,true',
             'http://example3.com,rpm-md,alias,99,false,true',
             'http://example4.com,,alias,99,false,true',
-            'http://example5.com,,,99,false,true'
+            'http://example5.com,,,99,false,true',
         ]
         self.task.process()
         assert mock_add_repo.call_args_list == [
             call(
-                'http://example1.com', 'rpm-md', 'alias', '99',
-                True, None, [], None, None, None, None
+                'http://example1.com',
+                'rpm-md',
+                'alias',
+                '99',
+                True,
+                None,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example2.com', 'rpm-md', 'alias', '99',
-                False, True, [], None, None, None, None
+                'http://example2.com',
+                'rpm-md',
+                'alias',
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example3.com', 'rpm-md', 'alias', '99',
-                False, True, [], None, None, None, None
+                'http://example3.com',
+                'rpm-md',
+                'alias',
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example4.com', None, 'alias', '99',
-                False, True, [], None, None, None, None
+                'http://example4.com',
+                None,
+                'alias',
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example5.com', None, None, '99',
-                False, True, [], None, None, None, None
-            )
+                'http://example5.com',
+                None,
+                None,
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
+            ),
         ]
         self.task.command_args['--add-repo-credentials'] = [
             'user1:pass1',
-            'user2:pass2'
+            'user2:pass2',
         ]
         mock_add_repo.reset_mock()
         self.task.process()
         assert mock_add_repo.call_args_list == [
             call(
-                'http://user1:pass1@example1.com', 'rpm-md', 'alias', '99',
-                True, None, [], None, None, None, None
+                'http://user1:pass1@example1.com',
+                'rpm-md',
+                'alias',
+                '99',
+                True,
+                None,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://user2:pass2@example2.com', 'rpm-md', 'alias', '99',
-                False, True, [], None, None, None, None
+                'http://user2:pass2@example2.com',
+                'rpm-md',
+                'alias',
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example3.com', 'rpm-md', 'alias', '99',
-                False, True, [], None, None, None, None
+                'http://example3.com',
+                'rpm-md',
+                'alias',
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example4.com', None, 'alias', '99',
-                False, True, [], None, None, None, None
+                'http://example4.com',
+                None,
+                'alias',
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
             ),
             call(
-                'http://example5.com', None, None, '99',
-                False, True, [], None, None, None, None
-            )
+                'http://example5.com',
+                None,
+                None,
+                '99',
+                False,
+                True,
+                [],
+                None,
+                None,
+                None,
+                None,
+            ),
         ]
         self.task.command_args['--add-repo'] = [
             'http://example1.com,rpm-md,alias,99,true'
@@ -314,8 +406,17 @@ class TestImageInfoTask:
         mock_add_repo.reset_mock()
         self.task.process()
         mock_add_repo.assert_called_once_with(
-            'http://user:pass@example1.com', 'rpm-md', 'alias', '99',
-            True, None, [], None, None, None, None
+            'http://user:pass@example1.com',
+            'rpm-md',
+            'alias',
+            '99',
+            True,
+            None,
+            [],
+            None,
+            None,
+            None,
+            None,
         )
 
     @patch('kiwi.xml_state.XMLState.delete_repository_sections')
@@ -331,9 +432,7 @@ class TestImageInfoTask:
         self.task.command_args['help'] = True
         self.task.command_args['info'] = True
         self.task.process()
-        self.task.manual.show.assert_called_once_with(
-            'kiwi::image::info'
-        )
+        self.task.manual.show.assert_called_once_with('kiwi::image::info')
 
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info_print_xml(self, mock_out):

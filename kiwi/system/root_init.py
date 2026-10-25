@@ -25,10 +25,7 @@ from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import (
-    KiwiRootDirExists,
-    KiwiRootInitCreationError
-)
+from kiwi.exceptions import KiwiRootDirExists, KiwiRootInitCreationError
 
 
 class RootInit:
@@ -40,11 +37,10 @@ class RootInit:
 
     :param str root_dir: root directory path name
     """
+
     def __init__(self, root_dir: str, allow_existing: bool = False):
         if not allow_existing and os.path.exists(root_dir):
-            raise KiwiRootDirExists(
-                f'Root directory {root_dir} already exists'
-            )
+            raise KiwiRootDirExists(f'Root directory {root_dir} already exists')
         self.root_dir = root_dir
 
     def delete(self) -> None:
@@ -79,19 +75,14 @@ class RootInit:
             self._create_base_directories(root.name)
             self._create_base_links(root.name)
             data = DataSync(root.name + '/', self.root_dir)
-            data.sync_data(
-                options=['-a', '--ignore-existing']
-            )
+            data.sync_data(options=['-a', '--ignore-existing'])
             if Defaults.is_buildservice_worker():
                 copy(
-                    os.sep + Defaults.get_buildservice_env_name(),
-                    self.root_dir
+                    os.sep + Defaults.get_buildservice_env_name(), self.root_dir
                 )
         except Exception as e:
             self.delete()
-            raise KiwiRootInitCreationError(
-                f'{type(e).__name__}: {format(e)}'
-            )
+            raise KiwiRootInitCreationError(f'{type(e).__name__}: {format(e)}')
 
     def _create_base_directories(self, root):
         """
@@ -107,7 +98,7 @@ class RootInit:
             'etc/sysconfig',
             'run',
             'sys',
-            'var'
+            'var',
         )
         root_uid = getpwnam('root').pw_uid
         root_gid = getpwnam('root').pw_gid
@@ -129,7 +120,10 @@ class RootInit:
             ('/proc/self/fd', '%s/dev/fd'),
             ('fd/2', '%s/dev/stderr'),
             ('fd/0', '%s/dev/stdin'),
-            ('fd/1', '%s/dev/stdout')
+            ('fd/1', '%s/dev/stdout'),
         )
         for src, target in base_system_links:
-            os.symlink(src, target % root, )
+            os.symlink(
+                src,
+                target % root,
+            )

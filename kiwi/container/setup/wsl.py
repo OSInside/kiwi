@@ -26,6 +26,7 @@ class ContainerSetupWsl(ContainerSetupBase):
     """
     WSL new tar setup
     """
+
     def setup(self):
         """
         Setup container metadata

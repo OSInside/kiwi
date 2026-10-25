@@ -18,9 +18,7 @@
 import logging
 import yaml
 from cerberus import Validator
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.boxbuild.boxes_config_schema import schema
@@ -41,6 +39,7 @@ class BoxesConfig:
     containing information about available virtual disk images
     and containers usable as build boxes
     """
+
     def __init__(self) -> None:
         self.config_data = {}
         config_file = BoxBuildDefaults.get_box_config_file()

@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 
 from kiwi.partitioner import Partitioner
 

@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, call, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, Mock
+from pytest import raises, fixture
 
 import os
 
@@ -20,9 +16,7 @@ class TestPath:
         self._caplog = caplog
 
     def test_sort_by_hierarchy(self):
-        ordered = Path.sort_by_hierarchy(
-            ['usr', 'usr/bin', 'etc', 'usr/lib']
-        )
+        ordered = Path.sort_by_hierarchy(['usr', 'usr/bin', 'etc', 'usr/lib'])
         assert ordered == ['usr', 'etc', 'usr/bin', 'usr/lib']
 
     @patch('pathlib.Path')
@@ -30,9 +24,7 @@ class TestPath:
         path = Mock()
         mock_Path.return_value = path
         Path.create('foo')
-        path.mkdir.assert_called_once_with(
-            parents=True, exist_ok=True
-        )
+        path.mkdir.assert_called_once_with(parents=True, exist_ok=True)
         mock_Path.return_value = Exception
         with raises(KiwiFileAccessError):
             Path.create('foo')
@@ -42,9 +34,7 @@ class TestPath:
     def test_wipe(self, mock_command, mock_exists):
         mock_exists.return_value = True
         Path.wipe('foo')
-        mock_command.assert_called_once_with(
-            ['rm', '-r', '-f', 'foo']
-        )
+        mock_command.assert_called_once_with(['rm', '-r', '-f', 'foo'])
         mock_exists.return_value = False
         mock_command.reset_mock()
         Path.wipe('foo')
@@ -57,19 +47,19 @@ class TestPath:
             assert mock_command.call_args_list == [
                 call(
                     [
-                        'rmdir', '--ignore-fail-on-non-empty',
-                        '/my_root/tmp/foo/bar'
+                        'rmdir',
+                        '--ignore-fail-on-non-empty',
+                        '/my_root/tmp/foo/bar',
                     ]
                 ),
                 call(
-                    [
-                        'rmdir', '--ignore-fail-on-non-empty',
-                        '/my_root/tmp/foo'
-                    ]
-                )
+                    ['rmdir', '--ignore-fail-on-non-empty', '/my_root/tmp/foo']
+                ),
             ]
-            assert 'remove_hierarchy: path /my_root/tmp is protected' in \
-                self._caplog.text
+            assert (
+                'remove_hierarchy: path /my_root/tmp is protected'
+                in self._caplog.text
+            )
         mock_command.reset_mock()
         Path.remove_hierarchy('/home/kiwi/my_root', 'foo')
         mock_command.assert_called_once_with(
@@ -77,14 +67,14 @@ class TestPath:
         )
 
     def test_move_to_root(self):
-        assert [
-            '/usr/bin', '/sbin'
-        ] == Path.move_to_root('/root_dir', ['/root_dir/usr/bin', '/sbin'])
+        assert ['/usr/bin', '/sbin'] == Path.move_to_root(
+            '/root_dir', ['/root_dir/usr/bin', '/sbin']
+        )
 
     def test_rebase_to_root(self):
-        assert [
-            '/root_dir/usr/bin', '/root_dir/sbin'
-        ] == Path.rebase_to_root('/root_dir', ['usr/bin', '/sbin'])
+        assert ['/root_dir/usr/bin', '/root_dir/sbin'] == Path.rebase_to_root(
+            '/root_dir', ['usr/bin', '/sbin']
+        )
 
     @patch('os.access')
     @patch('os.environ.get')
@@ -106,22 +96,20 @@ class TestPath:
         assert Path.which(
             'pyproject.toml',
             custom_env={'PATH': str(rootpath)},
-            access_mode=os.F_OK
+            access_mode=os.F_OK,
         ) == str(rootpath / "pyproject.toml")
 
         assert Path.which(
             '__init__.py',
             custom_env={'PATH': "/kiwi/"},
             access_mode=os.F_OK,
-            root_dir=str(rootpath)
+            root_dir=str(rootpath),
         ) == str(rootpath / "kiwi" / "__init__.py")
 
     @patch('os.access')
     @patch('os.environ.get')
     @patch('os.path.exists')
-    def test_which_not_found_log(
-        self, mock_exists, mock_env, mock_access
-    ):
+    def test_which_not_found_log(self, mock_exists, mock_env, mock_access):
         PATH = '/usr/local/bin:/usr/bin:/bin'
         mock_env.return_value = PATH
         mock_exists.return_value = False

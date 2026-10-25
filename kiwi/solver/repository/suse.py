@@ -26,6 +26,7 @@ class SolverRepositorySUSE(SolverRepositoryBase):
     """
     **Class for SAT solvable creation for SUSE type repositories.**
     """
+
     def _setup_repository_metadata(self):
         """
         Download repo metadata for SUSE specific repositories and
@@ -36,11 +37,9 @@ class SolverRepositorySUSE(SolverRepositoryBase):
         for primary_file in repo_data.primary_files:
             self.download_from_repository(
                 primary_file,
-                os.sep.join([metadata_dir, os.path.basename(primary_file)])
+                os.sep.join([metadata_dir, os.path.basename(primary_file)]),
             )
-        self._create_solvables(
-            metadata_dir, repo_data.solv_tool
-        )
+        self._create_solvables(metadata_dir, repo_data.solv_tool)
 
     def _find_primary_repository_files(self):
         """
@@ -56,25 +55,22 @@ class SolverRepositorySUSE(SolverRepositoryBase):
 
         :rtype: tuple
         """
-        result_type = namedtuple(
-            'result_type', ['solv_tool', 'primary_files']
-        )
+        result_type = namedtuple('result_type', ['solv_tool', 'primary_files'])
         try:
             primary_files = []
             primary_locations = self._get_repomd_xpath(
                 self._get_repomd_xml('suse/repodata'),
-                'repo:data[@type="primary"]/repo:location'
+                'repo:data[@type="primary"]/repo:location',
             )
             for location in primary_locations:
                 primary_files.append(
                     os.sep.join(['suse', location.get('href')])
                 )
             return result_type(
-                solv_tool='rpmmd2solv',
-                primary_files=primary_files
+                solv_tool='rpmmd2solv', primary_files=primary_files
             )
         except Exception:
             return result_type(
                 solv_tool='susetags2solv',
-                primary_files=['suse/setup/descr/packages.gz']
+                primary_files=['suse/setup/descr/packages.gz'],
             )

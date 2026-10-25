@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call
-)
+from unittest.mock import patch, call
 
 import unittest.mock as mock
 
@@ -12,13 +10,9 @@ class TestFileSystemExt2:
     def setup(self, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
-        provider.get_device = mock.Mock(
-            return_value='/dev/foo'
-        )
+        provider.get_device = mock.Mock(return_value='/dev/foo')
         self.ext2 = FileSystemExt2(provider, 'root_dir')
-        self.ext2.setup_mountpoint = mock.Mock(
-            return_value='some-mount-point'
-        )
+        self.ext2.setup_mountpoint = mock.Mock(return_value='some-mount-point')
 
     @patch('os.path.exists')
     def setup_method(self, cls, mock_exists):
@@ -29,17 +23,20 @@ class TestFileSystemExt2:
         with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
             self.ext2.create_on_device('label', 100, uuid='uuid')
             call = mock_command.call_args_list[0]
-            assert mock_command.call_args_list[0] == \
-                call(['mkfs.ext2', '-L', 'label', '-U', 'uuid', '/dev/foo', '100'])
+            assert mock_command.call_args_list[0] == call(
+                ['mkfs.ext2', '-L', 'label', '-U', 'uuid', '/dev/foo', '100']
+            )
             mock_command.reset_mock()
             self.ext2.create_on_device('label', 100)
             assert mock_command.call_args_list[0] == call(
                 [
                     'mkfs.ext2',
-                    '-L', 'label',
-                    '-U', '2453562e-7073-2098-d091-fd7a04dc5434',
+                    '-L',
+                    'label',
+                    '-U',
+                    '2453562e-7073-2098-d091-fd7a04dc5434',
                     '/dev/foo',
-                    '100'
+                    '100',
                 ]
             )
 
@@ -48,5 +45,5 @@ class TestFileSystemExt2:
         self.ext2.set_uuid()
         assert mock_command.call_args_list == [
             call(['e2fsck', '-y', '-f', '/dev/foo'], raise_on_error=False),
-            call(['tune2fs', '-f', '-U', 'random', '/dev/foo'])
+            call(['tune2fs', '-f', '-U', 'random', '/dev/foo']),
         ]

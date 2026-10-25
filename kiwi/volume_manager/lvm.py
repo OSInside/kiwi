@@ -17,9 +17,7 @@
 #
 import os
 import logging
-from typing import (
-    Dict, List
-)
+from typing import Dict, List
 
 # project
 import kiwi.defaults as defaults
@@ -32,10 +30,7 @@ from kiwi.filesystem import FileSystem
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.path import Path
 
-from kiwi.exceptions import (
-    KiwiVolumeGroupConflict,
-    KiwiCommandError
-)
+from kiwi.exceptions import KiwiVolumeGroupConflict, KiwiCommandError
 
 log = logging.getLogger('kiwi')
 
@@ -44,6 +39,7 @@ class VolumeManagerLVM(VolumeManagerBase):
     """
     **Implements LVM volume management**
     """
+
     def post_init(self, custom_args):
         """
         Post initialization method
@@ -67,7 +63,8 @@ class VolumeManagerLVM(VolumeManagerBase):
             self.mount_options = 'defaults'
 
         self.lvm_tool_options = [
-            '--config', 'devices/external_device_info_source=none'
+            '--config',
+            'devices/external_device_info_source=none',
         ]
 
     def get_device(self):
@@ -112,21 +109,18 @@ class VolumeManagerLVM(VolumeManagerBase):
             raise KiwiVolumeGroupConflict(
                 f'Requested volume group {volume_group_name} is in use on this host'
             )
-        log.info(
-            'Creating volume group %s', volume_group_name
-        )
+        log.info('Creating volume group %s', volume_group_name)
         Command.run(
-            command=['vgremove'] + self.lvm_tool_options + [
-                '--force', volume_group_name
-            ], raise_on_error=False
+            command=['vgremove']
+            + self.lvm_tool_options
+            + ['--force', volume_group_name],
+            raise_on_error=False,
         )
+        Command.run(['pvcreate'] + self.lvm_tool_options + [self.device])
         Command.run(
-            ['pvcreate'] + self.lvm_tool_options + [self.device]
-        )
-        Command.run(
-            ['vgcreate'] + self.lvm_tool_options + [
-                volume_group_name, self.device
-            ]
+            ['vgcreate']
+            + self.lvm_tool_options
+            + [volume_group_name, self.device]
         )
         self.volume_group = volume_group_name
 
@@ -149,18 +143,10 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         :param list lvcreate_args: list of lvcreate arguments.
         """
-        log.debug(
-            '--> running "lvcreate -Zn %s"', " ".join(lvcreate_args)
-        )
-        Command.run(
-            ['lvcreate'] + lvm_tool_options + ['-Zn'] + lvcreate_args
-        )
-        log.debug(
-            '--> running "vgscan --mknodes" to create missing nodes'
-        )
-        Command.run(
-            ['vgscan'] + lvm_tool_options + ['--mknodes']
-        )
+        log.debug('--> running "lvcreate -Zn %s"', " ".join(lvcreate_args))
+        Command.run(['lvcreate'] + lvm_tool_options + ['-Zn'] + lvcreate_args)
+        log.debug('--> running "vgscan --mknodes" to create missing nodes')
+        Command.run(['vgscan'] + lvm_tool_options + ['--mknodes'])
 
     def create_volumes(self, filesystem_name):
         """
@@ -170,47 +156,49 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         :param str filesystem_name: volumes filesystem name
         """
-        log.info(
-            'Creating volumes(%s)', filesystem_name
-        )
+        log.info('Creating volumes(%s)', filesystem_name)
         self.filesystem_name = filesystem_name
         self.create_volume_paths_in_root_dir()
 
         canonical_volume_list = self.get_canonical_volume_list()
         for volume in canonical_volume_list.volumes:
             volume_mbsize = self.get_volume_mbsize(
-                volume, self.volumes, filesystem_name,
-                self.custom_args['resize_on_boot']
+                volume,
+                self.volumes,
+                filesystem_name,
+                self.custom_args['resize_on_boot'],
             )
-            log.info(
-                '--> volume %s with %s MB', volume.name, volume_mbsize
-            )
+            log.info('--> volume %s with %s MB', volume.name, volume_mbsize)
             self._create_volume_no_zero(
-                self.lvm_tool_options, [
-                    '-L', format(volume_mbsize), '-n',
-                    volume.name, self.volume_group
-                ]
+                self.lvm_tool_options,
+                [
+                    '-L',
+                    format(volume_mbsize),
+                    '-n',
+                    volume.name,
+                    self.volume_group,
+                ],
             )
-            self.apply_attributes_on_volume(
-                self.root_dir, volume
-            )
+            self.apply_attributes_on_volume(self.root_dir, volume)
             self._add_to_volume_map(volume.name)
             if volume.label != 'SWAP':
                 self._create_filesystem(
                     volume.name, volume.label, filesystem_name
                 )
-                self._add_to_mount_list(
-                    volume.name, volume.realpath
-                )
+                self._add_to_mount_list(volume.name, volume.realpath)
 
         if canonical_volume_list.full_size_volume:
             full_size_volume = canonical_volume_list.full_size_volume
             log.info('--> fullsize volume %s', full_size_volume.name)
             self._create_volume_no_zero(
-                self.lvm_tool_options, [
-                    '-l', '+100%FREE', '-n',
-                    full_size_volume.name, self.volume_group
-                ]
+                self.lvm_tool_options,
+                [
+                    '-l',
+                    '+100%FREE',
+                    '-n',
+                    full_size_volume.name,
+                    self.volume_group,
+                ],
             )
             self._add_to_volume_map(full_size_volume.name)
             self._create_filesystem(
@@ -262,11 +250,13 @@ class VolumeManagerLVM(VolumeManagerBase):
                     mount_path = os.sep + mount_path
                 fstab_entry = ' '.join(
                     [
-                        volume_mount.device, mount_path, filesystem_name,
+                        volume_mount.device,
+                        mount_path,
+                        filesystem_name,
                         self.mount_options,
                         '0 {fs_passno}'.format(
                             fs_passno='2' if fs_check else '0'
-                        )
+                        ),
                     ]
                 )
                 fstab_entries.append(fstab_entry)
@@ -290,7 +280,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             if mount_path:
                 volumes[mount_path] = {
                     'volume_options': self.mount_options,
-                    'volume_device': volume_mount.device
+                    'volume_device': volume_mount.device,
                 }
         return volumes
 
@@ -306,13 +296,11 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         mount_options = FileSystemBase.merge_install_mount_options(
             FileSystem.sparse_install_mount_options(self.filesystem_name),
-            [self.mount_options]
+            [self.mount_options],
         )
         for volume_mount in self.mount_list:
             Path.create(volume_mount.mountpoint)
-            volume_mount.mount(
-                options=mount_options
-            )
+            volume_mount.mount(options=mount_options)
 
     def umount_volumes(self):
         """
@@ -341,27 +329,22 @@ class VolumeManagerLVM(VolumeManagerBase):
             device_provider=MappedDevice(
                 device=device_node, device_provider=self.device_provider_root
             ),
-            custom_args=self.custom_filesystem_args
+            custom_args=self.custom_filesystem_args,
         ) as filesystem:
-            filesystem.create_on_device(
-                label=volume_label
-            )
+            filesystem.create_on_device(label=volume_label)
 
     def _add_to_mount_list(self, volume_name, realpath):
         device_node = self.volume_map[volume_name]
         if self._is_root_volume(volume_name):
             # root volume must be first in the list
             self.mount_list.insert(
-                0, MountManager(
-                    device=device_node,
-                    mountpoint=self.mountpoint
-                )
+                0, MountManager(device=device_node, mountpoint=self.mountpoint)
             )
         else:
             self.mount_list.append(
                 MountManager(
                     device=device_node,
-                    mountpoint=self.mountpoint + '/' + realpath
+                    mountpoint=self.mountpoint + '/' + realpath,
                 )
             )
 
@@ -378,8 +361,10 @@ class VolumeManagerLVM(VolumeManagerBase):
     def _volume_group_in_use_on_host_system(self, volume_group_name):
         vgs_call = Command.run(
             [
-                'vgs', '--noheadings',
-                '--select', 'vg_name={0}'.format(volume_group_name)
+                'vgs',
+                '--noheadings',
+                '--select',
+                'vg_name={0}'.format(volume_group_name),
             ]
         )
         if vgs_call.output:
@@ -406,9 +391,9 @@ class VolumeManagerLVM(VolumeManagerBase):
             try:
                 self.umount_volumes()
                 Command.run(
-                    ['vgchange'] + self.lvm_tool_options + [
-                        '-an', self.volume_group
-                    ]
+                    ['vgchange']
+                    + self.lvm_tool_options
+                    + ['-an', self.volume_group]
                 )
             except KiwiCommandError as issue:
                 log.error(

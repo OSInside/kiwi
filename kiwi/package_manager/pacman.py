@@ -17,9 +17,7 @@
 #
 import re
 import logging
-from typing import (
-    List, Dict, Optional
-)
+from typing import List, Dict, Optional
 
 # project
 from kiwi.command import CommandCallT
@@ -42,6 +40,7 @@ class PackageManagerPacman(PackageManagerBase):
         pacman command environment from repository
         runtime configuration
     """
+
     def post_init(self, custom_args: Optional[List[str]] = None) -> None:
         """
         Post initialization method
@@ -73,10 +72,12 @@ class PackageManagerPacman(PackageManagerBase):
         with package requests and a warning message is shown.
         :param str name: pacman group name
         """
-        log.warning((
-            'Pacman treats collection installations as regular packages.'
-            'It is preferred to list them as regular packages'
-        ))
+        log.warning(
+            (
+                'Pacman treats collection installations as regular packages.'
+                'It is preferred to list them as regular packages'
+            )
+        )
         self.package_requests.append(name)
 
     def request_product(self, name: str) -> None:
@@ -122,22 +123,24 @@ class PackageManagerPacman(PackageManagerBase):
         :rtype: namedtuple
         """
         Command.run(
-            ['pacman'] + self.pacman_args + [
-                '--root', self.root_dir, '-Sy'
-            ], self.command_env
+            ['pacman'] + self.pacman_args + ['--root', self.root_dir, '-Sy'],
+            self.command_env,
         )
-        pacman_command = [
-            'pacman'
-        ] + self.pacman_args + [
-            '--root', self.root_dir
-        ] + self.custom_args + [
-            '-S', '--needed',
-            '--overwrite', '{}/var/run'.format(self.root_dir)
-        ] + self.package_requests
+        pacman_command = (
+            ['pacman']
+            + self.pacman_args
+            + ['--root', self.root_dir]
+            + self.custom_args
+            + [
+                '-S',
+                '--needed',
+                '--overwrite',
+                '{}/var/run'.format(self.root_dir),
+            ]
+            + self.package_requests
+        )
         self.cleanup_requests()
-        return Command.call(
-            pacman_command, self.command_env
-        )
+        return Command.call(pacman_command, self.command_env)
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -148,15 +151,15 @@ class PackageManagerPacman(PackageManagerBase):
         :rtype: namedtuple
         """
         chroot_pacman_args = Path.move_to_root(self.root_dir, self.pacman_args)
-        pacman_command = [
-            'chroot', self.root_dir, 'pacman'
-        ] + chroot_pacman_args + self.custom_args + [
-            '-S', '--needed'
-        ] + self.package_requests
-        self.cleanup_requests()
-        return Command.call(
-            pacman_command, self.command_env
+        pacman_command = (
+            ['chroot', self.root_dir, 'pacman']
+            + chroot_pacman_args
+            + self.custom_args
+            + ['-S', '--needed']
+            + self.package_requests
         )
+        self.cleanup_requests()
+        return Command.call(pacman_command, self.command_env)
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
@@ -187,12 +190,12 @@ class PackageManagerPacman(PackageManagerBase):
         self.cleanup_requests()
         chroot_pacman_args = Path.move_to_root(self.root_dir, self.pacman_args)
         return Command.call(
-            [
-                'chroot', self.root_dir, 'pacman'
-            ] + chroot_pacman_args + self.custom_args + [
-                '-Rdd' if force else '-Rs'
-            ] + delete_items,
-            self.command_env
+            ['chroot', self.root_dir, 'pacman']
+            + chroot_pacman_args
+            + self.custom_args
+            + ['-Rdd' if force else '-Rs']
+            + delete_items,
+            self.command_env,
         )
 
     def update(self) -> CommandCallT:
@@ -205,12 +208,11 @@ class PackageManagerPacman(PackageManagerBase):
         """
         chroot_pacman_args = Path.move_to_root(self.root_dir, self.pacman_args)
         return Command.call(
-            [
-                'chroot', self.root_dir, 'pacman'
-            ] + chroot_pacman_args + self.custom_args + [
-                '-Su'
-            ],
-            self.command_env
+            ['chroot', self.root_dir, 'pacman']
+            + chroot_pacman_args
+            + self.custom_args
+            + ['-Su'],
+            self.command_env,
         )
 
     def process_only_required(self) -> None:
@@ -250,7 +252,7 @@ class PackageManagerPacman(PackageManagerBase):
         return bool(
             re.match(
                 '.* installing {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -270,6 +272,6 @@ class PackageManagerPacman(PackageManagerBase):
         return bool(
             re.match(
                 '.* removing {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )

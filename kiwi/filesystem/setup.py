@@ -36,6 +36,7 @@ class FileSystemSetup:
     :param object xml_state: Instance of XMLState
     :param string root_dir: root directory path
     """
+
     def __init__(self, xml_state: XMLState, root_dir: str):
         self.configured_size = xml_state.get_build_type_size(
             include_unpartitioned=True
@@ -66,34 +67,29 @@ class FileSystemSetup:
         """
         fstype = self.requested_filesystem if not filesystem else filesystem
         root_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
-        filesystem_mbytes = self.size.customize(
-            root_dir_mbytes, fstype
-        )
+        filesystem_mbytes = self.size.customize(root_dir_mbytes, fstype)
 
         if not self.configured_size:
-            log.info(
-                'Using calculated size: %d MB',
-                filesystem_mbytes
-            )
+            log.info('Using calculated size: %d MB', filesystem_mbytes)
             return filesystem_mbytes
         elif self.configured_size.additive:
-            result_filesystem_mbytes = \
+            result_filesystem_mbytes = (
                 self.configured_size.mbytes + filesystem_mbytes
+            )
             log.info(
                 'Using configured size: %d MB + %d MB calculated = %d MB',
                 self.configured_size.mbytes,
                 filesystem_mbytes,
-                result_filesystem_mbytes
+                result_filesystem_mbytes,
             )
             return result_filesystem_mbytes
         else:
             log.info(
-                'Using configured size: %d MB',
-                self.configured_size.mbytes
+                'Using configured size: %d MB', self.configured_size.mbytes
             )
             if self.configured_size.mbytes < filesystem_mbytes:
                 log.warning(
                     '--> Configured size smaller than calculated size: %d MB',
-                    filesystem_mbytes
+                    filesystem_mbytes,
                 )
             return self.configured_size.mbytes

@@ -1,11 +1,7 @@
 import sys
 import logging
-from unittest.mock import (
-    patch, call, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, Mock
+from pytest import raises, fixture
 
 from ..test_helper import argv_kiwi_tests
 
@@ -14,7 +10,7 @@ from kiwi.system.root_bind import RootBind
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
     KiwiMountSharedDirectoryError,
-    KiwiSetupIntermediateConfigError
+    KiwiSetupIntermediateConfigError,
 )
 
 
@@ -34,7 +30,7 @@ class TestRootBind:
             '/dev',
             '/var/run/dbus',
             '/sys',
-            '/sys/fs/cgroup'
+            '/sys/fs/cgroup',
         ]
 
         # stub config files and bind locations
@@ -67,9 +63,7 @@ class TestRootBind:
         self, mock_exists, mock_cleanup, mock_mount
     ):
         mock_exists.return_value = True
-        mock_mount.side_effect = KiwiMountKernelFileSystemsError(
-            'mount-error'
-        )
+        mock_mount.side_effect = KiwiMountKernelFileSystemsError('mount-error')
         with raises(KiwiMountKernelFileSystemsError):
             self.bind_root.mount_kernel_file_systems()
         mock_cleanup.assert_called_once_with()
@@ -80,9 +74,7 @@ class TestRootBind:
     def test_shared_directory_raises_error(
         self, mock_cleanup, mock_path, mock_mount
     ):
-        mock_mount.side_effect = KiwiMountSharedDirectoryError(
-            'mount-error'
-        )
+        mock_mount.side_effect = KiwiMountSharedDirectoryError('mount-error')
         with raises(KiwiMountSharedDirectoryError):
             self.bind_root.mount_shared_directory()
         mock_cleanup.assert_called_once_with()
@@ -110,11 +102,9 @@ class TestRootBind:
         assert self.bind_root.mount_kernel_file_systems() is None
         assert mock_mount.call_args_list == [
             call(device='root-dir', mountpoint='root-dir'),
-            call(device='/proc', mountpoint='root-dir/proc')
+            call(device='/proc', mountpoint='root-dir/proc'),
         ]
-        assert shared_mount.bind_mount.call_args_list == [
-            call(), call()
-        ]
+        assert shared_mount.bind_mount.call_args_list == [call(), call()]
 
     @patch('kiwi.system.root_bind.MountManager')
     def test_umount_kernel_file_systems(self, mock_mount):
@@ -141,7 +131,7 @@ class TestRootBind:
         assert self.bind_root.mount_shared_directory() is None
         mock_path.call_args_list = [
             call('root-dir/var/cache/kiwi'),
-            call('/var/cache/kiwi')
+            call('/var/cache/kiwi'),
         ]
         mock_mount.assert_called_once_with(
             device='/var/cache/kiwi', mountpoint='root-dir/var/cache/kiwi'
@@ -165,12 +155,16 @@ class TestRootBind:
             )
 
         assert mock_command.call_args_list == [
-            call([
-                'cp', '/etc/sysconfig/proxy', 'root-dir/etc/sysconfig/proxy.kiwi'
-            ]),
-            call([
-                'ln', '-s', '-f', 'proxy.kiwi', 'root-dir/etc/sysconfig/proxy'
-            ])
+            call(
+                [
+                    'cp',
+                    '/etc/sysconfig/proxy',
+                    'root-dir/etc/sysconfig/proxy.kiwi',
+                ]
+            ),
+            call(
+                ['ln', '-s', '-f', 'proxy.kiwi', 'root-dir/etc/sysconfig/proxy']
+            ),
         ]
         self.shasum.digest.assert_called_once_with()
 
@@ -180,12 +174,15 @@ class TestRootBind:
         self.bind_root.config_files = []
         self.bind_root.cleanup_files = []
         with patch('builtins.open', create=True) as m_open:
-            assert self.bind_root.add_intermediate_config(
-                '/etc/sysconfig/proxy', 'PROXY_ENABLED="yes"'
-            ) is None
+            assert (
+                self.bind_root.add_intermediate_config(
+                    '/etc/sysconfig/proxy', 'PROXY_ENABLED="yes"'
+                )
+                is None
+            )
             assert m_open.call_args_list == [
                 call('root-dir/etc/sysconfig/proxy.kiwi', 'w'),
-                call('root-dir/etc/sysconfig/proxy.sha', 'w')
+                call('root-dir/etc/sysconfig/proxy.sha', 'w'),
             ]
             m_open.return_value.__enter__.return_value.write.assert_any_call(
                 'PROXY_ENABLED="yes"'
@@ -217,9 +214,15 @@ class TestRootBind:
     @patch('os.path.exists')
     @patch('shutil.move')
     def test_cleanup(
-        self, mock_move, mock_exists, mock_islink,
-        mock_remove_hierarchy, mock_command, mock_is_mounted,
-        mock_Checksum, mock_dedent
+        self,
+        mock_move,
+        mock_exists,
+        mock_islink,
+        mock_remove_hierarchy,
+        mock_command,
+        mock_is_mounted,
+        mock_Checksum,
+        mock_dedent,
     ):
         checksum = Mock()
         checksum.matches.return_value = False
@@ -244,19 +247,21 @@ class TestRootBind:
                     [
                         'cp',
                         'root-dir/usr/share/fillup-templates/sysconfig.proxy',
-                        'root-dir/etc/sysconfig/proxy'
+                        'root-dir/etc/sysconfig/proxy',
                     ]
                 ),
                 call(
                     [
-                        'rm', '-f', 'root-dir/etc/sysconfig/proxy.kiwi',
-                        'root-dir/etc/sysconfig/proxy.sha'
+                        'rm',
+                        '-f',
+                        'root-dir/etc/sysconfig/proxy.kiwi',
+                        'root-dir/etc/sysconfig/proxy.sha',
                     ]
-                )
+                ),
             ]
             mock_move.assert_called_once_with(
                 'root-dir/etc/sysconfig/proxy.rpmnew',
-                'root-dir/etc/sysconfig/proxy'
+                'root-dir/etc/sysconfig/proxy',
             )
 
     @patch('os.path.islink')
@@ -264,8 +269,7 @@ class TestRootBind:
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')
     @patch('kiwi.system.root_bind.Checksum')
     def test_cleanup_continue_on_error(
-        self, mock_Checksum, mock_remove_hierarchy,
-        mock_command, mock_islink
+        self, mock_Checksum, mock_remove_hierarchy, mock_command, mock_islink
     ):
         mock_islink.return_value = True
         mock_remove_hierarchy.side_effect = Exception('rm')
@@ -273,12 +277,16 @@ class TestRootBind:
         self.mount_manager.umount_lazy.side_effect = Exception
         with self._caplog.at_level(logging.WARNING):
             self.bind_root.cleanup()
-            assert 'Image root directory root-dir not cleanly umounted:' in \
-                self._caplog.text
+            assert (
+                'Image root directory root-dir not cleanly umounted:'
+                in self._caplog.text
+            )
             assert 'Failed to remove directory hierarchy '
             'root-dir/mountpoint: rm' in self._caplog.text
-            assert 'Failed to cleanup intermediate config files' in \
-                self._caplog.text
+            assert (
+                'Failed to cleanup intermediate config files'
+                in self._caplog.text
+            )
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.root_bind.Path.remove_hierarchy')

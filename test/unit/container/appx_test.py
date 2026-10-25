@@ -1,8 +1,6 @@
 import io
 from pytest import raises
-from unittest.mock import (
-    patch, Mock, MagicMock, call
-)
+from unittest.mock import patch, Mock, MagicMock, call
 
 from kiwi.container.appx import ContainerImageAppx
 from kiwi.exceptions import KiwiContainerSetupError
@@ -14,9 +12,7 @@ class TestContainerImageAppx:
     def setup(self, mock_os_path_exists, mock_RuntimeConfig):
         mock_os_path_exists.return_value = True
         self.appx = ContainerImageAppx(
-            'root_dir', {
-                'metadata_path': 'meta/data'
-            }
+            'root_dir', {'metadata_path': 'meta/data'}
         )
 
     @patch('kiwi.container.appx.RuntimeConfig')
@@ -33,28 +29,32 @@ class TestContainerImageAppx:
         mock_os_path_exists.return_value = False
         with raises(KiwiContainerSetupError):
             ContainerImageAppx(
-                'root_dir', custom_args={
-                    'metadata_path': 'meta/data'
-                }
+                'root_dir', custom_args={'metadata_path': 'meta/data'}
             )
 
     @patch('kiwi.container.appx.ArchiveTar')
     @patch('kiwi.container.appx.Compress')
     @patch('kiwi.container.appx.Defaults.get_exclude_list_for_root_data_sync')
-    @patch('kiwi.container.appx.Defaults.get_exclude_list_from_custom_exclude_files')
+    @patch(
+        'kiwi.container.appx.Defaults.get_exclude_list_from_custom_exclude_files'
+    )
     @patch('kiwi.container.appx.Temporary.new_file')
     @patch('kiwi.container.appx.Command.run')
     @patch('os.walk')
     def test_create(
-        self, mock_os_walk, mock_Command_run, mock_Temporary_new_file,
+        self,
+        mock_os_walk,
+        mock_Command_run,
+        mock_Temporary_new_file,
         mock_get_exclude_list_from_custom_exclude_files,
         mock_get_exclude_list_for_root_data_sync,
-        mock_Compress, mock_ArchiveTar
+        mock_Compress,
+        mock_ArchiveTar,
     ):
         mock_os_walk.return_value = [
             ('source', ['bar', 'baz'], []),
             ('source/bar', [], []),
-            ('source/baz', [], ['baz_file'])
+            ('source/baz', [], ['baz_file']),
         ]
         tempfile = Mock()
         tempfile.name = 'tempfile'
@@ -69,18 +69,17 @@ class TestContainerImageAppx:
             self.appx.create('target_dir/image.appx', '', False, True)
             assert file_handle.write.call_args_list == [
                 call('[Files]\n'),
-                call('"source/baz/baz_file" "../../source/baz/baz_file"\n')
+                call('"source/baz/baz_file" "../../source/baz/baz_file"\n'),
             ]
         mock_ArchiveTar.assert_called_once_with('meta/data/install.tar')
         archive.create.assert_called_once_with(
             'root_dir',
-            exclude=mock_get_exclude_list_for_root_data_sync.
-            return_value + mock_get_exclude_list_from_custom_exclude_files.
-            return_value
+            exclude=mock_get_exclude_list_for_root_data_sync.return_value
+            + mock_get_exclude_list_from_custom_exclude_files.return_value,
         )
         assert mock_Compress.call_args_list == [
             call(archive.create.return_value),
-            call('target_dir/image.appx')
+            call('target_dir/image.appx'),
         ]
         compress.gzip.assert_called_once_with()
         mock_Command_run.assert_called_once_with(

@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, call
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call
+from pytest import raises, fixture
 
 from kiwi.defaults import Defaults
 from kiwi.iso_tools.xorriso import IsoToolsXorrIso
@@ -48,7 +44,7 @@ class TestIsoToolsXorrIso:
                     'preparer': 'preparer',
                     'volume_id': 'vol_id',
                     'efi_mode': 'uefi',
-                    'legacy_bios_mode': True
+                    'legacy_bios_mode': True,
                 }
             )
             assert 'No hybrid MBR file found' in self._caplog.text
@@ -64,17 +60,24 @@ class TestIsoToolsXorrIso:
                 'preparer': 'preparer',
                 'volume_id': 'vol_id',
                 'efi_mode': 'ofw',
-                'legacy_bios_mode': False
+                'legacy_bios_mode': False,
             }
         )
         assert self.iso_tool.iso_parameters == [
-            '-application_id', 'app_id',
-            '-publisher', 'org',
-            '-preparer_id', 'preparer',
-            '-volid', 'vol_id',
-            '-joliet', 'on',
-            '-padding', '0',
-            '-compliance', 'untranslated_names'
+            '-application_id',
+            'app_id',
+            '-publisher',
+            'org',
+            '-preparer_id',
+            'preparer',
+            '-volid',
+            'vol_id',
+            '-joliet',
+            'on',
+            '-padding',
+            '0',
+            '-compliance',
+            'untranslated_names',
         ]
 
     @patch('os.path.exists')
@@ -87,31 +90,56 @@ class TestIsoToolsXorrIso:
                 'preparer': 'preparer',
                 'volume_id': 'vol_id',
                 'efi_mode': 'uefi',
-                'legacy_bios_mode': True
+                'legacy_bios_mode': True,
             }
         )
         assert self.iso_tool.iso_parameters == [
-            '-application_id', 'app_id',
-            '-publisher', 'org',
-            '-preparer_id', 'preparer',
-            '-volid', 'vol_id',
-            '-joliet', 'on',
-            '-padding', '0',
-            '-compliance', 'no_emul_toc'
+            '-application_id',
+            'app_id',
+            '-publisher',
+            'org',
+            '-preparer_id',
+            'preparer',
+            '-volid',
+            'vol_id',
+            '-joliet',
+            'on',
+            '-padding',
+            '0',
+            '-compliance',
+            'no_emul_toc',
         ]
         assert self.iso_tool.iso_loaders == [
-            '-boot_image', 'grub',
+            '-boot_image',
+            'grub',
             'bin_path=boot/x86_64/loader/eltorito.img',
-            '-boot_image', 'grub',
+            '-boot_image',
+            'grub',
             'grub2_mbr=source-dir/boot/x86_64/loader/boot_hybrid.img',
-            '-boot_image', 'grub', 'grub2_boot_info=on',
-            '-boot_image', 'any', 'partition_offset=16',
-            '-boot_image', 'any', 'cat_path=boot/x86_64/boot.catalog',
-            '-boot_image', 'any', 'cat_hidden=on',
-            '-boot_image', 'any', 'boot_info_table=on',
-            '-boot_image', 'any', 'platform_id=0x00',
-            '-boot_image', 'any', 'emul_type=no_emulation',
-            '-boot_image', 'any', 'load_size=2048'
+            '-boot_image',
+            'grub',
+            'grub2_boot_info=on',
+            '-boot_image',
+            'any',
+            'partition_offset=16',
+            '-boot_image',
+            'any',
+            'cat_path=boot/x86_64/boot.catalog',
+            '-boot_image',
+            'any',
+            'cat_hidden=on',
+            '-boot_image',
+            'any',
+            'boot_info_table=on',
+            '-boot_image',
+            'any',
+            'platform_id=0x00',
+            '-boot_image',
+            'any',
+            'emul_type=no_emulation',
+            '-boot_image',
+            'any',
+            'load_size=2048',
         ]
 
     @patch('os.path.exists')
@@ -127,43 +155,71 @@ class TestIsoToolsXorrIso:
                 'preparer': 'preparer',
                 'volume_id': 'vol_id',
                 'efi_mode': 'uefi',
-                'legacy_bios_mode': True
+                'legacy_bios_mode': True,
             }
         )
         assert self.iso_tool.iso_parameters == [
-            '-application_id', 'some_other_app_id',
-            '-publisher', 'org',
-            '-preparer_id', 'preparer',
-            '-volid', 'vol_id',
-            '-joliet', 'on',
-            '-padding', '0',
-            '-compliance', 'no_emul_toc'
+            '-application_id',
+            'some_other_app_id',
+            '-publisher',
+            'org',
+            '-preparer_id',
+            'preparer',
+            '-volid',
+            'vol_id',
+            '-joliet',
+            'on',
+            '-padding',
+            '0',
+            '-compliance',
+            'no_emul_toc',
         ]
 
     def test_add_efi_loader_parameters(self):
         self.iso_tool.add_efi_loader_parameters('target_dir/efi-loader')
         assert self.iso_tool.iso_loaders == [
-            '-append_partition', '2', '0xef', 'target_dir/efi-loader',
-            '-boot_image', 'any', 'next',
-            '-boot_image', 'any',
+            '-append_partition',
+            '2',
+            '0xef',
+            'target_dir/efi-loader',
+            '-boot_image',
+            'any',
+            'next',
+            '-boot_image',
+            'any',
             'efi_path=--interval:appended_partition_2:all::',
-            '-boot_image', 'any', 'platform_id=0xef',
-            '-boot_image', 'any', 'emul_type=no_emulation'
+            '-boot_image',
+            'any',
+            'platform_id=0xef',
+            '-boot_image',
+            'any',
+            'emul_type=no_emulation',
         ]
 
     def test_add_efi_loader_parameters_gpt(self):
         self.iso_tool.add_efi_loader_parameters(
-            'target_dir/efi-loader',
-            {'efi_partition_table': 'gpt'}
+            'target_dir/efi-loader', {'efi_partition_table': 'gpt'}
         )
         assert self.iso_tool.iso_loaders == [
-            '-boot_image', 'any', 'appended_part_as=gpt',
-            '-append_partition', '2', '0xef', 'target_dir/efi-loader',
-            '-boot_image', 'any', 'next',
-            '-boot_image', 'any',
+            '-boot_image',
+            'any',
+            'appended_part_as=gpt',
+            '-append_partition',
+            '2',
+            '0xef',
+            'target_dir/efi-loader',
+            '-boot_image',
+            'any',
+            'next',
+            '-boot_image',
+            'any',
             'efi_path=--interval:appended_partition_2:all::',
-            '-boot_image', 'any', 'platform_id=0xef',
-            '-boot_image', 'any', 'emul_type=no_emulation'
+            '-boot_image',
+            'any',
+            'platform_id=0xef',
+            '-boot_image',
+            'any',
+            'emul_type=no_emulation',
         ]
 
     def test_add_efi_loader_parameters_gpt_hybrid(self):
@@ -172,18 +228,32 @@ class TestIsoToolsXorrIso:
             {
                 'efi_partition_table': 'gpt',
                 'legacy_bios_mode': True,
-                'gpt_hybrid_mbr': True
-            }
+                'gpt_hybrid_mbr': True,
+            },
         )
         assert self.iso_tool.iso_loaders == [
-            '-boot_image', 'any', 'appended_part_as=gpt',
-            '-boot_image', 'any', 'mbr_force_bootable=on',
-            '-append_partition', '2', '0xef', 'target_dir/efi-loader',
-            '-boot_image', 'any', 'next',
-            '-boot_image', 'any',
+            '-boot_image',
+            'any',
+            'appended_part_as=gpt',
+            '-boot_image',
+            'any',
+            'mbr_force_bootable=on',
+            '-append_partition',
+            '2',
+            '0xef',
+            'target_dir/efi-loader',
+            '-boot_image',
+            'any',
+            'next',
+            '-boot_image',
+            'any',
             'efi_path=--interval:appended_partition_2:all::',
-            '-boot_image', 'any', 'platform_id=0xef',
-            '-boot_image', 'any', 'emul_type=no_emulation'
+            '-boot_image',
+            'any',
+            'platform_id=0xef',
+            '-boot_image',
+            'any',
+            'emul_type=no_emulation',
         ]
 
     @patch('kiwi.iso_tools.xorriso.Command.run')
@@ -197,18 +267,32 @@ class TestIsoToolsXorrIso:
             call(
                 [
                     '/usr/bin/xorriso',
-                    '-outdev', 'myiso',
-                    '-map', 'source-dir', '/',
-                    '-chmod', '0755', '/', '--',
-                    '--', '-find', 'hide_me', '-exec', 'hide', 'on'
+                    '-outdev',
+                    'myiso',
+                    '-map',
+                    'source-dir',
+                    '/',
+                    '-chmod',
+                    '0755',
+                    '/',
+                    '--',
+                    '--',
+                    '-find',
+                    'hide_me',
+                    '-exec',
+                    'hide',
+                    'on',
                 ]
             ),
             call(
                 [
-                    '/usr/bin/xorriso', '-indev', 'myiso',
-                    '-report_system_area', 'plain'
+                    '/usr/bin/xorriso',
+                    '-indev',
+                    'myiso',
+                    '-report_system_area',
+                    'plain',
                 ]
-            )
+            ),
         ]
 
     def test_has_iso_hybrid_capability(self):

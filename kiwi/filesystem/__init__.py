@@ -16,13 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import (
-    Dict, List
-)
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from typing import Dict, List
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
@@ -38,7 +33,7 @@ filesystem_class_map = {
     'fat32': 'Fat32',
     'squashfs': 'SquashFs',
     'swap': 'Swap',
-    'erofs': 'EroFs'
+    'erofs': 'EroFs',
 }
 
 
@@ -51,14 +46,17 @@ class FileSystem(metaclass=ABCMeta):
     :param string root_dir: root directory path name
     :param dict custom_args: dict of custom filesystem arguments
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        name: str, device_provider: DeviceProvider,
-        root_dir: str=None, custom_args: Dict=None  # noqa: E252
+        name: str,
+        device_provider: DeviceProvider,
+        root_dir: str = None,
+        custom_args: Dict = None,  # noqa: E252
     ):
         try:
             filesystem = importlib.import_module(
@@ -66,9 +64,7 @@ class FileSystem(metaclass=ABCMeta):
             )
             return filesystem.__dict__[
                 'FileSystem{0}'.format(filesystem_class_map[name])
-            ](
-                device_provider, root_dir, custom_args
-            )
+            ](device_provider, root_dir, custom_args)
         except Exception as issue:
             raise KiwiFileSystemSetupError(
                 'Support for {0} filesystem not implemented: {1}'.format(

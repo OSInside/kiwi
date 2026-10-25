@@ -1,12 +1,8 @@
 import logging
-from unittest.mock import (
-    patch, call
-)
+from unittest.mock import patch, call
 import sys
 from unittest.mock import MagicMock
-from pytest import (
-    fixture, raises
-)
+from pytest import fixture, raises
 
 from .test_helper import argv_kiwi_tests
 
@@ -54,8 +50,9 @@ class TestDefaults:
         )
 
     def test_get_preparer(self):
-        assert Defaults.get_preparer() == \
-            'KIWI - https://github.com/OSInside/kiwi'
+        assert (
+            Defaults.get_preparer() == 'KIWI - https://github.com/OSInside/kiwi'
+        )
 
     def test_get_publisher(self):
         assert Defaults.get_publisher() == 'SUSE LINUX GmbH'
@@ -66,21 +63,27 @@ class TestDefaults:
     @patch('kiwi.defaults.Path.which')
     def test_get_grub_boot_directory_name(self, mock_which):
         mock_which.return_value = 'grub2-install-was-found'
-        assert Defaults.get_grub_boot_directory_name(
-            lookup_path='lookup_path'
-        ) == 'grub2'
+        assert (
+            Defaults.get_grub_boot_directory_name(lookup_path='lookup_path')
+            == 'grub2'
+        )
         mock_which.return_value = None
-        assert Defaults.get_grub_boot_directory_name(
-            lookup_path='lookup_path'
-        ) == 'grub'
+        assert (
+            Defaults.get_grub_boot_directory_name(lookup_path='lookup_path')
+            == 'grub'
+        )
 
     def test_get_live_dracut_modules_from_flag(self):
-        assert Defaults.get_live_dracut_modules_from_flag('foo') == \
-            ['kiwi-live']
-        assert Defaults.get_live_dracut_modules_from_flag('overlay') == \
-            ['kiwi-live']
-        assert Defaults.get_live_dracut_modules_from_flag('dmsquash') == \
-            ['dmsquash-live', 'livenet']
+        assert Defaults.get_live_dracut_modules_from_flag('foo') == [
+            'kiwi-live'
+        ]
+        assert Defaults.get_live_dracut_modules_from_flag('overlay') == [
+            'kiwi-live'
+        ]
+        assert Defaults.get_live_dracut_modules_from_flag('dmsquash') == [
+            'dmsquash-live',
+            'livenet',
+        ]
 
     def test_get_iso_boot_path(self):
         Defaults.set_platform_name('i686')
@@ -91,15 +94,17 @@ class TestDefaults:
     @patch('kiwi.defaults.glob.iglob')
     def test_get_unsigned_grub_loader(self, mock_glob):
         mock_glob.return_value = ['/usr/share/grub2/x86_64-efi/grub.efi']
-        assert mock_glob.return_value[0] in \
-            Defaults.get_unsigned_grub_loader('root')[0].filename
+        assert (
+            mock_glob.return_value[0]
+            in Defaults.get_unsigned_grub_loader('root')[0].filename
+        )
         assert mock_glob.call_args_list == [
             call('root/usr/share/grub*/x86_64-efi/grub.efi'),
             call('root/usr/lib/grub*/x86_64-efi/grub.efi'),
             call('root/boot/efi/EFI/*/grubx64.efi'),
             call('root/boot/efi/EFI/*/grubia32.efi'),
             call('root/boot/efi/EFI/*/grubaa64.efi'),
-            call('root/boot/efi/EFI/*/grubriscv64.efi')
+            call('root/boot/efi/EFI/*/grubriscv64.efi'),
         ]
         mock_glob.reset_mock()
         mock_glob.return_value = []
@@ -112,8 +117,10 @@ class TestDefaults:
     @patch('os.path.exists')
     def test_get_vendor_grubenv(self, mock_path_exists):
         mock_path_exists.return_value = True
-        assert Defaults.get_vendor_grubenv('boot/efi') == \
-            'boot/efi/EFI/fedora/grubenv'
+        assert (
+            Defaults.get_vendor_grubenv('boot/efi')
+            == 'boot/efi/EFI/fedora/grubenv'
+        )
 
     def test_parse_exclude_file_is_valid(self):
         assert Defaults._parse_exclude_file(
@@ -121,16 +128,19 @@ class TestDefaults:
         ) == [
             'usr/bin/qemu-binfmt',
             'usr/bin/qemu-x86_64-binfmt',
-            'usr/bin/qemu-x86_64'
+            'usr/bin/qemu-x86_64',
         ]
 
     @patch('yaml.safe_load')
     def test_parse_exclude_file_is_invalid(self, mock_yaml_safe_load):
         mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
         with self._caplog.at_level(logging.WARNING):
-            assert Defaults._parse_exclude_file(
-                '../data/root-dir', 'exclude_files.yaml'
-            ) == []
+            assert (
+                Defaults._parse_exclude_file(
+                    '../data/root-dir', 'exclude_files.yaml'
+                )
+                == []
+            )
 
     def test_get_exclude_list_from_custom_exclude_files(self):
         assert Defaults.get_exclude_list_from_custom_exclude_files(
@@ -138,7 +148,7 @@ class TestDefaults:
         ) == [
             'usr/bin/qemu-binfmt',
             'usr/bin/qemu-x86_64-binfmt',
-            'usr/bin/qemu-x86_64'
+            'usr/bin/qemu-x86_64',
         ]
 
     @patch('yaml.safe_load')
@@ -147,17 +157,23 @@ class TestDefaults:
     ):
         mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
         with self._caplog.at_level(logging.WARNING):
-            assert Defaults.get_exclude_list_from_custom_exclude_files(
-                '../data/root-dir'
-            ) == []
+            assert (
+                Defaults.get_exclude_list_from_custom_exclude_files(
+                    '../data/root-dir'
+                )
+                == []
+            )
 
     def test_get_exclude_list_from_custom_exclude_files_for_efifatimage(self):
-        assert Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(
-            '../data/root-dir'
-        ) == [
-            'BOOT/fbia32.efi',
-            'BOOT/fbx64.efi',
-        ]
+        assert (
+            Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(
+                '../data/root-dir'
+            )
+            == [
+                'BOOT/fbia32.efi',
+                'BOOT/fbx64.efi',
+            ]
+        )
 
     @patch('yaml.safe_load')
     def test_get_exclude_list_from_custom_exclude_files_for_efifatimage_is_invalid(
@@ -165,20 +181,25 @@ class TestDefaults:
     ):
         mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
         with self._caplog.at_level(logging.WARNING):
-            assert Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(
-                '../data/root-dir'
-            ) == []
+            assert (
+                Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(
+                    '../data/root-dir'
+                )
+                == []
+            )
 
     def test_get_exclude_list_for_root_data_sync(self):
         assert Defaults.get_exclude_list_for_root_data_sync() == [
-            'image', '.kconfig',
-            'run/*', 'tmp/*',
-            '.buildenv', 'var/cache/kiwi'
+            'image',
+            '.kconfig',
+            'run/*',
+            'tmp/*',
+            '.buildenv',
+            'var/cache/kiwi',
         ]
-        assert Defaults.get_exclude_list_for_root_data_sync(no_tmpdirs=False) == [
-            'image', '.kconfig',
-            '.buildenv', 'var/cache/kiwi'
-        ]
+        assert Defaults.get_exclude_list_for_root_data_sync(
+            no_tmpdirs=False
+        ) == ['image', '.kconfig', '.buildenv', 'var/cache/kiwi']
 
     def test_get_sync_sparse(self):
         assert Defaults.get_sync_sparse() is False
@@ -211,7 +232,7 @@ class TestDefaults:
             grub_loader_type(
                 filename='root_path/boot/efi/EFI/BOOT/grubx64.efi',
                 binaryname='grubx64.efi',
-                targetname='bootx64.efi'
+                targetname='bootx64.efi',
             )
         ]
 
@@ -221,7 +242,7 @@ class TestDefaults:
                 filename='root_path'
                 '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
                 binaryname='grubx64.efi',
-                targetname='bootx64.efi'
+                targetname='bootx64.efi',
             )
         ]
 
@@ -249,10 +270,7 @@ class TestDefaults:
 
         def iglob_custom_binary_match(pattern):
             if '/usr/lib/shim/shim*.efi.signed.latest' in pattern:
-                return [
-                    'root_path'
-                    '/usr/lib/shim/shimx64.efi.signed.latest'
-                ]
+                return ['root_path' '/usr/lib/shim/shimx64.efi.signed.latest']
             else:
                 return []
 
@@ -261,18 +279,16 @@ class TestDefaults:
         mock_iglob.side_effect = iglob_simple_match
         assert Defaults.get_shim_loader('root_path') == [
             shim_loader_type(
-                filename='root_path'
-                '/usr/lib64/efi/shim.efi',
-                binaryname='bootx64.efi'
+                filename='root_path' '/usr/lib64/efi/shim.efi',
+                binaryname='bootx64.efi',
             )
         ]
 
         mock_iglob.side_effect = iglob_custom_binary_match
         assert Defaults.get_shim_loader('root_path') == [
             shim_loader_type(
-                filename='root_path'
-                '/usr/lib/shim/shimx64.efi.signed.latest',
-                binaryname='bootx64.efi'
+                filename='root_path' '/usr/lib/shim/shimx64.efi.signed.latest',
+                binaryname='bootx64.efi',
             )
         ]
 
@@ -281,8 +297,10 @@ class TestDefaults:
         mock_os_path_exists.return_value = False
         assert Defaults.get_snapper_config_template_file('root') == ''
         mock_os_path_exists.return_value = True
-        assert Defaults.get_snapper_config_template_file('root') == \
-            'root/etc/snapper/config-templates/default'
+        assert (
+            Defaults.get_snapper_config_template_file('root')
+            == 'root/etc/snapper/config-templates/default'
+        )
 
     def test_get_min_volume_mbytes(self):
         assert Defaults.get_min_volume_mbytes('btrfs') == 120
@@ -314,14 +332,16 @@ class TestDefaults:
 
         mock_glob_iglob.return_value = [
             'root_path/boot/efi/EFI/fedora/fonts',
-            'root_path/boot/efi/EFI/opensuse/fonts'
+            'root_path/boot/efi/EFI/opensuse/fonts',
         ]
-        assert Defaults.get_grub_efi_font_directory('root_path') == \
-            'root_path/boot/efi/EFI/fedora/fonts'
+        assert (
+            Defaults.get_grub_efi_font_directory('root_path')
+            == 'root_path/boot/efi/EFI/fedora/fonts'
+        )
 
     @patch('os.path.exists')
     def test_get_grub_path(self, mock_os_path_exists):
         mock_os_path_exists.return_value = False
-        assert Defaults.get_grub_path(
-            'root', 'some_file_to_search', False
-        ) == ''
+        assert (
+            Defaults.get_grub_path('root', 'some_file_to_search', False) == ''
+        )

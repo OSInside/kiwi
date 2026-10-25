@@ -28,6 +28,7 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
     """
     **zipl bootloader installation**
     """
+
     def post_init(self, custom_args: Dict):
         """
         zipl post initialization method

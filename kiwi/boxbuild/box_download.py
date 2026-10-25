@@ -31,20 +31,19 @@ from kiwi.path import Path
 from kiwi.boxbuild.box_config import BoxConfig
 from kiwi.boxbuild.defaults import BoxBuildDefaults
 
-from kiwi.exceptions import (
-    KiwiBoxChecksumError
-)
+from kiwi.exceptions import KiwiBoxChecksumError
 
 vm_setup_type = NamedTuple(
-    'vm_setup_type', [
+    'vm_setup_type',
+    [
         ('system', str),
         ('kernel', str),
         ('initrd', str),
         ('append', str),
         ('console', str),
         ('ram', str),
-        ('smp', str)
-    ]
+        ('smp', str),
+    ],
 )
 
 log = logging.getLogger('kiwi')
@@ -60,6 +59,7 @@ class BoxDownload:
     :param string boxname: name of the box from kiwi_boxed_plugin.yml
     :param string arch: arch name for box
     """
+
     def __init__(self, boxname: str, arch: str = '') -> None:
         self.arch = arch or platform.machine()
         self.box_config = BoxConfig(boxname, arch)
@@ -78,12 +78,8 @@ class BoxDownload:
         """
         container_source = self.box_config.get_box_container()
         if container_source:
-            container_pull = [
-                'sudo', 'podman', 'pull', container_source
-            ]
-            os.system(
-                ' '.join(container_pull)
-            )
+            container_pull = ['sudo', 'podman', 'pull', container_source]
+            os.system(' '.join(container_pull))
         return container_source
 
     def fetch(
@@ -99,16 +95,13 @@ class BoxDownload:
         download = update_check
         repo_source = self.box_config.get_box_source()
         if repo_source:
-            repo = SolverRepository.new(
-                Uri(repo_source, 'rpm-md')
-            )
+            repo = SolverRepository.new(Uri(repo_source, 'rpm-md'))
             packages_file = self.box_config.get_box_packages_file()
-            packages_shasum_file = \
+            packages_shasum_file = (
                 self.box_config.get_box_packages_shasum_file()
+            )
             if update_check and packages_file and packages_shasum_file:
-                local_packages_file = os.sep.join(
-                    [self.box_dir, packages_file]
-                )
+                local_packages_file = os.sep.join([self.box_dir, packages_file])
                 local_packages_shasum_file = os.sep.join(
                     [self.box_dir, packages_shasum_file]
                 )
@@ -137,15 +130,11 @@ class BoxDownload:
                     download = True
                 if download:
                     log.info('Downloading {0}'.format(box_file))
-                    local_box_file_tmp = self.box_stage.register(
-                        local_box_file
-                    )
+                    local_box_file_tmp = self.box_stage.register(local_box_file)
                     box_file_link = os.sep.join(
                         [repo._get_mime_typed_uri(), box_file]
                     )
-                    fetcher.wget(
-                        url=box_file_link, filename=local_box_file_tmp
-                    )
+                    fetcher.wget(url=box_file_link, filename=local_box_file_tmp)
 
             if download:
                 self.box_stage.commit()
@@ -153,8 +142,10 @@ class BoxDownload:
             for box_file in self.box_config.get_box_files():
                 local_box_file = os.sep.join([self.box_dir, box_file])
                 if box_file.endswith('.qcow2'):
-                    if update_check and snapshot and not self._checksum_ok(
-                        local_box_file
+                    if (
+                        update_check
+                        and snapshot
+                        and not self._checksum_ok(local_box_file)
                     ):
                         raise KiwiBoxChecksumError(
                             f'Checksum failed for {local_box_file}'
@@ -179,20 +170,18 @@ class BoxDownload:
             initrd=self.initrd,
             append='console={0} {1}'.format(
                 self.box_config.get_box_console(),
-                self.box_config.get_box_kernel_cmdline()
+                self.box_config.get_box_kernel_cmdline(),
             ),
             console=self.box_config.get_box_console(),
             ram=self.box_config.get_box_memory_mbytes(),
-            smp=self.box_config.get_box_processors()
+            smp=self.box_config.get_box_processors(),
         )
 
     def _checksum_ok(self, filename: str) -> bool:
         checksum = Checksum(filename)
         shasum = checksum.sha256()
         sumfile = f'{filename}.sha256'
-        log.info(
-            'Checksum test {0} -> {1}'.format(filename, sumfile)
-        )
+        log.info('Checksum test {0} -> {1}'.format(filename, sumfile))
         return checksum.matches(shasum, sumfile)
 
     def _create_packages_checksum(self, filename: str, shasum: str) -> None:
@@ -202,9 +191,15 @@ class BoxDownload:
     def _extract_kernel_from_tarball(self, tarfile: str) -> str:
         Command.run(
             [
-                'tar', '-C', self.box_dir,
-                '--transform', f's/.*/kernel.{self.arch}/',
-                '--wildcards', '-xf', tarfile, '*.kernel'
+                'tar',
+                '-C',
+                self.box_dir,
+                '--transform',
+                f's/.*/kernel.{self.arch}/',
+                '--wildcards',
+                '-xf',
+                tarfile,
+                '*.kernel',
             ]
         )
         return os.sep.join([self.box_dir, f'kernel.{self.arch}'])
@@ -212,9 +207,15 @@ class BoxDownload:
     def _extract_initrd_from_tarball(self, tarfile: str) -> str:
         Command.run(
             [
-                'tar', '-C', self.box_dir,
-                '--transform', f's/.*/initrd.{self.arch}/',
-                '--wildcards', '-xf', tarfile, '*.initrd'
+                'tar',
+                '-C',
+                self.box_dir,
+                '--transform',
+                f's/.*/initrd.{self.arch}/',
+                '--wildcards',
+                '-xf',
+                tarfile,
+                '*.initrd',
             ]
         )
         return os.sep.join([self.box_dir, f'initrd.{self.arch}'])

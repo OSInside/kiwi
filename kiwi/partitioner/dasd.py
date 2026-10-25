@@ -30,6 +30,7 @@ class PartitionerDasd(PartitionerBase):
     """
     **Implements DASD partition setup**
     """
+
     def post_init(self) -> None:
         """
         Post initialization method
@@ -43,12 +44,16 @@ class PartitionerDasd(PartitionerBase):
             't.lvm': '1',
             't.raid': '1',
             't.efi': None,
-            't.csm': None
+            't.csm': None,
         }
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = None,
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        mbsize: int,
+        type_name: str,
+        flags: List[str] = None,
+        partition_id: Optional[int] = None,
     ) -> None:
         """
         Create DASD partition
@@ -63,8 +68,7 @@ class PartitionerDasd(PartitionerBase):
         fdasd_input = Temporary().new_file()
         with open(fdasd_input.name, 'w') as partition:
             log.debug(
-                '%s: fdasd: n p cur_position +%sM w q',
-                name, format(mbsize)
+                '%s: fdasd: n p cur_position +%sM w q', name, format(mbsize)
             )
             if mbsize == 'all_free':
                 partition.write('n\np\n\n\nw\nq\n')
@@ -74,9 +78,7 @@ class PartitionerDasd(PartitionerBase):
             ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
         )
         try:
-            Command.run(
-                ['bash', '-c', bash_command]
-            )
+            Command.run(['bash', '-c', bash_command])
         except Exception:
             # unfortunately fdasd reports that it can't read in the partition
             # table which I consider a bug in fdasd. However the table was

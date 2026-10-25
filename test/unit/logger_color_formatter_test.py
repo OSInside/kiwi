@@ -13,10 +13,7 @@ class TestColorFormatter:
 
     @patch('logging.Formatter.format')
     def test_format(self, mock_format):
-        MyRecord = namedtuple(
-            'MyRecord',
-            'levelname'
-        )
+        MyRecord = namedtuple('MyRecord', 'levelname')
         record = MyRecord(levelname='INFO')
         mock_format.return_value = 'message'
         self.color_formatter.format(record)

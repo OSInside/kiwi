@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    List, Dict, no_type_check
-)
+from typing import List, Dict, no_type_check
 
 # project
 from kiwi.repository.base import RepositoryBase
@@ -28,6 +26,7 @@ class RepositoryDnf(RepositoryBase):
     """
     decommissioned
     """
+
     @decommissioned
     def post_init(self, custom_args: List = []) -> None:
         pass  # pragma: no cover
@@ -47,11 +46,20 @@ class RepositoryDnf(RepositoryBase):
 
     @decommissioned
     def add_repo(
-        self, name: str, uri: str, repo_type: str = 'rpm-md',
-        prio: int = None, dist: str = None, components: str = None,
-        user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str = 'rpm-md',
+        prio: int = None,
+        dist: str = None,
+        components: str = None,
+        user: str = None,
+        secret: str = None,
+        credentials_file: str = None,
+        repo_gpgcheck: bool = False,
+        pkg_gpgcheck: bool = False,
+        sourcetype: str = None,
+        customization_script: str = None,
     ) -> None:
         pass  # pragma: no cover
 

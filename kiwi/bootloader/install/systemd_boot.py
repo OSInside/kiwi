@@ -28,6 +28,7 @@ class BootLoaderInstallSystemdBoot(BootLoaderInstallBase):
     """
     **systemd-boot bootloader installation**
     """
+
     def post_init(self, custom_args: Dict):
         """
         systemd-boot post initialization method

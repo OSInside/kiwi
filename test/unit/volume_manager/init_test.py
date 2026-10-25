@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.volume_manager import VolumeManager
@@ -18,9 +16,7 @@ class TestVolumeManager:
         device_map = Mock()
         volumes = [Mock()]
         VolumeManager.new('lvm', device_map, 'root_dir', volumes)
-        mock_lvm.assert_called_once_with(
-            device_map, 'root_dir', volumes, None
-        )
+        mock_lvm.assert_called_once_with(device_map, 'root_dir', volumes, None)
 
     @patch('kiwi.volume_manager.btrfs.VolumeManagerBtrfs')
     def test_volume_manager_btrfs(self, mock_btrfs):

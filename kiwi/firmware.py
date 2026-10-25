@@ -20,9 +20,7 @@ import re
 # project
 from .defaults import Defaults
 
-from .exceptions import (
-    KiwiNotImplementedError
-)
+from .exceptions import KiwiNotImplementedError
 
 
 class FirmWare:
@@ -35,16 +33,19 @@ class FirmWare:
 
     * :param object xml_state: instance of :class:`XMLState`
     """
+
     def __init__(self, xml_state):
         self.arch = Defaults.get_platform_name()
-        self.zipl_target_type = \
-            xml_state.get_build_type_bootloader_targettype()
+        self.zipl_target_type = xml_state.get_build_type_bootloader_targettype()
         self.firmware = xml_state.build_type.get_firmware()
         self.efipart_mbytes = xml_state.build_type.get_efipartsize()
         self.efi_partition_table = xml_state.build_type.get_efiparttable()
         self.gpt_hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
-        self.efi_csm = True if xml_state.build_type.get_eficsm() is None \
+        self.efi_csm = (
+            True
+            if xml_state.build_type.get_eficsm() is None
             else xml_state.build_type.get_eficsm()
+        )
 
         if not self.firmware:
             self.firmware = Defaults.get_default_firmware(self.arch)
@@ -53,8 +54,8 @@ class FirmWare:
             firmware_types = Defaults.get_firmware_types()
             if self.firmware not in firmware_types[self.arch]:
                 raise KiwiNotImplementedError(
-                    'support for firmware %s for arch %s not implemented' %
-                    (self.firmware, self.arch)
+                    'support for firmware %s for arch %s not implemented'
+                    % (self.firmware, self.arch)
                 )
 
     def get_partition_table_type(self):
@@ -89,9 +90,11 @@ class FirmWare:
         :rtype: bool
         """
         if self.get_partition_table_type() == 'gpt':
-            if (self.arch == 'x86_64' or re.match('i.86', self.arch)) and \
-               (self.firmware == 'efi' or self.firmware == 'uefi') and \
-               self.efi_csm:
+            if (
+                (self.arch == 'x86_64' or re.match('i.86', self.arch))
+                and (self.firmware == 'efi' or self.firmware == 'uefi')
+                and self.efi_csm
+            ):
                 return True
             else:
                 return False

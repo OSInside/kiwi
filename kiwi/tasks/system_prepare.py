@@ -29,9 +29,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
 from kiwi.system.profile import Profile
 
-from kiwi.exceptions import (
-    KiwiCATargetDistributionError
-)
+from kiwi.exceptions import KiwiCATargetDistributionError
 
 log = logging.getLogger('kiwi')
 
@@ -45,6 +43,7 @@ class SystemPrepareTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Prepare and install a new system for chroot access
@@ -65,14 +64,14 @@ class SystemPrepareTask(CliTask):
         prepare_checks.update(
             {
                 'check_target_directory_not_in_shared_cache': [abs_root_path],
-                'check_target_dir_on_unsupported_filesystem': [abs_root_path]
+                'check_target_dir_on_unsupported_filesystem': [abs_root_path],
             }
         )
         self.run_checks(prepare_checks)
 
         if self.command_args['--set-type-attr']:
             for set_type_attr in self.command_args['--set-type-attr']:
-                (attribute, value) = self.attr_token(set_type_attr)
+                attribute, value = self.attr_token(set_type_attr)
                 log.info(f'--> Set <type ... {attribute}="{value}" .../>')
                 try:
                     eval(
@@ -105,14 +104,14 @@ class SystemPrepareTask(CliTask):
             self.xml_state.set_repository(
                 *self._get_repo_parameters(
                     self.command_args['--set-repo'],
-                    self.command_args['--set-repo-credentials']
+                    self.command_args['--set-repo-credentials'],
                 )
             )
 
         if self.command_args['--add-repo']:
             for add_repo, add_credentials in zip_longest(
                 self.command_args['--add-repo'],
-                self.command_args['--add-repo-credentials']
+                self.command_args['--add-repo-credentials'],
             ):
                 self.xml_state.add_repository(
                     *self._get_repo_parameters(add_repo, add_credentials)
@@ -126,7 +125,7 @@ class SystemPrepareTask(CliTask):
         if self.command_args['--add-container-label']:
             for add_label in self.command_args['--add-container-label']:
                 try:
-                    (name, value) = add_label.split('=', 1)
+                    name, value = add_label.split('=', 1)
                     self.xml_state.add_container_config_label(name, value)
                 except Exception:
                     log.warning(
@@ -142,9 +141,10 @@ class SystemPrepareTask(CliTask):
         if self.command_args['--ca-cert']:
             ca_certs = self.command_args['--ca-cert']
             if ca_certs:
-                target_distribution = \
-                    self.command_args['--ca-target-distribution'] or \
-                    self.xml_state.get_certificates_target_distribution()
+                target_distribution = (
+                    self.command_args['--ca-target-distribution']
+                    or self.xml_state.get_certificates_target_distribution()
+                )
                 if not target_distribution or not Defaults.get_ca_update_map(
                     target_distribution
                 ):
@@ -153,7 +153,7 @@ class SystemPrepareTask(CliTask):
                             'set via --ca-target-distribution.',
                             'allowed values are {}'.format(
                                 Defaults.get_ca_target_distributions()
-                            )
+                            ),
                         )
                     )
                 for certificate in ca_certs:
@@ -167,22 +167,19 @@ class SystemPrepareTask(CliTask):
         with SystemPrepare(
             self.xml_state,
             abs_root_path,
-            self.command_args['--allow-existing-root']
+            self.command_args['--allow-existing-root'],
         ) as system:
             with system.setup_repositories(
                 self.command_args['--clear-cache'],
-                self.command_args[
-                    '--signing-key'
-                ] + self.xml_state.get_repositories_signing_keys(),
-                self.global_args['--target-arch']
+                self.command_args['--signing-key']
+                + self.xml_state.get_repositories_signing_keys(),
+                self.global_args['--target-arch'],
             ) as manager:
                 system.install_bootstrap(
                     manager, self.command_args['--add-bootstrap-package']
                 )
 
-                setup = SystemSetup(
-                    self.xml_state, abs_root_path
-                )
+                setup = SystemSetup(self.xml_state, abs_root_path)
                 setup.import_description()
 
                 # call post_bootstrap.sh script if present
@@ -191,9 +188,7 @@ class SystemPrepareTask(CliTask):
                 # Setup custom CA certificates after bootstrap package install
                 system.setup_ca_certificates()
 
-                system.install_system(
-                    manager
-                )
+                system.install_system(manager)
 
                 if self.command_args['--add-package']:
                     system.install_packages(
@@ -209,9 +204,7 @@ class SystemPrepareTask(CliTask):
                 defaults = Defaults()
                 defaults.to_profile(profile)
 
-                profile.create(
-                    Defaults.get_profile_file(abs_root_path)
-                )
+                profile.create(Defaults.get_profile_file(abs_root_path))
 
                 setup.import_overlay_files()
                 setup.import_image_identifier()

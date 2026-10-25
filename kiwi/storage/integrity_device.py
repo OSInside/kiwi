@@ -17,9 +17,7 @@
 #
 import os
 import logging
-from typing import (
-    Optional, List, Dict, IO, Union, NamedTuple
-)
+from typing import Optional, List, Dict, IO, Union, NamedTuple
 
 # project
 import kiwi.defaults as defaults
@@ -34,12 +32,13 @@ from kiwi.storage.mapped_device import MappedDevice
 from kiwi.exceptions import KiwiOffsetError
 
 integrity_credentials_type = NamedTuple(
-    'integrity_credentials_type', [
+    'integrity_credentials_type',
+    [
         ('keydescription', str),
         ('keyfile', str),
         ('keyfile_algorithm', str),
-        ('options', List[str])
-    ]
+        ('options', List[str]),
+    ],
 )
 
 log = logging.getLogger('kiwi')
@@ -57,9 +56,12 @@ class IntegrityDevice(DeviceProvider):
         Optional credentials specification to protect integrity blocks
         with security key(s)
     """
+
     def __init__(
-        self, storage_provider: DeviceProvider, integrity_algorithm: str,
-        credentials: integrity_credentials_type = None
+        self,
+        storage_provider: DeviceProvider,
+        integrity_algorithm: str,
+        credentials: integrity_credentials_type = None,
     ) -> None:
         #: the underlaying device provider
         self.storage_provider = storage_provider
@@ -68,28 +70,29 @@ class IntegrityDevice(DeviceProvider):
         self.integrity_name = 'integrityRoot'
         self.integrity_algorithm = integrity_algorithm
 
-        if credentials and \
-           credentials.keyfile and credentials.keyfile_algorithm:
+        if (
+            credentials
+            and credentials.keyfile
+            and credentials.keyfile_algorithm
+        ):
             self.integrity_algorithm = credentials.keyfile_algorithm
 
         self.integrity_format_options = [
-            '--integrity', self.integrity_algorithm,
-            '--sector-size', format(defaults.INTEGRITY_SECTOR_SIZE)
+            '--integrity',
+            self.integrity_algorithm,
+            '--sector-size',
+            format(defaults.INTEGRITY_SECTOR_SIZE),
         ]
-        self.integrity_open_options = [
-            '--integrity', self.integrity_algorithm
-        ]
+        self.integrity_open_options = ['--integrity', self.integrity_algorithm]
         if credentials and credentials.options:
             if 'legacy_hmac' in credentials.options:
-                self.integrity_format_options.append(
-                    '--integrity-legacy-hmac'
-                )
+                self.integrity_format_options.append('--integrity-legacy-hmac')
         if credentials and credentials.keyfile:
             integrity_key_options = [
-                '--integrity-key-file', credentials.keyfile,
-                '--integrity-key-size', format(
-                    os.path.getsize(credentials.keyfile)
-                )
+                '--integrity-key-file',
+                credentials.keyfile,
+                '--integrity-key-size',
+                format(os.path.getsize(credentials.keyfile)),
             ]
             self.integrity_format_options += integrity_key_options
             self.integrity_open_options += integrity_key_options
@@ -124,18 +127,16 @@ class IntegrityDevice(DeviceProvider):
         log.info(f'Creating dm_integrity on {storage_device}')
 
         Command.run(
-            [
-                'integritysetup', '-v', '--batch-mode', 'format'
-            ] + self.integrity_format_options + options + [
-                storage_device
-            ]
+            ['integritysetup', '-v', '--batch-mode', 'format']
+            + self.integrity_format_options
+            + options
+            + [storage_device]
         )
         Command.run(
-            [
-                'integritysetup', '-v', '--batch-mode', 'open'
-            ] + self.integrity_open_options + options + [
-                storage_device, self.integrity_name
-            ]
+            ['integritysetup', '-v', '--batch-mode', 'open']
+            + self.integrity_open_options
+            + options
+            + [storage_device, self.integrity_name]
         )
         self.integrity_device = '/dev/mapper/' + self.integrity_name
 
@@ -176,42 +177,43 @@ class IntegrityDevice(DeviceProvider):
             header_string = '{0} {1} {2} integrity'.format(
                 metadata_format_version, filesystem, filesystem_mode
             )
-            if self.credentials and self.credentials.keyfile and \
-               self.integrity_algorithm == defaults.INTEGRITY_KEY_ALGORITHM:
+            if (
+                self.credentials
+                and self.credentials.keyfile
+                and self.integrity_algorithm == defaults.INTEGRITY_KEY_ALGORITHM
+            ):
                 # The internal_hash setup in case of a keyfile is currently
                 # only done for the key based algorithm configured in the
                 # kiwi defaults space. Thus the following split is safe as
                 # we know the name.
-                (keyformat, algorithm) = self.integrity_algorithm.split('-', 2)
+                keyformat, algorithm = self.integrity_algorithm.split('-', 2)
                 keytype = f'{keyformat}({algorithm})'
 
-                keyfile_reference = \
-                    self.credentials.keydescription or ':{0}'.format(
+                keyfile_reference = (
+                    self.credentials.keydescription
+                    or ':{0}'.format(
                         os.path.basename(self.credentials.keyfile).replace(
                             '.bin', ''
                         )
                     )
-                parameters = [
-                    f'internal_hash:{keytype}:{keyfile_reference}'
-                ]
+                )
+                parameters = [f'internal_hash:{keytype}:{keyfile_reference}']
             else:
-                parameters = [
-                    f'internal_hash:{self.integrity_algorithm}'
-                ]
+                parameters = [f'internal_hash:{self.integrity_algorithm}']
             parameters += list(integrity_superblock['flags'])
             dm_integrity_meta = '{0} {1} {2} {3}'.format(
                 integrity_superblock['provided_data_sectors'],
                 integrity_superblock['sector_size'],
                 len(parameters),
-                ' '.join(parameters)
+                ' '.join(parameters),
             )
 
             self.integrity_metadata_file = Temporary().new_file()
             with open(self.integrity_metadata_file.name, 'wb') as meta:
                 meta.write(header_string.encode("ascii"))
-                meta.write(b'\xFF')
+                meta.write(b'\xff')
                 meta.write(dm_integrity_meta.encode("ascii"))
-                meta.write(b'\xFF')
+                meta.write(b'\xff')
                 meta.write(b'\0')
 
     def sign_integrity_metadata(self) -> None:
@@ -228,9 +230,7 @@ class IntegrityDevice(DeviceProvider):
         getsize64() - defaults.DM_METADATA_OFFSET
         """
         if self.integrity_metadata_file:
-            meta_data_size = os.path.getsize(
-                self.integrity_metadata_file.name
-            )
+            meta_data_size = os.path.getsize(self.integrity_metadata_file.name)
             if meta_data_size > defaults.DM_METADATA_OFFSET:
                 raise KiwiOffsetError(
                     'Metadata size of {0}b exceeds {1}b limit'.format(
@@ -269,7 +269,7 @@ class IntegrityDevice(DeviceProvider):
                     block_operation.get_blkid('PARTUUID'),
                     key_file,
                     self.integrity_algorithm,
-                    os.linesep
+                    os.linesep,
                 )
             )
 
@@ -302,9 +302,7 @@ class IntegrityDevice(DeviceProvider):
     def __exit__(self, exc_type, exc_value, traceback):
         if self.integrity_device:
             try:
-                Command.run(
-                    ['integritysetup', 'close', self.integrity_name]
-                )
+                Command.run(['integritysetup', 'close', self.integrity_name])
             except Exception as issue:
                 log.error(
                     'Shutdown of integrity map {0}:{1} failed with {2}'.format(

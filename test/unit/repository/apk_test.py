@@ -1,7 +1,5 @@
 import io
-from unittest.mock import (
-    patch, Mock, MagicMock
-)
+from unittest.mock import patch, Mock, MagicMock
 from kiwi.repository.apk import RepositoryApk
 
 
@@ -19,10 +17,13 @@ class TestRepositoryApk:
         self.setup()
 
     def test_runtime_config(self):
-        assert self.repo.runtime_config()['bootstrap_repo'] == \
-            self.repo.bootstrap_repo
-        assert self.repo.runtime_config()['command_env'] == \
-            self.repo.command_env
+        assert (
+            self.repo.runtime_config()['bootstrap_repo']
+            == self.repo.bootstrap_repo
+        )
+        assert (
+            self.repo.runtime_config()['command_env'] == self.repo.command_env
+        )
 
     def test_runtime_environment_host_proxy(self, monkeypatch):
         monkeypatch.setenv('HTTP_PROXY', 'http://proxy:3128')
@@ -57,8 +58,12 @@ class TestRepositoryApk:
             mock_open.reset_mock()
 
             self.repo.delete_repo('some_A')
-            mock_os_unlink.assert_called_once_with('../data//etc/apk/repositories')
-            mock_open.assert_called_once_with('../data//etc/apk/repositories', 'a')
+            mock_os_unlink.assert_called_once_with(
+                '../data//etc/apk/repositories'
+            )
+            mock_open.assert_called_once_with(
+                '../data//etc/apk/repositories', 'a'
+            )
             file_handle.write.assert_called_once_with('https://some_B\n')
 
     @patch('os.unlink')
@@ -66,9 +71,7 @@ class TestRepositoryApk:
     def test_delete_all_repos(self, mock_os_path_isfile, mock_os_unlink):
         mock_os_path_isfile.return_value = True
         self.repo.delete_all_repos()
-        mock_os_unlink.assert_called_once_with(
-            '../data//etc/apk/repositories'
-        )
+        mock_os_unlink.assert_called_once_with('../data//etc/apk/repositories')
         mock_os_path_isfile.assert_called_once_with(
             '../data//etc/apk/repositories'
         )

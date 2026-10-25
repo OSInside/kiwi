@@ -19,9 +19,7 @@ import os
 import re
 import logging
 from configparser import ConfigParser
-from typing import (
-    Dict, List, Optional
-)
+from typing import Dict, List, Optional
 
 # project
 import kiwi.defaults as defaults
@@ -46,16 +44,15 @@ class HostProxy:
     :param str sysconfig_proxy:
         sysconfig proxy file path, defaults to HOST_SYSCONFIG_PROXY
     """
+
     proxy_names = ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy']
 
     def __init__(self, sysconfig_proxy: Optional[str] = None) -> None:
         self.proxy: Dict[str, str] = {}
-        sysconfig = SysConfig(
-            sysconfig_proxy or defaults.HOST_SYSCONFIG_PROXY
+        sysconfig = SysConfig(sysconfig_proxy or defaults.HOST_SYSCONFIG_PROXY)
+        sysconfig_enabled = (
+            HostProxy._unquote(sysconfig.get('PROXY_ENABLED') or '') == 'yes'
         )
-        sysconfig_enabled = HostProxy._unquote(
-            sysconfig.get('PROXY_ENABLED') or ''
-        ) == 'yes'
         for name in HostProxy.proxy_names:
             value = os.environ.get(name) or os.environ.get(name.upper())
             if not value and sysconfig_enabled:
@@ -71,9 +68,7 @@ class HostProxy:
 
         :rtype: bool
         """
-        return any(
-            name != 'no_proxy' for name in self.proxy.keys()
-        )
+        return any(name != 'no_proxy' for name in self.proxy.keys())
 
     def get_env(self) -> Dict[str, str]:
         """
@@ -101,7 +96,7 @@ class HostProxy:
         """
         sysconfig_data = [
             '# kiwi generated proxy config file',
-            'PROXY_ENABLED="{0}"'.format('yes' if self.has_proxy() else 'no')
+            'PROXY_ENABLED="{0}"'.format('yes' if self.has_proxy() else 'no'),
         ]
         for name in HostProxy.proxy_names:
             sysconfig_data.append(
@@ -121,14 +116,12 @@ class HostProxy:
         """
         apt_proxy_config = []
         if Path.which('apt-config'):
-            result = Command.run(
-                ['apt-config', 'dump'], raise_on_error=False
-            )
+            result = Command.run(['apt-config', 'dump'], raise_on_error=False)
             if result.returncode == 0:
                 for line in result.output.splitlines():
                     if re.match(
                         r'^Acquire::(http|https|ftp)::Proxy(::\S+)? ".*";$',
-                        line
+                        line,
                     ):
                         apt_proxy_config.append(line)
         return apt_proxy_config

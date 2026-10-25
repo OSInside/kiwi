@@ -30,21 +30,19 @@ class OCIUmoci(OCIBase):
     """
     **Open Container Operations using umoci**
     """
+
     def post_init(self):
         """
         Initializes some umoci parameters and options
         """
         self.oci_dir_tempfile = Temporary(prefix='kiwi_oci_dir.').new_dir()
         self.oci_dir = self.oci_dir_tempfile.name
-        self.container_dir = os.sep.join(
-            [self.oci_dir, 'oci_layout']
-        )
+        self.container_dir = os.sep.join([self.oci_dir, 'oci_layout'])
         self.working_image = '{0}:{1}'.format(
             self.container_dir, Defaults.get_container_base_image_tag()
         )
         if CommandCapabilities.has_option_in_help(
-            'umoci', '--no-history', ['config', '--help'],
-            raise_on_error=False
+            'umoci', '--no-history', ['config', '--help'], raise_on_error=False
         ):
             self.no_history_flag = ['--no-history']
         else:
@@ -58,13 +56,17 @@ class OCIUmoci(OCIBase):
         """
         Command.run(
             [
-                'skopeo', 'copy', container_image_ref, 'oci:{0}:{1}'.format(
+                'skopeo',
+                'copy',
+                container_image_ref,
+                'oci:{0}:{1}'.format(
                     self.container_dir, Defaults.get_container_base_image_tag()
-                )
-            ] + (
-                [
-                    '--tmpdir', Defaults.get_temp_location()
-                ] if self._skopeo_provides_tmpdir_option() else []
+                ),
+            ]
+            + (
+                ['--tmpdir', Defaults.get_temp_location()]
+                if self._skopeo_provides_tmpdir_option()
+                else []
             )
         )
 
@@ -90,12 +92,16 @@ class OCIUmoci(OCIBase):
         Path.wipe(filename)
         Command.run(
             [
-                'skopeo', 'copy', 'oci:{0}'.format(self.working_image),
-                '{0}:{1}:{2}'.format(transport, filename, image_ref)
-            ] + extra_tags_opt + (
-                [
-                    '--tmpdir', Defaults.get_temp_location()
-                ] if self._skopeo_provides_tmpdir_option() else []
+                'skopeo',
+                'copy',
+                'oci:{0}'.format(self.working_image),
+                '{0}:{1}:{2}'.format(transport, filename, image_ref),
+            ]
+            + extra_tags_opt
+            + (
+                ['--tmpdir', Defaults.get_temp_location()]
+                if self._skopeo_provides_tmpdir_option()
+                else []
             )
         )
 
@@ -105,12 +111,8 @@ class OCIUmoci(OCIBase):
 
         :param bool base_image: True|False
         """
-        Command.run(
-            ['umoci', 'init', '--layout', self.container_dir]
-        )
-        Command.run(
-            ['umoci', 'new', '--image', self.working_image]
-        )
+        Command.run(['umoci', 'init', '--layout', self.container_dir])
+        Command.run(['umoci', 'new', '--image', self.working_image])
 
     def unpack(self):
         """
@@ -120,10 +122,15 @@ class OCIUmoci(OCIBase):
             prefix='kiwi_oci_root_dir.'
         ).new_dir()
         self.oci_root_dir = self.oci_root_dir_tempdir.name
-        Command.run([
-            'umoci', 'unpack', '--image',
-            self.working_image, self.oci_root_dir
-        ])
+        Command.run(
+            [
+                'umoci',
+                'unpack',
+                '--image',
+                self.working_image,
+                self.oci_root_dir,
+            ]
+        )
 
     def sync_rootfs(self, root_dir, exclude_list=None):
         """
@@ -136,9 +143,7 @@ class OCIUmoci(OCIBase):
             ''.join([root_dir, os.sep]),
             os.sep.join([self.oci_root_dir, 'rootfs']),
             exclude_list=exclude_list,
-            options=Defaults.get_sync_options() + [
-                '--delete'
-            ]
+            options=Defaults.get_sync_options() + ['--delete'],
         )
 
     def import_rootfs(self, root_dir, exclude_list=None):
@@ -150,8 +155,9 @@ class OCIUmoci(OCIBase):
         """
         self._sync_data(
             os.sep.join([self.oci_root_dir, 'rootfs', '']),
-            root_dir, exclude_list=exclude_list,
-            options=Defaults.get_sync_options()
+            root_dir,
+            exclude_list=exclude_list,
+            options=Defaults.get_sync_options(),
         )
 
     def repack(self, oci_config):
@@ -163,9 +169,9 @@ class OCIUmoci(OCIBase):
         history_flags = self._process_oci_history_to_arguments(oci_config)
         history_flags.extend(['--history.created', self.creation_date])
         Command.run(
-            ['umoci', 'repack'] + history_flags + [
-                '--image', self.working_image, self.oci_root_dir
-            ]
+            ['umoci', 'repack']
+            + history_flags
+            + ['--image', self.working_image, self.oci_root_dir]
         )
 
     def set_config(self, oci_config):
@@ -177,12 +183,16 @@ class OCIUmoci(OCIBase):
         """
         config_args = self._process_oci_config_to_arguments(oci_config)
         Command.run(
-            [
-                'umoci', 'config'
-            ] + config_args + self.no_history_flag + [
-                '--image', self.working_image,
-                '--tag', oci_config['container_tag'],
-                '--created', self.creation_date
+            ['umoci', 'config']
+            + config_args
+            + self.no_history_flag
+            + [
+                '--image',
+                self.working_image,
+                '--tag',
+                oci_config['container_tag'],
+                '--created',
+                self.creation_date,
             ]
         )
         self.working_image = '{0}:{1}'.format(
@@ -203,14 +213,10 @@ class OCIUmoci(OCIBase):
         """
         arguments = []
         if 'maintainer' in oci_config:
-            arguments.append(
-                '--author={0}'.format(oci_config['maintainer'])
-            )
+            arguments.append('--author={0}'.format(oci_config['maintainer']))
 
         if 'user' in oci_config:
-            arguments.append(
-                '--config.user={0}'.format(oci_config['user'])
-            )
+            arguments.append('--config.user={0}'.format(oci_config['user']))
 
         if 'workingdir' in oci_config:
             arguments.append(
@@ -246,15 +252,19 @@ class OCIUmoci(OCIBase):
 
         if 'environment' in oci_config:
             for name in sorted(oci_config['environment']):
-                arguments.append('--config.env={0}={1}'.format(
-                    name, oci_config['environment'][name]
-                ))
+                arguments.append(
+                    '--config.env={0}={1}'.format(
+                        name, oci_config['environment'][name]
+                    )
+                )
 
         if 'labels' in oci_config:
             for name in sorted(oci_config['labels']):
-                arguments.append('--config.label={0}={1}'.format(
-                    name, oci_config['labels'][name]
-                ))
+                arguments.append(
+                    '--config.label={0}={1}'.format(
+                        name, oci_config['labels'][name]
+                    )
+                )
 
         return arguments
 
@@ -263,23 +273,27 @@ class OCIUmoci(OCIBase):
         history_args = []
         if 'history' in oci_config:
             if 'comment' in oci_config['history']:
-                history_args.append('--history.comment={0}'.format(
-                    oci_config['history']['comment']
-                ))
+                history_args.append(
+                    '--history.comment={0}'.format(
+                        oci_config['history']['comment']
+                    )
+                )
             if 'created_by' in oci_config['history']:
-                history_args.append('--history.created_by={0}'.format(
-                    oci_config['history']['created_by']
-                ))
+                history_args.append(
+                    '--history.created_by={0}'.format(
+                        oci_config['history']['created_by']
+                    )
+                )
             if 'author' in oci_config['history']:
-                history_args.append('--history.author={0}'.format(
-                    oci_config['history']['author']
-                ))
+                history_args.append(
+                    '--history.author={0}'.format(
+                        oci_config['history']['author']
+                    )
+                )
         return history_args
 
     def post_process(self):
         """
         Cleanup unused data from operations
         """
-        Command.run(
-            ['umoci', 'gc', '--layout', self.container_dir]
-        )
+        Command.run(['umoci', 'gc', '--layout', self.container_dir])

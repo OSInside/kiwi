@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 from kiwi.api_helper import decommissioned
 from kiwi.command import CommandCallT
@@ -35,9 +33,12 @@ class PackageManagerBase:
     :param list collection_requests: list of collections to install
     :param list product_requests: list of products to install
     """
+
     def __init__(
-        self, repository: RepositoryBase, custom_args: List = [],
-        release_version: str = ''
+        self,
+        repository: RepositoryBase,
+        custom_args: List = [],
+        release_version: str = '',
     ) -> None:
         self.repository = repository
         self.root_dir = repository.root_dir
@@ -222,9 +223,7 @@ class PackageManagerBase:
         """
         pass
 
-    def post_process_delete_requests(
-        self, root_bind: RootBind = None
-    ) -> None:
+    def post_process_delete_requests(self, root_bind: RootBind = None) -> None:
         """
         Process extra code required after deleting packages
 

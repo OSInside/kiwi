@@ -1,8 +1,6 @@
 import io
 from pytest import raises
-from unittest.mock import (
-    patch, MagicMock
-)
+from unittest.mock import patch, MagicMock
 
 from kiwi.container.setup.appx import ContainerSetupAppx
 from kiwi.defaults import Defaults
@@ -15,7 +13,8 @@ class TestContainerSetupAppx:
     def setup(self, mock_exists):
         mock_exists.return_value = True
         self.appx = ContainerSetupAppx(
-            'root_dir', {
+            'root_dir',
+            {
                 'metadata_path': '../data/appx',
                 'image_version': '1.99.1',
                 'history': {
@@ -24,9 +23,9 @@ class TestContainerSetupAppx:
                     'application_id': '123',
                     'package_version': '2003.12.0.0',
                     'comment': 'Some Information',
-                    'launcher': 'openSUSE-Tumbleweed.exe'
-                }
-            }
+                    'launcher': 'openSUSE-Tumbleweed.exe',
+                },
+            },
         )
 
     @patch('os.path.exists')

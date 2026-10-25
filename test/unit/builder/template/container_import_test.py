@@ -7,7 +7,14 @@ class TestBuilderTemplateSystemdUnit:
 
     def test_get_container_import_template_with_container_snap_service(self):
         container_files = ['/var/tmp/kiwi_containers/test-app_v1.0']
-        load_commands = [['/usr/bin/container-snap', 'load', '-i', '/var/tmp/kiwi_containers/test-app_v1.0']]
+        load_commands = [
+            [
+                '/usr/bin/container-snap',
+                'load',
+                '-i',
+                '/var/tmp/kiwi_containers/test-app_v1.0',
+            ]
+        ]
         after_services = ['container-snap.service']
 
         template = self.template.get_container_import_template(
@@ -34,11 +41,21 @@ WantedBy=multi-user.target
     def test_get_container_import_template_with_multiple_services(self):
         container_files = [
             '/var/tmp/kiwi_containers/app1_latest',
-            '/var/tmp/kiwi_containers/app2_v1.0'
+            '/var/tmp/kiwi_containers/app2_v1.0',
         ]
         load_commands = [
-            ['/usr/bin/docker', 'load', '-i', '/var/tmp/kiwi_containers/app1_latest'],
-            ['/usr/bin/container-snap', 'load', '-i', '/var/tmp/kiwi_containers/app2_v1.0']
+            [
+                '/usr/bin/docker',
+                'load',
+                '-i',
+                '/var/tmp/kiwi_containers/app1_latest',
+            ],
+            [
+                '/usr/bin/container-snap',
+                'load',
+                '-i',
+                '/var/tmp/kiwi_containers/app2_v1.0',
+            ],
         ]
         after_services = ['docker.service', 'container-snap.service']
 
@@ -68,7 +85,14 @@ WantedBy=multi-user.target
 
     def test_get_container_import_template_no_after_services(self):
         container_files = ['/var/tmp/kiwi_containers/test-app_latest']
-        load_commands = [['/usr/bin/podman', 'load', '-i', '/var/tmp/kiwi_containers/test-app_latest']]
+        load_commands = [
+            [
+                '/usr/bin/podman',
+                'load',
+                '-i',
+                '/var/tmp/kiwi_containers/test-app_latest',
+            ]
+        ]
         after_services = []
 
         template = self.template.get_container_import_template(

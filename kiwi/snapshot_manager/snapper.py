@@ -30,12 +30,8 @@ from kiwi.defaults import Defaults
 from kiwi.snapshot_manager.base import SnapshotManagerBase
 from kiwi.mount_manager import MountManager
 from kiwi.utils.sysconfig import SysConfig
-from kiwi.chroot_manager import (
-    ChrootManager, ChrootMount
-)
-from kiwi.exceptions import (
-    KiwiSnapshotManagerSetupError
-)
+from kiwi.chroot_manager import ChrootManager, ChrootMount
+from kiwi.exceptions import KiwiSnapshotManagerSetupError
 
 
 class SnapshotManagerSnapper(SnapshotManagerBase):
@@ -48,6 +44,7 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
     :param str root_volume_name: the name of the root volume in case
         snapshots are hosted in a subvolume.
     """
+
     def post_init(self, custom_args):
         """
         Post initialization method
@@ -56,8 +53,9 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
 
         :param dict custom_args: custom snapper manager arguments
         """
-        self.default_snapshot_name = \
+        self.default_snapshot_name = (
             f'/{self.root_volume_name}/.snapshots/1/snapshot'
+        )
         if custom_args:
             self.custom_args = custom_args
         else:
@@ -78,10 +76,9 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
 
         :rtype: list
         """
-        snapshot_path = os.path.normpath(os.sep.join([
-            self.mountpoint,
-            self.default_snapshot_name
-        ]))
+        snapshot_path = os.path.normpath(
+            os.sep.join([self.mountpoint, self.default_snapshot_name])
+        )
         snapshot_path = self.mountpoint + self.default_snapshot_name
         if CommandCapabilities.check_version(
             'snapper', (0, 12, 1), root=self.root_dir
@@ -89,36 +86,35 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
             with ChrootManager(
                 self.root_dir, binds=[ChrootMount(self.mountpoint)]
             ) as chroot:
-                chroot.run([
-                    '/usr/lib/snapper/installation-helper', '--root-prefix',
-                    os.sep.join([self.mountpoint, self.root_volume_name]),
-                    '--step', 'filesystem'
-                ])
+                chroot.run(
+                    [
+                        '/usr/lib/snapper/installation-helper',
+                        '--root-prefix',
+                        os.sep.join([self.mountpoint, self.root_volume_name]),
+                        '--step',
+                        'filesystem',
+                    ]
+                )
         else:
             # with snapper <= 0.12.0 the first snapshot subvolume
             # structure is crafted manually
-            snapshot_volume = self.mountpoint + \
-                f'/{self.root_volume_name}/.snapshots'
-            Command.run(
-                ['btrfs', 'subvolume', 'create', snapshot_volume]
+            snapshot_volume = (
+                self.mountpoint + f'/{self.root_volume_name}/.snapshots'
             )
+            Command.run(['btrfs', 'subvolume', 'create', snapshot_volume])
             os.chmod(snapshot_volume, 0o700)
             Path.create(snapshot_volume + '/1')
-            Command.run(
-                ['btrfs', 'subvolume', 'create', snapshot_path]
-            )
-            Command.run(
-                ['btrfs', 'subvolume', 'set-default', snapshot_path]
-            )
+            Command.run(['btrfs', 'subvolume', 'create', snapshot_path])
+            Command.run(['btrfs', 'subvolume', 'set-default', snapshot_path])
 
         # Mount /{some-name}/.snapshots as /.snapshots inside the root
         snapshots_mount = MountManager(
             device=self.device,
             attributes={
                 'subvol_path': f'{self.root_volume_name}/.snapshots',
-                'subvol_name': f'{self.root_volume_name}/.snapshots'
+                'subvol_name': f'{self.root_volume_name}/.snapshots',
             },
-            mountpoint=snapshot_path + '/.snapshots'
+            mountpoint=snapshot_path + '/.snapshots',
         )
         return [snapshots_mount]
 
@@ -127,24 +123,31 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         Arranges the snapshot configuration once the OS tree is synched.
         It uses the snapper and the data from the snapshot itself.
         """
-        snapshot_path = os.path.normpath(os.sep.join([
-            self.mountpoint,
-            self.default_snapshot_name
-        ]))
+        snapshot_path = os.path.normpath(
+            os.sep.join([self.mountpoint, self.default_snapshot_name])
+        )
         if CommandCapabilities.check_version(
             'snapper', (0, 12, 1), root=snapshot_path
         ):
             snapshots_prefix = os.sep.join([snapshot_path, '.snapshots'])
             with ChrootManager(
-                self.root_dir, binds=[
-                    ChrootMount(snapshot_path), ChrootMount(snapshots_prefix)
-                ]
+                self.root_dir,
+                binds=[
+                    ChrootMount(snapshot_path),
+                    ChrootMount(snapshots_prefix),
+                ],
             ) as chroot:
-                chroot.run([
-                    '/usr/lib/snapper/installation-helper', '--root-prefix',
-                    snapshot_path, '--step', 'config', '--description',
-                    'first root filesystem'
-                ])
+                chroot.run(
+                    [
+                        '/usr/lib/snapper/installation-helper',
+                        '--root-prefix',
+                        snapshot_path,
+                        '--step',
+                        'config',
+                        '--description',
+                        'first root filesystem',
+                    ]
+                )
         else:
             # with snapper <= 0.12.0 the snapshot configuration is
             # crafted manually
@@ -157,13 +160,17 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
             snapshot_number = ElementTree.SubElement(snapshot, 'num')
             snapshot_number.text = '1'
 
-            snapshot_description = ElementTree.SubElement(snapshot, 'description')
+            snapshot_description = ElementTree.SubElement(
+                snapshot, 'description'
+            )
             snapshot_description.text = 'first root filesystem'
 
             snapshot_date = ElementTree.SubElement(snapshot, 'date')
             snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
 
-            with open(os.path.join(snapshot_path, '../info.xml'), 'w') as snapshot_info_file:
+            with open(
+                os.path.join(snapshot_path, '../info.xml'), 'w'
+            ) as snapshot_info_file:
                 snapshot_info_file.write(self._xml_pretty(snapshot))
 
         if self.custom_args['quota_groups']:
@@ -179,13 +186,11 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
                 if not os.path.exists(config_file):
                     shutil.copyfile(snapper_default_conf, config_file)
                 with ChrootManager(snapshot_path) as chroot:
-                    chroot.run([
-                        'snapper', '--no-dbus', 'set-config', 'QGROUP=1/0'
-                    ])
+                    chroot.run(
+                        ['snapper', '--no-dbus', 'set-config', 'QGROUP=1/0']
+                    )
         with ChrootManager(snapshot_path) as chroot:
-            chroot.run([
-                'snapper', '--no-dbus', 'modify', '--default', '1'
-            ])
+            chroot.run(['snapper', '--no-dbus', 'modify', '--default', '1'])
 
     def get_default_snapshot_name(self) -> str:
         """
@@ -198,9 +203,7 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         return self.default_snapshot_name
 
     def _xml_pretty(self, toplevel_element):
-        xml_data_unformatted = ElementTree.tostring(
-            toplevel_element, 'utf-8'
-        )
+        xml_data_unformatted = ElementTree.tostring(toplevel_element, 'utf-8')
         xml_data_domtree = minidom.parseString(xml_data_unformatted)
         return xml_data_domtree.toprettyxml(indent="    ")
 
@@ -209,8 +212,10 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         sysconf_file = SysConfig(
             os.sep.join([root_path, 'etc/sysconfig/snapper'])
         )
-        if not sysconf_file.get('SNAPPER_CONFIGS') or \
-           len(sysconf_file['SNAPPER_CONFIGS'].strip('\"')) == 0:
+        if (
+            not sysconf_file.get('SNAPPER_CONFIGS')
+            or len(sysconf_file['SNAPPER_CONFIGS'].strip('\"')) == 0
+        ):
 
             sysconf_file['SNAPPER_CONFIGS'] = '"root"'
             sysconf_file.write()
@@ -220,7 +225,10 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
                     sysconf_file['SNAPPER_CONFIGS']
                 )
             )
-        return os.sep.join([
-            root_path, 'etc/snapper/configs',
-            sysconf_file['SNAPPER_CONFIGS'].strip('\"')]
+        return os.sep.join(
+            [
+                root_path,
+                'etc/snapper/configs',
+                sysconf_file['SNAPPER_CONFIGS'].strip('\"'),
+            ]
         )

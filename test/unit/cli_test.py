@@ -1,12 +1,8 @@
 import sys
 import logging
 import typer
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 
 from .test_helper import argv_kiwi_tests
 
@@ -18,7 +14,7 @@ from kiwi.exceptions import (
     KiwiLoadCommandUndefined,
     KiwiCommandNotLoaded,
     KiwiUnknownServiceName,
-    KiwiLoadPluginError
+    KiwiLoadPluginError,
 )
 
 
@@ -46,7 +42,7 @@ class TestCli:
             '--temp-dir': '/var/tmp',
             '--target-arch': None,
             '--config': None,
-            '--kiwi-file': None
+            '--kiwi-file': None,
         }
         self.command_args = {
             '--add-repo': [],
@@ -73,11 +69,9 @@ class TestCli:
             'help': False,
             'prepare': True,
             'command': 'prepare',
-            'system': True
+            'system': True,
         }
-        self.command_args.update(
-            self.expected_global_args
-        )
+        self.command_args.update(self.expected_global_args)
         self.cli = Cli()
         self.loaded_command = self.cli.load_command()
 
@@ -96,51 +90,75 @@ class TestCli:
 
     def test_get_command_args(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                '--temp-dir', '/var/tmp',
-                '--shared-cache-dir', '/var/cache/kiwi',
-                'system', 'prepare',
-                '--description', 'description',
-                '--root', 'directory'
-            ]
+                '--temp-dir',
+                '/var/tmp',
+                '--shared-cache-dir',
+                '/var/cache/kiwi',
+                'system',
+                'prepare',
+                '--description',
+                'description',
+                '--root',
+                'directory',
+            ],
         ):
             cli = Cli()
             assert cli.get_command_args() == self.command_args
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'prepare',
-                '--description', 'description',
-                '--root', 'directory'
-            ]
+                'system',
+                'prepare',
+                '--description',
+                'description',
+                '--root',
+                'directory',
+            ],
         ):
             cli = Cli()
             assert cli.get_command_args() == self.command_args
 
     def test_warning_on_use_of_legacy_disk_type(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                '--type', 'vmx', 'system', 'build',
-                '--description', 'description',
-                '--target-dir', 'directory'
-            ]
+                '--type',
+                'vmx',
+                'system',
+                'build',
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+            ],
         ):
             cli = Cli()
             with self._caplog.at_level(logging.WARNING):
                 cli.get_global_args()
-                assert 'vmx type is now a subset of oem, --type set to oem' in \
-                    self._caplog.text
+                assert (
+                    'vmx type is now a subset of oem, --type set to oem'
+                    in self._caplog.text
+                )
 
     def test_set_target_arch(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                '--target-arch', 'x86_64', 'system', 'build',
-                '--description', 'description',
-                '--target-dir', 'directory'
-            ]
+                '--target-arch',
+                'x86_64',
+                'system',
+                'build',
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+            ],
         ):
             cli = Cli()
             cli.get_global_args()
@@ -148,23 +166,24 @@ class TestCli:
 
     def test_get_servicename_image(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'image', 'resize',
-                '--target-dir', 'directory',
-                '--size', '20g'
-            ]
+                'image',
+                'resize',
+                '--target-dir',
+                'directory',
+                '--size',
+                '20g',
+            ],
         ):
             cli = Cli()
             assert cli.get_servicename() == 'image'
 
     def test_get_servicename_result(self):
         with patch(
-            'sys.argv', [
-                sys.argv[0],
-                'result', 'list',
-                '--target-dir', 'directory'
-            ]
+            'sys.argv',
+            [sys.argv[0], 'result', 'list', '--target-dir', 'directory'],
         ):
             cli = Cli()
             assert cli.get_servicename() == 'result'
@@ -189,9 +208,7 @@ class TestCli:
 
     def test_get_command_args_not_loaded(self):
         with patch(
-            'sys.argv', [
-                sys.argv[0], 'system', 'command-not-implemented'
-            ]
+            'sys.argv', [sys.argv[0], 'system', 'command-not-implemented']
         ):
             with patch('sys.exit'):
                 cli = Cli()
@@ -200,11 +217,7 @@ class TestCli:
 
     @patch('builtins.print')
     def test_kiwi_version(self, mock_print):
-        with patch(
-            'sys.argv', [
-                sys.argv[0], '--version'
-            ]
-        ):
+        with patch('sys.argv', [sys.argv[0], '--version']):
             with patch('sys.exit'):
                 Cli()
             mock_print.assert_called_once_with(
@@ -218,7 +231,7 @@ class TestCli:
         for arguments, status in [
             (['--version'], 0),
             (['--help'], 0),
-            (['--no-such-option'], 2)
+            (['--no-such-option'], 2),
         ]:
             with patch('sys.argv', [sys.argv[0]] + arguments):
                 with raises(SystemExit) as exit_info:
@@ -232,12 +245,10 @@ class TestCli:
             ('system', 'build'),
             ('system', 'boxbuild'),
             ('result', 'list'),
-            ('image', 'info')
+            ('image', 'info'),
         ]:
             with patch(
-                'sys.argv', [
-                    sys.argv[0], '--debug', service, command, 'help'
-                ]
+                'sys.argv', [sys.argv[0], '--debug', service, command, 'help']
             ):
                 cli = Cli()
                 assert cli.get_servicename() == service
@@ -249,11 +260,7 @@ class TestCli:
                 assert cli.load_command()
 
     def test_command_help_not_for_unknown_command(self):
-        with patch(
-            'sys.argv', [
-                sys.argv[0], 'system', 'unknown', 'help'
-            ]
-        ):
+        with patch('sys.argv', [sys.argv[0], 'system', 'unknown', 'help']):
             with raises(SystemExit):
                 Cli()
 
@@ -261,37 +268,41 @@ class TestCli:
         for arguments in [
             ['system', 'update', '--root', 'directory'],
             [
-                'system', 'create', '--root', 'directory',
-                '--target-dir', 'directory'
-            ]
+                'system',
+                'create',
+                '--root',
+                'directory',
+                '--target-dir',
+                'directory',
+            ],
         ]:
             with patch('sys.argv', [sys.argv[0]] + arguments):
                 assert Cli().get_command_args()['help'] is False
 
     @patch.object(Cli, '_get_module_entries')
     @patch('kiwi.cli.EntryPoint')
-    def test_load_plugin_cli(
-        self, mock_EntryPoint, mock_get_module_entries
-    ):
+    def test_load_plugin_cli(self, mock_EntryPoint, mock_get_module_entries):
         plugin_entry = Mock()
         mock_EntryPoint.return_value = plugin_entry
         entry = Mock(
             name='system_some',
             value='kiwi_some_plugin.tasks.system_some',
-            group='kiwi.tasks'
+            group='kiwi.tasks',
         )
         mock_get_module_entries.return_value = [entry]
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'build',
-                '--description', 'description',
-                '--target-dir', 'directory'
-            ]
+                'system',
+                'build',
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+            ],
         ):
-            plugin_entry.load.return_value.typers = {
-                'some': typer.Typer()
-            }
+            plugin_entry.load.return_value.typers = {'some': typer.Typer()}
             cli = Cli()
             plugin_entry.load.side_effect = ModuleNotFoundError
             cli.load_plugin_cli()
@@ -305,48 +316,47 @@ class TestCli:
         self, mock_EntryPoint, mock_get_module_entries
     ):
         entry = Mock(
-            value='kiwi_boxed_plugin.tasks.system_boxbuild',
-            group='kiwi.tasks'
+            value='kiwi_boxed_plugin.tasks.system_boxbuild', group='kiwi.tasks'
         )
         mock_get_module_entries.return_value = [entry]
         assert self.cli.load_plugin_cli() == {}
         assert not mock_EntryPoint.called
 
     @patch.object(Cli, '_get_module_entries')
-    def test_load_command_skips_obsolete_plugin(
-        self, mock_get_module_entries
-    ):
+    def test_load_command_skips_obsolete_plugin(self, mock_get_module_entries):
         builtin_entry = Mock(
-            value='kiwi.tasks.system_prepare',
-            group='kiwi.tasks'
+            value='kiwi.tasks.system_prepare', group='kiwi.tasks'
         )
         builtin_entry.name = 'system_prepare'
         obsolete_entry = Mock(
-            value='kiwi_boxed_plugin.tasks.system_prepare',
-            group='kiwi.tasks'
+            value='kiwi_boxed_plugin.tasks.system_prepare', group='kiwi.tasks'
         )
         obsolete_entry.name = 'system_prepare'
-        mock_get_module_entries.return_value = [
-            builtin_entry, obsolete_entry
-        ]
+        mock_get_module_entries.return_value = [builtin_entry, obsolete_entry]
         assert self.cli.load_command() == builtin_entry.load.return_value
         assert not obsolete_entry.load.called
 
     def test_boxbuild_command_args(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'boxbuild',
-                '--box', 'universal',
-                '--shared-path', '/var/tmp/shared',
+                'system',
+                'boxbuild',
+                '--box',
+                'universal',
+                '--shared-path',
+                '/var/tmp/shared',
                 '--no-accel',
                 '--9p-sharing',
                 '--aarch64',
                 'kiwi',
-                '--description', 'description',
-                '--target-dir', 'directory',
-                '--allow-existing-root'
-            ]
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+                '--allow-existing-root',
+            ],
         ):
             cli = Cli()
             assert cli.get_servicename() == 'system'
@@ -362,26 +372,35 @@ class TestCli:
             assert command_args['--ssh-port'] == '10022'
             assert command_args['--ssh-key'] == 'id_rsa'
             assert command_args['system_build'] == [
-                '--description', 'description',
-                '--target-dir', 'directory',
-                '--allow-existing-root'
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+                '--allow-existing-root',
             ]
 
     def test_boxbuild_command_args_separator(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'boxbuild',
-                '--box', 'universal',
+                'system',
+                'boxbuild',
+                '--box',
+                'universal',
                 '--',
-                '--description', 'description',
-                '--target-dir', 'directory'
-            ]
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+            ],
         ):
             cli = Cli()
             assert cli.get_command_args()['system_build'] == [
-                '--description', 'description',
-                '--target-dir', 'directory'
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
             ]
 
     @patch.object(Cli, '_get_module_entries')
@@ -391,7 +410,7 @@ class TestCli:
     ):
         entry = Mock(
             value='kiwi_stackbuild_plugin.tasks.system_stackbuild',
-            group='kiwi.tasks'
+            group='kiwi.tasks',
         )
         mock_get_module_entries.return_value = [entry]
         assert self.cli.load_plugin_cli() == {}
@@ -399,17 +418,25 @@ class TestCli:
 
     def test_stackbuild_command_args(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'stackbuild',
-                '--stash', 'base',
-                '--stash', 'layer',
-                '--target-dir', 'directory',
-                '--description', 'description',
-                '--from-registry', 'registry.uri',
+                'system',
+                'stackbuild',
+                '--stash',
+                'base',
+                '--stash',
+                'layer',
+                '--target-dir',
+                'directory',
+                '--description',
+                'description',
+                '--from-registry',
+                'registry.uri',
                 'kiwi',
-                '--signing-key', 'some-key'
-            ]
+                '--signing-key',
+                'some-key',
+            ],
         ):
             cli = Cli()
             assert cli.get_servicename() == 'system'
@@ -420,17 +447,22 @@ class TestCli:
             assert command_args['--description'] == 'description'
             assert command_args['--from-registry'] == 'registry.uri'
             assert command_args['system_build_or_create'] == [
-                '--signing-key', 'some-key'
+                '--signing-key',
+                'some-key',
             ]
 
     def test_stackbuild_command_args_no_kiwi_subcommand(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'stackbuild',
-                '--stash', 'base',
-                '--target-dir', 'directory'
-            ]
+                'system',
+                'stackbuild',
+                '--stash',
+                'base',
+                '--target-dir',
+                'directory',
+            ],
         ):
             cli = Cli()
             command_args = cli.get_command_args()
@@ -441,29 +473,40 @@ class TestCli:
 
     def test_stackbuild_command_args_separator(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'stackbuild',
-                '--stash', 'base',
-                '--target-dir', 'directory',
+                'system',
+                'stackbuild',
+                '--stash',
+                'base',
+                '--target-dir',
+                'directory',
                 '--',
-                '--signing-key', 'some-key'
-            ]
+                '--signing-key',
+                'some-key',
+            ],
         ):
             cli = Cli()
             assert cli.get_command_args()['system_build_or_create'] == [
-                '--signing-key', 'some-key'
+                '--signing-key',
+                'some-key',
             ]
 
     def test_stash_command_args(self):
         with patch(
-            'sys.argv', [
+            'sys.argv',
+            [
                 sys.argv[0],
-                'system', 'stash',
-                '--root', 'directory',
-                '--tag', 'v1',
-                '--container-name', 'name'
-            ]
+                'system',
+                'stash',
+                '--root',
+                'directory',
+                '--tag',
+                'v1',
+                '--container-name',
+                'name',
+            ],
         ):
             cli = Cli()
             assert cli.get_servicename() == 'system'

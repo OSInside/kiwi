@@ -35,6 +35,7 @@ class ResultListTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         List result information from a previous system command
@@ -43,15 +44,9 @@ class ResultListTask(CliTask):
         if self._help():
             return
 
-        result_directory = os.path.abspath(
-            self.command_args['--target-dir']
-        )
-        log.info(
-            'Listing results from %s', result_directory
-        )
-        result = Result.load(
-            result_directory + '/kiwi.result'
-        )
+        result_directory = os.path.abspath(self.command_args['--target-dir'])
+        log.info('Listing results from %s', result_directory)
+        result = Result.load(result_directory + '/kiwi.result')
         result.print_results()
 
     def _help(self):

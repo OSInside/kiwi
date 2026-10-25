@@ -28,20 +28,22 @@ class Rpm:
     """
     **Helper methods to handle the rpm database configuration**
     """
+
     def __init__(self, root_dir=None, macro_file=None):
         self.root_dir = root_dir
         self.config = []
         self.custom_config = []
         self.macro_path = os.sep.join(
-            [
-                self.root_dir or '', Defaults.get_custom_rpm_macros_path()
-            ]
+            [self.root_dir or '', Defaults.get_custom_rpm_macros_path()]
         )
         self.macro_file = os.sep.join(
             [
                 self.macro_path,
-                macro_file if macro_file else
-                Defaults.get_custom_rpm_bootstrap_macro_name()
+                (
+                    macro_file
+                    if macro_file
+                    else Defaults.get_custom_rpm_bootstrap_macro_name()
+                ),
             ]
         )
 
@@ -54,9 +56,7 @@ class Rpm:
                 ['chroot', self.root_dir, 'rpm', '-E', key]
             )
         else:
-            rpmdb_call = Command.run(
-                ['rpm', '-E', key]
-            )
+            rpmdb_call = Command.run(['rpm', '-E', key])
         return rpmdb_call.output.strip()
 
     def get_query(self, key):
@@ -75,9 +75,7 @@ class Rpm:
         """
         if not self.config:
             self.config = self._read_macro_configuration()
-        item_list = list(
-            filter(lambda item: key in item, self.config)
-        )
+        item_list = list(filter(lambda item: key in item, self.config))
         for item in item_list:
             match = re.match('.*{0}[\t ]+(.*)'.format(key), item)
             if match:
@@ -126,7 +124,5 @@ class Rpm:
                 ['chroot', self.root_dir, 'rpmdb', '--showrc']
             )
         else:
-            rpmdb_call = Command.run(
-                ['rpmdb', '--showrc']
-            )
+            rpmdb_call = Command.run(['rpmdb', '--showrc'])
         return rpmdb_call.output.split(os.linesep)

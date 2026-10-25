@@ -26,6 +26,7 @@ class DiskFormatQcow2(DiskFormatBase):
     """
     **Create qcow2 disk format**
     """
+
     def post_init(self, custom_args: dict) -> None:
         """
         qcow2 disk format post initialization method
@@ -44,17 +45,28 @@ class DiskFormatQcow2(DiskFormatBase):
         intermediate = Temporary().new_file()
         Command.run(
             [
-                'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', self.image_format
-            ] + self.options + [
-                intermediate.name
+                'qemu-img',
+                'convert',
+                '-f',
+                'raw',
+                self.diskname,
+                '-O',
+                self.image_format,
             ]
+            + self.options
+            + [intermediate.name]
         )
         Command.run(
             [
-                'qemu-img', 'convert', '-c', '-f', self.image_format,
-                intermediate.name, '-O', self.image_format,
-                self.get_target_file_path_for_format(self.image_format)
+                'qemu-img',
+                'convert',
+                '-c',
+                '-f',
+                self.image_format,
+                intermediate.name,
+                '-O',
+                self.image_format,
+                self.get_target_file_path_for_format(self.image_format),
             ]
         )
 
@@ -72,12 +84,8 @@ class DiskFormatQcow2(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_file_path_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_file_path_for_format(self.image_format),
             use_for_bundle=True,
-            compress=self.runtime_config.get_bundle_compression(
-                default=False
-            ),
-            shasum=True
+            compress=self.runtime_config.get_bundle_compression(default=False),
+            shasum=True,
         )

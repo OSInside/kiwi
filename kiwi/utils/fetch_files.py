@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import requests
+
 try:
     import progressbar2 as progressbar
 except ImportError:
@@ -29,6 +30,7 @@ class FetchFiles:
 
     Fetches file(s) from a given URL to the local system
     """
+
     def __init__(self) -> None:
         requests.packages.urllib3.disable_warnings()
 
@@ -43,14 +45,18 @@ class FetchFiles:
             'GET', url, stream=True, data=None, headers=None
         )
         widgets = [
-            'Loading: ', progressbar.Percentage(), ' ',
-            progressbar.Bar(marker='#', left='[', right=']'), ' ',
-            progressbar.ETA(), ' ',
-            progressbar.FileTransferSpeed()
+            'Loading: ',
+            progressbar.Percentage(),
+            ' ',
+            progressbar.Bar(marker='#', left='[', right=']'),
+            ' ',
+            progressbar.ETA(),
+            ' ',
+            progressbar.FileTransferSpeed(),
         ]
         progress = progressbar.ProgressBar(
             maxval=int(response.headers.get('Content-Length') or ''),
-            widgets=widgets
+            widgets=widgets,
         ).start()
         processed = 0
         with open(filename, 'wb') as data:

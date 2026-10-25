@@ -16,10 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiSolverRepositorySetupError
@@ -32,6 +29,7 @@ class SolverRepository(metaclass=ABCMeta):
 
     * :param object uri: Instance of :class:`Uri`
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
@@ -42,7 +40,7 @@ class SolverRepository(metaclass=ABCMeta):
             'yast2': ['SolverRepositorySUSE', 'suse'],
             'rpm-md': ['SolverRepositoryRpmMd', 'rpm_md'],
             'rpm-dir': ['SolverRepositoryRpmDir', 'rpm_dir'],
-            'apt-deb': ['SolverRepositoryDeb', 'deb']
+            'apt-deb': ['SolverRepositoryDeb', 'deb'],
         }
         try:
             module_name = name_map[uri.repo_type][0]
@@ -50,9 +48,7 @@ class SolverRepository(metaclass=ABCMeta):
             repository = importlib.import_module(
                 'kiwi.solver.repository.{0}'.format(module_namespace)
             )
-            return repository.__dict__[module_name](
-                uri, user, secret
-            )
+            return repository.__dict__[module_name](uri, user, secret)
         except Exception as issue:
             raise KiwiSolverRepositorySetupError(
                 'Support for {0} solver repotype not implemented: {1}'.format(

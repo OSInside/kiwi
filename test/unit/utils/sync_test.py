@@ -3,9 +3,7 @@ import errno
 import logging
 from pytest import fixture
 from stat import ST_MODE
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 
 from kiwi.utils.sync import DataSync
 
@@ -27,8 +25,12 @@ class TestDataSync:
     @patch('os.chmod')
     @patch('os.stat')
     def test_sync_data(
-        self, mock_stat, mock_chmod, mock_xattr_support, mock_command,
-        mock_RuntimeConfig
+        self,
+        mock_stat,
+        mock_chmod,
+        mock_xattr_support,
+        mock_command,
+        mock_RuntimeConfig,
     ):
         mock_RuntimeConfig.return_value.get_sync_sparse.return_value = False
         mock_stat.return_value = os.stat('.')
@@ -36,15 +38,24 @@ class TestDataSync:
         with self._caplog.at_level(logging.WARNING):
             self.sync.sync_data(
                 options=[
-                    '--archive', '--hard-links', '--xattrs',
-                    '--acls', '--one-file-system'
+                    '--archive',
+                    '--hard-links',
+                    '--xattrs',
+                    '--acls',
+                    '--one-file-system',
                 ],
-                exclude=['exclude_me']
+                exclude=['exclude_me'],
             )
             mock_command.assert_called_once_with(
                 [
-                    'rsync', '--archive', '--hard-links', '--one-file-system',
-                    '--exclude', '/exclude_me', 'source_dir', 'target_dir'
+                    'rsync',
+                    '--archive',
+                    '--hard-links',
+                    '--one-file-system',
+                    '--exclude',
+                    '/exclude_me',
+                    'source_dir',
+                    'target_dir',
                 ]
             )
             mock_chmod.assert_called_once_with(
@@ -58,8 +69,13 @@ class TestDataSync:
     @patch('os.chmod')
     @patch('os.stat')
     def test_sync_data_sparse(
-        self, mock_stat, mock_chmod, mock_xattr_support, mock_command,
-        mock_sparse_inplace, mock_RuntimeConfig
+        self,
+        mock_stat,
+        mock_chmod,
+        mock_xattr_support,
+        mock_command,
+        mock_sparse_inplace,
+        mock_RuntimeConfig,
     ):
         mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
         mock_sparse_inplace.return_value = True
@@ -68,8 +84,12 @@ class TestDataSync:
         self.sync.sync_data(options=['--archive', '--inplace'])
         mock_command.assert_called_once_with(
             [
-                'rsync', '--archive', '--inplace', '--sparse',
-                'source_dir', 'target_dir'
+                'rsync',
+                '--archive',
+                '--inplace',
+                '--sparse',
+                'source_dir',
+                'target_dir',
             ]
         )
 
@@ -79,8 +99,12 @@ class TestDataSync:
     @patch('os.chmod')
     @patch('os.stat')
     def test_sync_data_sparse_already_requested(
-        self, mock_stat, mock_chmod, mock_xattr_support, mock_command,
-        mock_RuntimeConfig
+        self,
+        mock_stat,
+        mock_chmod,
+        mock_xattr_support,
+        mock_command,
+        mock_RuntimeConfig,
     ):
         mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
         mock_xattr_support.return_value = True
@@ -96,8 +120,12 @@ class TestDataSync:
     @patch('os.chmod')
     @patch('os.stat')
     def test_sync_data_sparse_skipped_for_preallocate(
-        self, mock_stat, mock_chmod, mock_xattr_support, mock_command,
-        mock_RuntimeConfig
+        self,
+        mock_stat,
+        mock_chmod,
+        mock_xattr_support,
+        mock_command,
+        mock_RuntimeConfig,
     ):
         mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
         mock_xattr_support.return_value = True
@@ -116,8 +144,13 @@ class TestDataSync:
     @patch('os.chmod')
     @patch('os.stat')
     def test_sync_data_sparse_skipped_for_old_rsync(
-        self, mock_stat, mock_chmod, mock_xattr_support, mock_command,
-        mock_sparse_inplace, mock_RuntimeConfig
+        self,
+        mock_stat,
+        mock_chmod,
+        mock_xattr_support,
+        mock_command,
+        mock_sparse_inplace,
+        mock_RuntimeConfig,
     ):
         mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
         mock_sparse_inplace.return_value = False
@@ -144,9 +177,7 @@ class TestDataSync:
         assert DataSync._rsync_supports_sparse_inplace() is False
 
     @patch('kiwi.utils.sync.Command.run')
-    def test_rsync_supports_sparse_inplace_detection_failed(
-        self, mock_command
-    ):
+    def test_rsync_supports_sparse_inplace_detection_failed(self, mock_command):
         mock_command.side_effect = Exception('rsync not found')
         with self._caplog.at_level(logging.WARNING):
             assert DataSync._rsync_supports_sparse_inplace() is False
@@ -169,9 +200,7 @@ class TestDataSync:
     @patch('os.getxattr')
     def test_target_supports_extended_attributes(self, mock_getxattr):
         assert self.sync.target_supports_extended_attributes() is True
-        mock_getxattr.assert_called_once_with(
-            'target_dir', 'user.mime_type'
-        )
+        mock_getxattr.assert_called_once_with('target_dir', 'user.mime_type')
 
     @patch('os.getxattr')
     def test_target_does_not_support_extended_attributes(self, mock_getxattr):

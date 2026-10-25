@@ -1,7 +1,5 @@
 from unittest.mock import patch
-from pytest import (
-    raises, fixture
-)
+from pytest import raises, fixture
 import unittest.mock as mock
 
 from kiwi.package_manager.pacman import PackageManagerPacman
@@ -21,9 +19,12 @@ class TestPackageManagerPacman:
         repository.runtime_config = mock.Mock(
             return_value={
                 'pacman_args': [
-                    '--config', '/root-dir/pacman.conf', '-y', '--noconfirm'
+                    '--config',
+                    '/root-dir/pacman.conf',
+                    '-y',
+                    '--noconfirm',
                 ],
-                'command_env': ['env']
+                'command_env': ['env'],
             }
         )
         self.manager = PackageManagerPacman(repository)
@@ -59,17 +60,34 @@ class TestPackageManagerPacman:
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
             [
-                'pacman', '--config', '/root-dir/pacman.conf', '-y',
-                '--noconfirm', '--root', '/root-dir', '-Sy'
-            ], ['env']
+                'pacman',
+                '--config',
+                '/root-dir/pacman.conf',
+                '-y',
+                '--noconfirm',
+                '--root',
+                '/root-dir',
+                '-Sy',
+            ],
+            ['env'],
         )
         mock_call.assert_called_once_with(
             [
-                'pacman', '--config', '/root-dir/pacman.conf',
-                '-y', '--noconfirm', '--root', '/root-dir', '-S',
-                '--needed', '--overwrite', '/root-dir/var/run',
-                'vim', 'collection'
-            ], ['env']
+                'pacman',
+                '--config',
+                '/root-dir/pacman.conf',
+                '-y',
+                '--noconfirm',
+                '--root',
+                '/root-dir',
+                '-S',
+                '--needed',
+                '--overwrite',
+                '/root-dir/var/run',
+                'vim',
+                'collection',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -80,10 +98,19 @@ class TestPackageManagerPacman:
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'pacman', '--config',
-                '/pacman.conf', '-y', '--noconfirm', '-S',
-                '--needed', 'vim', 'collection'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'pacman',
+                '--config',
+                '/pacman.conf',
+                '-y',
+                '--noconfirm',
+                '-S',
+                '--needed',
+                'vim',
+                'collection',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -93,9 +120,17 @@ class TestPackageManagerPacman:
         self.manager.process_delete_requests(True)
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'pacman', '--config', '/pacman.conf',
-                '-y', '--noconfirm', '-Rdd', 'vim'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'pacman',
+                '--config',
+                '/pacman.conf',
+                '-y',
+                '--noconfirm',
+                '-Rdd',
+                'vim',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -105,16 +140,22 @@ class TestPackageManagerPacman:
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'pacman', '--config', '/pacman.conf',
-                '-y', '--noconfirm', '-Rs', 'vim'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'pacman',
+                '--config',
+                '/pacman.conf',
+                '-y',
+                '--noconfirm',
+                '-Rs',
+                'vim',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.command.Command.call')
-    def test_process_delete_requests_package_missing(
-        self, mock_call, mock_run
-    ):
+    def test_process_delete_requests_package_missing(self, mock_call, mock_run):
         mock_run.side_effect = Exception
         self.manager.request_package('vim')
         with raises(KiwiRequestError):
@@ -136,9 +177,16 @@ class TestPackageManagerPacman:
         self.manager.update()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'pacman', '--config', '/pacman.conf',
-                '-y', '--noconfirm', '-Su'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'pacman',
+                '--config',
+                '/pacman.conf',
+                '-y',
+                '--noconfirm',
+                '-Su',
+            ],
+            ['env'],
         )
 
     def test_match_package_installed(self):

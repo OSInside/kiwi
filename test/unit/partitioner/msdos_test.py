@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, call, mock_open, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, mock_open, Mock
+from pytest import raises, fixture
 from collections import namedtuple
 
 from kiwi.partitioner.msdos import PartitionerMsDos
@@ -19,9 +15,7 @@ class TestPartitionerMsDos:
 
     def setup(self):
         disk_provider = Mock()
-        disk_provider.get_device = Mock(
-            return_value='/dev/loop0'
-        )
+        disk_provider.get_device = Mock(return_value='/dev/loop0')
         self.partitioner = PartitionerMsDos(disk_provider, 4096)
         self.partitioner_extended = PartitionerMsDos(
             disk_provider, extended_layout=True
@@ -35,12 +29,8 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
     def test_create_primary(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
-        mock_temp.return_value = temp_type(
-            name='tempfile'
-        )
+        temp_type = namedtuple('temp_type', ['name'])
+        mock_temp.return_value = temp_type(name='tempfile')
         m_open = mock_open()
 
         with patch('builtins.open', m_open, create=True):
@@ -52,11 +42,9 @@ class TestPartitionerMsDos:
             'n\np\n1\n\n+101M\nw\nq\n'
         )
         call = mock_flag.call_args_list[0]
-        assert mock_flag.call_args_list[0] == \
-            call(1, 't.linux')
+        assert mock_flag.call_args_list[0] == call(1, 't.linux')
         call = mock_flag.call_args_list[1]
-        assert mock_flag.call_args_list[1] == \
-            call(1, 'f.active')
+        assert mock_flag.call_args_list[1] == call(1, 'f.active')
         mock_command.assert_called_once_with(
             ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
         )
@@ -66,20 +54,14 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
     def test_create_extended(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
-        mock_temp.return_value = temp_type(
-            name='tempfile'
-        )
+        temp_type = namedtuple('temp_type', ['name'])
+        mock_temp.return_value = temp_type(name='tempfile')
         m_open = mock_open()
 
         with patch('builtins.open', m_open, create=True):
             self.partitioner._create_extended('name')
 
-        m_open.return_value.write.assert_called_once_with(
-            'n\ne\n1\n\n\nw\nq\n'
-        )
+        m_open.return_value.write.assert_called_once_with('n\ne\n1\n\n\nw\nq\n')
         mock_command.assert_called_once_with(
             ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
         )
@@ -89,12 +71,8 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
     def test_create_logical(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
-        mock_temp.return_value = temp_type(
-            name='tempfile'
-        )
+        temp_type = namedtuple('temp_type', ['name'])
+        mock_temp.return_value = temp_type(name='tempfile')
         m_open = mock_open()
 
         with patch('builtins.open', m_open, create=True):
@@ -106,11 +84,9 @@ class TestPartitionerMsDos:
             'n\n1\n\n+100M\nw\nq\n'
         )
         call = mock_flag.call_args_list[0]
-        assert mock_flag.call_args_list[0] == \
-            call(1, 't.linux')
+        assert mock_flag.call_args_list[0] == call(1, 't.linux')
         call = mock_flag.call_args_list[1]
-        assert mock_flag.call_args_list[1] == \
-            call(1, 'f.active')
+        assert mock_flag.call_args_list[1] == call(1, 'f.active')
         mock_command.assert_called_once_with(
             ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
         )
@@ -148,24 +124,16 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
-    def test_create_all_free(
-        self, mock_temp, mock_flag, mock_command
-    ):
+    def test_create_all_free(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
-        mock_temp.return_value = temp_type(
-            name='tempfile'
-        )
+        temp_type = namedtuple('temp_type', ['name'])
+        mock_temp.return_value = temp_type(name='tempfile')
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             self.partitioner.create('name', 'all_free', 't.linux')
 
-        m_open.return_value.write.assert_called_once_with(
-            'n\np\n1\n\n\nw\nq\n'
-        )
+        m_open.return_value.write.assert_called_once_with('n\np\n1\n\n\nw\nq\n')
 
     def test_set_flag_invalid(self):
         with raises(KiwiPartitionerMsDosFlagError):
@@ -196,12 +164,8 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
     @patch('kiwi.partitioner.msdos.BlockID')
     def test_set_start_sector(self, mock_BlockID, mock_temp, mock_Command_run):
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
-        mock_temp.return_value = temp_type(
-            name='tempfile'
-        )
+        temp_type = namedtuple('temp_type', ['name'])
+        mock_temp.return_value = temp_type(name='tempfile')
         m_open = mock_open()
         mock_BlockID.return_value.get_partition_count.return_value = 4
         with patch('builtins.open', m_open, create=True):

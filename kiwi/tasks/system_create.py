@@ -38,6 +38,7 @@ class SystemCreateTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Create a system image from the specified root directory
@@ -50,9 +51,7 @@ class SystemCreateTask(CliTask):
 
         Privileges.check_for_root_permissions()
 
-        abs_target_dir_path = os.path.abspath(
-            self.command_args['--target-dir']
-        )
+        abs_target_dir_path = os.path.abspath(self.command_args['--target-dir'])
         abs_root_path = os.path.abspath(self.command_args['--root'])
 
         self.load_xml_description(
@@ -61,12 +60,11 @@ class SystemCreateTask(CliTask):
 
         self.run_checks(
             {
-                'check_target_directory_not_in_shared_cache':
-                    [abs_root_path],
-                'check_dracut_module_versions_compatible_to_kiwi':
-                    [abs_root_path],
-                'check_target_dir_on_unsupported_filesystem':
-                    [abs_root_path]
+                'check_target_directory_not_in_shared_cache': [abs_root_path],
+                'check_dracut_module_versions_compatible_to_kiwi': [
+                    abs_root_path
+                ],
+                'check_target_dir_on_unsupported_filesystem': [abs_root_path],
             }
         )
 
@@ -74,10 +72,7 @@ class SystemCreateTask(CliTask):
         if not os.path.exists(abs_target_dir_path):
             Path.create(abs_target_dir_path)
 
-        setup = SystemSetup(
-            xml_state=self.xml_state,
-            root_dir=abs_root_path
-        )
+        setup = SystemSetup(xml_state=self.xml_state, root_dir=abs_root_path)
         setup.call_image_script()
 
         image_builder = ImageBuilder.new(
@@ -86,14 +81,12 @@ class SystemCreateTask(CliTask):
             abs_root_path,
             custom_args={
                 'signing_keys': self.command_args['--signing-key'],
-                'xz_options': self.runtime_config.get_xz_options()
-            }
+                'xz_options': self.runtime_config.get_xz_options(),
+            },
         )
         result = image_builder.create()
         result.print_results()
-        result.dump(
-            os.sep.join([abs_target_dir_path, 'kiwi.result'])
-        )
+        result.dump(os.sep.join([abs_target_dir_path, 'kiwi.result']))
 
     def _help(self):
         if self.command_args['help']:

@@ -1,9 +1,7 @@
 import io
 from textwrap import dedent
 from pytest import raises
-from unittest.mock import (
-    patch, Mock, MagicMock, call
-)
+from unittest.mock import patch, Mock, MagicMock, call
 
 from kiwi.utils.veritysetup import VeritySetup
 from kiwi.exceptions import KiwiOffsetError
@@ -25,7 +23,7 @@ class TestVeritySetup:
             'Hashblocksize': '4096',
             'Hashalgorithm': 'sha256',
             'Salt': 'fb074d1db50...',
-            'Roothash': 'e2728628377...'
+            'Roothash': 'e2728628377...',
         }
 
     @patch('os.path.getsize')
@@ -37,9 +35,13 @@ class TestVeritySetup:
         self.veritysetup.format()
         mock_Command_run.assert_called_once_with(
             [
-                'veritysetup', 'format', 'image_file', 'image_file',
+                'veritysetup',
+                'format',
+                'image_file',
+                'image_file',
                 '--hash-offset=4096',
-                '--hash-block-size=4096', '--data-blocks=10',
+                '--hash-block-size=4096',
+                '--data-blocks=10',
                 '--data-block-size=4096',
             ]
         )
@@ -53,12 +55,18 @@ class TestVeritySetup:
         tempfile = Mock()
         tempfile.name = 'tempfile'
         mock_Temporary_new_file.return_value = tempfile
-        assert self.veritysetup.get_hash_byte_size() == \
-            mock_os_path_getsize.return_value
+        assert (
+            self.veritysetup.get_hash_byte_size()
+            == mock_os_path_getsize.return_value
+        )
         mock_Command_run.assert_called_once_with(
             [
-                'veritysetup', 'format', 'image_file', 'tempfile',
-                '--hash-block-size=4096', '--data-blocks=10',
+                'veritysetup',
+                'format',
+                'image_file',
+                'tempfile',
+                '--hash-block-size=4096',
+                '--data-blocks=10',
                 '--data-block-size=4096',
             ]
         )
@@ -81,9 +89,12 @@ class TestVeritySetup:
         assert self.veritysetup_full.format() == self.verity_dict
         mock_Command_run.assert_called_once_with(
             [
-                'veritysetup', 'format', 'image_file', 'image_file',
+                'veritysetup',
+                'format',
+                'image_file',
+                'image_file',
                 '--hash-offset=4096',
-                '--hash-block-size=4096'
+                '--hash-block-size=4096',
             ]
         )
 
@@ -110,7 +121,7 @@ class TestVeritySetup:
             call('Root hashoffset: 4096'),
             call('\n'),
             call('Superblock:'),
-            call('\n')
+            call('\n'),
         ]
 
     @patch('kiwi.utils.veritysetup.BlockID')
@@ -142,14 +153,12 @@ class TestVeritySetup:
             self.veritysetup.write_verification_metadata('/some/device')
         assert mock_open.call_args_list == [
             call('metadata_file', 'rb'),
-            call('/some/device', 'r+b')
+            call('/some/device', 'r+b'),
         ]
         file_handle.seek.assert_called_once_with(
             -defaults.DM_METADATA_OFFSET, 2
         )
-        file_handle.write.assert_called_once_with(
-            file_handle.read.return_value
-        )
+        file_handle.write.assert_called_once_with(file_handle.read.return_value)
 
     @patch.object(VeritySetup, 'get_block_storage_filesystem')
     def test_create_verity_verification_metadata(
@@ -166,7 +175,7 @@ class TestVeritySetup:
             call(b'\xff'),
             call(b'1 4096 4096 10 1 sha256 e2728628377... fb074d1db50...'),
             call(b'\xff'),
-            call(b'\x00')
+            call(b'\x00'),
         ]
 
     @patch('kiwi.utils.veritysetup.Signature')

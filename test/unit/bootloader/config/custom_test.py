@@ -23,9 +23,7 @@ from kiwi.bootloader.config.custom import BootLoaderConfigCustom
 
 class TestBootLoaderConfigCustom:
     def setup(self):
-        self.bootloader = BootLoaderConfigCustom(
-            Mock(), 'root_dir'
-        )
+        self.bootloader = BootLoaderConfigCustom(Mock(), 'root_dir')
 
     def setup_method(self, cls):
         self.setup()

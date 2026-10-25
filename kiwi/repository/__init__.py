@@ -17,10 +17,7 @@
 #
 import importlib
 from typing import List
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiRepositorySetupError
@@ -37,14 +34,16 @@ class Repository(metaclass=ABCMeta):
 
     :raises KiwiRepositorySetupError: if package_manager is not supported
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        root_bind: object, package_manager: str,
-        custom_args: List=None  # noqa: E252
+        root_bind: object,
+        package_manager: str,
+        custom_args: List = None,  # noqa: E252
     ):
         name_map = {
             'zypper': ['zypper', 'Zypper'],
@@ -54,16 +53,14 @@ class Repository(metaclass=ABCMeta):
             'microdnf': ['dnf4', 'Dnf4'],
             'apt': ['apt', 'Apt'],
             'pacman': ['pacman', 'Pacman'],
-            'apk': ['apk', 'Apk']
+            'apk': ['apk', 'Apk'],
         }
         try:
             repository = importlib.import_module(
                 'kiwi.repository.{0}'.format(name_map[package_manager][0])
             )
             module_name = 'Repository{0}'.format(name_map[package_manager][1])
-            return repository.__dict__[module_name](
-                root_bind, custom_args
-            )
+            return repository.__dict__[module_name](root_bind, custom_args)
         except Exception as issue:
             raise KiwiRepositorySetupError(
                 'Support for {0} repository not implemented: {1}'.format(

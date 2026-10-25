@@ -19,9 +19,7 @@ import json
 import os.path
 
 from kiwi.utils.temporary import Temporary
-from typing import (
-    Dict, Optional, List
-)
+from typing import Dict, Optional, List
 
 from kiwi import xml_parse
 from kiwi.system.result import Result
@@ -29,9 +27,7 @@ from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.storage.subformat.template.vagrant_config import VagrantConfigTemplate
 from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiFormatSetupError
-)
+from kiwi.exceptions import KiwiFormatSetupError
 
 
 class DiskFormatVagrantBase(DiskFormatBase):
@@ -74,6 +70,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
     * :meth:`get_additional_vagrant_config_settings`
 
     """
+
     def post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]):
         """
         vagrant disk format post initialization method
@@ -93,9 +90,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
             )
 
         if not custom_args['vagrantconfig']:
-            raise KiwiFormatSetupError(
-                'no vagrantconfig provided'
-            )
+            raise KiwiFormatSetupError('no vagrantconfig provided')
         self.vagrantconfig = custom_args['vagrantconfig']
         self.vagrant_post_init()
 
@@ -147,26 +142,27 @@ class DiskFormatVagrantBase(DiskFormatBase):
             # user provided a Vagrantfile
             else:
                 with open(
-                        os.path.join(
-                            self.xml_state.xml_data.description_dir,
-                            self.vagrantconfig.get_embedded_vagrantfile()
-                        ), 'r') as users_vagrantfile:
+                    os.path.join(
+                        self.xml_state.xml_data.description_dir,
+                        self.vagrantconfig.get_embedded_vagrantfile(),
+                    ),
+                    'r',
+                ) as users_vagrantfile:
                     embedded_vagrantfile = users_vagrantfile.read(-1)
 
             vagrant.write(embedded_vagrantfile)
 
         Command.run(
             [
-                'tar', '-C', temp_image_dir.name,
-                '-czf', self.get_target_file_path_for_format(
-                    self.image_format
-                ),
+                'tar',
+                '-C',
+                temp_image_dir.name,
+                '-czf',
+                self.get_target_file_path_for_format(self.image_format),
                 os.path.basename(metadata_json),
-                os.path.basename(vagrantfile)
-            ] + [
-                os.path.basename(box_img_file)
-                for box_img_file in box_img_files
+                os.path.basename(vagrantfile),
             ]
+            + [os.path.basename(box_img_file) for box_img_file in box_img_files]
         )
 
     def store_to_result(self, result: Result) -> None:
@@ -184,12 +180,10 @@ class DiskFormatVagrantBase(DiskFormatBase):
 
         result.add(
             key='disk_format_image',
-            filename=self.get_target_file_path_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_file_path_for_format(self.image_format),
             use_for_bundle=True,
             compress=False,
-            shasum=True
+            shasum=True,
         )
 
     def get_additional_metadata(self) -> Dict:

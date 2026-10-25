@@ -1,12 +1,8 @@
 import os
 import sys
 import logging
-from unittest.mock import (
-    patch, call, Mock, mock_open
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, Mock, mock_open
+from pytest import raises, fixture
 
 from ..test_helper import argv_kiwi_tests
 
@@ -24,35 +20,37 @@ class TestResultBundleTask:
 
     def setup(self):
         sys.argv = [
-            sys.argv[0], 'result', 'bundle', '--target-dir', 'target_dir',
-            '--bundle-dir', 'bundle_dir', '--id', 'Build_42'
+            sys.argv[0],
+            'result',
+            'bundle',
+            '--target-dir',
+            'target_dir',
+            '--bundle-dir',
+            'bundle_dir',
+            '--id',
+            'Build_42',
         ]
         self.abs_target_dir = os.path.abspath('target_dir')
         self.abs_bundle_dir = os.path.abspath('bundle_dir')
 
         self.xml_state = Mock()
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='test-image'
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
+        self.xml_state.xml_data.get_name = Mock(return_value='test-image')
 
         self.result = Result(self.xml_state)
         self.result.add(
-            key='keyname', filename='test-image-1.2.3',
-            use_for_bundle=True, compress=True, shasum=True
+            key='keyname',
+            filename='test-image-1.2.3',
+            use_for_bundle=True,
+            compress=True,
+            shasum=True,
         )
 
-        kiwi.tasks.result_bundle.Help = Mock(
-            return_value=Mock()
-        )
+        kiwi.tasks.result_bundle.Help = Mock(return_value=Mock())
         self.task = ResultBundleTask()
 
         runtime_config = Mock()
-        runtime_config.is_bundle_compression_requested = Mock(
-            return_value=True
-        )
+        runtime_config.is_bundle_compression_requested = Mock(return_value=True)
         self.task.runtime_config = runtime_config
 
     def setup_method(self, cls):
@@ -78,8 +76,9 @@ class TestResultBundleTask:
 
     def test_process_invalid_bundle_directory(self):
         self._init_command_args()
-        self.task.command_args['--bundle-dir'] = \
-            self.task.command_args['--target-dir']
+        self.task.command_args['--bundle-dir'] = self.task.command_args[
+            '--target-dir'
+        ]
         self.task.command_args['bundle'] = True
         with raises(KiwiBundleError):
             self.task.process()
@@ -95,14 +94,25 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_compress,
-        mock_path_which, mock_path_create, mock_command, mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_compress,
+        mock_path_which,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         # This file won't be copied with build id
         self.result.add(
-            key='noversion', filename='test-image-noversion',
-            use_for_bundle=True, compress=False, shasum=False
+            key='noversion',
+            filename='test-image-noversion',
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         compress = Mock()
@@ -130,43 +140,73 @@ class TestResultBundleTask:
         )
         mock_path_create.assert_called_once_with(self.abs_bundle_dir)
         assert mock_command.call_args_list == [
-            call([
-                'cp', 'test-image-1.2.3',
-                os.sep.join([self.abs_bundle_dir, 'test-image-1.2.3-Build_42'])
-            ]),
-            call([
-                'cp', 'test-image-noversion',
-                os.sep.join([self.abs_bundle_dir, 'test-image-noversion'])
-            ]),
-            call([
-                'file',
-                os.sep.join([self.abs_bundle_dir, 'test-image-1.2.3-Build_42'])
-            ]),
-            call([
-                'sed', '-ie', 's/test-image-1.2.3/readlinked/g',
-                os.sep.join([self.abs_bundle_dir, 'test-image-1.2.3-Build_42'])
-            ]),
-            call([
-                'file',
-                os.sep.join([self.abs_bundle_dir, 'test-image-noversion'])
-            ]),
-            call([
-                'sed', '-ie', 's/test-image-1.2.3/readlinked/g',
-                os.sep.join([self.abs_bundle_dir, 'test-image-noversion'])
-            ]),
-            call([
-                'zsyncmake', '-e',
-                '-u', 'http://example.com/zsync/compressed_filename',
-                '-o', 'compressed_filename.zsync',
-                'compressed_filename'
-            ])
+            call(
+                [
+                    'cp',
+                    'test-image-1.2.3',
+                    os.sep.join(
+                        [self.abs_bundle_dir, 'test-image-1.2.3-Build_42']
+                    ),
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    'test-image-noversion',
+                    os.sep.join([self.abs_bundle_dir, 'test-image-noversion']),
+                ]
+            ),
+            call(
+                [
+                    'file',
+                    os.sep.join(
+                        [self.abs_bundle_dir, 'test-image-1.2.3-Build_42']
+                    ),
+                ]
+            ),
+            call(
+                [
+                    'sed',
+                    '-ie',
+                    's/test-image-1.2.3/readlinked/g',
+                    os.sep.join(
+                        [self.abs_bundle_dir, 'test-image-1.2.3-Build_42']
+                    ),
+                ]
+            ),
+            call(
+                [
+                    'file',
+                    os.sep.join([self.abs_bundle_dir, 'test-image-noversion']),
+                ]
+            ),
+            call(
+                [
+                    'sed',
+                    '-ie',
+                    's/test-image-1.2.3/readlinked/g',
+                    os.sep.join([self.abs_bundle_dir, 'test-image-noversion']),
+                ]
+            ),
+            call(
+                [
+                    'zsyncmake',
+                    '-e',
+                    '-u',
+                    'http://example.com/zsync/compressed_filename',
+                    '-o',
+                    'compressed_filename.zsync',
+                    'compressed_filename',
+                ]
+            ),
         ]
         mock_compress.assert_called_once_with(
             os.sep.join([self.abs_bundle_dir, 'test-image-1.2.3-Build_42'])
         )
         m_open.return_value.write.assert_called_once_with(
             '{0}  compressed_filename{1}'.format(
-                self.task.runtime_config.get_checksum_handler.return_value.digest.return_value, os.linesep
+                self.task.runtime_config.get_checksum_handler.return_value.digest.return_value,
+                os.linesep,
             )
         )
 
@@ -187,11 +227,23 @@ class TestResultBundleTask:
     @patch('os.path.realpath')
     @patch('os.path.abspath')
     def test_process_result_bundle_as_rpm(
-        self, mock_os_path_abspath, mock_os_path_realpath, mock_os_readlink,
-        mock_os_symlink, mock_os_path_islink, mock_iglob, mock_unlink,
-        mock_chdir, mock_exists, mock_compress,
-        mock_path_wipe, mock_path_which, mock_path_create, mock_command,
-        mock_load, mock_Privileges_check_for_root_permissions
+        self,
+        mock_os_path_abspath,
+        mock_os_path_realpath,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_path_islink,
+        mock_iglob,
+        mock_unlink,
+        mock_chdir,
+        mock_exists,
+        mock_compress,
+        mock_path_wipe,
+        mock_path_which,
+        mock_path_create,
+        mock_command,
+        mock_load,
+        mock_Privileges_check_for_root_permissions,
     ):
         def abspath(path):
             if path == 'target_dir':
@@ -223,29 +275,28 @@ class TestResultBundleTask:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', 'test-image-1.2.3',
-                    os.sep.join(
-                        ['bundle-dir', 'test-image-1.2.3-Build_42']
-                    )
+                    'cp',
+                    'test-image-1.2.3',
+                    os.sep.join(['bundle-dir', 'test-image-1.2.3-Build_42']),
                 ]
             ),
             call(
                 [
                     'file',
-                    os.sep.join(
-                        ['bundle-dir', 'test-image-1.2.3-Build_42']
-                    )
+                    os.sep.join(['bundle-dir', 'test-image-1.2.3-Build_42']),
                 ]
             ),
             call(
                 [
-                    'rpmbuild', '--nodeps', '--nocheck', '--rmspec', '-bb',
-                    os.sep.join(['bundle-dir', 'test-image.spec'])
+                    'rpmbuild',
+                    '--nodeps',
+                    '--nocheck',
+                    '--rmspec',
+                    '-bb',
+                    os.sep.join(['bundle-dir', 'test-image.spec']),
                 ]
             ),
-            call(
-                ['bash', '-c', 'mv noarch/*.rpm . && rmdir noarch']
-            )
+            call(['bash', '-c', 'mv noarch/*.rpm . && rmdir noarch']),
         ]
         mock_chdir.assert_called_once_with('bundle-dir')
         assert mock_unlink.called
@@ -259,25 +310,29 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='oem'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='oem')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add_bundle_format('%N-%T:%M')
         result.add(
             key='disk_image',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.raw',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -291,19 +346,15 @@ class TestResultBundleTask:
                 [
                     'cp',
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.raw',
-                    os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']
-                    )
+                    os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']),
                 ]
             ),
             call(
                 [
                     'file',
-                    os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']
-                    )
+                    os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -315,25 +366,29 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_for_vagrant_types(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='oem'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='oem')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add_bundle_format('%N-%T:%M')
         result.add(
             key='disk_image',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.vagrant.virtualbox.box',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -348,18 +403,24 @@ class TestResultBundleTask:
                     'cp',
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.vagrant.virtualbox.box',
                     os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-oem:1.vagrant.virtualbox.box']
-                    )
+                        [
+                            self.abs_bundle_dir,
+                            'Leap-15.2-oem:1.vagrant.virtualbox.box',
+                        ]
+                    ),
                 ]
             ),
             call(
                 [
                     'file',
                     os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-oem:1.vagrant.virtualbox.box']
-                    )
+                        [
+                            self.abs_bundle_dir,
+                            'Leap-15.2-oem:1.vagrant.virtualbox.box',
+                        ]
+                    ),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -371,25 +432,29 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_for_archive_types(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='oem'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='oem')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add_bundle_format('%N-%T:%M')
         result.add(
             key='disk_image',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.tar.xz',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -405,7 +470,7 @@ class TestResultBundleTask:
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.tar.xz',
                     os.sep.join(
                         [self.abs_bundle_dir, 'Leap-15.2-oem:1.tar.xz']
-                    )
+                    ),
                 ]
             ),
             call(
@@ -413,9 +478,9 @@ class TestResultBundleTask:
                     'file',
                     os.sep.join(
                         [self.abs_bundle_dir, 'Leap-15.2-oem:1.tar.xz']
-                    )
+                    ),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -427,25 +492,29 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_for_oci_types(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='oci'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='oci')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add_bundle_format('%N-%T:%M')
         result.add(
             key='container',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.oci.tar.xz',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -461,7 +530,7 @@ class TestResultBundleTask:
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.oci.tar.xz',
                     os.sep.join(
                         [self.abs_bundle_dir, 'Leap-15.2-oci:1.oci.tar.xz']
-                    )
+                    ),
                 ]
             ),
             call(
@@ -469,9 +538,9 @@ class TestResultBundleTask:
                     'file',
                     os.sep.join(
                         [self.abs_bundle_dir, 'Leap-15.2-oci:1.oci.tar.xz']
-                    )
+                    ),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -483,25 +552,29 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_for_docker_type(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='docker'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='docker')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add_bundle_format('%N-%T:%M')
         result.add(
             key='container',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.docker.tar',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -517,7 +590,7 @@ class TestResultBundleTask:
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.docker.tar',
                     os.sep.join(
                         [self.abs_bundle_dir, 'Leap-15.2-docker:1.docker.tar']
-                    )
+                    ),
                 ]
             ),
             call(
@@ -525,9 +598,9 @@ class TestResultBundleTask:
                     'file',
                     os.sep.join(
                         [self.abs_bundle_dir, 'Leap-15.2-docker:1.docker.tar']
-                    )
+                    ),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -539,25 +612,29 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_for_compressed_docker_type(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='docker'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='docker')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add_bundle_format('%N-%T:%M')
         result.add(
             key='container',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.docker.tar.xz',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -572,18 +649,24 @@ class TestResultBundleTask:
                     'cp',
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.docker.tar.xz',
                     os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-docker:1.docker.tar.xz']
-                    )
+                        [
+                            self.abs_bundle_dir,
+                            'Leap-15.2-docker:1.docker.tar.xz',
+                        ]
+                    ),
                 ]
             ),
             call(
                 [
                     'file',
                     os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-docker:1.docker.tar.xz']
-                    )
+                        [
+                            self.abs_bundle_dir,
+                            'Leap-15.2-docker:1.docker.tar.xz',
+                        ]
+                    ),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -595,24 +678,28 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_from_commandline(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         self.xml_state.profiles = None
         self.xml_state.host_architecture = 'x86_64'
-        self.xml_state.get_build_type_name = Mock(
-            return_value='oem'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='Leap-15.2'
-        )
+        self.xml_state.get_build_type_name = Mock(return_value='oem')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
 
         result = Result(self.xml_state)
         result.add(
             key='disk_image',
             filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.raw',
-            use_for_bundle=True, compress=False, shasum=False
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
         mock_exists.return_value = False
@@ -628,19 +715,15 @@ class TestResultBundleTask:
                 [
                     'cp',
                     '/tmp/mytest/Leap-15.2.x86_64-1.15.2.raw',
-                    os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']
-                    )
+                    os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']),
                 ]
             ),
             call(
                 [
                     'file',
-                    os.sep.join(
-                        [self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']
-                    )
+                    os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem:1.raw']),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -652,19 +735,26 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_name_includes_version(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
-        mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         result = Result(self.xml_state)
         result.add(
-            key='nameincludesversion', filename='test-1.2.3-image-1.2.3',
-            use_for_bundle=True, compress=False, shasum=False
+            key='nameincludesversion',
+            filename='test-1.2.3-image-1.2.3',
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
         )
 
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='test-1.2.3-image'
-        )
+        self.xml_state.xml_data.get_name = Mock(return_value='test-1.2.3-image')
 
         mock_exists.return_value = False
         mock_load.return_value = result
@@ -679,10 +769,11 @@ class TestResultBundleTask:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', 'test-1.2.3-image-1.2.3',
+                    'cp',
+                    'test-1.2.3-image-1.2.3',
                     os.sep.join(
                         [self.abs_bundle_dir, 'test-1.2.3-image-1.2.3-Build_42']
-                    )
+                    ),
                 ]
             ),
             call(
@@ -690,9 +781,9 @@ class TestResultBundleTask:
                     'file',
                     os.sep.join(
                         [self.abs_bundle_dir, 'test-1.2.3-image-1.2.3-Build_42']
-                    )
+                    ),
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.tasks.result_bundle.Result.load')
@@ -706,9 +797,17 @@ class TestResultBundleTask:
     @patch('os.symlink')
     @patch('os.readlink')
     def test_process_result_bundle_zsyncmake_missing(
-        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_compress,
-        mock_path_which, mock_path_create, mock_command, mock_load
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_compress,
+        mock_path_which,
+        mock_path_create,
+        mock_command,
+        mock_load,
     ):
         compress = Mock()
         mock_path_which.return_value = None
@@ -723,14 +822,14 @@ class TestResultBundleTask:
         with patch('builtins.open'):
             with self._caplog.at_level(logging.WARNING):
                 self.task.process()
-                assert '--> zsyncmake missing, zsync setup skipped' in \
-                    self._caplog.text
+                assert (
+                    '--> zsyncmake missing, zsync setup skipped'
+                    in self._caplog.text
+                )
 
     def test_process_result_bundle_help(self):
         self._init_command_args()
         self.task.command_args['help'] = True
         self.task.command_args['bundle'] = True
         self.task.process()
-        self.task.manual.show.assert_called_once_with(
-            'kiwi::result::bundle'
-        )
+        self.task.manual.show.assert_called_once_with('kiwi::result::bundle')

@@ -19,14 +19,10 @@ import typer
 import logging
 import sys
 import os
-from importlib.metadata import (
-    entry_points, EntryPoint
-)
+from importlib.metadata import entry_points, EntryPoint
 from pathlib import Path
 from typer.core import TyperGroup
-from typing import (
-    Annotated, Any, Dict, Optional, List
-)
+from typing import Annotated, Any, Dict, Optional, List
 
 if sys.version_info >= (3, 8):
     from typing import Literal  # pragma: no cover
@@ -38,9 +34,10 @@ from kiwi.exceptions import (
     KiwiUnknownServiceName,
     KiwiCommandNotLoaded,
     KiwiLoadCommandUndefined,
-    KiwiLoadPluginError
+    KiwiLoadPluginError,
 )
 from kiwi.version import __version__
+
 # from kiwi.help import Help
 from kiwi.defaults import Defaults
 
@@ -56,12 +53,13 @@ class PassThroughGroup(TyperGroup):
     subcommand, which keeps command lines written for the
     former kiwi-boxed-plugin and kiwi-stackbuild-plugin working
     """
+
     def parse_args(self, ctx: Any, args: List[str]) -> List[str]:
         # ctx is a click Context, click is vendored by newer typer
         # versions such that no common import location exists
         if '--' in args:
             separator = args.index('--')
-            args = args[:separator] + ['kiwi'] + args[separator + 1:]
+            args = args[:separator] + ['kiwi'] + args[separator + 1 :]
         return super().parse_args(ctx, args)
 
 
@@ -79,11 +77,15 @@ class ManualPageGroup(TyperGroup):
     command gets parsed and the command itself is not invoked.
     The task of the command shows the manual page instead
     """
+
     def parse_args(self, ctx: Any, args: List[str]) -> List[str]:
         # ctx is a click Context, click is vendored by newer typer
         # versions such that no common import location exists
-        if len(args) == 2 and args[1] == 'help' \
-                and self.get_command(ctx, args[0]):
+        if (
+            len(args) == 2
+            and args[1] == 'help'
+            and self.get_command(ctx, args[0])
+        ):
             Cli.request_manual_page(ctx.info_name, args[0])
             raise typer.Exit(0)
         return super().parse_args(ctx, args)
@@ -97,6 +99,7 @@ class Cli:
     application and implements methods to load further command plugins
     which itself provides their own command line interface
     """
+
     global_args: Dict = {}
     subcommand_args: Dict = {}
     plugins: Dict[str, typer.Typer] = {}
@@ -109,21 +112,21 @@ class Cli:
     system = typer.Typer(
         cls=ManualPageGroup,
         help='system command for building images. The system space '
-        'can also be extended by custom command plugins.'
+        'can also be extended by custom command plugins.',
     )
 
     # result
     result = typer.Typer(
         cls=ManualPageGroup,
         help='result command for listing image result information '
-        'and create result bundles.'
+        'and create result bundles.',
     )
 
     # image
     image = typer.Typer(
         cls=ManualPageGroup,
         help='image command for retrieving image information '
-        'prior building.'
+        'prior building.',
     )
 
     # system boxbuild
@@ -148,16 +151,13 @@ class Cli:
         Cli.cli_ok = False
         exit_code = 1
         # load plugins...
-        Cli.plugins.update(
-            self.load_plugin_cli()
-        )
+        Cli.plugins.update(self.load_plugin_cli())
         # add plugin cli's if there are any loaded
         for system_subcommand in sorted(Cli.plugins.keys()):
             Cli.system.add_typer(
-                Cli.plugins[system_subcommand], name=system_subcommand,
-                context_settings={
-                    'obj': Cli
-                }
+                Cli.plugins[system_subcommand],
+                name=system_subcommand,
+                context_settings={'obj': Cli},
             )
         try:
             Cli.cli()
@@ -173,9 +173,7 @@ class Cli:
         if not Cli.cli_ok:
             sys.exit(exit_code)
 
-        self.command_args = self.get_command_args(
-            raise_if_no_command=False
-        )
+        self.command_args = self.get_command_args(raise_if_no_command=False)
         self.command_loaded = None
 
     def version(self, perform: bool):
@@ -217,86 +215,98 @@ class Cli:
     @cli.callback()
     def main(
         color_output: Annotated[
-            bool, typer.Option(
+            bool,
+            typer.Option(
                 '--color-output',
-                help='use colors for warning and error messages'
-            )
+                help='use colors for warning and error messages',
+            ),
         ] = False,
         config: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='use specified runtime configuration file. If '
                 'not specified the runtime configuration is looked '
                 'up at ~/.config/kiwi/config.yml or /etc/kiwi.yml'
-            )
+            ),
         ] = None,
         debug: Annotated[
-            bool, typer.Option(
+            bool,
+            typer.Option(
                 '--debug',
-                help='print debug information, same as: --loglevel 10'
-            )
+                help='print debug information, same as: --loglevel 10',
+            ),
         ] = False,
         debug_run_scripts_in_screen: Annotated[
-            bool, typer.Option(
+            bool,
+            typer.Option(
                 '--debug-run-scripts-in-screen',
-                help='run scripts called by kiwi in a screen session'
-            )
+                help='run scripts called by kiwi in a screen session',
+            ),
         ] = False,
         kiwi_file: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<kiwifile> Basename of kiwi file which contains '
                 'the main image configuration elements. If not specified '
                 'kiwi searches for a file named config.xml or a file '
                 'matching *.kiwi'
-            )
+            ),
         ] = None,
         logfile: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<filename> create a log file containing all log '
                 'information including debug information even if this '
                 'was not requested by the debug switch. The special '
                 'call: "--logfile stdout" sends all information to '
                 'standard out instead of writing to a file'
-            )
+            ),
         ] = None,
         logsocket: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<socketfile> send log data to the given Unix '
                 'Domain socket in the same format as with --logfile'
-            )
+            ),
         ] = None,
         loglevel: Annotated[
-            Optional[int], typer.Option(
+            Optional[int],
+            typer.Option(
                 help='<number> specify logging level as number. '
                 'Details about the available log levels can be found at: '
                 'https://docs.python.org/3/library/logging.html#logging-levels '
                 'Setting a log level causes all message >= level to be '
                 'displayed.'
-            )
+            ),
         ] = None,
         profile: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Profile name, multiple profiles can be selected '
                 'by passing this option multiple times'
-            )
+            ),
         ] = [],
         setenv: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<variable=value> export environment variable and its '
                 'value into the caller environment. This option can be '
                 'specified multiple times  '
-            )
+            ),
         ] = [],
         shared_cache_dir: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<directory> An alternative shared cache directory. '
                 'The directory is shared via bind mount between the '
                 'build host and image root system and contains '
                 'information about package repositories and their '
                 'cache and meta data.'
-            )
+            ),
         ] = Path(os.sep + Defaults.get_shared_cache_location()),
         target_arch: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> set the image architecture. By default the host '
                 'architecture is used as the image architecture. If the '
                 'specified architecture name does not match the host '
@@ -305,26 +315,29 @@ class Cli:
                 'that for this process to work a preparatory step to '
                 'support the image architecture and binary format on the '
                 'building host is required first.'
-            )
+            ),
         ] = None,
         temp_dir: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<directory> An alternative base temporary directory. '
                 'The provided path is used as base directory to store '
                 'temporary files and directories.'
-            )
+            ),
         ] = Path(Defaults.get_temp_location()),
         type: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<build_type> Image build type. If not set the '
                 'default XML specified build type will be used'
-            )
+            ),
         ] = None,
         version: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--version', help='show program version', callback=version
-            )
-        ] = None
+            ),
+        ] = None,
     ):
         """
         KIWI - Appliance Builder
@@ -335,8 +348,9 @@ class Cli:
         Cli.global_args['--color-output'] = color_output
         Cli.global_args['--config'] = Cli._as_path_name(config)
         Cli.global_args['--debug'] = debug
-        Cli.global_args['--debug-run-scripts-in-screen'] = \
+        Cli.global_args['--debug-run-scripts-in-screen'] = (
             debug_run_scripts_in_screen
+        )
         Cli.global_args['--kiwi-file'] = kiwi_file
         Cli.global_args['--logfile'] = Cli._as_path_name(logfile)
         Cli.global_args['--loglevel'] = loglevel
@@ -367,9 +381,7 @@ class Cli:
         :param str service: service name, e.g. system
         :param str command: command name, e.g. build
         """
-        Cli.subcommand_args[command] = {
-            'help': True
-        }
+        Cli.subcommand_args[command] = {'help': True}
         Cli.global_args[command] = True
         Cli.global_args['command'] = command
         Cli.global_args[service] = True
@@ -379,40 +391,46 @@ class Cli:
     @image.command()
     def info(
         description: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The description must be a directory '
                 'containing a kiwi XML description and '
                 'optional metadata files'
-            )
+            ),
         ],
         resolve_package_list: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--resolve-package-list',
                 help='solve package dependencies and return a '
                 'list of all packages including their attributes '
-                'e.g. size, shasum, etc...'
-            )
+                'e.g. size, shasum, etc...',
+            ),
         ] = False,
         list_profiles: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--list-profiles',
-                help='list profiles available for the selected/default type'
-            )
+                help='list profiles available for the selected/default type',
+            ),
         ] = False,
         print_kiwi_env: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--print-kiwi-env',
-                help='list profiles available for the selected/default type'
-            )
+                help='list profiles available for the selected/default type',
+            ),
         ] = False,
         ignore_repos: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--ignore-repos',
-                help='ignore all repos from the XML configuration'
-            )
+                help='ignore all repos from the XML configuration',
+            ),
         ] = False,
         add_repo: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<source,type,alias,priority,imageinclude, '
                 'package_gpgcheck,{signing_keys},components,distribution, '
                 'repo_gpgcheck,repo_sourcetype> Add repository source, '
@@ -424,10 +442,11 @@ class Cli:
                 'debian based repos, repo_gpgcheck(true|false) and '
                 'repo_sourcetype(metalink|baseurl|mirrorlist). The '
                 'option can be specified multiple times'
-            )
+            ),
         ] = [],
         add_repo_credentials: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<user:pass_or_filename> '
                 'For repo sources of the form: uri://user:pass@location, '
                 'set the user and password connected to the set-repo '
@@ -437,26 +456,24 @@ class Cli:
                 '--add-repo-credentials is connected with the first '
                 '--add-repo specification and so on. The option can be '
                 'specified multiple times'
-            )
+            ),
         ] = [],
         print_xml: Annotated[
-            Optional[bool], typer.Option(
-                '--print-xml',
-                help='print image description in XML'
-            )
+            Optional[bool],
+            typer.Option('--print-xml', help='print image description in XML'),
         ] = False,
         print_yaml: Annotated[
-            Optional[bool], typer.Option(
-                '--print-yaml',
-                help='print image description in YAML'
-            )
+            Optional[bool],
+            typer.Option(
+                '--print-yaml', help='print image description in YAML'
+            ),
         ] = False,
         print_toml: Annotated[
-            Optional[bool], typer.Option(
-                '--print-toml',
-                help='print image description in TOML'
-            )
-        ] = False
+            Optional[bool],
+            typer.Option(
+                '--print-toml', help='print image description in TOML'
+            ),
+        ] = False,
     ):
         """
         Provide information about the specified image description
@@ -472,7 +489,7 @@ class Cli:
             '--print-xml': print_xml,
             '--print-yaml': print_yaml,
             '--print-toml': print_toml,
-            'help': False
+            'help': False,
         }
         Cli.global_args['info'] = True
         Cli.global_args['command'] = 'info'
@@ -483,26 +500,29 @@ class Cli:
     @image.command()
     def resize(
         target_dir: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The target directory '
                 'to expect image build results'
-            )
+            ),
         ],
         size: Annotated[
-            str, typer.Option(
+            str,
+            typer.Option(
                 help='<size-unit> New size of the image. The value is either '
                 'a size in bytes or can be specified with m=MB '
                 'or g=GB. Example: 20g'
-            )
+            ),
         ],
         root: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<directory> The path to the root directory, if not '
                 'specified kiwi searches the root directory '
                 'in build/image-root below the specified target '
                 'directory'
-            )
-        ] = None
+            ),
+        ] = None,
     ):
         """
         For disk based images, allow to resize the image to a new
@@ -516,7 +536,7 @@ class Cli:
             '--target-dir': Cli._as_path_name(target_dir),
             '--size': size,
             '--root': Cli._as_path_name(root),
-            'help': False
+            'help': False,
         }
         Cli.global_args['resize'] = True
         Cli.global_args['command'] = 'resize'
@@ -527,17 +547,18 @@ class Cli:
     @result.command()
     def list(
         target_dir: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='the target directory to expect image build results'
-            )
-        ]
+            ),
+        ],
     ):
         """
         List result information from a previously built image
         """
         Cli.subcommand_args['list'] = {
             '--target-dir': Cli._as_path_name(target_dir),
-            'help': False
+            'help': False,
         }
         Cli.global_args['list'] = True
         Cli.global_args['command'] = 'list'
@@ -548,33 +569,38 @@ class Cli:
     @result.command()
     def bundle(
         target_dir: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The target directory to '
                 'expect image build results'
-            )
+            ),
         ],
         id: Annotated[
-            str, typer.Option(
+            str,
+            typer.Option(
                 help='<bundle_id> The bundle id. A free form text '
                 'appended to the version information of the result '
                 'image filename'
-            )
+            ),
         ],
         bundle_dir: Annotated[
-            str, typer.Option(
+            str,
+            typer.Option(
                 help='<directory> Directory to store the bundle results'
-            )
+            ),
         ],
         bundle_format: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<format> The bundle format to create the bundle. '
                 'If provided this setting will overwrite an eventually '
                 'provided bundle_format attribute from the main '
                 'image description'
-            )
+            ),
         ] = None,
         zsync_source: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<download_location> Specify the download '
                 'location from which the bundle file(s) can be '
                 'fetched from. The information is effective if zsync '
@@ -584,19 +610,20 @@ class Cli:
                 'only those are meaningful for a partial binary '
                 'file download. It is expected that all files from a '
                 'bundle are placed to the same download location'
-            )
+            ),
         ] = None,
         package_as_rpm: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--package-as-rpm',
-                help='Take all result files and create an rpm package out of it'
-            )
+                help='Take all result files and create an rpm package out of it',
+            ),
         ] = False,
         no_compress: Annotated[
-            Optional[bool], typer.Option(
-                '--no-compress',
-                help='Do not compress the result image file(s)'
-            )
+            Optional[bool],
+            typer.Option(
+                '--no-compress', help='Do not compress the result image file(s)'
+            ),
         ] = False,
     ):
         """
@@ -614,7 +641,7 @@ class Cli:
             '--zsync-source': zsync_source,
             '--package-as-rpm': package_as_rpm,
             '--no-compress': no_compress,
-            'help': False
+            'help': False,
         }
         Cli.global_args['bundle'] = True
         Cli.global_args['command'] = 'bundle'
@@ -625,50 +652,57 @@ class Cli:
     @system.command()
     def build(
         description: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The description must be a '
                 'directory containing a kiwi XML description '
                 'and optional metadata files'
-            )
+            ),
         ],
         target_dir: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The target directory to '
                 'store the system image file(s)'
-            )
+            ),
         ],
         allow_existing_root: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--allow-existing-root',
                 help='Allow to use an existing root directory '
                 'from an earlier build attempt. Use with caution '
                 'this could cause an inconsistent root tree if the '
                 'existing contents does not fit to the former '
-                'image type setup'
-            )
+                'image type setup',
+            ),
         ] = False,
         clear_cache: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--clear-cache',
                 help='Delete repository cache for each of the '
-                'used repositories before installing any package'
-            )
+                'used repositories before installing any package',
+            ),
         ] = False,
         ignore_repos: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--ignore-repos',
-                help='Ignore all repos from the XML configuration'
-            )
+                help='Ignore all repos from the XML configuration',
+            ),
         ] = False,
         ignore_repos_used_for_build: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--ignore-repos-used-for-build',
                 help='Ignore all repos from the XML configuration '
-                'except the ones marked as imageonly'
-            )
+                'except the ones marked as imageonly',
+            ),
         ] = False,
         set_repo: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<source,type,alias,priority,imageinclude, '
                 'package_gpgcheck,{signing_keys},components,distribution, '
                 'repo_gpgcheck,repo_sourcetype> Overwrite the first XML '
@@ -679,112 +713,126 @@ class Cli:
                 'delimited by a space, main distribution name for '
                 'debian based repos, repo_gpgcheck(true|false) and '
                 'repo_sourcetype(metalink|baseurl|mirrorlist)'
-            )
+            ),
         ] = None,
         set_repo_credentials: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<user:pass_or_filename> '
                 'For repo sources of the form: uri://user:pass@location, '
                 'set the user and password connected to the set-repo '
                 'specification. If the provided value describes a '
                 'filename in the filesystem, the first line of that '
                 'file is read and used as credentials information.'
-            )
+            ),
         ] = None,
         add_repo: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='Same as --set-repo, but it adds the repo to the '
                 'current list of repositories. The option can be specified '
                 'multiple times'
-            )
+            ),
         ] = [],
         add_repo_credentials: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='Same as --set-repo-credentials, but The first '
                 '--add-repo-credentials is connected with the first '
                 '--add-repo specification and so on. The option can be '
                 'specified multiple times'
-            )
+            ),
         ] = [],
         add_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Install the given package name '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         add_bootstrap_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Install the given package name as '
                 'part of the early bootstrap process. The option '
                 'can be specified multiple times'
-            )
+            ),
         ] = [],
         delete_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Delete the given package name '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         set_container_derived_from: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<uri> Overwrite the source location of the '
                 'base container for the selected image type. '
                 'The setting is only effective if the configured '
                 'image type is setup with an initial derived_from reference'
-            )
+            ),
         ] = None,
         set_container_tag: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> Overwrite the container tag in the '
                 'container configuration. The setting is only '
                 'effective if the container configuraiton provides '
                 'an initial tag value'
-            )
+            ),
         ] = None,
         add_container_label: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name=value> Add a container label in the '
                 'container configuration metadata. The label with '
                 'the provided key-value pair will be overwritten '
                 'in case it was already defined in the XML description. '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         set_type_attr: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<attribute=value> Overwrite/set the attribute '
                 'with the provided value in the selected build type '
                 'section. The option can be specified multiple times'
-            )
+            ),
         ] = [],
         set_release_version: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<version> Overwrite/set the release-version '
                 'element in the selected build type preferences section'
-            )
+            ),
         ] = None,
         signing_key: Annotated[
-            Optional[List[Path]], typer.Option(
+            Optional[List[Path]],
+            typer.Option(
                 help='<key-file> Includes the given key-file as a trusted '
                 'key for package manager validations. The option can be '
                 'specified multiple times'
-            )
+            ),
         ] = [],
         ca_cert: Annotated[
-            Optional[List[Path]], typer.Option(
+            Optional[List[Path]],
+            typer.Option(
                 help='include additional CA certificate to import immediately '
                 'after bootstrap and make available during the build process.'
-            )
+            ),
         ] = [],
         ca_target_distribution: Annotated[
-            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']], typer.Option(
+            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']],
+            typer.Option(
                 help='Specify target distribution for the import of '
                 'certificates via the --ca-cert options(s) and/or the '
                 'provided <certificates> from the image description. '
                 'The selected distribution is used in KIWI to map the '
                 'distribution specific CA storage path and update tool '
                 'for the import process.'
-            )
+            ),
         ] = None,
     ):
         """
@@ -813,7 +861,7 @@ class Cli:
             '--signing-key': Cli._as_path_names(signing_key),
             '--ca-cert': Cli._as_path_names(ca_cert),
             '--ca-target-distribution': ca_target_distribution,
-            'help': False
+            'help': False,
         }
         Cli.global_args['build'] = True
         Cli.global_args['command'] = 'build'
@@ -824,50 +872,57 @@ class Cli:
     @system.command()
     def prepare(
         description: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The description must be a '
                 'directory containing a kiwi XML description '
                 'and optional metadata files'
-            )
+            ),
         ],
         root: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The path to the new root '
                 'directory of the system '
-            )
+            ),
         ],
         allow_existing_root: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--allow-existing-root',
                 help='Allow to use an existing root directory '
                 'from an earlier build attempt. Use with caution '
                 'this could cause an inconsistent root tree if the '
                 'existing contents does not fit to the former '
-                'image type setup'
-            )
+                'image type setup',
+            ),
         ] = False,
         clear_cache: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--clear-cache',
                 help='Delete repository cache for each of the '
-                'used repositories before installing any package'
-            )
+                'used repositories before installing any package',
+            ),
         ] = False,
         ignore_repos: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--ignore-repos',
-                help='Ignore all repos from the XML configuration'
-            )
+                help='Ignore all repos from the XML configuration',
+            ),
         ] = False,
         ignore_repos_used_for_build: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--ignore-repos-used-for-build',
                 help='Ignore all repos from the XML configuration '
-                'except the ones marked as imageonly'
-            )
+                'except the ones marked as imageonly',
+            ),
         ] = False,
         set_repo: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<source,type,alias,priority,imageinclude, '
                 'package_gpgcheck,{signing_keys},components,distribution, '
                 'repo_gpgcheck,repo_sourcetype> Overwrite the first XML '
@@ -878,112 +933,126 @@ class Cli:
                 'delimited by a space, main distribution name for '
                 'debian based repos, repo_gpgcheck(true|false) and '
                 'repo_sourcetype(metalink|baseurl|mirrorlist)'
-            )
+            ),
         ] = None,
         set_repo_credentials: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<user:pass_or_filename> '
                 'For repo sources of the form: uri://user:pass@location, '
                 'set the user and password connected to the set-repo '
                 'specification. If the provided value describes a '
                 'filename in the filesystem, the first line of that '
                 'file is read and used as credentials information.'
-            )
+            ),
         ] = None,
         add_repo: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='Same as --set-repo, but it adds the repo to the '
                 'current list of repositories. The option can be specified '
                 'multiple times'
-            )
+            ),
         ] = [],
         add_repo_credentials: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='Same as --set-repo-credentials, but The first '
                 '--add-repo-credentials is connected with the first '
                 '--add-repo specification and so on. The option can be '
                 'specified multiple times'
-            )
+            ),
         ] = [],
         add_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Install the given package name '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         add_bootstrap_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Install the given package name as '
                 'part of the early bootstrap process. The option '
                 'can be specified multiple times'
-            )
+            ),
         ] = [],
         delete_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Delete the given package name '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         set_container_derived_from: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<uri> Overwrite the source location of the '
                 'base container for the selected image type. '
                 'The setting is only effective if the configured '
                 'image type is setup with an initial derived_from reference'
-            )
+            ),
         ] = None,
         set_container_tag: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> Overwrite the container tag in the '
                 'container configuration. The setting is only '
                 'effective if the container configuraiton provides '
                 'an initial tag value'
-            )
+            ),
         ] = None,
         add_container_label: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name=value> Add a container label in the '
                 'container configuration metadata. The label with '
                 'the provided key-value pair will be overwritten '
                 'in case it was already defined in the XML description. '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         set_type_attr: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<attribute=value> Overwrite/set the attribute '
                 'with the provided value in the selected build type '
                 'section. The option can be specified multiple times'
-            )
+            ),
         ] = [],
         set_release_version: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<version> Overwrite/set the release-version '
                 'element in the selected build type preferences section'
-            )
+            ),
         ] = None,
         signing_key: Annotated[
-            Optional[List[Path]], typer.Option(
+            Optional[List[Path]],
+            typer.Option(
                 help='<key-file> Includes the given key-file as a trusted '
                 'key for package manager validations. The option can be '
                 'specified multiple times'
-            )
+            ),
         ] = [],
         ca_cert: Annotated[
-            Optional[List[Path]], typer.Option(
+            Optional[List[Path]],
+            typer.Option(
                 help='include additional CA certificate to import immediately '
                 'after bootstrap and make available during the build process.'
-            )
+            ),
         ] = [],
         ca_target_distribution: Annotated[
-            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']], typer.Option(
+            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']],
+            typer.Option(
                 help='Specify target distribution for the import of '
                 'certificates via the --ca-cert options(s) and/or the '
                 'provided <certificates> from the image description. '
                 'The selected distribution is used in KIWI to map the '
                 'distribution specific CA storage path and update tool '
                 'for the import process.'
-            )
+            ),
         ] = None,
     ):
         """
@@ -1011,7 +1080,7 @@ class Cli:
             '--signing-key': Cli._as_path_names(signing_key),
             '--ca-cert': Cli._as_path_names(ca_cert),
             '--ca-target-distribution': ca_target_distribution,
-            'help': False
+            'help': False,
         }
         Cli.global_args['prepare'] = True
         Cli.global_args['command'] = 'prepare'
@@ -1022,22 +1091,23 @@ class Cli:
     @system.command()
     def update(
         root: Annotated[
-            Path, typer.Option(
-                help='<directory> The path to the root directory'
-            )
+            Path,
+            typer.Option(help='<directory> The path to the root directory'),
         ],
         add_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Install the given package name '
                 'The option can be specified multiple times'
-            )
+            ),
         ] = [],
         delete_package: Annotated[
-            Optional[List[str]], typer.Option(
+            Optional[List[str]],
+            typer.Option(
                 help='<name> Delete the given package name '
                 'The option can be specified multiple times'
-            )
-        ] = []
+            ),
+        ] = [],
     ):
         """
         Update root system with latest repository updates
@@ -1047,7 +1117,7 @@ class Cli:
             '--root': Cli._as_path_name(root),
             '--add-package': add_package,
             '--delete-package': delete_package,
-            'help': False
+            'help': False,
         }
         Cli.global_args['update'] = True
         Cli.global_args['command'] = 'update'
@@ -1058,22 +1128,23 @@ class Cli:
     @system.command()
     def create(
         root: Annotated[
-            Path, typer.Option(
-                help='<directory> The path to the root directory'
-            )
+            Path,
+            typer.Option(help='<directory> The path to the root directory'),
         ],
         target_dir: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The target directory to '
                 'store the system image file(s)'
-            )
+            ),
         ],
         signing_key: Annotated[
-            Optional[List[Path]], typer.Option(
+            Optional[List[Path]],
+            typer.Option(
                 help='<key-file> Includes the given key-file as a trusted '
                 'key for package manager validations. The option can be '
                 'specified multiple times'
-            )
+            ),
         ] = [],
     ):
         """
@@ -1083,7 +1154,7 @@ class Cli:
             '--root': Cli._as_path_name(root),
             '--target-dir': Cli._as_path_name(target_dir),
             '--signing-key': Cli._as_path_names(signing_key),
-            'help': False
+            'help': False,
         }
         Cli.global_args['create'] = True
         Cli.global_args['command'] = 'create'
@@ -1093,78 +1164,86 @@ class Cli:
     @staticmethod
     @boxbuild.callback(
         help='build a system image in a self contained VM or container',
-        subcommand_metavar='kiwi [OPTIONS]'
+        subcommand_metavar='kiwi [OPTIONS]',
     )
     def boxbuild_options(
         box: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> Name of the box to use for the build process.'
-            )
+            ),
         ] = None,
         list_boxes: Annotated[
-            Optional[bool], typer.Option(
-                '--list-boxes',
-                help='show available build boxes.'
-            )
+            Optional[bool],
+            typer.Option('--list-boxes', help='show available build boxes.'),
         ] = False,
         box_memory: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<vmgb> Number of GBs to reserve as main memory '
                 'for the virtual machine. By default 8GB will be used.'
-            )
+            ),
         ] = None,
         box_console: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<ttyname> Name of console in the kernel settings '
                 'for the virtual machine. By default set to hvc0.'
-            )
+            ),
         ] = None,
         box_smp_cpus: Annotated[
-            Optional[int], typer.Option(
+            Optional[int],
+            typer.Option(
                 help='<number> Number of CPUs to use in the SMP setup. '
                 'By default 4 CPUs will be used.'
-            )
+            ),
         ] = 4,
         box_debug: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--box-debug',
-                help='In debug mode the started virtual machine will be kept open.'
-            )
+                help='In debug mode the started virtual machine will be kept open.',
+            ),
         ] = False,
         container: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--container',
                 help='Build in container instead of a VM. Options related to '
-                'building in a VM will have no effect.'
-            )
+                'building in a VM will have no effect.',
+            ),
         ] = False,
         kiwi_version: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<version> Specify a KIWI version to use for '
                 'the build. The referenced KIWI will be fetched from '
                 'pip and replaces the box installed KIWI version. '
                 'Note: If --no-snapshot is used in combination '
                 'with this option, the change of the KIWI version will '
                 'be permanently stored in the used box.'
-            )
+            ),
         ] = None,
         shared_path: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<path> Optional host path to share with the box. '
                 'The same path as it is present on the host will also '
                 'be available inside of the box during build time.'
-            )
+            ),
         ] = None,
         no_update_check: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--no-update-check',
                 help='Skip check for available box update. The option '
                 'has no effect if the selected box does not yet exist '
-                'on the host.'
-            )
+                'on the host.',
+            ),
         ] = False,
         no_snapshot: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--no-snapshot',
                 help='Run box with snapshot mode switched off. This '
                 'causes the box disk file to be modified by the build '
@@ -1175,71 +1254,80 @@ class Cli:
                 'On the contrary this option invalidates the immutable '
                 'box attribute and should be used with care. On update '
                 'of the box all data stored will be wiped. To prevent '
-                'this combine the option with the --no-update-check option.'
-            )
+                'this combine the option with the --no-update-check option.',
+            ),
         ] = False,
         no_accel: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--no-accel',
                 help='Run box without hardware acceleration. By default '
-                'KVM acceleration is activated'
-            )
+                'KVM acceleration is activated',
+            ),
         ] = False,
         qemu_9p_sharing: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--9p-sharing',
                 help='Select 9p backend to use for sharing data '
-                'between the host and the box.'
-            )
+                'between the host and the box.',
+            ),
         ] = False,
         virtiofs_sharing: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--virtiofs-sharing',
                 help='Select virtiofsd backend to use for sharing data '
-                'between the host and the box.'
-            )
+                'between the host and the box.',
+            ),
         ] = False,
         sshfs_sharing: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--sshfs-sharing',
                 help='Select sshfs backend to use for sharing data '
-                'between the host and the box.'
-            )
+                'between the host and the box.',
+            ),
         ] = False,
         ssh_key: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> Name of ssh key to authorize for '
                 'connection. By default id_rsa is used.'
-            )
+            ),
         ] = 'id_rsa',
         ssh_port: Annotated[
-            Optional[int], typer.Option(
+            Optional[int],
+            typer.Option(
                 help='<port> Port number to use to forward the '
                 'guest SSH port to the host By default 10022 is used.'
-            )
+            ),
         ] = 10022,
         x86_64: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--x86_64',
                 help='Select box for the x86_64 architecture. If no '
                 'architecture is selected the host architecture is '
                 'used for selecting the box. The selected box '
                 'architecture also specifies the target architecture '
-                'for the image build with that box.'
-            )
+                'for the image build with that box.',
+            ),
         ] = False,
         aarch64: Annotated[
-            Optional[bool], typer.Option(
+            Optional[bool],
+            typer.Option(
                 '--aarch64',
                 help='Select box for the aarch64 architecture. If no '
                 'architecture is selected the host architecture is '
                 'used for selecting the box. The selected box '
                 'architecture also specifies the target architecture '
-                'for the image build with that box.'
-            )
+                'for the image build with that box.',
+            ),
         ] = False,
         machine: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<qemu_machine> Machine name used '
                 'by QEMU. By default no specific value is used here '
                 'and qemu selects its default machine type. For cross '
@@ -1249,17 +1337,18 @@ class Cli:
                 'reproducing the idiosyncrasies of a particular bit '
                 'of hardware, the best option is to use the virt '
                 'machine type.'
-            )
+            ),
         ] = None,
         cpu: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<qemu_cpu> CPU type used by QEMU. By default '
                 'the host CPU type is used which is only a good '
                 'selection if the host and the selected box are from '
                 'the same architecture. On cross arch builds it is '
                 'required to specify the CPU emulation the box should use'
-            )
-        ] = None
+            ),
+        ] = None,
     ):
         Cli.subcommand_args['boxbuild'] = {
             '--box': box,
@@ -1284,7 +1373,7 @@ class Cli:
             '--machine': machine,
             '--cpu': cpu,
             'system_build': [],
-            'help': False
+            'help': False,
         }
         Cli.global_args['boxbuild'] = True
         Cli.global_args['command'] = 'boxbuild'
@@ -1296,8 +1385,8 @@ class Cli:
         name='kiwi',
         context_settings={
             'allow_extra_args': True,
-            'ignore_unknown_options': True
-        }
+            'ignore_unknown_options': True,
+        },
     )
     def boxbuild_kiwi(ctx: typer.Context):
         """
@@ -1319,33 +1408,35 @@ class Cli:
         'image from this description based on the given stash container '
         'root will be built. In this case the kiwi subcommand arguments '
         'are passed to the kiwi-ng system build command.',
-        subcommand_metavar='kiwi [OPTIONS]'
+        subcommand_metavar='kiwi [OPTIONS]',
     )
     def stackbuild_options(
         stash: Annotated[
-            List[str], typer.Option(
+            List[str],
+            typer.Option(
                 help='<name> Name of the stash container. See system stash '
                 '--list for available stashes. Multiple --stash options will '
                 'be stacked together in the given order'
-            )
+            ),
         ],
         target_dir: Annotated[
-            Path, typer.Option(
+            Path,
+            typer.Option(
                 help='<directory> The target directory to store the '
                 'system image file(s)'
-            )
+            ),
         ],
         description: Annotated[
-            Optional[Path], typer.Option(
-                help='<directory> Path to KIWI image description'
-            )
+            Optional[Path],
+            typer.Option(help='<directory> Path to KIWI image description'),
         ] = None,
         from_registry: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<URI> Pull given stash container name from the '
                 'provided registry URI'
-            )
-        ] = None
+            ),
+        ] = None,
     ):
         Cli.subcommand_args['stackbuild'] = {
             '--stash': stash,
@@ -1353,7 +1444,7 @@ class Cli:
             '--description': Cli._as_path_name(description),
             '--from-registry': from_registry,
             'system_build_or_create': [],
-            'help': False
+            'help': False,
         }
         Cli.global_args['stackbuild'] = True
         Cli.global_args['command'] = 'stackbuild'
@@ -1365,8 +1456,8 @@ class Cli:
         name='kiwi',
         context_settings={
             'allow_extra_args': True,
-            'ignore_unknown_options': True
-        }
+            'ignore_unknown_options': True,
+        },
     )
     def stackbuild_kiwi(ctx: typer.Context):
         """
@@ -1376,37 +1467,37 @@ class Cli:
         command depending on the presence of the --description
         option.
         """
-        Cli.subcommand_args['stackbuild']['system_build_or_create'] = \
-            ctx.args
+        Cli.subcommand_args['stackbuild']['system_build_or_create'] = ctx.args
 
     @staticmethod
     @system.command()
     def stash(
         root: Annotated[
-            Optional[Path], typer.Option(
+            Optional[Path],
+            typer.Option(
                 help='<directory> The path to the root directory, '
                 'usually the result of a former system prepare or '
                 'build call'
-            )
+            ),
         ] = None,
         tag: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> The tag name for the container. '
                 'By default set to: latest'
-            )
+            ),
         ] = None,
         container_name: Annotated[
-            Optional[str], typer.Option(
+            Optional[str],
+            typer.Option(
                 help='<name> The name of the container. By default '
                 'set to the image name of the stash'
-            )
+            ),
         ] = None,
         stash_list: Annotated[
-            Optional[bool], typer.Option(
-                '--list',
-                help='List the available stashes'
-            )
-        ] = False
+            Optional[bool],
+            typer.Option('--list', help='List the available stashes'),
+        ] = False,
     ):
         """
         Create a container from the given root directory.
@@ -1416,7 +1507,7 @@ class Cli:
             '--tag': tag,
             '--container-name': container_name,
             '--list': stash_list,
-            'help': False
+            'help': False,
         }
         Cli.global_args['stash'] = True
         Cli.global_args['command'] = 'stash'
@@ -1438,9 +1529,7 @@ class Cli:
         elif Cli.global_args.get('result') is True:
             return 'result'
         else:
-            raise KiwiUnknownServiceName(
-                'Unknown/Invalid Servicename'
-            )
+            raise KiwiUnknownServiceName('Unknown/Invalid Servicename')
 
     def get_command(self):
         """
@@ -1470,13 +1559,9 @@ class Cli:
         result = Cli.global_args
         command = self.get_command()
         if Cli.subcommand_args.get(command):
-            result.update(
-                Cli.subcommand_args.get(command) or {}
-            )
+            result.update(Cli.subcommand_args.get(command) or {})
         elif raise_if_no_command:
-            raise KiwiCommandNotLoaded(
-                f'{command} command not loaded'
-            )
+            raise KiwiCommandNotLoaded(f'{command} command not loaded')
         return result
 
     def get_global_args(self):
@@ -1537,9 +1622,7 @@ class Cli:
                 continue
             if '_plugin' in entry.value:
                 plugin_entry = EntryPoint(
-                    name='cli',
-                    value=f'{module_name}.cli',
-                    group='kiwi.tasks'
+                    name='cli', value=f'{module_name}.cli', group='kiwi.tasks'
                 )
                 try:
                     plugin = plugin_entry.load()
@@ -1549,9 +1632,7 @@ class Cli:
                     # a typer based cli
                     pass
                 except Exception as issue:
-                    raise KiwiLoadPluginError(
-                        f'{plugin_entry}: {issue}'
-                    )
+                    raise KiwiLoadPluginError(f'{plugin_entry}: {issue}')
         return plugin_typers
 
     def load_command(self):
@@ -1576,9 +1657,7 @@ class Cli:
                 'No command specified for {0} service'.format(service)
             )
 
-        self.command_loaded = discovered_tasks.get(
-            f'{service}_{command}'
-        )
+        self.command_loaded = discovered_tasks.get(f'{service}_{command}')
         if not self.command_loaded:
             prefix = 'usage:'
             discovered_tasks_for_service = ''

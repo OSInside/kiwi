@@ -30,6 +30,7 @@ class DiskFormatGce(DiskFormatBase):
     """
     **Create GCE - Google Compute Engine image format**
     """
+
     def post_init(self, custom_args: dict) -> None:
         """
         GCE disk format post initialization method
@@ -61,11 +62,12 @@ class DiskFormatGce(DiskFormatBase):
         ).new_dir()
         diskname = ''.join(
             [
-                self.target_dir, '/',
+                self.target_dir,
+                '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + self.xml_state.get_image_version(),
-                '.raw'
+                '.raw',
             ]
         )
         if self.tag:
@@ -73,9 +75,7 @@ class DiskFormatGce(DiskFormatBase):
                 manifest.write('{"licenses": ["%s"]}' % self.tag)
             gce_tar_ball_file_list.append('manifest.json')
 
-        Command.run(
-            ['cp', diskname, temp_image_dir.name + '/disk.raw']
-        )
+        Command.run(['cp', diskname, temp_image_dir.name + '/disk.raw'])
         gce_tar_ball_file_list.append('disk.raw')
 
         archive_name = os.path.basename(
@@ -88,11 +88,9 @@ class DiskFormatGce(DiskFormatBase):
 
         archive = ArchiveTar(
             filename=self.target_dir + '/' + archive_name,
-            file_list=gce_tar_ball_file_list
+            file_list=gce_tar_ball_file_list,
         )
-        archive.create_gnu_gzip_compressed(
-            temp_image_dir.name
-        )
+        archive.create_gnu_gzip_compressed(temp_image_dir.name)
 
     def store_to_result(self, result: Result) -> None:
         """
@@ -105,12 +103,10 @@ class DiskFormatGce(DiskFormatBase):
         """
         result.add(
             key='disk_format_image',
-            filename=self.get_target_file_path_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_file_path_for_format(self.image_format),
             use_for_bundle=True,
             compress=False,
-            shasum=True
+            shasum=True,
         )
 
     def get_target_file_path_for_format(self, format_name):
@@ -129,10 +125,11 @@ class DiskFormatGce(DiskFormatBase):
             format_name = 'tar.gz'
         return ''.join(
             [
-                self.target_dir, '/',
+                self.target_dir,
+                '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + self.xml_state.get_image_version(),
-                '.' + format_name
+                '.' + format_name,
             ]
         )

@@ -18,10 +18,7 @@
 # project
 import importlib
 from typing import List
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
 from kiwi.xml_state import XMLState
 
@@ -37,24 +34,28 @@ class BootImage(metaclass=ABCMeta):
     :param string root_dir: system image root directory
     :param list signing_keys: list of package signing keys
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        xml_state: XMLState, target_dir: str,
-        root_dir: str = None, signing_keys: List = None
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str = None,
+        signing_keys: List = None,
     ):
         initrd_system = xml_state.get_initrd_system()
         name_map = {
             'kiwi': {'builtin_kiwi': 'BootImageKiwi'},
             'dracut': {'dracut': 'BootImageDracut'},
-            'none': {'base': 'BootImageBase'}
+            'none': {'base': 'BootImageBase'},
         }
         try:
-            (boot_image_namespace, boot_image_name) = \
-                list(name_map[initrd_system].items())[0]
+            boot_image_namespace, boot_image_name = list(
+                name_map[initrd_system].items()
+            )[0]
             boot_image = importlib.import_module(
                 'kiwi.boot.image.{0}'.format(boot_image_namespace)
             )

@@ -22,26 +22,14 @@ schema = {
         'schema': {
             'type': 'dict',
             'schema': {
-                'name': {
-                    'type': 'string',
-                    'required': True,
-                    'empty': False
-                },
-                'mem_mb': {
-                    'type': 'string',
-                    'required': True,
-                    'empty': False
-                },
+                'name': {'type': 'string', 'required': True, 'empty': False},
+                'mem_mb': {'type': 'string', 'required': True, 'empty': False},
                 'processors': {
                     'type': 'number',
                     'required': False,
-                    'empty': False
+                    'empty': False,
                 },
-                'console': {
-                    'type': 'string',
-                    'required': True,
-                    'empty': False
-                },
+                'console': {'type': 'string', 'required': True, 'empty': False},
                 'arch': {
                     'required': True,
                     'type': 'list',
@@ -50,44 +38,46 @@ schema = {
                         'schema': {
                             'name': {
                                 'type': 'string',
-                                'allowed':
-                                    ['x86_64', 's390x', 'aarch64', 'ppc64', 'ppc64le'],
+                                'allowed': [
+                                    'x86_64',
+                                    's390x',
+                                    'aarch64',
+                                    'ppc64',
+                                    'ppc64le',
+                                ],
                                 'required': True,
-                                'empty': False
+                                'empty': False,
                             },
                             'cmdline': {
                                 'type': 'list',
                                 'required': True,
-                                'nullable': False
+                                'nullable': False,
                             },
                             'source': {
                                 'type': 'string',
                                 'required': True,
-                                'empty': False
+                                'empty': False,
                             },
                             'packages_file': {
                                 'type': 'string',
                                 'required': True,
-                                'empty': False
+                                'empty': False,
                             },
                             'boxfiles': {
                                 'type': 'list',
                                 'required': True,
-                                'nullable': False
+                                'nullable': False,
                             },
                             'container': {
                                 'type': 'string',
                                 'required': True,
-                                'nullable': False
+                                'nullable': False,
                             },
-                            'use_initrd': {
-                                'type': 'boolean',
-                                'required': True
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                            'use_initrd': {'type': 'boolean', 'required': True},
+                        },
+                    },
+                },
+            },
+        },
     }
 }

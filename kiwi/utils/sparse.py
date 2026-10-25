@@ -26,16 +26,19 @@ class SparseFile:
     """
     **Create sparse files**
     """
+
     @staticmethod
     def create(filename: str, size: str) -> None:
         if Path.which(filename='qemu-img', access_mode=os.X_OK):
-            Command.run(
-                ['qemu-img', 'create', filename, size]
-            )
+            Command.run(['qemu-img', 'create', filename, size])
         else:
             Command.run(
                 [
-                    'dd', 'if=/dev/null', f'of={filename}',
-                    'bs=1', 'count=0', f'seek={size}'
+                    'dd',
+                    'if=/dev/null',
+                    f'of={filename}',
+                    'bs=1',
+                    'count=0',
+                    f'seek={size}',
                 ]
             )

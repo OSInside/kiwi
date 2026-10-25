@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call, Mock
-)
+from unittest.mock import patch, call, Mock
 from pytest import raises
 
 from kiwi.defaults import Defaults
@@ -11,7 +9,7 @@ import kiwi
 from kiwi.exceptions import (
     KiwiCommandNotFound,
     KiwiFormatSetupError,
-    KiwiTemplateError
+    KiwiTemplateError,
 )
 
 
@@ -19,9 +17,7 @@ class TestDiskFormatOva:
     @patch('kiwi.storage.subformat.ova.FirmWare')
     def setup(self, mock_FirmWare):
         self.firmware = Mock()
-        self.firmware.efi_mode = Mock(
-            return_value='uefi'
-        )
+        self.firmware.efi_mode = Mock(return_value='uefi')
         mock_FirmWare.return_value = self.firmware
         Defaults.set_platform_name('x86_64')
         self.context_manager_mock = Mock()
@@ -32,80 +28,46 @@ class TestDiskFormatOva:
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
         xml_data = Mock()
-        xml_data.get_name = Mock(
-            return_value='some-disk-image'
-        )
-        xml_data.get_displayname = Mock(
-            return_value=None
-        )
+        xml_data.get_name = Mock(return_value='some-disk-image')
+        xml_data.get_displayname = Mock(return_value=None)
         self.xml_state = Mock()
         self.xml_state.xml_data = xml_data
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
 
         self.machine_setup = Mock()
         self.xml_state.get_build_type_machine_section = Mock(
             return_value=self.machine_setup
         )
-        self.machine_setup.get_HWversion = Mock(
-            return_value='42'
-        )
-        self.machine_setup.get_guestOS = Mock(
-            return_value='suse'
-        )
-        self.machine_setup.get_memory = Mock(
-            return_value='4096'
-        )
-        self.machine_setup.get_ncpus = Mock(
-            return_value='2'
-        )
+        self.machine_setup.get_HWversion = Mock(return_value='42')
+        self.machine_setup.get_guestOS = Mock(return_value='suse')
+        self.machine_setup.get_memory = Mock(return_value='4096')
+        self.machine_setup.get_ncpus = Mock(return_value='2')
 
         self.iso_setup = Mock()
         self.xml_state.get_build_type_vmdvd_section = Mock(
             return_value=self.iso_setup
         )
-        self.xml_state.get_luks_credentials = Mock(
-            return_value=None
-        )
-        self.iso_setup.get_controller = Mock(
-            return_value='ide'
-        )
-        self.iso_setup.get_id = Mock(
-            return_value='0'
-        )
+        self.xml_state.get_luks_credentials = Mock(return_value=None)
+        self.iso_setup.get_controller = Mock(return_value='ide')
+        self.iso_setup.get_id = Mock(return_value='0')
 
         self.network_setup = [Mock()]
         self.xml_state.get_build_type_vmnic_entries = Mock(
             return_value=self.network_setup
         )
-        self.network_setup[0].get_interface = Mock(
-            return_value='0'
-        )
-        self.network_setup[0].get_mac = Mock(
-            return_value='98:90:96:a0:3c:58'
-        )
-        self.network_setup[0].get_mode = Mock(
-            return_value='bridged'
-        )
-        self.network_setup[0].get_driver = Mock(
-            return_value='e1000'
-        )
+        self.network_setup[0].get_interface = Mock(return_value='0')
+        self.network_setup[0].get_mac = Mock(return_value='98:90:96:a0:3c:58')
+        self.network_setup[0].get_mode = Mock(return_value='bridged')
+        self.network_setup[0].get_driver = Mock(return_value='e1000')
 
         self.disk_setup = Mock()
         self.xml_state.get_build_type_vmdisk_section = Mock(
             return_value=self.disk_setup
         )
-        self.disk_setup.get_controller = Mock(
-            return_value='lsilogic'
-        )
-        self.disk_setup.get_id = Mock(
-            return_value='0'
-        )
+        self.disk_setup.get_controller = Mock(return_value='lsilogic')
+        self.disk_setup.get_id = Mock(return_value='0')
 
-        self.machine_setup.get_ovftype = Mock(
-            return_value='vmware'
-        )
+        self.machine_setup.get_ovftype = Mock(return_value='vmware')
 
         self.runtime_config = Mock()
         self.runtime_config.get_bundle_compression.return_value = False
@@ -138,7 +100,7 @@ class TestDiskFormatOva:
                 filename='target_dir/some-disk-image.x86_64-1.2.3.ova',
                 key='disk_format_image',
                 shasum=True,
-                use_for_bundle=True
+                use_for_bundle=True,
             )
         ]
 
@@ -147,11 +109,7 @@ class TestDiskFormatOva:
     @patch('kiwi.storage.subformat.ova.DiskFormatVmdk.create_image_format')
     @patch('os.chdir')
     def test_create_image_format(
-        self,
-        mock_chdir,
-        mock_create_image_format,
-        mock_command,
-        mock_which
+        self, mock_chdir, mock_create_image_format, mock_command, mock_which
     ):
         mock_which.return_value = 'ova-compose'
         with patch('builtins.open', create=True) as mock_open:
@@ -166,7 +124,8 @@ class TestDiskFormatOva:
                     'target_dir/some-disk-image.x86_64-1.2.3.meta',
                     '--output-file',
                     'target_dir/some-disk-image.x86_64-1.2.3.ova',
-                    '--format', 'ova'
+                    '--format',
+                    'ova',
                 ]
             )
 
@@ -179,7 +138,7 @@ class TestDiskFormatOva:
         mock_Path_which,
         mock_Command_run,
         mock_OvaComposeTemplate_get_template,
-        mock_DiskFormatVmdk_create_image_format
+        mock_DiskFormatVmdk_create_image_format,
     ):
         template = Mock()
         mock_Path_which.return_value = 'ova-compose'
@@ -196,7 +155,9 @@ class TestDiskFormatOva:
             self.disk_format.create_image_format()
 
     @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
-    def test_create_ova_compose_meta_file_with_disk_controller(self, mock_get_template):
+    def test_create_ova_compose_meta_file_with_disk_controller(
+        self, mock_get_template
+    ):
         """Test that disk controller and disk id are passed to OvaComposeTemplate"""
         self.disk_setup.get_controller.return_value = 'lsilogic'
         self.disk_setup.get_id.return_value = '7'
@@ -213,7 +174,9 @@ class TestDiskFormatOva:
             assert call_args[1]['disk_id'] == '7'
 
     @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
-    def test_create_ova_compose_meta_file_with_nic_driver(self, mock_get_template):
+    def test_create_ova_compose_meta_file_with_nic_driver(
+        self, mock_get_template
+    ):
         """Test that NIC settings are passed to OvaComposeTemplate"""
         self.network_setup[0].get_driver.return_value = 'e1000'
         self.network_setup[0].get_interface.return_value = '2'
@@ -232,19 +195,23 @@ class TestDiskFormatOva:
                 '2': {
                     'driver': 'e1000',
                     'connection_type': 'bridged',
-                    'mac': '00:11:22:33:44:55'
+                    'mac': '00:11:22:33:44:55',
                 }
             }
 
     @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
-    def test_create_ova_compose_meta_file_with_no_controllers(self, mock_get_template):
+    def test_create_ova_compose_meta_file_with_no_controllers(
+        self, mock_get_template
+    ):
         """Test that defaults are used when no optional setup is configured"""
         self.disk_setup.get_controller.return_value = None
         self.disk_setup.get_id.return_value = None
         self.iso_setup.get_controller.return_value = None
         self.iso_setup.get_id.return_value = None
         self.network_setup = []
-        self.xml_state.get_build_type_vmnic_entries.return_value = self.network_setup
+        self.xml_state.get_build_type_vmnic_entries.return_value = (
+            self.network_setup
+        )
         template = Mock()
         mock_get_template.return_value = template
         template.substitute.return_value = 'meta_content'
@@ -261,7 +228,9 @@ class TestDiskFormatOva:
             assert call_args[0][2] == {}
 
     @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
-    def test_create_ova_compose_meta_file_memory_cpu_extraction(self, mock_get_template):
+    def test_create_ova_compose_meta_file_memory_cpu_extraction(
+        self, mock_get_template
+    ):
         """Test that memory and CPU configuration are correctly extracted"""
         self.machine_setup.get_memory.return_value = '8192'
         self.machine_setup.get_ncpus.return_value = '4'

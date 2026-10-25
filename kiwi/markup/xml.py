@@ -25,6 +25,7 @@ class MarkupXML(MarkupBase):
     """
     **Implements plain XML markup handling**
     """
+
     def get_xml_description(self) -> str:
         """
         Return XML description file name
@@ -33,9 +34,7 @@ class MarkupXML(MarkupBase):
 
         :rtype: string
         """
-        return self.apply_xslt_stylesheets(
-            self.description
-        )
+        return self.apply_xslt_stylesheets(self.description)
 
     def get_yaml_description(self) -> str:
         """

@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, call
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call
+from pytest import raises, fixture
 from collections import namedtuple
 
 from kiwi.utils.command_capabilities import CommandCapabilities
@@ -23,24 +19,37 @@ class TestCommandCapabilities:
         command_type = namedtuple('command', ['output', 'error'])
         mock_run.return_value = command_type(
             output="Dummy line\n\t--some-flag\n\t--some-other-flag",
-            error="Dummy line\n\t--error-flag\n\t--some-other-flag"
+            error="Dummy line\n\t--error-flag\n\t--some-other-flag",
         )
-        assert CommandCapabilities.has_option_in_help(
-            'command', '--some-flag'
-        ) is True
-        assert CommandCapabilities.has_option_in_help(
-            'command', '--error-flag'
-        ) is True
-        assert CommandCapabilities.has_option_in_help(
-            'command', '--some-flag', help_flags=['subcommand', '-h']
-        ) is True
-        assert CommandCapabilities.has_option_in_help(
-            'command', '--some-other-flag',
-            help_flags=['subcommand', '-h'], root='root_dir'
-        ) is True
-        assert CommandCapabilities.has_option_in_help(
-            'command', '--non-existing-flag', raise_on_error=False
-        ) is False
+        assert (
+            CommandCapabilities.has_option_in_help('command', '--some-flag')
+            is True
+        )
+        assert (
+            CommandCapabilities.has_option_in_help('command', '--error-flag')
+            is True
+        )
+        assert (
+            CommandCapabilities.has_option_in_help(
+                'command', '--some-flag', help_flags=['subcommand', '-h']
+            )
+            is True
+        )
+        assert (
+            CommandCapabilities.has_option_in_help(
+                'command',
+                '--some-other-flag',
+                help_flags=['subcommand', '-h'],
+                root='root_dir',
+            )
+            is True
+        )
+        assert (
+            CommandCapabilities.has_option_in_help(
+                'command', '--non-existing-flag', raise_on_error=False
+            )
+            is False
+        )
         mock_run.assert_has_calls(
             [
                 call(['command', '--help'], raise_on_error=False),
@@ -48,9 +57,9 @@ class TestCommandCapabilities:
                 call(['command', 'subcommand', '-h'], raise_on_error=False),
                 call(
                     ['chroot', 'root_dir', 'command', 'subcommand', '-h'],
-                    raise_on_error=False
+                    raise_on_error=False,
                 ),
-                call(['command', '--help'], raise_on_error=False)
+                call(['command', '--help'], raise_on_error=False),
             ]
         )
 
@@ -63,8 +72,9 @@ class TestCommandCapabilities:
         mock_run.return_value.error = ''
         with self._caplog.at_level(logging.WARNING):
             CommandCapabilities.has_option_in_help(
-                'command_that_fails', '--non-existing-flag',
-                raise_on_error=False
+                'command_that_fails',
+                '--non-existing-flag',
+                raise_on_error=False,
             )
 
     @patch('kiwi.command.Command.run')
@@ -105,13 +115,15 @@ class TestCommandCapabilities:
         assert CommandCapabilities.check_version(
             'command', (1, 2, 3), version_flags=['-v'], root='root_dir'
         )
-        mock_run.assert_has_calls([
-            call(['command', '--version']),
-            call(['command', '--version']),
-            call(['command', '--version']),
-            call(['command', '-v']),
-            call(['chroot', 'root_dir', 'command', '-v'])
-        ])
+        mock_run.assert_has_calls(
+            [
+                call(['command', '--version']),
+                call(['command', '--version']),
+                call(['command', '--version']),
+                call(['command', '-v']),
+                call(['chroot', 'root_dir', 'command', '-v']),
+            ]
+        )
 
     @patch('kiwi.command.Command.run')
     def test_check_version_complex_pattern(self, mock_run):

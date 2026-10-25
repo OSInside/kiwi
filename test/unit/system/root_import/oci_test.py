@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 
 from kiwi.system.uri import Uri
 from kiwi.system.root_import.oci import RootImportOCI
@@ -22,8 +18,9 @@ class TestRootImportOCI:
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.oci_import = RootImportOCI(
-                'root_dir', [Uri('file:///image.tar')],
-                {'archive_transport': 'oci-archive'}
+                'root_dir',
+                [Uri('file:///image.tar')],
+                {'archive_transport': 'oci-archive'},
             )
             self.runtime_config = Mock()
             self.shasum = self.runtime_config.get_checksum_handler.return_value
@@ -39,8 +36,9 @@ class TestRootImportOCI:
         mock_path.return_value = False
         with raises(KiwiRootImportError):
             RootImportOCI(
-                'root_dir', [Uri('file:///image.tar.xz')],
-                {'archive_transport': 'oci-archive'}
+                'root_dir',
+                [Uri('file:///image.tar.xz')],
+                {'archive_transport': 'oci-archive'},
             )
 
     @patch('kiwi.system.root_import.oci.Compress')
@@ -59,9 +57,7 @@ class TestRootImportOCI:
         mock_OCI.new.assert_called_once_with()
 
         oci.unpack.assert_called_once_with()
-        oci.import_rootfs.assert_called_once_with(
-            'root_dir'
-        )
+        oci.import_rootfs.assert_called_once_with('root_dir')
         self.shasum.digest.assert_called_once_with()
         uncompress.get_format.assert_called_once_with()
 
@@ -71,8 +67,12 @@ class TestRootImportOCI:
     @patch('kiwi.system.root_import.oci.MountManager')
     @patch('kiwi.system.root_import.oci.OCI')
     def test_overlay_data(
-        self, mock_OCI, mock_MountManager, mock_Path,
-        mock_path_create, mock_compress
+        self,
+        mock_OCI,
+        mock_MountManager,
+        mock_Path,
+        mock_path_create,
+        mock_compress,
     ):
         oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = oci
@@ -88,9 +88,7 @@ class TestRootImportOCI:
             f'oci-archive:{mock_compress.return_value.uncompressed_filename}'
         )
         oci.unpack.assert_called_once_with()
-        oci.import_rootfs.assert_called_once_with(
-            'root_dir'
-        )
+        oci.import_rootfs.assert_called_once_with('root_dir')
         mock_Path.assert_called_once_with('root_dir')
         mock_pth.replace.assert_called_once_with('root_dir_ro')
         mock_path_create.assert_called_once_with('root_dir')
@@ -116,9 +114,7 @@ class TestRootImportOCI:
         mock_OCI.new.assert_called_once_with()
 
         oci.unpack.assert_called_once_with()
-        oci.import_rootfs.assert_called_once_with(
-            'root_dir'
-        )
+        oci.import_rootfs.assert_called_once_with('root_dir')
         self.shasum.digest.assert_called_once_with()
         uncompress.get_format.assert_called_once_with()
         uncompress.uncompress.assert_called_once_with(True)
@@ -126,16 +122,15 @@ class TestRootImportOCI:
     @patch('os.path.exists')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.OCI')
-    def test_sync_data_unknown_uri(
-        self, mock_OCI, mock_path, mock_exists
-    ):
+    def test_sync_data_unknown_uri(self, mock_OCI, mock_path, mock_exists):
         mock_exists.return_value = True
         oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = oci
         with patch.dict('os.environ', {'HOME': '../data'}):
             oci_import = RootImportOCI(
-                'root_dir', [Uri('docker:image:tag')],
-                {'archive_transport': 'docker-archive'}
+                'root_dir',
+                [Uri('docker:image:tag')],
+                {'archive_transport': 'docker-archive'},
             )
             oci_import.runtime_config = self.runtime_config
 
@@ -146,7 +141,5 @@ class TestRootImportOCI:
                 'docker:image:tag'
             )
             oci.unpack.assert_called_once_with()
-            oci.import_rootfs.assert_called_once_with(
-                'root_dir'
-            )
+            oci.import_rootfs.assert_called_once_with('root_dir')
             self.shasum.digest.assert_called_once_with()

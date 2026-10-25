@@ -29,6 +29,7 @@ class ContainerSetupAppx(ContainerSetupBase):
     """
     WSL/Appx container setup
     """
+
     def setup(self):
         """
         Setup container metadata
@@ -41,18 +42,12 @@ class ContainerSetupAppx(ContainerSetupBase):
             wsl='{0}/manifest/foundation/windows10'.format(
                 self.appx_at_microsoft
             ),
-            uap='{0}/manifest/uap/windows10'.format(
-                self.appx_at_microsoft
-            ),
+            uap='{0}/manifest/uap/windows10'.format(self.appx_at_microsoft),
             desktop='{0}/manifest/desktop/windows10'.format(
                 self.appx_at_microsoft
             ),
-            uap3='{0}/manifest/uap/windows10/3'.format(
-                self.appx_at_microsoft
-            ),
-            mp='{0}/2014/phone/manifest'.format(
-                self.appx_at_microsoft
-            )
+            uap3='{0}/manifest/uap/windows10/3'.format(self.appx_at_microsoft),
+            mp='{0}/2014/phone/manifest'.format(self.appx_at_microsoft),
         )
         if not os.path.exists(self.appx_manifest_file):
             raise KiwiContainerSetupError(
@@ -61,15 +56,11 @@ class ContainerSetupAppx(ContainerSetupBase):
                 )
             )
         try:
-            self.appx_manifest = etree.parse(
-                self.appx_manifest_file
-            )
+            self.appx_manifest = etree.parse(self.appx_manifest_file)
             self._update_identity()
             self._update_desktop_visual()
             self._update_application_metadata()
-            xml_data_unformatted = etree.tostring(
-                self.appx_manifest.getroot()
-            )
+            xml_data_unformatted = etree.tostring(self.appx_manifest.getroot())
             xml_data_domtree = minidom.parseString(xml_data_unformatted)
             xml_data_raw = xml_data_domtree.toprettyxml(
                 indent='    ', encoding="utf-8"
@@ -90,7 +81,7 @@ class ContainerSetupAppx(ContainerSetupBase):
             if self._get_microsoft_processor_architecture():
                 identity.set(
                     'ProcessorArchitecture',
-                    self._get_microsoft_processor_architecture()
+                    self._get_microsoft_processor_architecture(),
                 )
             if history.get('package_version'):
                 identity.set('Version', history.get('package_version'))
@@ -136,7 +127,5 @@ class ContainerSetupAppx(ContainerSetupBase):
         )
 
     def _get_microsoft_processor_architecture(self):
-        windows = {
-            'x86_64': 'x64'
-        }
+        windows = {'x86_64': 'x64'}
         return windows.get(Defaults.get_platform_name())

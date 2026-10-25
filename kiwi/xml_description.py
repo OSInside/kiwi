@@ -16,9 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import (
-    Dict, Any
-)
+from typing import Dict, Any
 import os
 import logging
 from xml.dom import minidom
@@ -38,7 +36,7 @@ from kiwi.exceptions import (
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
     KiwiExtensionError,
-    KiwiCommandNotFound
+    KiwiCommandNotFound,
 )
 
 log = logging.getLogger('kiwi')
@@ -61,9 +59,8 @@ class XMLDescription:
     :param str description: path to description file
     :param str derived_from: path to base description file
     """
-    def __init__(
-        self, description: str = '', derived_from: str = None
-    ):
+
+    def __init__(self, description: str = '', derived_from: str = None):
         log.info(f'Loading XML description: {description}')
         self.markup = Markup.new(description)
         self.description = self.markup.get_xml_description()
@@ -107,9 +104,7 @@ class XMLDescription:
             raise KiwiValidationError(issue)
         if not validation_rng:
             XMLDescription._get_relaxng_validation_details(
-                Defaults.get_schema_file(),
-                self.description,
-                relaxng.error_log
+                Defaults.get_schema_file(), self.description, relaxng.error_log
             )
         if schematron and not validation_schematron:
             XMLDescription._get_schematron_validation_details(
@@ -125,13 +120,14 @@ class XMLDescription:
         parse_result = self._parse()
 
         if parse_result.get_extension():
-            extension_namespace_map = \
+            extension_namespace_map = (
                 description.getroot().xpath('extension')[0].nsmap
+            )
 
             for namespace_name in extension_namespace_map:
                 extensions_for_namespace = description.getroot().xpath(
                     'extension/{namespace}:*'.format(namespace=namespace_name),
-                    namespaces=extension_namespace_map
+                    namespaces=extension_namespace_map,
                 )
                 if extensions_for_namespace:
                     # one toplevel entry point per extension via xmlns
@@ -143,15 +139,17 @@ class XMLDescription:
                         )
 
                     # store extension xml data parse tree for this namespace
-                    self.extension_data[namespace_name] = \
-                        etree.ElementTree(extensions_for_namespace[0])
+                    self.extension_data[namespace_name] = etree.ElementTree(
+                        extensions_for_namespace[0]
+                    )
 
                     # validate extension xml data
                     try:
                         xml_catalog = Command.run(
                             [
-                                'xmlcatalog', '/etc/xml/catalog',
-                                extension_namespace_map[namespace_name]
+                                'xmlcatalog',
+                                '/etc/xml/catalog',
+                                extension_namespace_map[namespace_name],
                             ]
                         )
                         extension_schema = xml_catalog.output.rstrip().replace(
@@ -170,7 +168,7 @@ class XMLDescription:
                     if not validation_result:
                         xml_data_unformatted = etree.tostring(
                             self.extension_data[namespace_name],
-                            encoding='utf-8'
+                            encoding='utf-8',
                         )
                         xml_data_domtree = minidom.parseString(
                             xml_data_unformatted
@@ -181,7 +179,7 @@ class XMLDescription:
                         XMLDescription._get_relaxng_validation_details(
                             extension_schema,
                             extension_file.name,
-                            extension_relaxng.error_log
+                            extension_relaxng.error_log,
                         )
                         raise KiwiExtensionError(
                             'Schema validation for extension XML data failed'
@@ -213,17 +211,13 @@ class XMLDescription:
         error_log as provided from the raw XML libraries is used
         """
         try:
-            Command.run(
-                ['jing', schema_file, description_file]
-            )
+            Command.run(['jing', schema_file, description_file])
         except KiwiCommandError as issue:
             log.info('RelaxNG validation failed. See jing report:')
             log.info('--> {0}'.format(issue))
         except KiwiCommandNotFound as issue:
             log.warning(issue)
-            log.warning(
-                'For detailed schema validation report, install: jing'
-            )
+            log.warning('For detailed schema validation report, install: jing')
             log.info('Showing only raw library error log:')
             log.info('--> {0}'.format(error_log))
 
@@ -243,9 +237,7 @@ class XMLDescription:
 
     def _parse(self):
         try:
-            parse = xml_parse.parse(
-                self.description, True
-            )
+            parse = xml_parse.parse(self.description, True)
             parse.description_dir = self.description_origin and os.path.dirname(
                 self.description_origin
             )

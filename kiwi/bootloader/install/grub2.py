@@ -33,7 +33,7 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubInstallError,
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubDataError,
-    KiwiBootLoaderDiskPasswordError
+    KiwiBootLoaderDiskPasswordError,
 )
 
 log = logging.getLogger('kiwi')
@@ -43,6 +43,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     """
     **grub2 bootloader installation**
     """
+
     def post_init(self, custom_args):
         """
         grub2 post initialization method
@@ -127,23 +128,17 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         elif 'arm' in self.arch or self.arch == 'aarch64':
             # On arm grub2 is used for EFI setup only, no install
             # of grub2 boot code makes sense
-            log.info(
-                'No grub boot code installation on %s', self.arch
-            )
+            log.info('No grub boot code installation on %s', self.arch)
             return False
         elif self.arch == 'riscv64':
             # On riscv grub2 is used for EFI setup only, no install
             # of grub2 boot code makes sense
-            log.info(
-                'No grub boot code installation on %s', self.arch
-            )
+            log.info('No grub boot code installation on %s', self.arch)
             return False
         elif self.firmware.efi_mode() and not self.firmware.legacy_bios_mode():
             # In EFI mode without CSM, no install
             # of grub2 boot code makes sense
-            log.info(
-                'No grub boot code installation in EFI only mode'
-            )
+            log.info('No grub boot code installation in EFI only mode')
             return False
         return True
 
@@ -214,44 +209,52 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 self.sysfs_mount.umount()
                 Command.run(
                     [
-                        'chroot', self.root_mount.mountpoint,
-                        'grub2-zipl-setup', '--keep'
+                        'chroot',
+                        self.root_mount.mountpoint,
+                        'grub2-zipl-setup',
+                        '--keep',
                     ]
                 )
             else:
                 Command.run(
                     [
-                        'chroot', self.root_mount.mountpoint,
+                        'chroot',
+                        self.root_mount.mountpoint,
                         self._get_grub2_install_tool_name(
                             self.root_mount.mountpoint
-                        )
-                    ] + self.install_arguments + [
-                        '--directory', module_directory,
-                        '--boot-directory', boot_directory,
-                        '--target', self.target,
-                        '--modules', self.modules,
-                        self.install_device
+                        ),
+                    ]
+                    + self.install_arguments
+                    + [
+                        '--directory',
+                        module_directory,
+                        '--boot-directory',
+                        boot_directory,
+                        '--target',
+                        self.target,
+                        '--modules',
+                        self.modules,
+                        self.install_device,
                     ]
                 )
             # Cleanup temporary modified zipl template and config files
             # back to its original state or lave a .kiwi copy for
             # reference in the system
             zipl_config_file = ''.join(
-                [
-                    self.root_mount.mountpoint, '/boot/zipl/config'
-                ]
+                [self.root_mount.mountpoint, '/boot/zipl/config']
             )
             zipl2grub_config_file_orig = ''.join(
                 [
                     self.root_mount.mountpoint,
-                    '/etc/default/zipl2grub.conf.in.orig'
+                    '/etc/default/zipl2grub.conf.in.orig',
                 ]
             )
             if os.path.exists(zipl2grub_config_file_orig):
                 Command.run(
                     [
-                        'mv', zipl2grub_config_file_orig,
-                        zipl2grub_config_file_orig.replace('.orig', '')
+                        'mv',
+                        zipl2grub_config_file_orig,
+                        zipl2grub_config_file_orig.replace('.orig', ''),
                     ]
                 )
             if os.path.exists(zipl_config_file):
@@ -264,9 +267,14 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             setup.setup_selinux_file_contexts()
 
     def secure_boot_install(self):
-        if self.firmware and self.firmware.efi_mode() == 'uefi' and (
-            Defaults.is_x86_arch(self.arch)
-            or 'arm' in self.arch or self.arch == 'aarch64'     # noqa: W503
+        if (
+            self.firmware
+            and self.firmware.efi_mode() == 'uefi'
+            and (
+                Defaults.is_x86_arch(self.arch)
+                or 'arm' in self.arch
+                or self.arch == 'aarch64'  # noqa: W503
+            )
         ):
             with ExitStack() as stack:
                 self._mount_device_and_volumes(stack)
@@ -288,11 +296,13 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         self._disable_grub2_install(self.root_mount.mountpoint)
                         Command.run(
                             [
-                                'chroot', self.root_mount.mountpoint,
-                                'shim-install', '--removable'
-                            ] + self.shim_install_arguments + [
-                                self.device
+                                'chroot',
+                                self.root_mount.mountpoint,
+                                'shim-install',
+                                '--removable',
                             ]
+                            + self.shim_install_arguments
+                            + [self.device]
                         )
                     finally:
                         # restore the grub installer noop
@@ -303,14 +313,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self._mount_device_and_volumes(stack)
             if self.root_mount and password is not None:
                 log.debug('Include cryptomount credentials...')
-                config_file = f'{self.root_mount.mountpoint}/boot/efi/EFI/BOOT/grub.cfg'
+                config_file = (
+                    f'{self.root_mount.mountpoint}/boot/efi/EFI/BOOT/grub.cfg'
+                )
                 try:
                     with open(config_file) as config:
                         grub_config = config.read()
                         grub_config = re.sub(
                             r'cryptomount',
                             f'cryptomount -p "{password}"',
-                            grub_config
+                            grub_config,
                         )
                     with open(config_file, 'w') as grub_config_file:
                         grub_config_file.write(grub_config)
@@ -321,16 +333,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     )
 
     def _mount_device_and_volumes(self, stack: ExitStack):
-        self.root_mount = MountManager(
-            device=self.custom_args['root_device']
-        )
+        self.root_mount = MountManager(device=self.custom_args['root_device'])
         stack.push(self.root_mount)
         custom_root_mount_args = []
         if self.root_volume_name and self.root_volume_name != '/':
             custom_root_mount_args += [f'subvol={self.root_volume_name}']
         readonly_device = (self.device_map or {}).get('readonly')
-        if readonly_device and \
-           self.custom_args['root_device'] == readonly_device.get_device():
+        if (
+            readonly_device
+            and self.custom_args['root_device'] == readonly_device.get_device()
+        ):
             # The overlayroot readonly partition holds a read-only
             # filesystem (squashfs/erofs), mount it as such
             custom_root_mount_args += ['ro']
@@ -339,12 +351,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if 's390' in self.arch:
             boot_mount = MountManager(
                 device=self.custom_args['boot_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot/zipl'
+                mountpoint=self.root_mount.mountpoint + '/boot/zipl',
             )
         else:
             boot_mount = MountManager(
                 device=self.custom_args['boot_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot'
+                mountpoint=self.root_mount.mountpoint + '/boot',
             )
         stack.push(boot_mount)
         if not self.root_mount.device == boot_mount.device:
@@ -353,7 +365,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if self.custom_args.get('efi_device'):
             efi_mount = MountManager(
                 device=self.custom_args['efi_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot/efi'
+                mountpoint=self.root_mount.mountpoint + '/boot/efi',
             )
             stack.push(efi_mount)
             efi_mount.mount()
@@ -364,7 +376,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             ):
                 volume_mount = MountManager(
                     device=self.volumes[volume_path]['volume_device'],
-                    mountpoint=self.root_mount.mountpoint + '/' + volume_path
+                    mountpoint=self.root_mount.mountpoint + '/' + volume_path,
                 )
                 stack.push(volume_mount)
                 volume_mount.mount(
@@ -377,28 +389,25 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         device=self.device_map[map_name].get_device(),
                         mountpoint=os.path.join(
                             self.root_mount.mountpoint,
-                            self.partitions[map_name].mountpoint.lstrip(os.sep)
-                        )
+                            self.partitions[map_name].mountpoint.lstrip(os.sep),
+                        ),
                     )
                     stack.push(partition_mount)
                     partition_mount.mount()
         device_mount = MountManager(
-            device='/dev',
-            mountpoint=self.root_mount.mountpoint + '/dev'
+            device='/dev', mountpoint=self.root_mount.mountpoint + '/dev'
         )
         stack.push(device_mount)
         device_mount.bind_mount()
 
         proc_mount = MountManager(
-            device='/proc',
-            mountpoint=self.root_mount.mountpoint + '/proc'
+            device='/proc', mountpoint=self.root_mount.mountpoint + '/proc'
         )
         stack.push(proc_mount)
         proc_mount.bind_mount()
 
         self.sysfs_mount = MountManager(
-            device='/sys',
-            mountpoint=self.root_mount.mountpoint + '/sys'
+            device='/sys', mountpoint=self.root_mount.mountpoint + '/sys'
         )
         stack.push(self.sysfs_mount)
         self.sysfs_mount.bind_mount()
@@ -406,40 +415,33 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     def _disable_grub2_install(self, root_path):
         if os.access(root_path, os.W_OK):
             grub2_install = ''.join(
-                [
-                    '/usr/sbin/',
-                    self._get_grub2_install_tool_name(root_path)
-                ]
+                ['/usr/sbin/', self._get_grub2_install_tool_name(root_path)]
             )
-            grub2_install_backup = ''.join(
-                [grub2_install, '.orig']
-            )
+            grub2_install_backup = ''.join([grub2_install, '.orig'])
             grub2_install_noop = '/bin/true'
             shutil.copy2(
                 os.path.normpath(f'{root_path}/{grub2_install}'),
-                os.path.normpath(f'{root_path}/{grub2_install_backup}')
+                os.path.normpath(f'{root_path}/{grub2_install_backup}'),
             )
             shutil.copy2(
                 os.path.normpath(f'{root_path}/{grub2_install_noop}'),
-                os.path.normpath(f'{root_path}/{grub2_install}')
+                os.path.normpath(f'{root_path}/{grub2_install}'),
             )
 
     def _enable_grub2_install(self, root_path):
         if os.access(root_path, os.W_OK):
             grub2_install = ''.join(
-                [
-                    '/usr/sbin/',
-                    self._get_grub2_install_tool_name(root_path)
-                ]
+                ['/usr/sbin/', self._get_grub2_install_tool_name(root_path)]
             )
-            grub2_install_backup = ''.join(
-                [grub2_install, '.orig']
-            )
+            grub2_install_backup = ''.join([grub2_install, '.orig'])
             if os.path.exists(''.join([root_path, grub2_install_backup])):
                 Command.run(
                     [
-                        'chroot', root_path,
-                        'mv', grub2_install_backup, grub2_install
+                        'chroot',
+                        root_path,
+                        'mv',
+                        grub2_install_backup,
+                        grub2_install,
                     ]
                 )
 

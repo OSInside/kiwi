@@ -1,8 +1,6 @@
 import io
 import os
-from unittest.mock import (
-    patch, call, Mock, MagicMock
-)
+from unittest.mock import patch, call, Mock, MagicMock
 from pytest import raises
 
 from kiwi.system.uri import Uri
@@ -67,8 +65,14 @@ class TestRootImportBase:
     @patch('kiwi.system.root_import.base.Command.run')
     @patch('kiwi.system.uri.RuntimeConfig')
     def test_overlay_finalize(
-        self, mock_runtime_config, mock_Command_run, mock_pathlib, mock_Path,
-        mock_SystemSetup, mock_buildservice, mock_path_exists
+        self,
+        mock_runtime_config,
+        mock_Command_run,
+        mock_pathlib,
+        mock_Path,
+        mock_SystemSetup,
+        mock_buildservice,
+        mock_path_exists,
     ):
         mock_path_exists.return_value = True
         mock_buildservice.return_value = False
@@ -89,14 +93,12 @@ class TestRootImportBase:
                 root.overlay_finalize(xml_state)
 
                 # run config-overlay.sh
-                mock_SystemSetup.return_value.\
-                    call_config_overlay_script.assert_called_once_with()
+                mock_SystemSetup.return_value.call_config_overlay_script.assert_called_once_with()
 
                 # run config-host-overlay.sh
-                mock_SystemSetup.return_value.\
-                    call_config_host_overlay_script.assert_called_once_with(
-                        working_directory='root_dir'
-                    )
+                mock_SystemSetup.return_value.call_config_host_overlay_script.assert_called_once_with(
+                    working_directory='root_dir'
+                )
 
                 # umount and create the new upper
                 root.overlay.umount.assert_called_once_with()
@@ -104,7 +106,7 @@ class TestRootImportBase:
                     call('root_dir'),
                     call('root_dir_cow_before_pinch'),
                     call(root.overlay.lower),
-                    call(root.overlay.work)
+                    call(root.overlay.work),
                 ]
 
                 mock_pathlib.Path.assert_called_once_with(root.overlay.upper)
@@ -116,24 +118,35 @@ class TestRootImportBase:
                 assert mock_Command_run.call_args_list == [
                     call(
                         [
-                            'rsync', '-av', '--dry-run', '--out-format=%n',
-                            '--exclude', 'etc/hosts.kiwi',
-                            '--exclude', 'etc/hosts.sha',
-                            '--exclude', 'etc/resolv.conf.kiwi',
-                            '--exclude', 'etc/resolv.conf.sha',
-                            '--exclude', 'etc/sysconfig/proxy.kiwi',
-                            '--exclude', 'etc/sysconfig/proxy.sha',
-                            '--exclude', 'usr/lib/sysimage/rpm',
-                            'root_dir_cow_before_pinch/', 'root_dir/'
+                            'rsync',
+                            '-av',
+                            '--dry-run',
+                            '--out-format=%n',
+                            '--exclude',
+                            'etc/hosts.kiwi',
+                            '--exclude',
+                            'etc/hosts.sha',
+                            '--exclude',
+                            'etc/resolv.conf.kiwi',
+                            '--exclude',
+                            'etc/resolv.conf.sha',
+                            '--exclude',
+                            'etc/sysconfig/proxy.kiwi',
+                            '--exclude',
+                            'etc/sysconfig/proxy.sha',
+                            '--exclude',
+                            'usr/lib/sysimage/rpm',
+                            'root_dir_cow_before_pinch/',
+                            'root_dir/',
                         ]
                     ),
-                    call(
-                        ['find', 'root_dir', '-type', 'c', '-delete']
-                    )
+                    call(['find', 'root_dir', '-type', 'c', '-delete']),
                 ]
                 # create removed files metadata for later host provisioning
                 assert file_handle.write.call_args_list == [
                     call('\n'),
-                    call('/file_a'), call(os.linesep),
-                    call('/file_b'), call(os.linesep)
+                    call('/file_a'),
+                    call(os.linesep),
+                    call('/file_b'),
+                    call(os.linesep),
                 ]

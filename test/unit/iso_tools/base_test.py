@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock, call
-)
+from unittest.mock import patch, Mock, call
 from pytest import raises
 
 from kiwi.defaults import Defaults
@@ -56,47 +54,50 @@ class TestIsoToolsBase:
         assert mock_shutil.copy.call_args_list == [
             call(
                 'root_dir/usr/share/grub2/i386-pc/eltorito.img',
-                'root_dir/image/loader/'
+                'root_dir/image/loader/',
             ),
             call(
                 'root_dir/usr/share/grub2/i386-pc/boot_hybrid.img',
-                'root_dir/image/loader/'
-            )
+                'root_dir/image/loader/',
+            ),
         ]
         assert mock_command.call_args_list == [
             call(
                 command=[
-                    'bash', '-c',
+                    'bash',
+                    '-c',
                     'cp root_dir/boot/memtest* '
-                    'root_dir/image/loader//memtest'
-                ], raise_on_error=False
+                    'root_dir/image/loader//memtest',
+                ],
+                raise_on_error=False,
             ),
             call(
                 [
-                    'bash', '-c',
+                    'bash',
+                    '-c',
                     'cp root_dir/etc/bootsplash/themes/openSUSE/'
-                    'cdrom/* root_dir/image/loader/'
+                    'cdrom/* root_dir/image/loader/',
                 ]
             ),
             call(
                 [
                     'gfxboot',
-                    '--config-file', 'root_dir/image/loader//gfxboot.cfg',
-                    '--change-config', 'install::autodown=0'
+                    '--config-file',
+                    'root_dir/image/loader//gfxboot.cfg',
+                    '--change-config',
+                    'install::autodown=0',
                 ]
             ),
             call(
                 [
                     'cp',
                     'root_dir/etc/bootsplash/themes/openSUSE/'
-                    'bootloader/message', 'root_dir/image/loader/'
+                    'bootloader/message',
+                    'root_dir/image/loader/',
                 ]
-            )
+            ),
         ]
         mock_sync.assert_called_once_with(
-            'root_dir/image/loader/',
-            'media_dir/boot/x86_64/loader'
+            'root_dir/image/loader/', 'media_dir/boot/x86_64/loader'
         )
-        data.sync_data.assert_called_once_with(
-            options=['-a']
-        )
+        data.sync_data.assert_called_once_with(options=['-a'])

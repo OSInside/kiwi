@@ -40,15 +40,14 @@ class ArchiveTar:
     :param list file_list:
         list of files and directorie names to archive
     """
+
     def __init__(self, filename, create_from_file_list=True, file_list=None):
         self.filename = filename
         self.create_from_file_list = create_from_file_list
         self.file_list = file_list
 
         if CommandCapabilities.check_version('tar', (1, 27)):
-            self.xattrs_options = [
-                '--xattrs', '--xattrs-include=*'
-            ]
+            self.xattrs_options = ['--xattrs', '--xattrs-include=*']
         else:
             self.xattrs_options = []
 
@@ -63,11 +62,11 @@ class ArchiveTar:
         if not options:
             options = []
         Command.run(
-            [
-                'tar', '-C', source_dir
-            ] + options + self.xattrs_options + [
-                '-c', '-f', self.filename
-            ] + self._get_archive_items(source_dir, exclude)
+            ['tar', '-C', source_dir]
+            + options
+            + self.xattrs_options
+            + ['-c', '-f', self.filename]
+            + self._get_archive_items(source_dir, exclude)
         )
         return self.filename
 
@@ -82,10 +81,10 @@ class ArchiveTar:
         if not options:
             options = []
         Command.run(
-            [
-                'tar', '-C', source_dir, '-r',
-                '--file=' + self.filename
-            ] + options + self.xattrs_options + files_to_append
+            ['tar', '-C', source_dir, '-r', '--file=' + self.filename]
+            + options
+            + self.xattrs_options
+            + files_to_append
         )
         return self.filename
 
@@ -104,15 +103,16 @@ class ArchiveTar:
             options = []
         if not xz_options:
             xz_options = Defaults.get_xz_compression_options()
-        bash_command = [
-            'tar', '-C', source_dir
-        ] + options + self.xattrs_options + [
-            '-c', '--to-stdout'
-        ] + self._get_archive_items(source_dir, exclude) + [
-            '|', 'xz', '-f'
-        ] + xz_options + [
-            '>', self.filename + '.xz'
-        ]
+        bash_command = (
+            ['tar', '-C', source_dir]
+            + options
+            + self.xattrs_options
+            + ['-c', '--to-stdout']
+            + self._get_archive_items(source_dir, exclude)
+            + ['|', 'xz', '-f']
+            + xz_options
+            + ['>', self.filename + '.xz']
+        )
         Command.run(['bash', '-c', ' '.join(bash_command)])
         return self.filename + '.xz'
 
@@ -125,9 +125,15 @@ class ArchiveTar:
         """
         Command.run(
             [
-                'tar', '-C', source_dir,
-                '--format=gnu', '-cSz', '-f', self.filename + '.gz'
-            ] + self._get_archive_items(source_dir, exclude)
+                'tar',
+                '-C',
+                source_dir,
+                '--format=gnu',
+                '-cSz',
+                '-f',
+                self.filename + '.gz',
+            ]
+            + self._get_archive_items(source_dir, exclude)
         )
         return self.filename + '.gz'
 
@@ -137,9 +143,7 @@ class ArchiveTar:
 
         :param string dest_dir: target data directory
         """
-        Command.run(
-            ['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename]
-        )
+        Command.run(['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename])
 
     def _get_archive_items(self, source_dir, exclude_list):
         if self.create_from_file_list:

@@ -18,9 +18,7 @@
 import os
 import logging
 from collections import OrderedDict
-from typing import (
-    Dict, NamedTuple, Tuple, Optional
-)
+from typing import Dict, NamedTuple, Tuple, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -30,10 +28,7 @@ from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner import Partitioner
 from kiwi.runtime_config import RuntimeConfig
-from kiwi.exceptions import (
-    KiwiCustomPartitionConflictError,
-    KiwiError
-)
+from kiwi.exceptions import KiwiCustomPartitionConflictError, KiwiError
 
 
 class ptable_entry_type(NamedTuple):
@@ -54,10 +49,14 @@ class Disk(DeviceProvider):
     """
     **Implements storage disk and partition table setup**
     """
+
     def __init__(
-        self, table_type: str, storage_provider: DeviceProvider,
-        start_sector: int = None, extended_layout: bool = False,
-        apply_dps_codes: bool = False
+        self,
+        table_type: str,
+        storage_provider: DeviceProvider,
+        start_sector: int = None,
+        extended_layout: bool = False,
+        apply_dps_codes: bool = False,
     ):
         """
         Construct a new Disk layout object
@@ -96,13 +95,14 @@ class Disk(DeviceProvider):
             'spare',
             'swap',
             'efi_csm',
-            'efi'
+            'efi',
         ]
 
         #: Unified partition UUIDs according to systemd, only used
         #: if the Discoverable Partition type codes should be applied
-        self.gUID: Dict[str, str] = \
+        self.gUID: Dict[str, str] = (
             self.get_discoverable_partition_ids() if apply_dps_codes else {}
+        )
 
         self.partition_map: Dict[str, str] = {}
         self.public_partition_id_map: Dict[str, str] = {}
@@ -170,15 +170,18 @@ class Disk(DeviceProvider):
             entry = table_entries[map_name]
             if entry.clone:
                 self._create_clones(
-                    map_name, entry.clone, entry.partition_type,
-                    format(entry.mbsize), entry.partition_id
+                    map_name,
+                    entry.clone,
+                    entry.partition_type,
+                    format(entry.mbsize),
+                    entry.partition_id,
                 )
             id_name = f'kiwi_{map_name.title()}Part'
             self.partitioner.create(
                 name=entry.partition_name,
                 mbsize=entry.mbsize,
                 type_name=entry.partition_type,
-                partition_id=entry.partition_id
+                partition_id=entry.partition_id,
             )
             self._add_to_map(map_name)
             self._add_to_public_id_map(id_name)
@@ -207,7 +210,7 @@ class Disk(DeviceProvider):
             instead of auto-incrementing. When cloned, the clone
             ID is calculated from the given partition_id
         """
-        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
+        mbsize, mbsize_clone = Disk._parse_size(mbsize)
         if clone:
             self._create_clones(
                 'root', clone, 't.linux', mbsize_clone, partition_id
@@ -216,7 +219,7 @@ class Disk(DeviceProvider):
             name='p.lxroot',
             mbsize=mbsize,
             type_name='t.linux',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
@@ -226,9 +229,7 @@ class Disk(DeviceProvider):
             self._add_to_public_id_map('kiwi_BootPart')
         root_uuid = self.gUID.get('root')
         if root_uuid:
-            self.partitioner.set_uuid(
-                self.partition_id_map['root'], root_uuid
-            )
+            self.partitioner.set_uuid(self.partition_id_map['root'], root_uuid)
 
     def create_root_lvm_partition(
         self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
@@ -245,7 +246,7 @@ class Disk(DeviceProvider):
             instead of auto-incrementing. When cloned, the clone
             ID is calculated from the given partition_id
         """
-        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
+        mbsize, mbsize_clone = Disk._parse_size(mbsize)
         if clone:
             self._create_clones(
                 'root', clone, 't.lvm', mbsize_clone, partition_id
@@ -254,18 +255,14 @@ class Disk(DeviceProvider):
             name='p.lxlvm',
             mbsize=mbsize,
             type_name='t.lvm',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         root_uuid = self.gUID.get('root')
         if root_uuid:
-            self.partitioner.set_uuid(
-                self.partition_id_map['root'], root_uuid
-            )
-            self.partitioner.set_flag(
-                self.partition_id_map['root'], 't.lvm'
-            )
+            self.partitioner.set_uuid(self.partition_id_map['root'], root_uuid)
+            self.partitioner.set_flag(self.partition_id_map['root'], 't.lvm')
 
     def create_root_raid_partition(
         self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
@@ -284,7 +281,7 @@ class Disk(DeviceProvider):
             instead of auto-incrementing. When cloned, the clone
             ID is calculated from the given partition_id
         """
-        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
+        mbsize, mbsize_clone = Disk._parse_size(mbsize)
         if clone:
             self._create_clones(
                 'root', clone, 't.raid', mbsize_clone, partition_id
@@ -293,19 +290,15 @@ class Disk(DeviceProvider):
             name='p.lxraid',
             mbsize=mbsize,
             type_name='t.raid',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         self._add_to_public_id_map('kiwi_RaidPart')
         root_uuid = self.gUID.get('root')
         if root_uuid:
-            self.partitioner.set_uuid(
-                self.partition_id_map['root'], root_uuid
-            )
-            self.partitioner.set_flag(
-                self.partition_id_map['root'], 't.raid'
-            )
+            self.partitioner.set_uuid(self.partition_id_map['root'], root_uuid)
+            self.partitioner.set_flag(self.partition_id_map['root'], 't.raid')
 
     def create_root_readonly_partition(
         self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
@@ -325,7 +318,7 @@ class Disk(DeviceProvider):
             instead of auto-incrementing. When cloned, the clone
             ID is calculated from the given partition_id
         """
-        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
+        mbsize, mbsize_clone = Disk._parse_size(mbsize)
         if clone:
             self._create_clones(
                 'root', clone, 't.linux', mbsize_clone, partition_id
@@ -334,7 +327,7 @@ class Disk(DeviceProvider):
             name='p.lxreadonly',
             mbsize=mbsize,
             type_name='t.linux',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('readonly')
         self._add_to_public_id_map('kiwi_ROPart')
@@ -359,7 +352,7 @@ class Disk(DeviceProvider):
             instead of auto-incrementing. When cloned, the clone
             ID is calculated from the given partition_id
         """
-        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
+        mbsize, mbsize_clone = Disk._parse_size(mbsize)
         if clone:
             self._create_clones(
                 'boot', clone, 't.linux', mbsize_clone, partition_id
@@ -368,15 +361,13 @@ class Disk(DeviceProvider):
             name='p.lxboot',
             mbsize=mbsize,
             type_name='t.linux',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('boot')
         self._add_to_public_id_map('kiwi_BootPart')
         boot_uuid = self.gUID.get('xbootldr')
         if boot_uuid:
-            self.partitioner.set_uuid(
-                self.partition_id_map['boot'], boot_uuid
-            )
+            self.partitioner.set_uuid(self.partition_id_map['boot'], boot_uuid)
 
     def create_prep_partition(
         self, mbsize: str, partition_id: Optional[int] = None
@@ -391,12 +382,12 @@ class Disk(DeviceProvider):
             If provided, use this exact partition ID
             instead of auto-incrementing.
         """
-        (mbsize, _) = Disk._parse_size(mbsize)
+        mbsize, _ = Disk._parse_size(mbsize)
         self.partitioner.create(
             name='p.prep',
             mbsize=mbsize,
             type_name='t.prep',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
@@ -414,12 +405,12 @@ class Disk(DeviceProvider):
             If provided, use this exact partition ID
             instead of auto-incrementing.
         """
-        (mbsize, _) = Disk._parse_size(mbsize)
+        mbsize, _ = Disk._parse_size(mbsize)
         self.partitioner.create(
             name='p.spare',
             mbsize=mbsize,
             type_name='t.linux',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
@@ -437,23 +428,19 @@ class Disk(DeviceProvider):
             If provided, use this exact partition ID
             instead of auto-incrementing.
         """
-        (mbsize, _) = Disk._parse_size(mbsize)
+        mbsize, _ = Disk._parse_size(mbsize)
         self.partitioner.create(
             name='p.swap',
             mbsize=mbsize,
             type_name='t.swap',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('swap')
         self._add_to_public_id_map('kiwi_SwapPart')
         swap_uuid = self.gUID.get('swap')
         if swap_uuid:
-            self.partitioner.set_uuid(
-                self.partition_id_map['swap'], swap_uuid
-            )
-            self.partitioner.set_flag(
-                self.partition_id_map['swap'], 't.swap'
-            )
+            self.partitioner.set_uuid(self.partition_id_map['swap'], swap_uuid)
+            self.partitioner.set_flag(self.partition_id_map['swap'], 't.swap')
 
     def create_efi_csm_partition(
         self, mbsize: str, partition_id: Optional[int] = None
@@ -468,12 +455,12 @@ class Disk(DeviceProvider):
             If provided, use this exact partition ID
             instead of auto-incrementing.
         """
-        (mbsize, _) = Disk._parse_size(mbsize)
+        mbsize, _ = Disk._parse_size(mbsize)
         self.partitioner.create(
             name='p.legacy',
             mbsize=mbsize,
             type_name='t.csm',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('efi_csm')
         self._add_to_public_id_map('kiwi_BiosGrub')
@@ -491,23 +478,19 @@ class Disk(DeviceProvider):
             If provided, use this exact partition ID
             instead of auto-incrementing.
         """
-        (mbsize, _) = Disk._parse_size(mbsize)
+        mbsize, _ = Disk._parse_size(mbsize)
         self.partitioner.create(
             name='p.UEFI',
             mbsize=mbsize,
             type_name='t.efi',
-            partition_id=partition_id
+            partition_id=partition_id,
         )
         self._add_to_map('efi')
         self._add_to_public_id_map('kiwi_EfiPart')
         esp_uuid = self.gUID.get('esp')
         if esp_uuid:
-            self.partitioner.set_uuid(
-                self.partition_id_map['efi'], esp_uuid
-            )
-            self.partitioner.set_flag(
-                self.partition_id_map['efi'], 't.efi'
-            )
+            self.partitioner.set_uuid(self.partition_id_map['efi'], esp_uuid)
+            self.partitioner.set_flag(self.partition_id_map['efi'], 't.efi')
 
     def activate_boot_partition(self):
         """
@@ -562,14 +545,16 @@ class Disk(DeviceProvider):
                 vtoc.write('y\n\nw\nq\n')
             bash_command = ' '.join(
                 [
-                    'cat', fdasd_input.name, '|',
-                    'fdasd', '-f', self.storage_provider.get_device()
+                    'cat',
+                    fdasd_input.name,
+                    '|',
+                    'fdasd',
+                    '-f',
+                    self.storage_provider.get_device(),
                 ]
             )
             try:
-                Command.run(
-                    ['bash', '-c', bash_command]
-                )
+                Command.run(['bash', '-c', bash_command])
             except Exception:
                 # unfortunately fdasd reports that it can't read in the
                 # partition table which I consider a bug in fdasd. However
@@ -580,9 +565,7 @@ class Disk(DeviceProvider):
         else:
             log.debug('Initialize %s disk', self.table_type)
             Command.run(
-                [
-                    'sgdisk', '--zap-all', self.storage_provider.get_device()
-                ]
+                ['sgdisk', '--zap-all', self.storage_provider.get_device()]
             )
 
     def map_partitions(self):
@@ -603,17 +586,13 @@ class Disk(DeviceProvider):
                 )
             self.is_mapped = True
         else:
-            Command.run(
-                ['partprobe', self.storage_provider.get_device()]
-            )
+            Command.run(['partprobe', self.storage_provider.get_device()])
 
     def get_public_partition_id_map(self) -> Dict[str, str]:
         """
         Populated partition name to number map
         """
-        return OrderedDict(
-            sorted(self.public_partition_id_map.items())
-        )
+        return OrderedDict(sorted(self.public_partition_id_map.items()))
 
     def get_discoverable_partition_ids(self) -> Dict[str, str]:
         """
@@ -628,27 +607,27 @@ class Disk(DeviceProvider):
         """
         discoverable_ids = {}
         try:
-            raw_lines = Command.run(
-                ['systemd-id128', 'show']
-            ).output.split(os.linesep)[1:]
+            raw_lines = Command.run(['systemd-id128', 'show']).output.split(
+                os.linesep
+            )[1:]
             for line in raw_lines:
                 if line:
                     line = ' '.join(line.split())
                     partition_name, uuid = line.split(' ')
                     discoverable_ids[partition_name] = uuid
         except KiwiError as issue:
-            log.warning(
-                f'Failed to obtain discoverable partition IDs: {issue}'
-            )
-            log.warning(
-                'Using built-in table'
-            )
+            log.warning(f'Failed to obtain discoverable partition IDs: {issue}')
+            log.warning('Using built-in table')
             discoverable_ids = Defaults.get_discoverable_partition_ids()
         return discoverable_ids
 
     def _create_clones(
-        self, name: str, clone: int, type_flag: str, mbsize: str,
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        clone: int,
+        type_flag: str,
+        mbsize: str,
+        partition_id: Optional[int] = None,
     ) -> None:
         """
         Create [clone] cop(y/ies) of the given partition name
@@ -673,7 +652,7 @@ class Disk(DeviceProvider):
                 name=f'p.lx{name}clone{partition_id or clone_id}',
                 mbsize=mbsize,
                 type_name=type_flag,
-                partition_id=partition_id
+                partition_id=partition_id,
             )
             self._add_to_map(f'{name}clone{partition_id or clone_id}')
             self._add_to_public_id_map(
@@ -733,13 +712,9 @@ class Disk(DeviceProvider):
         else:
             device = self.storage_provider.get_device()
             if device[-1].isdigit():
-                device_node = ''.join(
-                    [device, 'p', partition_number]
-                )
+                device_node = ''.join([device, 'p', partition_number])
             else:
-                device_node = ''.join(
-                    [device, partition_number]
-                )
+                device_node = ''.join([device, partition_number])
         if device_node:
             self.partition_map[name] = device_node
             self.partition_id_map[name] = partition_number
@@ -756,7 +731,11 @@ class Disk(DeviceProvider):
                     )
                 else:
                     Command.run(
-                        ['partx', '--delete', self.storage_provider.get_device()]
+                        [
+                            'partx',
+                            '--delete',
+                            self.storage_provider.get_device(),
+                        ]
                     )
             except Exception as issue:
                 log.error(

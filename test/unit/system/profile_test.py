@@ -12,15 +12,11 @@ class TestProfile:
     def setup(self):
         self.profile_file = 'tmpfile.profile'
         description = XMLDescription('../data/example_dot_profile_config.xml')
-        self.profile = Profile(
-            XMLState(description.load())
-        )
+        self.profile = Profile(XMLState(description.load()))
         live_description = XMLDescription(
             '../data/example_dot_profile_live_config.xml'
         )
-        self.live_profile = Profile(
-            XMLState(live_description.load())
-        )
+        self.live_profile = Profile(XMLState(live_description.load()))
 
     def setup_method(self, cls):
         self.setup()
@@ -71,7 +67,7 @@ class TestProfile:
             'kiwi_strip_libs': '',
             'kiwi_drivers': '',
             'kiwi_rootpartuuid': None,
-            'kiwi_shasum_suffix': '.sha256'
+            'kiwi_shasum_suffix': '.sha256',
         }
 
     @patch('kiwi.path.Path.which')
@@ -157,32 +153,28 @@ class TestProfile:
             'kiwi_wwid_wait_timeout': None,
             'kiwi_xendomain': 'dom0',
             'kiwi_rootpartuuid': None,
-            'kiwi_shasum_suffix': '.sha256'
+            'kiwi_shasum_suffix': '.sha256',
         }
 
     @patch('kiwi.path.Path.which')
     def test_create_displayname_is_image_name(self, mock_which):
         mock_which.side_effect = ['cp', 'bash']
         description = XMLDescription('../data/example_pxe_config.xml')
-        profile = Profile(
-            XMLState(description.load())
-        )
+        profile = Profile(XMLState(description.load()))
         profile.create(self.profile_file)
         os.remove(self.profile_file)
-        assert profile.dot_profile['kiwi_displayname'] == \
-            'LimeJeOS-openSUSE-13.2'
+        assert (
+            profile.dot_profile['kiwi_displayname'] == 'LimeJeOS-openSUSE-13.2'
+        )
 
     @patch('kiwi.path.Path.which')
     def test_create_cpio(self, mock_which):
         mock_which.side_effect = ['cp', 'bash']
         description = XMLDescription('../data/example_dot_profile_config.xml')
-        profile = Profile(
-            XMLState(description.load(), None, 'cpio')
-        )
+        profile = Profile(XMLState(description.load(), None, 'cpio'))
         profile.create(self.profile_file)
         os.remove(self.profile_file)
-        assert profile.dot_profile['kiwi_cpio_name'] == \
-            'LimeJeOS-openSUSE-13.2'
+        assert profile.dot_profile['kiwi_cpio_name'] == 'LimeJeOS-openSUSE-13.2'
 
     def test_add(self):
         self.profile.add('foo', 'bar')

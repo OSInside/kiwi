@@ -13,9 +13,7 @@ class TestSystemSize:
         self.setup()
 
     def test_customize_ext(self):
-        self.size.accumulate_files = mock.Mock(
-            return_value=10000
-        )
+        self.size.accumulate_files = mock.Mock(return_value=10000)
         assert self.size.customize(42, 'ext3') == 67
 
     def test_customize_btrfs(self):
@@ -29,11 +27,20 @@ class TestSystemSize:
         assert isinstance(self.size.accumulate_mbyte_file_sizes(['/foo']), int)
         mock_command.assert_called_once_with(
             [
-                'du', '-s', '--apparent-size', '--block-size', '1',
-                '--exclude', 'directory/proc',
-                '--exclude', 'directory/sys',
-                '--exclude', 'directory/dev',
-                '--exclude', '/foo', 'directory'
+                'du',
+                '-s',
+                '--apparent-size',
+                '--block-size',
+                '1',
+                '--exclude',
+                'directory/proc',
+                '--exclude',
+                'directory/sys',
+                '--exclude',
+                'directory/dev',
+                '--exclude',
+                '/foo',
+                'directory',
             ]
         )
 

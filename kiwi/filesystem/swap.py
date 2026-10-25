@@ -26,9 +26,13 @@ class FileSystemSwap(FileSystemBase):
     """
     **Implements creation of swap space**
     """
+
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
-        uuid: str = None
+        self,
+        label: str = None,
+        size: int = 0,
+        unit: str = defaults.UNIT.kb,
+        uuid: str = None,
     ):
         """
         Create swap space on block device
@@ -43,6 +47,4 @@ class FileSystemSwap(FileSystemBase):
         if label:
             call_args.append('-L')
             call_args.append(label)
-        Command.run(
-            ['mkswap'] + call_args + [device]
-        )
+        Command.run(['mkswap'] + call_args + [device])

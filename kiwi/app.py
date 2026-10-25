@@ -26,6 +26,7 @@ class App:
     Each task class implements a process method which is called
     when constructing an instance of App
     """
+
     def __init__(self):
         app = CliTask(should_perform_task_setup=False)
         action = app.cli.get_command()

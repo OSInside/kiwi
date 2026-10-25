@@ -28,6 +28,7 @@ class RpmDataBase:
     """
     **Setup RPM database configuration**
     """
+
     def __init__(self, root_dir, macro_file=None):
         self.rpmdb_host = Rpm()
         self.rpmdb_image = Rpm(root_dir, macro_file)
@@ -49,14 +50,10 @@ class RpmDataBase:
         """
         Rebuild image rpm database taking current macro setup into account
         """
-        Command.run(
-            ['chroot', self.root_dir, 'rpmdb', '--rebuilddb']
-        )
+        Command.run(['chroot', self.root_dir, 'rpmdb', '--rebuilddb'])
 
     def init_database(self):
-        Command.run(
-            ['rpm', '--root', self.root_dir, '--initdb']
-        )
+        Command.run(['rpm', '--root', self.root_dir, '--initdb'])
 
     def set_macro_from_string(self, setting):
         """
@@ -77,9 +74,7 @@ class RpmDataBase:
         """
         match = re.match('(.*)%(.*)', setting)
         if match:
-            self.rpmdb_image.set_config_value(
-                match.group(1), match.group(2)
-            )
+            self.rpmdb_image.set_config_value(match.group(1), match.group(2))
 
     def write_config(self):
         self.rpmdb_image.write_config()
@@ -90,8 +85,13 @@ class RpmDataBase:
         """
         Command.run(
             [
-                'rpm', '--root', self.root_dir, '--import', key,
-                '--dbpath', self.rpmdb_host.expand_query('%_dbpath')
+                'rpm',
+                '--root',
+                self.root_dir,
+                '--import',
+                key,
+                '--dbpath',
+                self.rpmdb_host.expand_query('%_dbpath'),
             ]
         )
 
@@ -120,15 +120,19 @@ class RpmDataBase:
             if not os.path.exists(root_rpm_host_dbpath):
                 Path.create(os.path.dirname(root_rpm_host_dbpath))
                 host_to_root = ''.join(
-                    '../' for i in os.path.dirname(
-                        rpm_host_dbpath
-                    ).lstrip(os.sep).split(os.sep)
+                    '../'
+                    for i in os.path.dirname(rpm_host_dbpath)
+                    .lstrip(os.sep)
+                    .split(os.sep)
                 )
                 Command.run(
                     [
-                        'ln', '-s', os.path.normpath(
+                        'ln',
+                        '-s',
+                        os.path.normpath(
                             os.sep.join([host_to_root, rpm_image_dbpath])
-                        ), root_rpm_host_dbpath
+                        ),
+                        root_rpm_host_dbpath,
                     ]
                 )
 
@@ -158,9 +162,7 @@ class RpmDataBase:
             else:
                 Path.wipe(root_rpm_image_dbpath)
 
-            self.rpmdb_image.set_config_value(
-                '_dbpath', rpm_host_dbpath
-            )
+            self.rpmdb_image.set_config_value('_dbpath', rpm_host_dbpath)
             self.rpmdb_image.set_config_value(
                 '_dbpath_rebuild', self.rpmdb_image.get_query('_dbpath')
             )

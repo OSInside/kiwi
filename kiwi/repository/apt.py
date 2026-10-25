@@ -21,19 +21,13 @@ import shutil
 import hashlib
 import logging
 from base64 import b64encode
-from urllib.parse import (
-    urlparse, unquote
-)
-from urllib.request import (
-    Request, urlopen
-)
+from urllib.parse import urlparse, unquote
+from urllib.request import Request, urlopen
 from typing import List, Dict
 
 # project
 import kiwi.defaults as defaults
-from kiwi.utils.temporary import (
-    Temporary, TmpT
-)
+from kiwi.utils.temporary import Temporary, TmpT
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
@@ -113,7 +107,7 @@ class RepositoryApt(RepositoryBase):
         self.shared_apt_get_dir = {
             'sources-dir': self.manager_base + '/sources.list.d',
             'netrcparts-dir': self.manager_base + '/auth.conf.d',
-            'preferences-dir': self.manager_base + '/preferences.d'
+            'preferences-dir': self.manager_base + '/preferences.d',
         }
         # Each signing key is stored as keyring file in keyrings_dir
         # and referenced via Signed-By from the repository sources
@@ -147,7 +141,10 @@ class RepositoryApt(RepositoryBase):
         ).unmanaged_file()
 
         self.apt_get_args = [
-            '-q', '-c', self.runtime_apt_get_config_file.name, '-y'
+            '-q',
+            '-c',
+            self.runtime_apt_get_config_file.name,
+            '-y',
         ] + self.custom_args
 
         self.command_env = self._create_apt_get_runtime_environment()
@@ -170,12 +167,15 @@ class RepositoryApt(RepositoryBase):
         in the default places
         """
         self.manager_base = os.sep.join([self.root_dir, 'etc/apt'])
-        self.shared_apt_get_dir['sources-dir'] = \
-            os.sep.join([self.manager_base, 'sources.list.d'])
-        self.shared_apt_get_dir['preferences-dir'] = \
-            os.sep.join([self.manager_base, 'preferences.d'])
-        self.shared_apt_get_dir['netrcparts-dir'] = \
-            os.sep.join([self.manager_base, 'auth.conf.d'])
+        self.shared_apt_get_dir['sources-dir'] = os.sep.join(
+            [self.manager_base, 'sources.list.d']
+        )
+        self.shared_apt_get_dir['preferences-dir'] = os.sep.join(
+            [self.manager_base, 'preferences.d']
+        )
+        self.shared_apt_get_dir['netrcparts-dir'] = os.sep.join(
+            [self.manager_base, 'auth.conf.d']
+        )
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self) -> Dict:
@@ -186,16 +186,25 @@ class RepositoryApt(RepositoryBase):
             'apt_get_args': self.apt_get_args,
             'command_env': self.command_env,
             'distribution': self.distribution,
-            'distribution_path': self.distribution_path
+            'distribution_path': self.distribution_path,
         }
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str = 'deb',
-        prio: int = None, dist: str = None, components: str = None,
-        user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
-        sourcetype: str = None, customization_script: str = None,
-        architectures: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str = 'deb',
+        prio: int = None,
+        dist: str = None,
+        components: str = None,
+        user: str = None,
+        secret: str = None,
+        credentials_file: str = None,
+        repo_gpgcheck: bool = None,
+        pkg_gpgcheck: bool = None,
+        sourcetype: str = None,
+        customization_script: str = None,
+        architectures: str = None,
     ) -> None:
         """
         Add apt_get repository
@@ -275,9 +284,7 @@ class RepositoryApt(RepositoryBase):
                     )
                 else:
                     auth.write(
-                        'machine {} login {}{}'.format(
-                            uri, secret, os.linesep
-                        )
+                        'machine {} login {}{}'.format(uri, secret, os.linesep)
                     )
         if customization_script:
             self.run_repo_customize(customization_script, sources_file)
@@ -286,18 +293,14 @@ class RepositoryApt(RepositoryBase):
             with open(pref_file, 'w') as pref:
                 pref.write('Package: *{0}'.format(os.linesep))
                 if not uri_parsed.hostname:
-                    pref.write(
-                        'Pin: origin ""{0}'.format(os.linesep)
-                    )
+                    pref.write('Pin: origin ""{0}'.format(os.linesep))
                 else:
                     pref.write(
                         'Pin: origin "{0}"{1}'.format(
                             uri_parsed.hostname, os.linesep
                         )
                     )
-                pref.write(
-                    'Pin-Priority: {0}{1}'.format(prio, os.linesep)
-                )
+                pref.write('Pin-Priority: {0}{1}'.format(prio, os.linesep))
             if customization_script:
                 self.run_repo_customize(customization_script, pref_file)
 
@@ -320,13 +323,10 @@ class RepositoryApt(RepositoryBase):
             for index, key in enumerate(signing_keys):
                 key = self._fetch_key(key, key_dir, index)
                 keyring_name = '{0}{1}.{2}'.format(
-                    self.keyring_prefix, index,
-                    self._get_keyring_extension(key)
+                    self.keyring_prefix, index, self._get_keyring_extension(key)
                 )
                 for keyrings_dir in self._get_keyrings_dirs():
-                    self._install_keyring(
-                        key, keyrings_dir, keyring_name
-                    )
+                    self._install_keyring(key, keyrings_dir, keyring_name)
                 keyring = os.sep.join([self.keyrings_dir, keyring_name])
                 self.keyrings.append(keyring)
                 log.info(f'Keyring for APT created: {keyring}')
@@ -362,8 +362,9 @@ class RepositoryApt(RepositoryBase):
             for index, key in enumerate(signing_keys):
                 key = self._fetch_key(key, key_dir, index)
                 keyring_name = '{0}{1}.{2}'.format(
-                    keyring_basename, f'-{index}' if index else '',
-                    self._get_keyring_extension(key)
+                    keyring_basename,
+                    f'-{index}' if index else '',
+                    self._get_keyring_extension(key),
                 )
                 self._install_keyring(key, image_keyrings_dir, keyring_name)
                 keyring = os.sep.join([self.image_keyrings_dir, keyring_name])
@@ -392,8 +393,9 @@ class RepositoryApt(RepositoryBase):
         # apt expects ASCII armored keys to use the .asc
         # extension, any other key file is used as binary keyring
         with open(key, 'rb') as key_file:
-            is_armored = \
+            is_armored = (
                 b'-----BEGIN PGP PUBLIC KEY BLOCK-----' in key_file.read()
+            )
         return 'asc' if is_armored else 'gpg'
 
     @staticmethod
@@ -497,14 +499,16 @@ class RepositoryApt(RepositoryBase):
             Path.create(apt_get_dir)
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
-            os.environ, **HostProxy().get_env(),
-            LANG='C', DEBIAN_FRONTEND='noninteractive'
+            os.environ,
+            **HostProxy().get_env(),
+            LANG='C',
+            DEBIAN_FRONTEND='noninteractive',
         )
 
     def _write_runtime_config(self, system_default: bool = False) -> None:
         parameters = {
             'apt_shared_base': self.manager_base,
-            'unauthenticated': self.unauthenticated
+            'unauthenticated': self.unauthenticated,
         }
         if not system_default:
             template = self.apt_conf.get_host_template(self.exclude_docs)
@@ -525,7 +529,7 @@ class RepositoryApt(RepositoryBase):
     def _get_keyrings_dirs(self) -> List[str]:
         return [
             self.keyrings_dir,
-            os.path.normpath(os.sep.join([self.root_dir, self.keyrings_dir]))
+            os.path.normpath(os.sep.join([self.root_dir, self.keyrings_dir])),
         ]
 
     def _delete_keyrings(self, keyrings_dir: str) -> None:

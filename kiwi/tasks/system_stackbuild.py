@@ -34,7 +34,7 @@ from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiStackBuildTargetDirExists,
-    KiwiStackBuildRootSyncFailed
+    KiwiStackBuildRootSyncFailed,
 )
 
 log = logging.getLogger('kiwi')
@@ -50,6 +50,7 @@ class SystemStackbuildTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self) -> None:
         """
         Sync the given stash containers into the image root tree
@@ -76,16 +77,16 @@ class SystemStackbuildTask(CliTask):
                 if self.command_args.get('--from-registry'):
                     log.info(
                         'Fetching stash {0!r} from registry {1!r}'.format(
-                            stash_name,
-                            self.command_args['--from-registry']
+                            stash_name, self.command_args['--from-registry']
                         )
                     )
                     Command.run(
                         [
-                            'podman', 'pull', os.path.join(
-                                self.command_args['--from-registry'],
-                                stash_name
-                            )
+                            'podman',
+                            'pull',
+                            os.path.join(
+                                self.command_args['--from-registry'], stash_name
+                            ),
                         ]
                     )
                 try:
@@ -93,50 +94,54 @@ class SystemStackbuildTask(CliTask):
                     stash_mount_point = Command.run(
                         ['podman', 'image', 'mount', stash_name]
                     ).output.strip()
-                    root = DataSync(
-                        stash_mount_point + os.sep, image_root_dir
-                    )
+                    root = DataSync(stash_mount_point + os.sep, image_root_dir)
                     log.info(
                         'Syncing stash root {0!r} to image root {1!r}'.format(
                             stash_mount_point, image_root_dir
                         )
                     )
-                    root.sync_data(
-                        options=Defaults.get_sync_options()
-                    )
+                    root.sync_data(options=Defaults.get_sync_options())
                 except Exception as issue:
                     raise KiwiStackBuildRootSyncFailed(issue)
                 finally:
                     log.info(f'Umount stash: {stash_name!r}')
                     Command.run(
                         ['podman', 'image', 'umount', '--force', stash_name],
-                        raise_on_error=False
+                        raise_on_error=False,
                     )
 
             kiwi_task: CliTask
             if self.command_args.get('--description'):
                 with patch.object(
-                    sys, 'argv', self._get_kiwi_command(
+                    sys,
+                    'argv',
+                    self._get_kiwi_command(
                         [
-                            'system', 'build',
-                            '--description', self.command_args['--description'],
-                            '--target-dir', self.command_args['--target-dir'],
-                            '--allow-existing-root'
+                            'system',
+                            'build',
+                            '--description',
+                            self.command_args['--description'],
+                            '--target-dir',
+                            self.command_args['--target-dir'],
+                            '--allow-existing-root',
                         ]
-                    )
+                    ),
                 ):
-                    kiwi_task = SystemBuildTask(
-                        should_perform_task_setup=False
-                    )
+                    kiwi_task = SystemBuildTask(should_perform_task_setup=False)
             else:
                 with patch.object(
-                    sys, 'argv', self._get_kiwi_command(
+                    sys,
+                    'argv',
+                    self._get_kiwi_command(
                         [
-                            'system', 'create',
-                            '--root', image_root_dir,
-                            '--target-dir', self.command_args['--target-dir']
+                            'system',
+                            'create',
+                            '--root',
+                            image_root_dir,
+                            '--target-dir',
+                            self.command_args['--target-dir'],
                         ]
-                    )
+                    ),
                 ):
                     kiwi_task = SystemCreateTask(
                         should_perform_task_setup=False
@@ -162,11 +167,10 @@ class SystemStackbuildTask(CliTask):
             final_kiwi_command.append('--kiwi-file')
             final_kiwi_command.append(self.global_args.get('--kiwi-file'))
         final_kiwi_command += kiwi_command
-        final_kiwi_command += \
+        final_kiwi_command += (
             self.command_args.get('system_build_or_create') or []
+        )
         log.debug(
-            'Building with:{0}    {1}'.format(
-                os.linesep, final_kiwi_command
-            )
+            'Building with:{0}    {1}'.format(os.linesep, final_kiwi_command)
         )
         return final_kiwi_command

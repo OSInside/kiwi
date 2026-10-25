@@ -34,6 +34,7 @@ class OCIBuildah(OCIBase):
     """
     **Open Container Operations using buildah**
     """
+
     def post_init(self):
         """
         Initializes some default parameters
@@ -54,7 +55,7 @@ class OCIBuildah(OCIBase):
         if not self.imported_image:
             self.imported_image = 'kiwi-image-{0}:{1}'.format(
                 self._random_string_generator(),
-                Defaults.get_container_base_image_tag()
+                Defaults.get_container_base_image_tag(),
             )
         else:
             raise KiwiBuildahError(
@@ -69,12 +70,15 @@ class OCIBuildah(OCIBase):
         # build.
         Command.run(
             [
-                'skopeo', 'copy', container_image_ref,
-                'containers-storage:{0}'.format(self.imported_image)
-            ] + (
-                [
-                    '--tmpdir', Defaults.get_temp_location()
-                ] if self._skopeo_provides_tmpdir_option() else []
+                'skopeo',
+                'copy',
+                container_image_ref,
+                'containers-storage:{0}'.format(self.imported_image),
+            ]
+            + (
+                ['--tmpdir', Defaults.get_temp_location()]
+                if self._skopeo_provides_tmpdir_option()
+                else []
             )
         )
 
@@ -91,8 +95,11 @@ class OCIBuildah(OCIBase):
 
         Command.run(
             [
-                'buildah', 'from', '--name', self.working_container,
-                'containers-storage:{0}'.format(self.imported_image)
+                'buildah',
+                'from',
+                '--name',
+                self.working_container,
+                'containers-storage:{0}'.format(self.imported_image),
             ]
         )
 
@@ -126,12 +133,16 @@ class OCIBuildah(OCIBase):
         # because buildah does not support multiple tags
         Command.run(
             [
-                'skopeo', 'copy', 'containers-storage:{0}'.format(export_image),
-                '{0}:{1}:{2}'.format(transport, filename, image_ref)
-            ] + extra_tags_opt + (
-                [
-                    '--tmpdir', Defaults.get_temp_location()
-                ] if self._skopeo_provides_tmpdir_option() else []
+                'skopeo',
+                'copy',
+                'containers-storage:{0}'.format(export_image),
+                '{0}:{1}:{2}'.format(transport, filename, image_ref),
+            ]
+            + extra_tags_opt
+            + (
+                ['--tmpdir', Defaults.get_temp_location()]
+                if self._skopeo_provides_tmpdir_option()
+                else []
             )
         )
 
@@ -158,9 +169,7 @@ class OCIBuildah(OCIBase):
         """
         Mounts current container root data to a directory
         """
-        cmd = Command.run(
-            ['buildah', 'mount', self.working_container]
-        )
+        cmd = Command.run(['buildah', 'mount', self.working_container])
         self.oci_root_dir = cmd.output.rstrip()
 
     def sync_rootfs(self, root_dir, exclude_list=None):
@@ -171,14 +180,19 @@ class OCIBuildah(OCIBase):
         :param list exclude_list: list of paths to exclude
         """
         self._sync_data(
-            ''.join([root_dir, os.sep]), self.oci_root_dir,
+            ''.join([root_dir, os.sep]),
+            self.oci_root_dir,
             exclude_list=exclude_list,
-            options=Defaults.get_sync_options() + [
-                '--filter', '-x! user.*',
-                '--filter', '-x! security.ima*',
-                '--filter', '-x! security.capability*',
-                '--delete'
-            ]
+            options=Defaults.get_sync_options()
+            + [
+                '--filter',
+                '-x! user.*',
+                '--filter',
+                '-x! security.ima*',
+                '--filter',
+                '-x! security.capability*',
+                '--delete',
+            ],
         )
 
     def import_rootfs(self, root_dir, exclude_list=None):
@@ -189,9 +203,10 @@ class OCIBuildah(OCIBase):
         :param list exclude_list: list of paths to exclude
         """
         self._sync_data(
-            os.sep.join([self.oci_root_dir, '']), root_dir,
+            os.sep.join([self.oci_root_dir, '']),
+            root_dir,
             exclude_list=exclude_list,
-            options=Defaults.get_sync_options()
+            options=Defaults.get_sync_options(),
         )
 
     def repack(self, oci_config):
@@ -200,9 +215,7 @@ class OCIBuildah(OCIBase):
 
         :param list oci_config: unused parameter
         """
-        Command.run(
-            ['buildah', 'umount', self.working_container]
-        )
+        Command.run(['buildah', 'umount', self.working_container])
 
     def set_config(self, oci_config):
         """
@@ -223,9 +236,8 @@ class OCIBuildah(OCIBase):
         """
         if not self.working_image and self.working_container:
             self.working_image = 'kiwi-image-{0}:{1}'.format(
-                self._random_string_generator(), 'tag-{0}'.format(
-                    self._random_string_generator()
-                )
+                self._random_string_generator(),
+                'tag-{0}'.format(self._random_string_generator()),
             )
         else:
             raise KiwiBuildahError(
@@ -234,8 +246,13 @@ class OCIBuildah(OCIBase):
 
         output = Command.run(
             [
-                'buildah', 'commit', '--rm', '--format', 'oci',
-                self.working_container, self.working_image
+                'buildah',
+                'commit',
+                '--rm',
+                '--format',
+                'oci',
+                self.working_container,
+                self.working_image,
             ]
         )
         self.working_image = output.output.rstrip()
@@ -255,14 +272,10 @@ class OCIBuildah(OCIBase):
         """
         arguments = []
         if 'maintainer' in oci_config:
-            arguments.append(
-                '--author={0}'.format(oci_config['maintainer'])
-            )
+            arguments.append('--author={0}'.format(oci_config['maintainer']))
 
         if 'user' in oci_config:
-            arguments.append(
-                '--user={0}'.format(oci_config['user'])
-            )
+            arguments.append('--user={0}'.format(oci_config['user']))
 
         if 'workingdir' in oci_config:
             arguments.append(
@@ -270,16 +283,18 @@ class OCIBuildah(OCIBase):
             )
 
         if 'entry_command' in oci_config:
-            arguments.append('--entrypoint=[{0}]'.format(
-                ','.join(
-                    ['"{0}"'.format(x) for x in oci_config['entry_command']]
+            arguments.append(
+                '--entrypoint=[{0}]'.format(
+                    ','.join(
+                        ['"{0}"'.format(x) for x in oci_config['entry_command']]
+                    )
                 )
-            ))
+            )
 
         if 'entry_subcommand' in oci_config:
-            arguments.append('--cmd={0}'.format(
-                ' '.join(oci_config['entry_subcommand'])
-            ))
+            arguments.append(
+                '--cmd={0}'.format(' '.join(oci_config['entry_subcommand']))
+            )
 
         if 'volumes' in oci_config:
             for vol in oci_config['volumes']:
@@ -296,25 +311,31 @@ class OCIBuildah(OCIBase):
 
         if 'environment' in oci_config:
             for name in sorted(oci_config['environment']):
-                arguments.append('--env={0}={1}'.format(
-                    name, oci_config['environment'][name]
-                ))
+                arguments.append(
+                    '--env={0}={1}'.format(
+                        name, oci_config['environment'][name]
+                    )
+                )
 
         if 'labels' in oci_config:
             for name in sorted(oci_config['labels']):
-                arguments.append('--label={0}={1}'.format(
-                    name, oci_config['labels'][name]
-                ))
+                arguments.append(
+                    '--label={0}={1}'.format(name, oci_config['labels'][name])
+                )
 
         if 'history' in oci_config:
             if 'comment' in oci_config['history']:
-                arguments.append('--history-comment={0}'.format(
-                    oci_config['history']['comment']
-                ))
+                arguments.append(
+                    '--history-comment={0}'.format(
+                        oci_config['history']['comment']
+                    )
+                )
             if 'created_by' in oci_config['history']:
-                arguments.append('--created-by={0}'.format(
-                    oci_config['history']['created_by']
-                ))
+                arguments.append(
+                    '--created-by={0}'.format(
+                        oci_config['history']['created_by']
+                    )
+                )
             if 'author' in oci_config['history']:
                 log.warning('Author field in history is ignored using buildah')
 

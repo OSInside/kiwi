@@ -16,13 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import (
-    Dict, List
-)
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from typing import Dict, List
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiVolumeManagerSetupError
@@ -39,19 +34,20 @@ class VolumeManager(metaclass=ABCMeta):
     :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
     :param dict custom_args: dictionary of custom volume manager arguments
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        name: str, device_map: object, root_dir: str,
-        volumes: List, custom_args: Dict = None
+        name: str,
+        device_map: object,
+        root_dir: str,
+        volumes: List,
+        custom_args: Dict = None,
     ):
-        name_map = {
-            'lvm': 'LVM',
-            'btrfs': 'Btrfs'
-        }
+        name_map = {'lvm': 'LVM', 'btrfs': 'Btrfs'}
         try:
             volume_manager = importlib.import_module(
                 'kiwi.volume_manager.{0}'.format(name)

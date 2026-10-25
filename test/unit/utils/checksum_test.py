@@ -1,8 +1,6 @@
 from builtins import bytes
 import encodings.ascii as encoding
-from unittest.mock import (
-    patch, call, Mock, mock_open
-)
+from unittest.mock import patch, call, Mock, mock_open
 from pytest import raises
 
 from kiwi.utils.checksum import Checksum
@@ -47,9 +45,7 @@ class TestChecksum:
         with patch('builtins.open', self.m_open, create=True):
             assert self.checksum.matches('sum', 'some-file') is True
 
-        self.m_open.assert_called_once_with(
-            'some-file', encoding=self.ascii
-        )
+        self.m_open.assert_called_once_with('some-file', encoding=self.ascii)
 
         with patch('builtins.open', self.m_open, create=True):
             assert self.checksum.matches('foo', 'some-file') is False
@@ -65,15 +61,9 @@ class TestChecksum:
         compress = Mock()
         digest = Mock()
         digest.block_size = 1024
-        digest._calculate_hash_hexdigest = Mock(
-            return_value=checksum
-        )
-        digest.hexdigest = Mock(
-            return_value='sum'
-        )
-        compress.get_format = Mock(
-            return_value='xz'
-        )
+        digest._calculate_hash_hexdigest = Mock(return_value=checksum)
+        digest.hexdigest = Mock(return_value='sum')
+        compress.get_format = Mock(return_value='xz')
         mock_size.return_value = 1343225856
         mock_sha256.return_value = digest
         mock_compress.return_value = compress
@@ -84,7 +74,7 @@ class TestChecksum:
         assert self.m_open.call_args_list == [
             call('some-file', 'rb'),
             call('some-file-uncompressed', 'rb'),
-            call('outfile', encoding=self.ascii, mode='w')
+            call('outfile', encoding=self.ascii, mode='w'),
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192 163968 8192\n'
@@ -101,15 +91,9 @@ class TestChecksum:
         compress = Mock()
         digest = Mock()
         digest.block_size = 1024
-        digest._calculate_hash_hexdigest = Mock(
-            return_value=checksum
-        )
-        digest.hexdigest = Mock(
-            return_value='sum'
-        )
-        compress.get_format = Mock(
-            return_value='xz'
-        )
+        digest._calculate_hash_hexdigest = Mock(return_value=checksum)
+        digest.hexdigest = Mock(return_value='sum')
+        compress.get_format = Mock(return_value='xz')
         mock_size.return_value = 1343225856
         mock_sha512.return_value = digest
         mock_compress.return_value = compress
@@ -120,7 +104,7 @@ class TestChecksum:
         assert self.m_open.call_args_list == [
             call('some-file', 'rb'),
             call('some-file-uncompressed', 'rb'),
-            call('outfile', encoding=self.ascii, mode='w')
+            call('outfile', encoding=self.ascii, mode='w'),
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192 163968 8192\n'
@@ -137,12 +121,8 @@ class TestChecksum:
         compress = Mock()
         digest = Mock()
         digest.block_size = 1024
-        digest.hexdigest = Mock(
-            return_value='sum'
-        )
-        compress.get_format = Mock(
-            return_value=None
-        )
+        digest.hexdigest = Mock(return_value='sum')
+        compress.get_format = Mock(return_value=None)
         mock_size.return_value = 1343225856
         mock_sha256.return_value = digest
         mock_compress.return_value = compress
@@ -152,7 +132,7 @@ class TestChecksum:
 
         assert self.m_open.call_args_list == [
             call('some-file', 'rb'),
-            call('outfile', encoding=self.ascii, mode='w')
+            call('outfile', encoding=self.ascii, mode='w'),
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192\n'
@@ -162,19 +142,13 @@ class TestChecksum:
     @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.sha256')
     @patch('os.path.getsize')
-    def test_sha256(
-        self, mock_size, mock_sha256, mock_compress, mock_which
-    ):
+    def test_sha256(self, mock_size, mock_sha256, mock_compress, mock_which):
         mock_which.return_value = 'factor'
         compress = Mock()
         digest = Mock()
         digest.block_size = 1024
-        digest.hexdigest = Mock(
-            return_value='sum'
-        )
-        compress.get_format = Mock(
-            return_value=None
-        )
+        digest.hexdigest = Mock(return_value='sum')
+        compress.get_format = Mock(return_value=None)
         mock_size.return_value = 1343225856
         mock_sha256.return_value = digest
         mock_compress.return_value = compress
@@ -184,7 +158,7 @@ class TestChecksum:
 
         assert self.m_open.call_args_list == [
             call('some-file', 'rb'),
-            call('outfile', encoding=self.ascii, mode='w')
+            call('outfile', encoding=self.ascii, mode='w'),
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192\n'
@@ -194,9 +168,7 @@ class TestChecksum:
     def test_sha256_plain(self, mock_sha256):
         digest = Mock()
         digest.block_size = 1024
-        digest.hexdigest = Mock(
-            return_value='sum'
-        )
+        digest.hexdigest = Mock(return_value='sum')
         mock_sha256.return_value = digest
 
         with patch('builtins.open', self.m_open, create=True):

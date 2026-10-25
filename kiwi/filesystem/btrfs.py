@@ -26,9 +26,13 @@ class FileSystemBtrfs(FileSystemBase):
     """
     **Implements creation of btrfs filesystem**
     """
+
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
-        uuid: str = None
+        self,
+        label: str = None,
+        size: int = 0,
+        unit: str = defaults.UNIT.kb,
+        uuid: str = None,
     ):
         """
         Create btrfs filesystem on block device
@@ -57,18 +61,15 @@ class FileSystemBtrfs(FileSystemBase):
                 self._fs_size(
                     size=self._map_size(
                         size, from_unit=unit, to_unit=defaults.UNIT.byte
-                    ), unit=defaults.UNIT.byte
+                    ),
+                    unit=defaults.UNIT.byte,
                 )
             )
-        Command.run(
-            ['mkfs.btrfs'] + call_args + [device]
-        )
+        Command.run(['mkfs.btrfs'] + call_args + [device])
 
     def set_uuid(self):
         """
         Create new random filesystem UUID
         """
         device = self.device_provider.get_device()
-        Command.run(
-            ['btrfstune', '-f', '-u', device]
-        )
+        Command.run(['btrfstune', '-f', '-u', device])

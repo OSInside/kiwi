@@ -16,9 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from typing import (
-    Optional, Dict, IO
-)
+from typing import Optional, Dict, IO
 
 # project
 import kiwi.defaults as defaults
@@ -35,9 +33,12 @@ class VeritySetup:
     """
     **Create block level verification data on file or device**
     """
+
     def __init__(
-        self, image_filepath: str, data_blocks: Optional[int] = None,
-        hash_offset: int = 0
+        self,
+        image_filepath: str,
+        data_blocks: Optional[int] = None,
+        hash_offset: int = 0,
     ) -> None:
         """
         Construct new VeritySetup
@@ -54,8 +55,9 @@ class VeritySetup:
         """
         self.image_filepath = image_filepath
         self.data_blocks = data_blocks
-        self.verity_hash_offset = \
-            hash_offset or os.path.getsize(self.image_filepath)
+        self.verity_hash_offset = hash_offset or os.path.getsize(
+            self.image_filepath
+        )
         self.verity_dict: Dict[str, str] = {}
         self.verification_metadata_file: Optional[IO[bytes]] = None
 
@@ -71,15 +73,20 @@ class VeritySetup:
         """
         verity_call = Command.run(
             [
-                'veritysetup', 'format',
-                self.image_filepath, self.image_filepath,
+                'veritysetup',
+                'format',
+                self.image_filepath,
+                self.image_filepath,
                 f'--hash-offset={self.verity_hash_offset}',
-                f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}'
-            ] + (
+                f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}',
+            ]
+            + (
                 [
                     f'--data-blocks={self.data_blocks}',
-                    f'--data-block-size={defaults.VERITY_DATA_BLOCKSIZE}'
-                ] if self.data_blocks else []
+                    f'--data-block-size={defaults.VERITY_DATA_BLOCKSIZE}',
+                ]
+                if self.data_blocks
+                else []
             )
         )
         for line in verity_call.output.split(os.linesep):
@@ -87,7 +94,7 @@ class VeritySetup:
                 # strip out any space, tabs, newlines
                 line = ''.join(line.split())
                 # split out key:value based data
-                (key, value) = line.split(':', 2)
+                key, value = line.split(':', 2)
                 self.verity_dict[key] = value
             except ValueError:
                 # ignore any occurrence for which split failed
@@ -106,14 +113,19 @@ class VeritySetup:
         temp_file = Temporary().new_file()
         Command.run(
             [
-                'veritysetup', 'format',
-                self.image_filepath, temp_file.name,
-                f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}'
-            ] + (
+                'veritysetup',
+                'format',
+                self.image_filepath,
+                temp_file.name,
+                f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}',
+            ]
+            + (
                 [
                     f'--data-blocks={self.data_blocks}',
-                    f'--data-block-size={defaults.VERITY_DATA_BLOCKSIZE}'
-                ] if self.data_blocks else []
+                    f'--data-block-size={defaults.VERITY_DATA_BLOCKSIZE}',
+                ]
+                if self.data_blocks
+                else []
             )
         )
         return os.path.getsize(temp_file.name)
@@ -189,9 +201,7 @@ class VeritySetup:
             )
 
             hash_start_block = int(
-                self.verity_hash_offset / int(
-                    self.verity_dict['Hashblocksize']
-                )
+                self.verity_hash_offset / int(self.verity_dict['Hashblocksize'])
             )
             dm_verity_credentials = '{0} {1} {2} {3} {4} {5} {6} {7}'.format(
                 self.verity_dict['Hashtype'],
@@ -201,15 +211,15 @@ class VeritySetup:
                 hash_start_block,
                 self.verity_dict['Hashalgorithm'],
                 self.verity_dict['Roothash'],
-                self.verity_dict['Salt']
+                self.verity_dict['Salt'],
             )
 
             self.verification_metadata_file = Temporary().new_file()
             with open(self.verification_metadata_file.name, 'wb') as meta:
                 meta.write(header_string.encode("ascii"))
-                meta.write(b'\xFF')
+                meta.write(b'\xff')
                 meta.write(dm_verity_credentials.encode("ascii"))
-                meta.write(b'\xFF')
+                meta.write(b'\xff')
                 meta.write(b'\0')
 
     def sign_verification_metadata(self) -> None:
@@ -235,8 +245,7 @@ class VeritySetup:
             with open(credentials_filepath, 'w') as verity:
                 for key in sorted(self.verity_dict.keys()):
                     verity.write(f'{key}: {self.verity_dict[key]}{os.linesep}')
-                verity.write(
-                    f'Root hashoffset: {self.verity_hash_offset}')
+                verity.write(f'Root hashoffset: {self.verity_hash_offset}')
                 verity.write(os.linesep)
                 verity.write('Superblock:')
                 verity.write(os.linesep)

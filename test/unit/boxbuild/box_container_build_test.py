@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.boxbuild.box_container_build import BoxContainerBuild
@@ -14,9 +12,7 @@ class TestBoxContainerBuild:
         self.box = Mock()
         self.box.fetch_container.return_value = 'some'
         mock_BoxDownload.return_value = self.box
-        self.build = BoxContainerBuild(
-            boxname='suse', arch='x86_64'
-        )
+        self.build = BoxContainerBuild(boxname='suse', arch='x86_64')
 
     @patch('kiwi.boxbuild.box_container_build.BoxDownload')
     def setup_method(self, cls, mock_BoxDownload):
@@ -27,8 +23,11 @@ class TestBoxContainerBuild:
     @patch('os.system')
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     def test_run_shared_path_does_not_exist(
-        self, mock_create_build_target_dir, mock_os_system,
-        mock_os_environ, mock_os_path_exists
+        self,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
+        mock_os_path_exists,
     ):
         def exists(path):
             if path.endswith('/var/tmp/repos'):
@@ -40,12 +39,19 @@ class TestBoxContainerBuild:
         with raises(KiwiBoxBuildError):
             self.build.run(
                 [
-                    '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', target.name
+                    '--debug',
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    target.name,
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
-                custom_shared_path='/var/tmp/repos'
+                custom_shared_path='/var/tmp/repos',
             )
 
     @patch('os.path.exists')
@@ -53,8 +59,11 @@ class TestBoxContainerBuild:
     @patch('os.system')
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     def test_run_image_description_does_not_exist(
-        self, mock_create_build_target_dir, mock_os_system,
-        mock_os_environ, mock_os_path_exists
+        self,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
+        mock_os_path_exists,
     ):
         def exists(path):
             if path.endswith('desc'):
@@ -66,12 +75,19 @@ class TestBoxContainerBuild:
         with raises(KiwiBoxBuildError):
             self.build.run(
                 [
-                    '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', target.name
+                    '--debug',
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    target.name,
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
-                custom_shared_path='/var/tmp/repos'
+                custom_shared_path='/var/tmp/repos',
             )
 
     @patch('os.path.isdir')
@@ -81,9 +97,13 @@ class TestBoxContainerBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_container_build.NamedTemporaryFile')
     def test_run_build_failed(
-        self, mock_NamedTemporaryFile, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ, mock_os_path_exists,
-        mock_os_path_isdir
+        self,
+        mock_NamedTemporaryFile,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
+        mock_os_path_exists,
+        mock_os_path_isdir,
     ):
         def exists(path):
             if path.endswith('/result.code'):
@@ -106,12 +126,19 @@ class TestBoxContainerBuild:
             with raises(KiwiBoxBuildError):
                 self.build.run(
                     [
-                        '--debug', '--type', 'oem', 'system', 'build',
-                        '--description', 'desc', '--target-dir', target.name
+                        '--debug',
+                        '--type',
+                        'oem',
+                        'system',
+                        'build',
+                        '--description',
+                        'desc',
+                        '--target-dir',
+                        target.name,
                     ],
                     keep_open=True,
                     kiwi_version='9.22.1',
-                    custom_shared_path='/var/tmp/repos'
+                    custom_shared_path='/var/tmp/repos',
                 )
 
     @patch('os.path.isdir')
@@ -131,7 +158,7 @@ class TestBoxContainerBuild:
         mock_os_environ,
         mock_os_path_exists,
         mock_os_abspath,
-        mock_os_path_isdir
+        mock_os_path_isdir,
     ):
         def abspath(path):
             return path
@@ -156,12 +183,19 @@ class TestBoxContainerBuild:
             file_handle.readline.return_value = '0'
             self.build.run(
                 [
-                    '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--debug',
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
-                custom_shared_path='/var/tmp/repos'
+                custom_shared_path='/var/tmp/repos',
             )
         mock_Command_run.assert_called_once_with(
             ['sudo', 'mkdir', '-p', '/var/cache/kiwi']

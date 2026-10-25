@@ -7,9 +7,7 @@ from kiwi.partitioner.base import PartitionerBase
 class TestPartitionerBase:
     def setup(self):
         disk_provider = Mock()
-        disk_provider.get_device = Mock(
-            return_value='/dev/loop0'
-        )
+        disk_provider.get_device = Mock(return_value='/dev/loop0')
         self.partitioner = PartitionerBase(disk_provider)
 
     def setup_method(self, cls):

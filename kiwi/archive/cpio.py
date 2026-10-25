@@ -25,6 +25,7 @@ class ArchiveCpio:
 
     :param string filename: filename to use for archive extraction or creation
     """
+
     def __init__(self, filename):
         self.filename = filename
 
@@ -38,7 +39,13 @@ class ArchiveCpio:
         find_excludes = []
         find_command = ['cd', source_dir, '&&', 'find', '.']
         cpio_command = [
-            'cpio', '--quiet', '-o', '-H', 'newc', '>', self.filename
+            'cpio',
+            '--quiet',
+            '-o',
+            '-H',
+            'newc',
+            '>',
+            self.filename,
         ]
         if exclude:
             for path in exclude:
@@ -52,9 +59,7 @@ class ArchiveCpio:
             find_command += find_excludes
 
         bash_command = find_command + ['|'] + cpio_command
-        Command.run(
-            ['bash', '-c', ' '.join(bash_command)]
-        )
+        Command.run(['bash', '-c', ' '.join(bash_command)])
 
     def extract(self, dest_dir):
         """
@@ -63,10 +68,14 @@ class ArchiveCpio:
         :param string dest_dir: target data directory
         """
         bash_command = [
-            'cd', dest_dir, '&&',
-            'cat', self.filename, '|',
-            'cpio', '-i', '--make-directories'
+            'cd',
+            dest_dir,
+            '&&',
+            'cat',
+            self.filename,
+            '|',
+            'cpio',
+            '-i',
+            '--make-directories',
         ]
-        Command.run(
-            ['bash', '-c', ' '.join(bash_command)]
-        )
+        Command.run(['bash', '-c', ' '.join(bash_command)])

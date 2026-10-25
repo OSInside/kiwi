@@ -27,9 +27,7 @@ from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.xml_state import XMLState
 
-from kiwi.exceptions import (
-    KiwiArchiveSetupError
-)
+from kiwi.exceptions import KiwiArchiveSetupError
 
 log = logging.getLogger('kiwi')
 
@@ -44,9 +42,13 @@ class ArchiveBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(
-        self, xml_state: XMLState, target_dir: str,
-        root_dir: str, custom_args: Dict = None
+        self,
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str,
+        custom_args: Dict = None,
     ):
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -58,8 +60,11 @@ class ArchiveBuilder:
             xml_state=xml_state, root_dir=self.root_dir
         )
         self.filename = ''
-        self.xz_options = custom_args['xz_options'] if custom_args \
-            and 'xz_options' in custom_args else None
+        self.xz_options = (
+            custom_args['xz_options']
+            if custom_args and 'xz_options' in custom_args
+            else None
+        )
 
         self.runtime_config = RuntimeConfig()
 
@@ -87,27 +92,27 @@ class ArchiveBuilder:
         if self.requested_archive_type == 'tbz':
             log.info('Creating XZ compressed tar archive')
             self.filename = self._target_file_for('tar.xz')
-            ArchiveTar(
-                self._target_file_for('tar')
-            ).create_xz_compressed(
-                self.root_dir, xz_options=self.xz_options,
-                exclude=Defaults.
-                get_exclude_list_for_root_data_sync() + Defaults.
-                get_exclude_list_from_custom_exclude_files(self.root_dir)
+            ArchiveTar(self._target_file_for('tar')).create_xz_compressed(
+                self.root_dir,
+                xz_options=self.xz_options,
+                exclude=Defaults.get_exclude_list_for_root_data_sync()
+                + Defaults.get_exclude_list_from_custom_exclude_files(
+                    self.root_dir
+                ),
             )
         if self.requested_archive_type == 'cpio':
             log.info('Creating CPIO archive')
             self.filename = self._target_file_for('cpio')
             ArchiveCpio(self.filename).create(
                 self.root_dir,
-                exclude=Defaults.
-                get_exclude_list_for_root_data_sync() + Defaults.
-                get_exclude_list_from_custom_exclude_files(self.root_dir)
+                exclude=Defaults.get_exclude_list_for_root_data_sync()
+                + Defaults.get_exclude_list_from_custom_exclude_files(
+                    self.root_dir
+                ),
             )
         if self.filename:
             Result.verify_image_size(
-                self.runtime_config.get_max_size_constraint(),
-                self.filename
+                self.runtime_config.get_max_size_constraint(), self.filename
             )
             if self.bundle_format:
                 self.result.add_bundle_format(self.bundle_format)
@@ -116,16 +121,14 @@ class ArchiveBuilder:
                 filename=self.filename,
                 use_for_bundle=True,
                 compress=False,
-                shasum=True
+                shasum=True,
             )
             self.result.add(
                 key='image_packages',
-                filename=self.system_setup.export_package_list(
-                    self.target_dir
-                ),
+                filename=self.system_setup.export_package_list(self.target_dir),
                 use_for_bundle=True,
                 compress=False,
-                shasum=False
+                shasum=False,
             )
             self.result.add(
                 key='image_changes',
@@ -134,7 +137,7 @@ class ArchiveBuilder:
                 ),
                 use_for_bundle=True,
                 compress=True,
-                shasum=False
+                shasum=False,
             )
             self.result.add(
                 key='image_verified',
@@ -143,17 +146,19 @@ class ArchiveBuilder:
                 ),
                 use_for_bundle=True,
                 compress=False,
-                shasum=False
+                shasum=False,
             )
         return self.result
 
     def _target_file_for(self, suffix: str) -> str:
         return ''.join(
             [
-                self.target_dir, '/',
+                self.target_dir,
+                '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + Defaults.get_platform_name(),
                 '-' + self.xml_state.get_image_version(),
-                '.', suffix
+                '.',
+                suffix,
             ]
         )

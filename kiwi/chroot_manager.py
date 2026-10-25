@@ -17,18 +17,12 @@
 #
 import os
 import logging
-from typing import (
-    List, Optional, NamedTuple
-)
+from typing import List, Optional, NamedTuple
 
 # project
 from kiwi.mount_manager import MountManager
-from kiwi.command import (
-    Command, CommandT, MutableMapping
-)
-from kiwi.exceptions import (
-    KiwiUmountBusyError
-)
+from kiwi.command import Command, CommandT, MutableMapping
+from kiwi.exceptions import KiwiUmountBusyError
 
 log = logging.getLogger('kiwi')
 
@@ -51,16 +45,19 @@ class ChrootManager:
     * :param string root_dir: path to change the root to
     * :param list binds: current root paths to bind to the chrooted path
     """
+
     def __init__(self, root_dir: str, binds: List[ChrootMount] = []):
         self.root_dir = root_dir
         self.mounts: List[MountManager] = []
         for bind in binds:
-            self.mounts.append(MountManager(
-                device=bind.source if bind.source else bind.target,
-                mountpoint=os.path.normpath(
-                    os.sep.join([root_dir, bind.target])
+            self.mounts.append(
+                MountManager(
+                    device=bind.source if bind.source else bind.target,
+                    mountpoint=os.path.normpath(
+                        os.sep.join([root_dir, bind.target])
+                    ),
                 )
-            ))
+            )
 
     def __enter__(self) -> "ChrootManager":
         try:
@@ -101,10 +98,12 @@ class ChrootManager:
             raise KiwiUmountBusyError(errors)
 
     def run(
-        self, command: List[str],
+        self,
+        command: List[str],
         custom_env: Optional[MutableMapping[str, str]] = None,
-        raise_on_error: bool = True, stderr_to_stdout: bool = False,
-        raise_on_command_not_found: bool = True
+        raise_on_error: bool = True,
+        stderr_to_stdout: bool = False,
+        raise_on_command_not_found: bool = True,
     ) -> Optional[CommandT]:
         """
         This is a wrapper for Command.run method but pre-appending the
@@ -127,6 +126,9 @@ class ChrootManager:
         chroot_cmd = ['chroot', self.root_dir]
         chroot_cmd = chroot_cmd + command
         return Command.run(
-            chroot_cmd, custom_env, raise_on_error, stderr_to_stdout,
-            raise_on_command_not_found
+            chroot_cmd,
+            custom_env,
+            raise_on_error,
+            stderr_to_stdout,
+            raise_on_command_not_found,
         )

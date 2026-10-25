@@ -42,6 +42,7 @@ def obsolete(decommission_at: str, version: str) -> Callable:
 
     :return: decorated function which is marked as deprecated
     """
+
     def decorate_obsolete(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -51,7 +52,9 @@ def obsolete(decommission_at: str, version: str) -> Callable:
                 f'and will be decommissioned at: {decommission_at}'
             )
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorate_obsolete
 
 
@@ -73,9 +76,11 @@ def decommissioned(func: Callable) -> Callable:
                 pass
 
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         raise DeprecationWarning(
             f'Function {func.__name__!r} has been decommissioned'
         )
+
     return wrapper

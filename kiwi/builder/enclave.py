@@ -29,10 +29,7 @@ from kiwi.runtime_config import RuntimeConfig
 from kiwi.xml_state import XMLState
 from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiEnclaveFormatError,
-    KiwiEnclaveBootImageError
-)
+from kiwi.exceptions import KiwiEnclaveFormatError, KiwiEnclaveBootImageError
 
 log = logging.getLogger('kiwi')
 
@@ -50,29 +47,36 @@ class EnclaveBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(
-        self, xml_state: XMLState, target_dir: str,
-        root_dir: str, custom_args: Dict = None
+        self,
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str,
+        custom_args: Dict = None,
     ):
         self.target_dir = target_dir
         self.custom_cmdline = xml_state.build_type.get_kernelcmdline()
         self.format = xml_state.build_type.get_enclave_format()
 
-        self.system_setup = SystemSetup(
-            xml_state=xml_state, root_dir=root_dir
-        )
+        self.system_setup = SystemSetup(xml_state=xml_state, root_dir=root_dir)
         xml_state.build_type.set_initrd_system('kiwi')
         xml_state.build_type.set_boot(f'{root_dir}/image')
 
-        self.boot_signing_keys = custom_args['signing_keys'] if custom_args \
-            and 'signing_keys' in custom_args else None
+        self.boot_signing_keys = (
+            custom_args['signing_keys']
+            if custom_args and 'signing_keys' in custom_args
+            else None
+        )
 
-        self.xz_options = custom_args['xz_options'] if custom_args \
-            and 'xz_options' in custom_args else None
+        self.xz_options = (
+            custom_args['xz_options']
+            if custom_args and 'xz_options' in custom_args
+            else None
+        )
 
         self.boot_image_task = BootImage.new(
-            xml_state, target_dir, root_dir,
-            signing_keys=self.boot_signing_keys
+            xml_state, target_dir, root_dir, signing_keys=self.boot_signing_keys
         )
         # Force BootImageKiwi instance to use existing root_dir
         self.boot_image_task.boot_root_directory = root_dir
@@ -80,10 +84,11 @@ class EnclaveBuilder:
         self.bundle_format = xml_state.get_build_type_bundle_format()
         self.image_name = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 xml_state.xml_data.get_name(),
                 '.' + Defaults.get_platform_name(),
-                '-' + xml_state.get_image_version()
+                '-' + xml_state.get_image_version(),
             ]
         )
         self.image: str = ''
@@ -119,17 +124,17 @@ class EnclaveBuilder:
         if kernel_data:
             self.kernel_filename = ''.join(
                 [
-                    os.path.basename(self.image_name), '-',
-                    kernel_data.version, '.kernel'
+                    os.path.basename(self.image_name),
+                    '-',
+                    kernel_data.version,
+                    '.kernel',
                 ]
             )
-            kernel.copy_kernel(
-                self.target_dir, self.kernel_filename
-            )
+            kernel.copy_kernel(self.target_dir, self.kernel_filename)
         else:
             raise KiwiEnclaveBootImageError(
-                'No kernel in boot image tree %s found' %
-                self.boot_image_task.boot_root_directory
+                'No kernel in boot image tree %s found'
+                % self.boot_image_task.boot_root_directory
             )
 
         self.initrd = os.path.basename(self.boot_image_task.initrd_filename)
@@ -139,16 +144,19 @@ class EnclaveBuilder:
             Command.run(
                 [
                     'eif_build',
-                    '--kernel', '/'.join([self.target_dir, self.kernel_filename]),
-                    '--ramdisk', '/'.join([self.target_dir, self.initrd]),
-                    '--cmdline', self.custom_cmdline,
-                    '--output', self.enclave
+                    '--kernel',
+                    '/'.join([self.target_dir, self.kernel_filename]),
+                    '--ramdisk',
+                    '/'.join([self.target_dir, self.initrd]),
+                    '--cmdline',
+                    self.custom_cmdline,
+                    '--output',
+                    self.enclave,
                 ]
             )
 
         Result.verify_image_size(
-            self.runtime_config.get_max_size_constraint(),
-            self.initrd
+            self.runtime_config.get_max_size_constraint(), self.initrd
         )
         # store image bundle_format in result
         if self.bundle_format:
@@ -158,30 +166,24 @@ class EnclaveBuilder:
             key='enclave',
             filename=self.enclave,
             use_for_bundle=True,
-            compress=self.runtime_config.get_bundle_compression(
-                default=False
-            ),
-            shasum=True
+            compress=self.runtime_config.get_bundle_compression(default=False),
+            shasum=True,
         )
 
         # create image root metadata
         self.result.add(
             key='image_packages',
-            filename=self.system_setup.export_package_list(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_list(self.target_dir),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_changes',
-            filename=self.system_setup.export_package_changes(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_changes(self.target_dir),
             use_for_bundle=True,
             compress=True,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_verified',
@@ -190,6 +192,6 @@ class EnclaveBuilder:
             ),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         return self.result

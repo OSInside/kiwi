@@ -1,8 +1,6 @@
 import sys
 import os
-from unittest.mock import (
-    patch, Mock, MagicMock
-)
+from unittest.mock import patch, Mock, MagicMock
 
 import kiwi
 
@@ -16,17 +14,20 @@ class TestSystemUpdateTask:
     def setup(self):
         Defaults.set_platform_name('x86_64')
         sys.argv = [
-            sys.argv[0], '--profile', 'vmxFlavour', 'system', 'update',
-            '--root', '../data/root-dir'
+            sys.argv[0],
+            '--profile',
+            'vmxFlavour',
+            'system',
+            'update',
+            '--root',
+            '../data/root-dir',
         ]
         self.abs_target_dir = os.path.abspath('some-target')
 
         kiwi.tasks.system_update.Privileges = Mock()
         kiwi.tasks.system_update.Path = Mock()
 
-        kiwi.tasks.system_update.Help = Mock(
-            return_value=Mock()
-        )
+        kiwi.tasks.system_update.Help = Mock(return_value=Mock())
         self.task = SystemUpdateTask()
 
     def setup_method(self, cls):
@@ -50,9 +51,7 @@ class TestSystemUpdateTask:
     def test_process_system_update(self, mock_SystemPrepare):
         manager = MagicMock()
         system_prepare = Mock()
-        system_prepare.setup_repositories = Mock(
-            return_value=manager
-        )
+        system_prepare.setup_repositories = Mock(return_value=manager)
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
         self.task.command_args['update'] = True
@@ -68,9 +67,7 @@ class TestSystemUpdateTask:
     def test_process_system_update_add_package(self, mock_SystemPrepare):
         manager = MagicMock()
         system_prepare = Mock()
-        system_prepare.setup_repositories = Mock(
-            return_value=manager
-        )
+        system_prepare.setup_repositories = Mock(return_value=manager)
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
         self.task.command_args['update'] = True
@@ -87,9 +84,7 @@ class TestSystemUpdateTask:
     def test_process_system_update_delete_package(self, mock_SystemPrepare):
         manager = MagicMock()
         system_prepare = Mock()
-        system_prepare.setup_repositories = Mock(
-            return_value=manager
-        )
+        system_prepare.setup_repositories = Mock(return_value=manager)
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
         self.task.command_args['update'] = True
@@ -107,6 +102,4 @@ class TestSystemUpdateTask:
         self.task.command_args['help'] = True
         self.task.command_args['update'] = True
         self.task.process()
-        self.task.manual.show.assert_called_once_with(
-            'kiwi::system::update'
-        )
+        self.task.manual.show.assert_called_once_with('kiwi::system::update')

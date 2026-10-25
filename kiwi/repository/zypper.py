@@ -23,9 +23,7 @@ from typing import List, Dict
 
 # project
 import kiwi.defaults as defaults
-from kiwi.utils.temporary import (
-    Temporary, TmpT
-)
+from kiwi.utils.temporary import Temporary, TmpT
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -99,24 +97,14 @@ class RepositoryZypper(RepositoryBase):
         manager_base = self.root_dir + self.shared_location
 
         self.shared_zypper_dir = {
-            'pkg-cache-dir': os.sep.join(
-                [manager_base, 'packages']
-            ),
-            'reposd-dir': os.sep.join(
-                [manager_base, 'zypper/repos']
-            ),
+            'pkg-cache-dir': os.sep.join([manager_base, 'packages']),
+            'reposd-dir': os.sep.join([manager_base, 'zypper/repos']),
             'credentials-dir': os.sep.join(
                 [manager_base, 'zypper/credentials']
             ),
-            'solv-cache-dir': os.sep.join(
-                [manager_base, 'zypper/solv']
-            ),
-            'raw-cache-dir': os.sep.join(
-                [manager_base, 'zypper/raw']
-            ),
-            'cache-dir': os.sep.join(
-                [manager_base, 'zypper']
-            )
+            'solv-cache-dir': os.sep.join([manager_base, 'zypper/solv']),
+            'raw-cache-dir': os.sep.join([manager_base, 'zypper/raw']),
+            'cache-dir': os.sep.join([manager_base, 'zypper']),
         }
 
         self.runtime_zypper_config_file = Temporary(
@@ -129,12 +117,18 @@ class RepositoryZypper(RepositoryBase):
         self.zypper_args = [
             '--non-interactive',
             '--gpg-auto-import-keys',
-            '--pkg-cache-dir', self.shared_zypper_dir['pkg-cache-dir'],
-            '--reposd-dir', self.shared_zypper_dir['reposd-dir'],
-            '--solv-cache-dir', self.shared_zypper_dir['solv-cache-dir'],
-            '--cache-dir', self.shared_zypper_dir['cache-dir'],
-            '--raw-cache-dir', self.shared_zypper_dir['raw-cache-dir'],
-            '--config', self.runtime_zypper_config_file.name
+            '--pkg-cache-dir',
+            self.shared_zypper_dir['pkg-cache-dir'],
+            '--reposd-dir',
+            self.shared_zypper_dir['reposd-dir'],
+            '--solv-cache-dir',
+            self.shared_zypper_dir['solv-cache-dir'],
+            '--cache-dir',
+            self.shared_zypper_dir['cache-dir'],
+            '--raw-cache-dir',
+            self.shared_zypper_dir['raw-cache-dir'],
+            '--config',
+            self.runtime_zypper_config_file.name,
         ] + self.custom_args
 
         self.command_env = self._create_zypper_runtime_environment()
@@ -148,26 +142,21 @@ class RepositoryZypper(RepositoryBase):
         self.runtime_zypp_config = ConfigParser(interpolation=None)
         self.runtime_zypp_config.add_section('main')
         self.runtime_zypp_config.set(
-            'main', 'credentials.global.dir',
-            self.shared_zypper_dir['credentials-dir']
+            'main',
+            'credentials.global.dir',
+            self.shared_zypper_dir['credentials-dir'],
         )
         if self.target_arch:
-            self.runtime_zypp_config.set(
-                'main', 'arch', self.target_arch
-            )
+            self.runtime_zypp_config.set('main', 'arch', self.target_arch)
         if self.exclude_docs:
             self.runtime_zypp_config.set(
                 'main', 'rpm.install.excludedocs', 'yes'
             )
 
         if self.gpgcheck:
-            self.runtime_zypp_config.set(
-                'main', 'gpgcheck', '1'
-            )
+            self.runtime_zypp_config.set('main', 'gpgcheck', '1')
         else:
-            self.runtime_zypp_config.set(
-                'main', 'gpgcheck', '0'
-            )
+            self.runtime_zypp_config.set('main', 'gpgcheck', '0')
 
         self._write_runtime_config()
 
@@ -220,15 +209,16 @@ class RepositoryZypper(RepositoryBase):
         image_rpm_compat_link = '/var/lib/rpm'
         host_rpm_dbpath = rpmdb.rpmdb_host.expand_query('%_dbpath')
         if host_rpm_dbpath != image_rpm_compat_link:
-            Path.create(
-                self.root_dir + os.path.dirname(image_rpm_compat_link)
-            )
+            Path.create(self.root_dir + os.path.dirname(image_rpm_compat_link))
             Command.run(
                 [
-                    'ln', '-s', '--no-target-directory',
+                    'ln',
+                    '-s',
+                    '--no-target-directory',
                     ''.join(['../..', host_rpm_dbpath]),
-                    self.root_dir + image_rpm_compat_link
-                ], raise_on_error=False
+                    self.root_dir + image_rpm_compat_link,
+                ],
+                raise_on_error=False,
             )
 
     def use_default_location(self) -> None:
@@ -236,16 +226,16 @@ class RepositoryZypper(RepositoryBase):
         Setup zypper repository operations to store all data
         in the default places
         """
-        self.shared_zypper_dir['reposd-dir'] = \
+        self.shared_zypper_dir['reposd-dir'] = (
             self.root_dir + '/etc/zypp/repos.d'
-        self.shared_zypper_dir['credentials-dir'] = \
+        )
+        self.shared_zypper_dir['credentials-dir'] = (
             self.root_dir + '/etc/zypp/credentials.d'
+        )
         self.zypper_args = [
             '--non-interactive',
         ] + self.custom_args
-        self.command_env = dict(
-            os.environ, **HostProxy().get_env(), LANG='C'
-        )
+        self.command_env = dict(os.environ, **HostProxy().get_env(), LANG='C')
 
     def runtime_config(self) -> Dict:
         """
@@ -253,16 +243,25 @@ class RepositoryZypper(RepositoryBase):
         """
         return {
             'zypper_args': self.zypper_args,
-            'command_env': self.command_env
+            'command_env': self.command_env,
         }
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str = 'rpm-md',
-        prio: int = None, dist: str = None, components: str = None,
-        user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None,
-        architectures: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str = 'rpm-md',
+        prio: int = None,
+        dist: str = None,
+        components: str = None,
+        user: str = None,
+        secret: str = None,
+        credentials_file: str = None,
+        repo_gpgcheck: bool = False,
+        pkg_gpgcheck: bool = False,
+        sourcetype: str = None,
+        customization_script: str = None,
+        architectures: str = None,
     ) -> None:
         """
         Add zypper repository
@@ -293,11 +292,11 @@ class RepositoryZypper(RepositoryBase):
             if user and secret:
                 uri = ''.join([uri, '?credentials=', credentials_file])
                 with open(repo_secret, 'w') as credentials:
-                    credentials.write('username={0}{1}'.format(
-                        user, os.linesep)
+                    credentials.write(
+                        'username={0}{1}'.format(user, os.linesep)
                     )
-                    credentials.write('password={0}{1}'.format(
-                        secret, os.linesep)
+                    credentials.write(
+                        'password={0}{1}'.format(secret, os.linesep)
                     )
 
         repo_file = ''.join(
@@ -309,20 +308,26 @@ class RepositoryZypper(RepositoryBase):
             Path.wipe(repo_file)
 
         self._backup_package_cache()
-        zypper_addrepo_command = ['zypper'] + self.zypper_args + [
-            '--root', self.root_dir,
-            'addrepo',
-            '--refresh',
-            '--keep-packages' if Uri(uri).is_remote() else
-            '--no-keep-packages',
-            '--no-check',
-            uri,
-            name
-        ]
+        zypper_addrepo_command = (
+            ['zypper']
+            + self.zypper_args
+            + [
+                '--root',
+                self.root_dir,
+                'addrepo',
+                '--refresh',
+                (
+                    '--keep-packages'
+                    if Uri(uri).is_remote()
+                    else '--no-keep-packages'
+                ),
+                '--no-check',
+                uri,
+                name,
+            ]
+        )
         try:
-            Command.run(
-                zypper_addrepo_command, self.command_env
-            )
+            Command.run(zypper_addrepo_command, self.command_env)
         except Exception:
             # for whatever reason zypper sometimes failes with
             # a 'failed to cache rpm database' error. I could not
@@ -330,9 +335,7 @@ class RepositoryZypper(RepositoryBase):
             # same command in the exact same environment works.
             # Thus the stupid but simple workaround to this problem
             # is try one recall before really failing
-            Command.run(
-                zypper_addrepo_command, self.command_env
-            )
+            Command.run(zypper_addrepo_command, self.command_env)
 
         repo_config = ConfigParser(interpolation=None)
         repo_config.read(repo_file)
@@ -345,16 +348,10 @@ class RepositoryZypper(RepositoryBase):
             # addrepo does strange things with the provided url encoded data
             repo_config.set(name, 'baseurl', baseurl)
 
-        repo_config.set(
-            name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
-        )
-        repo_config.set(
-            name, 'pkg_gpgcheck', '1' if pkg_gpgcheck else '0'
-        )
+        repo_config.set(name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0')
+        repo_config.set(name, 'pkg_gpgcheck', '1' if pkg_gpgcheck else '0')
         if prio:
-            repo_config.set(
-                name, 'priority', format(prio)
-            )
+            repo_config.set(name, 'priority', format(prio))
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
         if customization_script:
@@ -378,10 +375,10 @@ class RepositoryZypper(RepositoryBase):
         :param str name: repository name
         """
         Command.run(
-            ['zypper'] + self.zypper_args + [
-                '--root', self.root_dir, 'removerepo', name
-            ],
-            self.command_env
+            ['zypper']
+            + self.zypper_args
+            + ['--root', self.root_dir, 'removerepo', name],
+            self.command_env,
         )
 
     def delete_all_repos(self) -> None:
@@ -401,15 +398,9 @@ class RepositoryZypper(RepositoryBase):
 
         :param str name: repository name
         """
-        Path.wipe(
-            os.sep.join([self.shared_zypper_dir['pkg-cache-dir'], name])
-        )
-        Path.wipe(
-            os.sep.join([self.shared_zypper_dir['solv-cache-dir'], name])
-        )
-        Path.wipe(
-            os.sep.join([self.shared_zypper_dir['raw-cache-dir'], name])
-        )
+        Path.wipe(os.sep.join([self.shared_zypper_dir['pkg-cache-dir'], name]))
+        Path.wipe(os.sep.join([self.shared_zypper_dir['solv-cache-dir'], name]))
+        Path.wipe(os.sep.join([self.shared_zypper_dir['raw-cache-dir'], name]))
 
     def cleanup_unused_repos(self) -> None:
         """
@@ -441,7 +432,7 @@ class RepositoryZypper(RepositoryBase):
             os.environ,
             **HostProxy().get_env(),
             LANG='C',
-            ZYPP_CONF=self.runtime_zypp_config_file.name
+            ZYPP_CONF=self.runtime_zypp_config_file.name,
         )
 
     def _setup_intermediate_proxy_config(self) -> None:
@@ -496,13 +487,9 @@ class RepositoryZypper(RepositoryBase):
         package_cache = self.shared_location + '/packages'
         package_cache_moved = package_cache + '.moved'
         if backup and os.path.exists(package_cache):
-            Command.run(
-                ['mv', '-f', package_cache, package_cache_moved]
-            )
+            Command.run(['mv', '-f', package_cache, package_cache_moved])
         elif restore and os.path.exists(package_cache_moved):
-            Command.run(
-                ['mv', '-f', package_cache_moved, package_cache]
-            )
+            Command.run(['mv', '-f', package_cache_moved, package_cache])
 
     def cleanup(self) -> None:
         """

@@ -17,40 +17,22 @@ class TestArchiveBuilder:
         Defaults.set_platform_name('x86_64')
         self.xml_state = mock.Mock()
         self.xml_state.profiles = None
-        self.xml_state.get_image_version = mock.Mock(
-            return_value='1.2.3'
-        )
-        self.xml_state.get_build_type_name = mock.Mock(
-            return_value='tbz'
-        )
-        self.xml_state.xml_data.get_name = mock.Mock(
-            return_value='myimage'
-        )
+        self.xml_state.get_image_version = mock.Mock(return_value='1.2.3')
+        self.xml_state.get_build_type_name = mock.Mock(return_value='tbz')
+        self.xml_state.xml_data.get_name = mock.Mock(return_value='myimage')
         self.setup = mock.Mock()
-        kiwi.builder.archive.SystemSetup = mock.Mock(
-            return_value=self.setup
-        )
-        self.archive = ArchiveBuilder(
-            self.xml_state, 'target_dir', 'root_dir'
-        )
+        kiwi.builder.archive.SystemSetup = mock.Mock(return_value=self.setup)
+        self.archive = ArchiveBuilder(self.xml_state, 'target_dir', 'root_dir')
 
     def setup_method(self, cls):
         self.setup()
 
     def test_create_unknown_archive_type(self):
         xml_state = mock.Mock()
-        xml_state.get_build_type_name = mock.Mock(
-            return_value='bogus'
-        )
-        xml_state.get_image_version = mock.Mock(
-            return_value='1.2.3'
-        )
-        xml_state.xml_data.get_name = mock.Mock(
-            return_value='myimage'
-        )
-        archive = ArchiveBuilder(
-            xml_state, 'target_dir', 'root_dir'
-        )
+        xml_state.get_build_type_name = mock.Mock(return_value='bogus')
+        xml_state.get_image_version = mock.Mock(return_value='1.2.3')
+        xml_state.xml_data.get_name = mock.Mock(return_value='myimage')
+        archive = ArchiveBuilder(xml_state, 'target_dir', 'root_dir')
         with raises(KiwiArchiveSetupError):
             archive.create()
 
@@ -61,21 +43,23 @@ class TestArchiveBuilder:
         archive = mock.Mock()
         mock_tar.return_value = archive
         self.archive.create()
-        mock_tar.assert_called_once_with(
-            'target_dir/myimage.x86_64-1.2.3.tar'
-        )
+        mock_tar.assert_called_once_with('target_dir/myimage.x86_64-1.2.3.tar')
         archive.create_xz_compressed.assert_called_once_with(
-            'root_dir', exclude=[
-                'image', '.kconfig', 'run/*', 'tmp/*',
-                '.buildenv', 'var/cache/kiwi'
-            ], xz_options=None
+            'root_dir',
+            exclude=[
+                'image',
+                '.kconfig',
+                'run/*',
+                'tmp/*',
+                '.buildenv',
+                'var/cache/kiwi',
+            ],
+            xz_options=None,
         )
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_package_list.assert_called_once_with(
-            'target_dir'
-        )
+        self.setup.export_package_list.assert_called_once_with('target_dir')
 
     @patch('kiwi.builder.archive.ArchiveCpio')
     def test_create_cpio(self, mock_cpio):
@@ -88,17 +72,20 @@ class TestArchiveBuilder:
             'target_dir/myimage.x86_64-1.2.3.cpio'
         )
         archive.create.assert_called_once_with(
-            'root_dir', exclude=[
-                'image', '.kconfig', 'run/*', 'tmp/*',
-                '.buildenv', 'var/cache/kiwi'
-            ]
+            'root_dir',
+            exclude=[
+                'image',
+                '.kconfig',
+                'run/*',
+                'tmp/*',
+                '.buildenv',
+                'var/cache/kiwi',
+            ],
         )
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
-        self.setup.export_package_list.assert_called_once_with(
-            'target_dir'
-        )
+        self.setup.export_package_list.assert_called_once_with('target_dir')
 
     def teardown(self):
         sys.argv = argv_kiwi_tests

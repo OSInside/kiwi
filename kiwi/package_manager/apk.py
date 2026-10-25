@@ -17,18 +17,14 @@
 #
 import re
 import logging
-from typing import (
-    List, Dict, Optional
-)
+from typing import List, Dict, Optional
 
 # project
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
-from kiwi.exceptions import (
-    KiwiBootStrapPhaseFailed
-)
+from kiwi.exceptions import KiwiBootStrapPhaseFailed
 
 log = logging.getLogger('kiwi')
 
@@ -41,6 +37,7 @@ class PackageManagerApk(PackageManagerBase):
         apk command environment from repository
         runtime configuration
     """
+
     def post_init(self, custom_args: Optional[List[str]] = None) -> None:
         """
         Post initialization method
@@ -73,10 +70,12 @@ class PackageManagerApk(PackageManagerBase):
 
         :param str name: apk group name
         """
-        log.warning((
-            'apk treats collection installations as regular packages.'
-            'It is preferred to list them as regular packages'
-        ))
+        log.warning(
+            (
+                'apk treats collection installations as regular packages.'
+                'It is preferred to list them as regular packages'
+            )
+        )
         self.package_requests.append(name)
 
     def request_product(self, name: str) -> None:
@@ -127,19 +126,22 @@ class PackageManagerApk(PackageManagerBase):
             )
         if not self.package_requests:
             self.package_requests.append('alpine-base')
-        apk_command = [
-            'apk'
-        ] + [
-            '--root', self.root_dir
-        ] + self.custom_args + [
-            '-X', self.bootstrap_repo,
-            '-U', '--allow-untrusted',
-            '--initdb', 'add'
-        ] + self.package_requests
-        self.cleanup_requests()
-        return Command.call(
-            apk_command, self.command_env
+        apk_command = (
+            ['apk']
+            + ['--root', self.root_dir]
+            + self.custom_args
+            + [
+                '-X',
+                self.bootstrap_repo,
+                '-U',
+                '--allow-untrusted',
+                '--initdb',
+                'add',
+            ]
+            + self.package_requests
         )
+        self.cleanup_requests()
+        return Command.call(apk_command, self.command_env)
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -152,15 +154,14 @@ class PackageManagerApk(PackageManagerBase):
         Command.run(
             ['chroot', self.root_dir, 'apk', 'update'], self.command_env
         )
-        apk_command = [
-            'chroot', self.root_dir, 'apk'
-        ] + self.custom_args + [
-            'add'
-        ] + self.package_requests
-        self.cleanup_requests()
-        return Command.call(
-            apk_command, self.command_env
+        apk_command = (
+            ['chroot', self.root_dir, 'apk']
+            + self.custom_args
+            + ['add']
+            + self.package_requests
         )
+        self.cleanup_requests()
+        return Command.call(apk_command, self.command_env)
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
@@ -177,15 +178,14 @@ class PackageManagerApk(PackageManagerBase):
         Command.run(
             ['chroot', self.root_dir, 'apk', 'update'], self.command_env
         )
-        apk_command = [
-            'chroot', self.root_dir, 'apk'
-        ] + self.custom_args + [
-            'del'
-        ] + self.package_requests
-        self.cleanup_requests()
-        return Command.call(
-            apk_command, self.command_env
+        apk_command = (
+            ['chroot', self.root_dir, 'apk']
+            + self.custom_args
+            + ['del']
+            + self.package_requests
         )
+        self.cleanup_requests()
+        return Command.call(apk_command, self.command_env)
 
     def update(self) -> CommandCallT:
         """
@@ -199,10 +199,8 @@ class PackageManagerApk(PackageManagerBase):
             ['chroot', self.root_dir, 'apk', 'update'], self.command_env
         )
         return Command.call(
-            [
-                'chroot', self.root_dir, 'apk', 'upgrade'
-            ] + self.custom_args,
-            self.command_env
+            ['chroot', self.root_dir, 'apk', 'upgrade'] + self.custom_args,
+            self.command_env,
         )
 
     def process_only_required(self) -> None:
@@ -242,7 +240,7 @@ class PackageManagerApk(PackageManagerBase):
         return bool(
             re.match(
                 '.* Installing {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -262,6 +260,6 @@ class PackageManagerApk(PackageManagerBase):
         return bool(
             re.match(
                 '.* Removing {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )

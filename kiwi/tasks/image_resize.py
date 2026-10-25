@@ -27,9 +27,7 @@ from kiwi.help import Help
 from kiwi.storage.subformat import DiskFormat
 from kiwi.utils.size import StringToSize
 
-from kiwi.exceptions import (
-    KiwiImageResizeError
-)
+from kiwi.exceptions import KiwiImageResizeError
 
 log = logging.getLogger('kiwi')
 
@@ -43,6 +41,7 @@ class ImageResizeTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         reformats raw disk image and its format to a new disk
@@ -52,9 +51,7 @@ class ImageResizeTask(CliTask):
         if self.command_args.get('help') is True:
             return self.manual.show('kiwi::image::resize')
 
-        abs_target_dir_path = os.path.abspath(
-            self.command_args['--target-dir']
-        )
+        abs_target_dir_path = os.path.abspath(self.command_args['--target-dir'])
 
         if self.command_args['--root']:
             image_root = os.path.abspath(
@@ -65,15 +62,15 @@ class ImageResizeTask(CliTask):
                 [abs_target_dir_path, 'build', 'image-root']
             )
 
-        self.load_xml_description(
-            image_root, self.global_args['--kiwi-file']
-        )
+        self.load_xml_description(image_root, self.global_args['--kiwi-file'])
 
         disk_format = self.xml_state.build_type.get_format()
 
         with DiskFormat.new(
-            disk_format or 'raw', self.xml_state, image_root,
-            abs_target_dir_path
+            disk_format or 'raw',
+            self.xml_state,
+            image_root,
+            abs_target_dir_path,
         ) as image_format:
             if not image_format.has_raw_disk():
                 raise KiwiImageResizeError(
@@ -85,9 +82,7 @@ class ImageResizeTask(CliTask):
             new_disk_size = StringToSize.to_bytes(self.command_args['--size'])
 
             # resize raw disk
-            log.info(
-                f'Resizing raw disk to {new_disk_size} bytes'
-            )
+            log.info(f'Resizing raw disk to {new_disk_size} bytes')
             resize_result = image_format.resize_raw_disk(new_disk_size)
 
             # resize raw disk partition table
@@ -106,6 +101,4 @@ class ImageResizeTask(CliTask):
                 )
                 image_format.create_image_format()
             elif resize_result is False:
-                log.info(
-                    f'Raw disk is already at {new_disk_size} bytes'
-                )
+                log.info(f'Raw disk is already at {new_disk_size} bytes')

@@ -23,16 +23,14 @@ import importlib.util
 from kiwi.utils.temporary import Temporary
 from kiwi.markup.base import MarkupBase
 
-from kiwi.exceptions import (
-    KiwiDescriptionInvalid,
-    KiwiAnyMarkupPluginError
-)
+from kiwi.exceptions import KiwiDescriptionInvalid, KiwiAnyMarkupPluginError
 
 
 class MarkupAny(MarkupBase):
     """
     **Implements markup handling for XML, YAML, JSON and INI**
     """
+
     def post_init(self) -> None:
         """
         Convert given description file into XML

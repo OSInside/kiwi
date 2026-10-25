@@ -23,6 +23,7 @@ class SolverRepositoryDeb(SolverRepositoryBase):
     """
     **Class for SAT solvable creation for apt-deb type repositories.**
     """
+
     def _setup_repository_metadata(self):
         """
         Download repo metadata for apt-deb specific repositories
@@ -33,6 +34,4 @@ class SolverRepositoryDeb(SolverRepositoryBase):
         # the repo definition
         deb_dir = self._create_temporary_metadata_dir()
         self._get_deb_packages(download_dir=deb_dir)
-        self._create_solvables(
-            deb_dir, 'deb2solv'
-        )
+        self._create_solvables(deb_dir, 'deb2solv')

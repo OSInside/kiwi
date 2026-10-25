@@ -25,6 +25,7 @@ class ColorMessage:
     Has to implement the format_message method to serve as
     message formatter
     """
+
     def __init__(self):
         BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = list(range(8))
         self.color = {
@@ -40,13 +41,13 @@ class ColorMessage:
             'BLUE': BLUE,
             'MAGENTA': MAGENTA,
             'CYAN': CYAN,
-            'WHITE': WHITE
+            'WHITE': WHITE,
         }
         self.esc = {
             'reset': '\033[0m',
             'color': '\033[3;%dm',
             'color_light': '\033[2;%dm',
-            'bold': '\033[1m'
+            'bold': '\033[1m',
         }
 
     def format_message(self, level: str, message: str) -> str:
@@ -70,29 +71,26 @@ class ColorMessage:
 
         :rtype: str
         """
-        message = message.replace(
-            '$RESET',
-            self.esc['reset']
-        ).replace(
-            '$BOLD',
-            self.esc['bold']
-        ).replace(
-            '$COLOR',
-            self.esc['color'] % (30 + self.color[level])
-        ).replace(
-            '$LIGHTCOLOR',
-            self.esc['color_light'] % (30 + self.color[level])
+        message = (
+            message.replace('$RESET', self.esc['reset'])
+            .replace('$BOLD', self.esc['bold'])
+            .replace('$COLOR', self.esc['color'] % (30 + self.color[level]))
+            .replace(
+                '$LIGHTCOLOR',
+                self.esc['color_light'] % (30 + self.color[level]),
+            )
         )
         for color_name, color_id in list(self.color.items()):
-            message = message.replace(
-                '$' + color_name,
-                self.esc['color'] % (color_id + 30)
-            ).replace(
-                '$BG' + color_name,
-                self.esc['color'] % (color_id + 40)
-            ).replace(
-                '$BG-' + color_name,
-                self.esc['color'] % (color_id + 40)
+            message = (
+                message.replace(
+                    '$' + color_name, self.esc['color'] % (color_id + 30)
+                )
+                .replace(
+                    '$BG' + color_name, self.esc['color'] % (color_id + 40)
+                )
+                .replace(
+                    '$BG-' + color_name, self.esc['color'] % (color_id + 40)
+                )
             )
         return message + self.esc['reset']
 
@@ -109,6 +107,7 @@ class ColorFormatter(logging.Formatter):
 
         ColorFormatter(message_format, '%H:%M:%S')
     """
+
     def format(self, record: logging.LogRecord) -> str:
         """
         Creates a logging Formatter with support for color messages

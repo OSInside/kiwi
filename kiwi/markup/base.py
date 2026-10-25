@@ -25,7 +25,7 @@ from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiConfigFileFormatNotSupported,
     KiwiDescriptionInvalid,
-    KiwiIncludFileNotFoundError
+    KiwiIncludFileNotFoundError,
 )
 
 
@@ -37,6 +37,7 @@ class MarkupBase:
 
     :param str description: description path
     """
+
     def __init__(self, description: str):
         self.description = description
         self.post_init()

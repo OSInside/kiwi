@@ -1,17 +1,10 @@
 import logging
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 
 from kiwi.utils.compress import Compress
 
-from kiwi.exceptions import (
-    KiwiFileNotFound,
-    KiwiCompressionFormatUnknown
-)
+from kiwi.exceptions import KiwiFileNotFound, KiwiCompressionFormatUnknown
 
 
 class TestCompress:
@@ -36,10 +29,7 @@ class TestCompress:
     def test_xz(self, mock_command):
         assert self.compress.xz() == 'some-file.xz'
         mock_command.assert_called_once_with(
-            [
-                'xz', '-f', '--threads=0', '--keep',
-                'some-file'
-            ]
+            ['xz', '-f', '--threads=0', '--keep', 'some-file']
         )
         assert self.compress.compressed_filename == 'some-file.xz'
 
@@ -47,10 +37,7 @@ class TestCompress:
     def test_xz_with_custom_options(self, mock_command):
         assert self.compress.xz(options=['foo', 'bar']) == 'some-file.xz'
         mock_command.assert_called_once_with(
-            [
-                'xz', '-f', 'foo', 'bar', '--keep',
-                'some-file'
-            ]
+            ['xz', '-f', 'foo', 'bar', '--keep', 'some-file']
         )
         assert self.compress.compressed_filename == 'some-file.xz'
 
@@ -68,9 +55,7 @@ class TestCompress:
     def test_uncompress(self, mock_format, mock_temp, mock_command):
         mock_format.return_value = 'xz'
         self.compress.uncompress()
-        mock_command.assert_called_once_with(
-            ['xz', '-d', 'some-file']
-        )
+        mock_command.assert_called_once_with(['xz', '-d', 'some-file'])
         assert self.compress.uncompressed_filename == 'some-file'
 
     @patch('kiwi.command.Command.run')

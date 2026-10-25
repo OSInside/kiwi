@@ -16,9 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.command import CommandCallT
@@ -42,6 +40,7 @@ class PackageManagerDnf5(PackageManagerBase):
     :param dict command_env: dnf command environment from repository runtime
         configuration
     """
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -108,30 +107,29 @@ class PackageManagerDnf5(PackageManagerBase):
                     ]
                 }
         """
-        dnf_module_command = [
-            'dnf5'
-        ] + self.dnf_args + [
-            '--installroot', self.root_dir,
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + [
-            'module'
-        ]
+        dnf_module_command = (
+            ['dnf5']
+            + self.dnf_args
+            + [
+                '--installroot',
+                self.root_dir,
+                f'--releasever={self.release_version}',
+            ]
+            + self.custom_args
+            + ['module']
+        )
         for disable_module in collection_modules['disable']:
             Command.run(
-                dnf_module_command + [
-                    'disable', disable_module
-                ], self.command_env
+                dnf_module_command + ['disable', disable_module],
+                self.command_env,
             )
         for enable_module in collection_modules['enable']:
             Command.run(
-                dnf_module_command + [
-                    'reset', enable_module.split(':')[0]
-                ], self.command_env
+                dnf_module_command + ['reset', enable_module.split(':')[0]],
+                self.command_env,
             )
             Command.run(
-                dnf_module_command + [
-                    'enable', enable_module
-                ], self.command_env
+                dnf_module_command + ['enable', enable_module], self.command_env
             )
 
     def process_install_requests_bootstrap(
@@ -156,22 +154,28 @@ class PackageManagerDnf5(PackageManagerBase):
             for package in self.exclude_requests:
                 exclude_args.append('--exclude=' + package)
         Command.run(
-            ['dnf5'] + self.dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + ['makecache'], self.command_env
+            ['dnf5']
+            + self.dnf_args
+            + [f'--releasever={self.release_version}']
+            + ['makecache'],
+            self.command_env,
         )
-        dnf_command = [
-            'dnf5'
-        ] + self.dnf_args + [
-            '--installroot', self.root_dir,
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + exclude_args + [
-            'install'
-        ] + self.package_requests + self.collection_requests
+        dnf_command = (
+            ['dnf5']
+            + self.dnf_args
+            + [
+                '--installroot',
+                self.root_dir,
+                f'--releasever={self.release_version}',
+            ]
+            + self.custom_args
+            + exclude_args
+            + ['install']
+            + self.package_requests
+            + self.collection_requests
+        )
         self.cleanup_requests()
-        return Command.call(
-            dnf_command, self.command_env
-        )
+        return Command.call(dnf_command, self.command_env)
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -189,20 +193,19 @@ class PackageManagerDnf5(PackageManagerBase):
             # hard required by another package, it will break the transaction.
             for package in self.exclude_requests:
                 exclude_args.append('--exclude=' + package)
-        chroot_dnf_args = Path.move_to_root(
-            self.root_dir, self.dnf_args
+        chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
+        dnf_command = (
+            ['chroot', self.root_dir, 'dnf5']
+            + chroot_dnf_args
+            + [f'--releasever={self.release_version}']
+            + self.custom_args
+            + exclude_args
+            + ['install']
+            + self.package_requests
+            + self.collection_requests
         )
-        dnf_command = [
-            'chroot', self.root_dir, 'dnf5'
-        ] + chroot_dnf_args + [
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + exclude_args + [
-            'install'
-        ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
-        return Command.call(
-            dnf_command, self.command_env
-        )
+        return Command.call(dnf_command, self.command_env)
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
@@ -234,25 +237,26 @@ class PackageManagerDnf5(PackageManagerBase):
             self.cleanup_requests()
             delete_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
-                [
-                    'chroot', self.root_dir, 'rpm', '-e'
-                ] + delete_options + delete_items,
-                self.command_env
+                ['chroot', self.root_dir, 'rpm', '-e']
+                + delete_options
+                + delete_items,
+                self.command_env,
             )
         else:
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
-            dnf_command = [
-                'chroot', self.root_dir, 'dnf5'
-            ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}',
-                '--setopt=clean_requirements_on_remove=true'
-            ] + self.custom_args + [
-                'remove'
-            ] + self.package_requests
-            self.cleanup_requests()
-            return Command.call(
-                dnf_command, self.command_env
+            dnf_command = (
+                ['chroot', self.root_dir, 'dnf5']
+                + chroot_dnf_args
+                + [
+                    f'--releasever={self.release_version}',
+                    '--setopt=clean_requirements_on_remove=true',
+                ]
+                + self.custom_args
+                + ['remove']
+                + self.package_requests
             )
+            self.cleanup_requests()
+            return Command.call(dnf_command, self.command_env)
 
     def update(self) -> CommandCallT:
         """
@@ -264,14 +268,12 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
         return Command.call(
-            [
-                'chroot', self.root_dir, 'dnf5'
-            ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + self.custom_args + [
-                'upgrade'
-            ],
-            self.command_env
+            ['chroot', self.root_dir, 'dnf5']
+            + chroot_dnf_args
+            + [f'--releasever={self.release_version}']
+            + self.custom_args
+            + ['upgrade'],
+            self.command_env,
         )
 
     def process_only_required(self) -> None:
@@ -288,7 +290,9 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         self.__clean_pattern_type()
         self.custom_args.append('--setopt=install_weak_deps=True')
-        self.custom_args.append('--setopt=group_package_types=default,mandatory,conditional')
+        self.custom_args.append(
+            '--setopt=group_package_types=default,mandatory,conditional'
+        )
 
     def match_package_installed(
         self, package_name: str, package_manager_output: str
@@ -311,7 +315,7 @@ class PackageManagerDnf5(PackageManagerBase):
         return bool(
             re.match(
                 '.*Installing.* {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -331,7 +335,7 @@ class PackageManagerDnf5(PackageManagerBase):
         return bool(
             re.match(
                 '.*Removing.* {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -367,7 +371,12 @@ class PackageManagerDnf5(PackageManagerBase):
             self.custom_args.remove('--setopt=install_weak_deps=True')
         if '--setopt=install_weak_deps=False' in self.custom_args:
             self.custom_args.remove('--setopt=install_weak_deps=False')
-        if '--setopt=group_package_types=default,mandatory,conditional' in self.custom_args:
-            self.custom_args.remove('--setopt=group_package_types=default,mandatory,conditional')
+        if (
+            '--setopt=group_package_types=default,mandatory,conditional'
+            in self.custom_args
+        ):
+            self.custom_args.remove(
+                '--setopt=group_package_types=default,mandatory,conditional'
+            )
         if '--setopt=group_package_types=mandatory' in self.custom_args:
             self.custom_args.remove('--setopt=group_package_types=mandatory')

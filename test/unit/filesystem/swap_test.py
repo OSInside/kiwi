@@ -10,13 +10,9 @@ class TestFileSystemSwap:
     def setup(self, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
-        provider.get_device = mock.Mock(
-            return_value='/dev/foo'
-        )
+        provider.get_device = mock.Mock(return_value='/dev/foo')
         self.swap = FileSystemSwap(provider, 'root_dir')
-        self.swap.setup_mountpoint = mock.Mock(
-            return_value='some-mount-point'
-        )
+        self.swap.setup_mountpoint = mock.Mock(return_value='some-mount-point')
 
     @patch('os.path.exists')
     def setup_method(self, cls, mock_exists):
@@ -26,5 +22,6 @@ class TestFileSystemSwap:
     def test_create_on_device(self, mock_command):
         self.swap.create_on_device('label')
         call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
-            call(['mkswap', '-L', 'label', '/dev/foo'])
+        assert mock_command.call_args_list[0] == call(
+            ['mkswap', '-L', 'label', '/dev/foo']
+        )

@@ -16,7 +16,7 @@ class TestShell:
             "foo='bar'",
             "bar='xxx'",
             "name='bob'",
-            "strange='$a_foo'"
+            "strange='$a_foo'",
         ]
 
     @patch('kiwi.system.shell.Command.run')
@@ -24,10 +24,11 @@ class TestShell:
         Shell.run_common_function('foo', ['"param1"', '"param2"'])
         command_string = ' '.join(
             [
-                'source', Defaults.project_file('config/functions.sh') + ';',
-                'foo', '"param1"', '"param2"'
+                'source',
+                Defaults.project_file('config/functions.sh') + ';',
+                'foo',
+                '"param1"',
+                '"param2"',
             ]
         )
-        mock_command.assert_called_once_with(
-            ['bash', '-c', command_string]
-        )
+        mock_command.assert_called_once_with(['bash', '-c', command_string])

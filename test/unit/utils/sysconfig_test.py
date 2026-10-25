@@ -1,6 +1,4 @@
-from unittest.mock import (
-    call, mock_open, patch
-)
+from unittest.mock import call, mock_open, patch
 
 from kiwi.utils.sysconfig import SysConfig
 
@@ -42,5 +40,5 @@ class TestSysConfig:
             call(''),
             call('\n'),
             call('some_key= some-value'),
-            call('\n')
+            call('\n'),
         ]

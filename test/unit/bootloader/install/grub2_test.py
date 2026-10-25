@@ -1,7 +1,5 @@
 import io
-from unittest.mock import (
-    patch, call, MagicMock, Mock
-)
+from unittest.mock import patch, call, MagicMock, Mock
 from pytest import raises
 import unittest.mock as mock
 
@@ -14,7 +12,7 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubInstallError,
     KiwiBootLoaderGrubDataError,
     KiwiBootLoaderGrubPlatformError,
-    KiwiBootLoaderDiskPasswordError
+    KiwiBootLoaderDiskPasswordError,
 )
 
 
@@ -25,12 +23,8 @@ class TestBootLoaderInstallGrub2:
         Defaults.set_platform_name('x86_64')
 
         self.firmware = mock.Mock()
-        self.firmware.efi_mode = mock.Mock(
-            return_value=None
-        )
-        self.device_map = {
-            'var': MappedDevice('/dev/var-device', Mock())
-        }
+        self.firmware.efi_mode = mock.Mock(return_value=None)
+        self.device_map = {'var': MappedDevice('/dev/var-device', Mock())}
         self.custom_args = {
             'device_map': self.device_map,
             'boot_device': '/dev/mapper/loop0p2',
@@ -41,7 +35,7 @@ class TestBootLoaderInstallGrub2:
             'system_volumes': {
                 'boot/grub2': {
                     'volume_options': 'subvol=@/boot/grub2',
-                    'volume_device': 'device'
+                    'volume_device': 'device',
                 }
             },
             'system_partitions': {
@@ -53,13 +47,13 @@ class TestBootLoaderInstallGrub2:
                     partition_id=None,
                     mountpoint='/var',
                     filesystem='ext3',
-                    label='var'
+                    label='var',
                 )
             },
             'firmware': self.firmware,
             'target_removable': None,
             'install_options': [],
-            'shim_options': []
+            'shim_options': [],
         }
 
         self.root_mount = mock.Mock()
@@ -103,13 +97,11 @@ class TestBootLoaderInstallGrub2:
             self.volume_mount,
             self.efi_mount,
             self.boot_mount,
-            self.root_mount
+            self.root_mount,
         ]
 
         device_provider = mock.Mock()
-        device_provider.get_device = mock.Mock(
-            return_value='/dev/some-device'
-        )
+        device_provider.get_device = mock.Mock(return_value='/dev/some-device')
 
         self.bootloader = BootLoaderInstallGrub2(
             Mock(), 'root_dir', device_provider, self.custom_args
@@ -162,17 +154,13 @@ class TestBootLoaderInstallGrub2:
     def test_install_required_ppc_opal(self):
         self.bootloader.arch = 'ppc64'
         self.bootloader.firmware = mock.Mock()
-        self.bootloader.firmware.opal_mode = mock.Mock(
-            return_value=True
-        )
+        self.bootloader.firmware.opal_mode = mock.Mock(return_value=True)
         assert self.bootloader.install_required() is False
 
     def test_install_required_efi_no_csm(self):
         self.bootloader.arch = 'x86_64'
         self.bootloader.firmware = mock.Mock()
-        self.bootloader.firmware.efi_mode = mock.Mock(
-            return_value='efi'
-        )
+        self.bootloader.firmware.efi_mode = mock.Mock(return_value='efi')
         self.bootloader.firmware.legacy_bios_mode = mock.Mock(
             return_value=False
         )
@@ -193,13 +181,19 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_with_extra_boot_partition(
-        self, mock_SystemSetup, mock_grub_path,
-        mock_mount_manager, mock_command, mock_which, mock_wipe
+        self,
+        mock_SystemSetup,
+        mock_grub_path,
+        mock_mount_manager,
+        mock_command,
+        mock_which,
+        mock_wipe,
     ):
         setup = Mock()
         mock_SystemSetup.return_value = setup
-        mock_grub_path.return_value = \
+        mock_grub_path.return_value = (
             self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
+        )
 
         def side_effect(device, mountpoint=None):
             return self.mount_managers.pop()
@@ -216,14 +210,19 @@ class TestBootLoaderInstallGrub2:
         )
         mock_command.assert_called_once_with(
             [
-                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
-                '--directory', '/usr/lib/grub2/i386-pc',
-                '--boot-directory', '/boot',
-                '--target', 'i386-pc',
-                '--modules', ' '.join(
-                    Defaults.get_grub_platform_modules(multiboot=True)
-                ),
-                '/dev/some-device'
+                'chroot',
+                'tmp_root',
+                'grub2-install',
+                '--skip-fs-probe',
+                '--directory',
+                '/usr/lib/grub2/i386-pc',
+                '--boot-directory',
+                '/boot',
+                '--target',
+                'i386-pc',
+                '--modules',
+                ' '.join(Defaults.get_grub_platform_modules(multiboot=True)),
+                '/dev/some-device',
             ]
         )
         setup.setup_selinux_file_contexts.assert_called_once_with()
@@ -235,13 +234,16 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('os.path.exists')
     def test_install_on_dasd_disk(
-        self, mock_os_path_exists, mock_grub_path,
-        mock_mount_manager, mock_command, mock_which, mock_wipe
+        self,
+        mock_os_path_exists,
+        mock_grub_path,
+        mock_mount_manager,
+        mock_command,
+        mock_which,
+        mock_wipe,
     ):
         mock_os_path_exists.return_value = True
-        self.firmware.get_partition_table_type = mock.Mock(
-            return_value='dasd'
-        )
+        self.firmware.get_partition_table_type = mock.Mock(return_value='dasd')
 
         def side_effect(device, mountpoint=None):
             return self.mount_managers.pop()
@@ -255,25 +257,21 @@ class TestBootLoaderInstallGrub2:
         self.boot_mount.mount.assert_called_once_with()
         self.bootloader.sysfs_mount.umount.assert_called_once_with()
         assert mock_command.call_args_list == [
-            call(
-                [
-                    'chroot', 'tmp_root', 'grub2-zipl-setup', '--keep'
-                ]
-            ),
+            call(['chroot', 'tmp_root', 'grub2-zipl-setup', '--keep']),
             call(
                 [
                     'mv',
                     'tmp_root/etc/default/zipl2grub.conf.in.orig',
-                    'tmp_root/etc/default/zipl2grub.conf.in'
+                    'tmp_root/etc/default/zipl2grub.conf.in',
                 ]
             ),
             call(
                 [
                     'mv',
                     'tmp_root/boot/zipl/config',
-                    'tmp_root/boot/zipl/config.kiwi'
+                    'tmp_root/boot/zipl/config.kiwi',
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
@@ -283,13 +281,19 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_ppc_ieee1275(
-        self, mock_SystemSetup, mock_grub_path, mock_mount_manager,
-        mock_command, mock_which, mock_wipe
+        self,
+        mock_SystemSetup,
+        mock_grub_path,
+        mock_mount_manager,
+        mock_command,
+        mock_which,
+        mock_wipe,
     ):
         setup = Mock()
         mock_SystemSetup.return_value = setup
-        mock_grub_path.return_value = \
+        mock_grub_path.return_value = (
             self.root_mount.mountpoint + '/usr/lib/grub2/powerpc-ieee1275'
+        )
         self.bootloader.arch = 'ppc64'
 
         def side_effect(device, mountpoint=None):
@@ -298,20 +302,24 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.root_mount.mount.assert_called_once_with(
-            options=['subvol=root']
-        )
+        self.root_mount.mount.assert_called_once_with(options=['subvol=root'])
         self.boot_mount.mount.assert_called_once_with()
         mock_command.assert_called_once_with(
             [
-                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
-                '--no-nvram', '--directory', '/usr/lib/grub2/powerpc-ieee1275',
-                '--boot-directory', '/boot',
-                '--target', 'powerpc-ieee1275',
-                '--modules', ' '.join(
-                    Defaults.get_grub_ofw_modules()
-                ),
-                self.custom_args['prep_device']
+                'chroot',
+                'tmp_root',
+                'grub2-install',
+                '--skip-fs-probe',
+                '--no-nvram',
+                '--directory',
+                '/usr/lib/grub2/powerpc-ieee1275',
+                '--boot-directory',
+                '/boot',
+                '--target',
+                'powerpc-ieee1275',
+                '--modules',
+                ' '.join(Defaults.get_grub_ofw_modules()),
+                self.custom_args['prep_device'],
             ]
         )
         setup.setup_selinux_file_contexts.assert_called_once_with()
@@ -323,13 +331,19 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_s390_emu(
-        self, mock_SystemSetup, mock_grub_path, mock_mount_manager,
-        mock_command, mock_which, mock_wipe
+        self,
+        mock_SystemSetup,
+        mock_grub_path,
+        mock_mount_manager,
+        mock_command,
+        mock_which,
+        mock_wipe,
     ):
         setup = Mock()
         mock_SystemSetup.return_value = setup
-        mock_grub_path.return_value = \
+        mock_grub_path.return_value = (
             self.root_mount.mountpoint + '/usr/lib/grub2/s390x-emu'
+        )
         self.bootloader.arch = 's390x'
 
         def side_effect(device, mountpoint=None):
@@ -338,20 +352,24 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.root_mount.mount.assert_called_once_with(
-            options=['subvol=root']
-        )
+        self.root_mount.mount.assert_called_once_with(options=['subvol=root'])
         self.boot_mount.mount.assert_called_once_with()
         mock_command.assert_called_once_with(
             [
-                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
-                '--no-nvram', '--directory', '/usr/lib/grub2/s390x-emu',
-                '--boot-directory', '/boot',
-                '--target', 's390x-emu',
-                '--modules', ' '.join(
-                    Defaults.get_grub_s390_modules()
-                ),
-                '/dev/some-device'
+                'chroot',
+                'tmp_root',
+                'grub2-install',
+                '--skip-fs-probe',
+                '--no-nvram',
+                '--directory',
+                '/usr/lib/grub2/s390x-emu',
+                '--boot-directory',
+                '/boot',
+                '--target',
+                's390x-emu',
+                '--modules',
+                ' '.join(Defaults.get_grub_s390_modules()),
+                '/dev/some-device',
             ]
         )
         setup.setup_selinux_file_contexts.assert_called_once_with()
@@ -363,14 +381,20 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install(
-        self, mock_SystemSetup, mock_grub_path, mock_mount_manager,
-        mock_command, mock_which, mock_wipe
+        self,
+        mock_SystemSetup,
+        mock_grub_path,
+        mock_mount_manager,
+        mock_command,
+        mock_which,
+        mock_wipe,
     ):
         setup = Mock()
         mock_SystemSetup.return_value = setup
         mock_which.return_value = None
-        mock_grub_path.return_value = \
+        mock_grub_path.return_value = (
             self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
+        )
         self.boot_mount.device = self.root_mount.device
 
         def side_effect(device, mountpoint=None):
@@ -380,24 +404,27 @@ class TestBootLoaderInstallGrub2:
         self.bootloader.target_removable = True
 
         self.bootloader.install()
-        self.root_mount.mount.assert_called_once_with(
-            options=['subvol=root']
-        )
+        self.root_mount.mount.assert_called_once_with(options=['subvol=root'])
         self.partition_mount.mount.assert_called_once_with()
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
         mock_command.assert_called_once_with(
             [
-                'chroot', 'tmp_root', 'grub2-install',
-                '--removable', '--skip-fs-probe',
-                '--directory', '/usr/lib/grub2/i386-pc',
-                '--boot-directory', '/boot',
-                '--target', 'i386-pc',
-                '--modules', ' '.join(
-                    Defaults.get_grub_platform_modules(multiboot=True)
-                ),
-                '/dev/some-device'
+                'chroot',
+                'tmp_root',
+                'grub2-install',
+                '--removable',
+                '--skip-fs-probe',
+                '--directory',
+                '/usr/lib/grub2/i386-pc',
+                '--boot-directory',
+                '/boot',
+                '--target',
+                'i386-pc',
+                '--modules',
+                ' '.join(Defaults.get_grub_platform_modules(multiboot=True)),
+                '/dev/some-device',
             ]
         )
         setup.setup_selinux_file_contexts.assert_called_once_with()
@@ -409,16 +436,23 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_readonly_root(
-        self, mock_SystemSetup, mock_grub_path, mock_mount_manager,
-        mock_command, mock_which, mock_wipe
+        self,
+        mock_SystemSetup,
+        mock_grub_path,
+        mock_mount_manager,
+        mock_command,
+        mock_which,
+        mock_wipe,
     ):
         mock_which.return_value = None
-        mock_grub_path.return_value = \
+        mock_grub_path.return_value = (
             self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
+        )
         self.boot_mount.device = self.root_mount.device
         readonly_device = Mock()
-        readonly_device.get_device.return_value = \
-            self.custom_args['root_device']
+        readonly_device.get_device.return_value = self.custom_args[
+            'root_device'
+        ]
         self.bootloader.device_map = {'readonly': readonly_device}
 
         def side_effect(device, mountpoint=None):
@@ -437,8 +471,12 @@ class TestBootLoaderInstallGrub2:
     @patch('os.access')
     @patch('shutil.copy2')
     def test_secure_boot_install(
-        self, mock_shutil_copy2, mock_access, mock_exists,
-        mock_mount_manager, mock_command
+        self,
+        mock_shutil_copy2,
+        mock_access,
+        mock_exists,
+        mock_mount_manager,
+        mock_command,
     ):
         mock_access.return_value = True
         mock_exists.return_value = True
@@ -455,28 +493,32 @@ class TestBootLoaderInstallGrub2:
         assert mock_shutil_copy2.call_args_list == [
             call(
                 'tmp_root/usr/sbin/grub2-install',
-                'tmp_root/usr/sbin/grub2-install.orig'
+                'tmp_root/usr/sbin/grub2-install.orig',
             ),
-            call(
-                'tmp_root/bin/true',
-                'tmp_root/usr/sbin/grub2-install'
-            )
+            call('tmp_root/bin/true', 'tmp_root/usr/sbin/grub2-install'),
         ]
 
         assert mock_command.call_args_list == [
-            call([
-                'chroot', 'tmp_root', 'shim-install', '--removable',
-                '/dev/some-device'
-            ]),
-            call([
-                'chroot', 'tmp_root',
-                'mv', '/usr/sbin/grub2-install.orig',
-                '/usr/sbin/grub2-install'
-            ])
+            call(
+                [
+                    'chroot',
+                    'tmp_root',
+                    'shim-install',
+                    '--removable',
+                    '/dev/some-device',
+                ]
+            ),
+            call(
+                [
+                    'chroot',
+                    'tmp_root',
+                    'mv',
+                    '/usr/sbin/grub2-install.orig',
+                    '/usr/sbin/grub2-install',
+                ]
+            ),
         ]
-        self.root_mount.mount.assert_called_once_with(
-            options=['subvol=root']
-        )
+        self.root_mount.mount.assert_called_once_with(options=['subvol=root'])
         self.partition_mount.mount.assert_called_once_with()
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
@@ -500,9 +542,7 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.secure_boot_install()
-        self.root_mount.mount.assert_called_once_with(
-            options=['subvol=root']
-        )
+        self.root_mount.mount.assert_called_once_with(options=['subvol=root'])
         self.partition_mount.mount.assert_called_once_with()
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']

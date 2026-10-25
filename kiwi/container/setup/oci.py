@@ -24,6 +24,7 @@ class ContainerSetupOCI(ContainerSetupBase):
     """
     Oci container setup
     """
+
     def post_init(self, custom_args):
         """
         Post initialization method
@@ -45,7 +46,7 @@ class ContainerSetupOCI(ContainerSetupBase):
             'kbd.service',
             'swap.service',
             'udev.service',
-            'proc-sys-fs-binfmt_misc.automount'
+            'proc-sys-fs-binfmt_misc.automount',
         ]
 
         self.deactivate_bootloader_setup()

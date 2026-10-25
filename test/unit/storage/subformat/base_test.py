@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.defaults import Defaults
@@ -8,10 +6,7 @@ from kiwi.storage.subformat.base import DiskFormatBase
 
 import kiwi
 
-from kiwi.exceptions import (
-    KiwiFormatSetupError,
-    KiwiResizeRawDiskError
-)
+from kiwi.exceptions import KiwiFormatSetupError, KiwiResizeRawDiskError
 
 
 class TestDiskFormatBase:
@@ -19,17 +14,11 @@ class TestDiskFormatBase:
     def setup(self, mock_post_init):
         Defaults.set_platform_name('x86_64')
         xml_data = Mock()
-        xml_data.get_name = Mock(
-            return_value='some-disk-image'
-        )
+        xml_data.get_name = Mock(return_value='some-disk-image')
         self.xml_state = Mock()
         self.xml_state.xml_data = xml_data
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
-        self.xml_state.get_luks_credentials = Mock(
-            return_value=None
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
+        self.xml_state.get_luks_credentials = Mock(return_value=None)
         self.runtime_config = Mock()
         self.runtime_config.get_bundle_compression.return_value = True
         kiwi.storage.subformat.base.RuntimeConfig = Mock(
@@ -62,17 +51,19 @@ class TestDiskFormatBase:
         self.disk_format.post_init({})
 
     def test_get_qemu_option_list(self):
-        custom_args = {
-            'subformat=format': None,
-            'adapter_type=type': None
-        }
+        custom_args = {'subformat=format': None, 'adapter_type=type': None}
         assert self.disk_format.get_qemu_option_list(custom_args) == [
-            '-o', 'adapter_type=type', '-o', 'subformat=format'
+            '-o',
+            'adapter_type=type',
+            '-o',
+            'subformat=format',
         ]
 
     def test_get_target_file_path_for_format(self):
-        assert self.disk_format.get_target_file_path_for_format('vhd') == \
-            'target_dir/some-disk-image.x86_64-1.2.3.vhd'
+        assert (
+            self.disk_format.get_target_file_path_for_format('vhd')
+            == 'target_dir/some-disk-image.x86_64-1.2.3.vhd'
+        )
 
     def test_store_to_result_default(self):
         result = Mock()
@@ -83,7 +74,7 @@ class TestDiskFormatBase:
             filename='target_dir/some-disk-image.x86_64-1.2.3.qcow2',
             key='disk_format_image',
             shasum=True,
-            use_for_bundle=True
+            use_for_bundle=True,
         )
 
     def test_store_to_result_with_luks(self):
@@ -96,7 +87,7 @@ class TestDiskFormatBase:
             filename='target_dir/some-disk-image.x86_64-1.2.3.qcow2',
             key='disk_format_image',
             shasum=True,
-            use_for_bundle=True
+            use_for_bundle=True,
         )
         self.xml_state.get_luks_credentials = Mock(return_value=None)
 
@@ -113,8 +104,10 @@ class TestDiskFormatBase:
         assert self.disk_format.resize_raw_disk(1024) is True
         mock_command.assert_called_once_with(
             [
-                'qemu-img', 'resize',
-                'target_dir/some-disk-image.x86_64-1.2.3.raw', '1024'
+                'qemu-img',
+                'resize',
+                'target_dir/some-disk-image.x86_64-1.2.3.raw',
+                '1024',
             ]
         )
 
@@ -125,8 +118,10 @@ class TestDiskFormatBase:
         assert self.disk_format.resize_raw_disk(1024, append=True) is True
         mock_command.assert_called_once_with(
             [
-                'qemu-img', 'resize',
-                'target_dir/some-disk-image.x86_64-1.2.3.raw', '+1024'
+                'qemu-img',
+                'resize',
+                'target_dir/some-disk-image.x86_64-1.2.3.raw',
+                '+1024',
             ]
         )
 

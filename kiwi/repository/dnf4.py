@@ -22,9 +22,7 @@ from typing import List, Dict
 
 # project
 import kiwi.defaults as defaults
-from kiwi.utils.temporary import (
-    Temporary, TmpT
-)
+from kiwi.utils.temporary import Temporary, TmpT
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -95,7 +93,7 @@ class RepositoryDnf4(RepositoryBase):
             'reposd-dir': manager_base + '/repos',
             'cache-dir': manager_base + '/cache',
             'pluginconf-dir': manager_base + '/pluginconf',
-            'vars-dir': manager_base + '/vars'
+            'vars-dir': manager_base + '/vars',
         }
 
         self.runtime_dnf_config_file = Temporary(
@@ -103,7 +101,11 @@ class RepositoryDnf4(RepositoryBase):
         ).unmanaged_file()
 
         self.dnf_args = [
-            '--config', self.runtime_dnf_config_file.name, '-y', '--enableplugin=priorities', '--disableplugin=versionlock'
+            '--config',
+            self.runtime_dnf_config_file.name,
+            '-y',
+            '--enableplugin=priorities',
+            '--disableplugin=versionlock',
         ] + self.custom_args
 
         self.command_env = self._create_dnf_runtime_environment()
@@ -150,15 +152,16 @@ class RepositoryDnf4(RepositoryBase):
         image_rpm_compat_link = '/var/lib/rpm'
         host_rpm_dbpath = rpmdb.rpmdb_host.expand_query('%_dbpath')
         if host_rpm_dbpath != image_rpm_compat_link:
-            Path.create(
-                self.root_dir + os.path.dirname(image_rpm_compat_link)
-            )
+            Path.create(self.root_dir + os.path.dirname(image_rpm_compat_link))
             Command.run(
                 [
-                    'ln', '-s', '--no-target-directory',
+                    'ln',
+                    '-s',
+                    '--no-target-directory',
                     ''.join(['../..', host_rpm_dbpath]),
-                    self.root_dir + image_rpm_compat_link
-                ], raise_on_error=False
+                    self.root_dir + image_rpm_compat_link,
+                ],
+                raise_on_error=False,
             )
 
     def use_default_location(self) -> None:
@@ -166,14 +169,12 @@ class RepositoryDnf4(RepositoryBase):
         Setup dnf repository operations to store all data
         in the default places
         """
-        self.shared_dnf_dir['reposd-dir'] = \
-            self.root_dir + '/etc/yum.repos.d'
-        self.shared_dnf_dir['cache-dir'] = \
-            self.root_dir + '/var/cache/dnf'
-        self.shared_dnf_dir['pluginconf-dir'] = \
+        self.shared_dnf_dir['reposd-dir'] = self.root_dir + '/etc/yum.repos.d'
+        self.shared_dnf_dir['cache-dir'] = self.root_dir + '/var/cache/dnf'
+        self.shared_dnf_dir['pluginconf-dir'] = (
             self.root_dir + '/etc/dnf/plugins'
-        self.shared_dnf_dir['vars-dir'] = \
-            self.root_dir + '/etc/dnf/vars'
+        )
+        self.shared_dnf_dir['vars-dir'] = self.root_dir + '/etc/dnf/vars'
         self._create_runtime_config_parser()
         self._write_runtime_config()
 
@@ -185,18 +186,24 @@ class RepositoryDnf4(RepositoryBase):
 
         :rtype: dict
         """
-        return {
-            'dnf_args': self.dnf_args,
-            'command_env': self.command_env
-        }
+        return {'dnf_args': self.dnf_args, 'command_env': self.command_env}
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str = 'rpm-md',
-        prio: int = None, dist: str = None, components: str = None,
-        user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None,
-        architectures: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str = 'rpm-md',
+        prio: int = None,
+        dist: str = None,
+        components: str = None,
+        user: str = None,
+        secret: str = None,
+        credentials_file: str = None,
+        repo_gpgcheck: bool = False,
+        pkg_gpgcheck: bool = False,
+        sourcetype: str = None,
+        customization_script: str = None,
+        architectures: str = None,
     ) -> None:
         """
         Add dnf repository
@@ -225,30 +232,18 @@ class RepositoryDnf4(RepositoryBase):
             uri = 'file://' + uri
         repo_config = ConfigParser(interpolation=None)
         repo_config.add_section(name)
-        repo_config.set(
-            name, 'name', name
-        )
-        repo_config.set(
-            name, sourcetype if sourcetype else 'baseurl', uri
-        )
+        repo_config.set(name, 'name', name)
+        repo_config.set(name, sourcetype if sourcetype else 'baseurl', uri)
         if prio:
-            repo_config.set(
-                name, 'priority', format(prio)
-            )
-        repo_config.set(
-            name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
-        )
-        repo_config.set(
-            name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
-        )
+            repo_config.set(name, 'priority', format(prio))
+        repo_config.set(name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0')
+        repo_config.set(name, 'gpgcheck', '1' if pkg_gpgcheck else '0')
         if Defaults.is_buildservice_worker():
             # when building in the build service, modular metadata is
             # inaccessible. In order to use modular content in the build
             # service, we need to disable modular filtering, which is
             # done with module_hotfixes option
-            repo_config.set(
-                name, 'module_hotfixes', '1'
-            )
+            repo_config.set(name, 'module_hotfixes', '1')
         if not os.path.isdir(self.shared_dnf_dir['reposd-dir']):
             Path.create(self.shared_dnf_dir['reposd-dir'])
         with open(repo_file, 'w') as repo:
@@ -272,9 +267,7 @@ class RepositoryDnf4(RepositoryBase):
 
         :param str name: repository base file name
         """
-        Path.wipe(
-            self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
-        )
+        Path.wipe(self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo')
 
     def delete_all_repos(self) -> None:
         """
@@ -319,9 +312,7 @@ class RepositoryDnf4(RepositoryBase):
         for dnf_dir in list(self.shared_dnf_dir.values()):
             Path.create(dnf_dir)
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
-        return dict(
-            os.environ, **HostProxy().get_env(), LANG='C'
-        )
+        return dict(os.environ, **HostProxy().get_env(), LANG='C')
 
     def _create_runtime_config_parser(self) -> None:
         self.runtime_dnf_config = ConfigParser(interpolation=None)
@@ -344,10 +335,12 @@ class RepositoryDnf4(RepositoryBase):
         if self.exclude_docs:
             self.runtime_dnf_config["main"]["tsflags"] = "nodocs"
         if self.target_arch:
-            self.runtime_dnf_config["main"].update({
-                "arch": self.target_arch,
-                "ignorearch": "1",
-            })
+            self.runtime_dnf_config["main"].update(
+                {
+                    "arch": self.target_arch,
+                    "ignorearch": "1",
+                }
+            )
 
     def _write_runtime_config(self) -> None:
         with open(self.runtime_dnf_config_file.name, 'w') as config:

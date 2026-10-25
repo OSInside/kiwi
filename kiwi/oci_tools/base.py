@@ -36,15 +36,14 @@ class OCIBase:
     tools such that the container support in kiwi covers every
     linux distribution no matter what tooling was preferred
     """
+
     def __init__(self):
         self.oci_root_dir = None
         sde = os.environ.get('SOURCE_DATE_EPOCH')
         if sde:
             self.creation_date = datetime.fromtimestamp(
                 int(sde), tz=timezone.utc
-            ).strftime(
-                '%Y-%m-%dT%H:%M:%S+00:00'
-            )
+            ).strftime('%Y-%m-%dT%H:%M:%S+00:00')
         else:
             self.creation_date = datetime.utcnow().strftime(
                 '%Y-%m-%dT%H:%M:%S+00:00'
@@ -165,9 +164,7 @@ class OCIBase:
         :param string destination: the destination path
         """
         sync = DataSync(origin, destination)
-        sync.sync_data(
-            options=options, exclude=exclude_list
-        )
+        sync.sync_data(options=options, exclude=exclude_list)
 
     @staticmethod
     def _skopeo_provides_tmpdir_option() -> bool:

@@ -17,15 +17,14 @@
 #
 # project
 from kiwi.command import Command
-from kiwi.exceptions import (
-    KiwiDeviceProviderError
-)
+from kiwi.exceptions import KiwiDeviceProviderError
 
 
 class DeviceProvider:
     """
     **Base class for any class providing storage devices**
     """
+
     def get_device(self):
         """
         Representation of device nodes
@@ -33,9 +32,7 @@ class DeviceProvider:
         Could provide one ore more devices representing the storage
         Implementation in specialized device provider class
         """
-        raise KiwiDeviceProviderError(
-            'No storage device(s) provided'
-        )
+        raise KiwiDeviceProviderError('No storage device(s) provided')
 
     def get_uuid(self, device: str) -> str:
         """
@@ -47,9 +44,7 @@ class DeviceProvider:
 
         :rtype: str
         """
-        uuid_call = Command.run(
-            ['blkid', device, '-s', 'UUID', '-o', 'value']
-        )
+        uuid_call = Command.run(['blkid', device, '-s', 'UUID', '-o', 'value'])
         return uuid_call.output.rstrip('\n')
 
     def get_byte_size(self, device: str) -> int:
@@ -62,9 +57,7 @@ class DeviceProvider:
 
         :rtype: int
         """
-        blockdev_call = Command.run(
-            ['blockdev', '--getsize64', device]
-        )
+        blockdev_call = Command.run(['blockdev', '--getsize64', device])
         return int(blockdev_call.output.rstrip('\n'))
 
     def is_loop(self) -> bool:

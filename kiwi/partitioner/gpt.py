@@ -16,17 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import (
-    List, Optional
-)
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
 from kiwi.partitioner.base import PartitionerBase
 
-from kiwi.exceptions import (
-    KiwiPartitionerGptFlagError
-)
+from kiwi.exceptions import KiwiPartitionerGptFlagError
 
 log = logging.getLogger('kiwi')
 
@@ -35,6 +31,7 @@ class PartitionerGpt(PartitionerBase):
     """
     **Implements GPT partition setup**
     """
+
     def post_init(self) -> None:
         """
         Post initialization method
@@ -49,13 +46,17 @@ class PartitionerGpt(PartitionerBase):
             't.lvm': '8E00',
             't.raid': 'FD00',
             't.efi': 'EF00',
-            't.prep': '4100'
+            't.prep': '4100',
         }
         self.partition_map: dict[int, int] = {}
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = None,
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        mbsize: int,
+        type_name: str,
+        flags: List[str] = None,
+        partition_id: Optional[int] = None,
     ) -> None:
         """
         Create GPT partition
@@ -68,8 +69,9 @@ class PartitionerGpt(PartitionerBase):
             If provided, use this exact partition ID
             instead of auto-incrementing
         """
-        self.partition_id = \
+        self.partition_id = (
             partition_id if partition_id else self.partition_id + 1
+        )
         self.partition_count += 1
         self.partition_map[self.partition_count] = self.partition_id
         if mbsize == 'all_free':
@@ -82,14 +84,19 @@ class PartitionerGpt(PartitionerBase):
             self.start_sector = 0
         Command.run(
             [
-                'sgdisk', '--align-end', '-n', ':'.join(
+                'sgdisk',
+                '--align-end',
+                '-n',
+                ':'.join(
                     [
                         format(self.partition_id),
                         format(self.start_sector),
-                        partition_end
+                        partition_end,
                     ]
-                ), '-c', ':'.join([format(self.partition_id), name]),
-                self.disk_device
+                ),
+                '-c',
+                ':'.join([format(self.partition_id), name]),
+                self.disk_device,
             ]
         )
         self.set_flag(self.partition_id, type_name)
@@ -111,14 +118,12 @@ class PartitionerGpt(PartitionerBase):
         if self.flag_map[flag_name]:
             Command.run(
                 [
-                    'sgdisk', '-t',
+                    'sgdisk',
+                    '-t',
                     ':'.join(
-                        [
-                            format(partition_id),
-                            format(self.flag_map[flag_name])
-                        ]
+                        [format(partition_id), format(self.flag_map[flag_name])]
                     ),
-                    self.disk_device
+                    self.disk_device,
                 ]
             )
         else:
@@ -132,11 +137,7 @@ class PartitionerGpt(PartitionerBase):
         :param string uuid: UUID
         """
         Command.run(
-            [
-                'sgdisk',
-                '--typecode', f'{partition_id}:{uuid}',
-                self.disk_device
-            ]
+            ['sgdisk', '--typecode', f'{partition_id}:{uuid}', self.disk_device]
         )
 
     def set_hybrid_mbr(self) -> None:
@@ -150,19 +151,17 @@ class PartitionerGpt(PartitionerBase):
             # for details see man sgdisk
             log.debug(
                 'maximum number of GPT hybrid MBR partitions is 3, got %d',
-                partition_number_to_embed
+                partition_number_to_embed,
             )
             partition_number_to_embed = 3
             log.debug(
                 'reduced GPT hybrid MBR partition count to %d',
-                partition_number_to_embed
+                partition_number_to_embed,
             )
         for number in range(1, partition_number_to_embed + 1):
             if self.partition_map.get(number):
                 partition_ids.append(format(self.partition_map[number]))
-        Command.run(
-            ['sgdisk', '-h', ':'.join(partition_ids), self.disk_device]
-        )
+        Command.run(['sgdisk', '-h', ':'.join(partition_ids), self.disk_device])
 
     def set_mbr(self) -> None:
         """
@@ -174,8 +173,9 @@ class PartitionerGpt(PartitionerBase):
             if self.partition_map.get(number):
                 partition_info = Command.run(
                     [
-                        'sgdisk', '-i={0}'.format(self.partition_map[number]),
-                        self.disk_device
+                        'sgdisk',
+                        '-i={0}'.format(self.partition_map[number]),
+                        self.disk_device,
                     ]
                 )
                 if '(EFI System)' in partition_info.output:
@@ -184,9 +184,7 @@ class PartitionerGpt(PartitionerBase):
         if efi_partition_number:
             # turn former EFI partition into standard linux partition
             self.set_flag(efi_partition_number, 't.linux')
-        Command.run(
-            ['sgdisk', '-m', ':'.join(partition_ids), self.disk_device]
-        )
+        Command.run(['sgdisk', '-m', ':'.join(partition_ids), self.disk_device])
 
     def resize_table(self, entries: int = 128) -> None:
         """
@@ -196,7 +194,9 @@ class PartitionerGpt(PartitionerBase):
         """
         Command.run(
             [
-                'sgdisk', '--resize-table', '{0}'.format(entries),
-                self.disk_device
+                'sgdisk',
+                '--resize-table',
+                '{0}'.format(entries),
+                self.disk_device,
             ]
         )

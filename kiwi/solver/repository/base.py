@@ -42,6 +42,7 @@ class SolverRepositoryBase:
     :param string user: User name for uri authentication
     :param string secret: Secret token for uri authentication
     """
+
     def __init__(self, uri, user=None, secret=None):
         self.uri = uri
         # check if the URI string contains credentials and
@@ -52,8 +53,9 @@ class SolverRepositoryBase:
         if secret_format:
             self.user = secret_format.group(2)
             self.secret = secret_format.group(3)
-            self.uri.uri = \
+            self.uri.uri = (
                 f'{secret_format.group(1)}://{secret_format.group(4)}'
+            )
         else:
             self.user = user
             self.secret = secret
@@ -75,9 +77,7 @@ class SolverRepositoryBase:
         :rtype: str
         """
         Path.create(target_dir)
-        solvable = os.sep.join(
-            [target_dir, self.uri.alias()]
-        )
+        solvable = os.sep.join([target_dir, self.uri.alias()])
         if not self.is_uptodate(target_dir):
             self._setup_repository_metadata()
             solvable = self._merge_solvables(target_dir)
@@ -134,24 +134,17 @@ class SolverRepositoryBase:
         download_link = None
         try:
             download_link = os.sep.join(
-                [
-                    self._get_mime_typed_uri(),
-                    repo_source
-                ]
+                [self._get_mime_typed_uri(), repo_source]
             )
             request = Request(download_link)
             if self.user and self.secret:
                 credentials = b64encode(
                     format(':'.join([self.user, self.secret])).encode()
                 )
-                request.add_header(
-                    'Authorization', b'Basic ' + credentials
-                )
+                request.add_header('Authorization', b'Basic ' + credentials)
             location = urlopen(request)
         except Exception as e:
-            raise KiwiUriOpenError(
-                f'{type(e).__name__}: {e} {download_link}'
-            )
+            raise KiwiUriOpenError(f'{type(e).__name__}: {e} {download_link}')
         with open(target, 'wb') as target_file:
             target_file.write(location.read())
 
@@ -251,11 +244,9 @@ class SolverRepositoryBase:
         """
         namespace_map = dict(
             repo='http://linux.duke.edu/metadata/repo',
-            rpm='http://linux.duke.edu/metadata/rpm'
+            rpm='http://linux.duke.edu/metadata/rpm',
         )
-        return xml_data.getroot().xpath(
-            expression, namespaces=namespace_map
-        )
+        return xml_data.getroot().xpath(expression, namespaces=namespace_map)
 
     def _setup_repository_metadata(self):
         """
@@ -300,8 +291,10 @@ class SolverRepositoryBase:
         if tool == 'rpms2solv':
             # solvable is created from a bunch of rpm files
             bash_command = [
-                tool, os.sep.join([metadata_dir, '*.rpm']),
-                '>', self._get_random_solvable_name()
+                tool,
+                os.sep.join([metadata_dir, '*.rpm']),
+                '>',
+                self._get_random_solvable_name(),
             ]
             Command.run(['bash', '-c', ' '.join(bash_command)])
         else:
@@ -314,9 +307,11 @@ class SolverRepositoryBase:
                 bash_command = ['gzip', '-cd', '--force']
                 if source.endswith('.zst'):
                     bash_command = ['zstd', '-dcf']
-                bash_command += [source, '|', tool] + tool_options + [
-                    '>', self._get_random_solvable_name()
-                ]
+                bash_command += (
+                    [source, '|', tool]
+                    + tool_options
+                    + ['>', self._get_random_solvable_name()]
+                )
                 Command.run(['bash', '-c', ' '.join(bash_command)])
 
     def _merge_solvables(self, target_dir):
@@ -333,7 +328,8 @@ class SolverRepositoryBase:
             bash_command = [
                 'mergesolv',
                 '/'.join([self.repository_solvable_dir.name, '*']),
-                '>', solvable
+                '>',
+                solvable,
             ]
             Command.run(['bash', '-c', ' '.join(bash_command)])
             with open('.'.join([solvable, 'info']), 'w') as solvable_info:
@@ -350,8 +346,10 @@ class SolverRepositoryBase:
 
         :rtype: str
         """
-        return self.uri.translate() if self.uri.is_remote() else ''.join(
-            ['file://', self.uri.translate()]
+        return (
+            self.uri.translate()
+            if self.uri.is_remote()
+            else ''.join(['file://', self.uri.translate()])
         )
 
     def _create_temporary_metadata_dir(self):
@@ -370,7 +368,10 @@ class SolverRepositoryBase:
         if self.repository_solvable_dir:
             return '{0}/solvable-{1}{2}{3}{4}'.format(
                 self.repository_solvable_dir.name,
-                self._rand(), self._rand(), self._rand(), self._rand()
+                self._rand(),
+                self._rand(),
+                self._rand(),
+                self._rand(),
             )
 
     def _rand(self):

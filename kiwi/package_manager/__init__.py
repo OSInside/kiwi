@@ -17,10 +17,7 @@
 #
 import importlib
 from typing import List
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 import logging
 
 # project
@@ -43,14 +40,17 @@ class PackageManager(metaclass=ABCMeta):
 
     :rtype: PackageManagerBase subclass
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        repository: object, package_manager_name: str,
-        custom_args: List = [], release_version: str = ''
+        repository: object,
+        package_manager_name: str,
+        custom_args: List = [],
+        release_version: str = '',
     ):
         name_map = {
             'zypper': ['zypper', 'Zypper'],
@@ -60,10 +60,10 @@ class PackageManager(metaclass=ABCMeta):
             'microdnf': ['microdnf', 'MicroDnf'],
             'pacman': ['pacman', 'Pacman'],
             'apt': ['apt', 'Apt'],
-            'apk': ['apk', 'Apk']
+            'apk': ['apk', 'Apk'],
         }
         try:
-            (module_namespace, module_name) = name_map[package_manager_name]
+            module_namespace, module_name = name_map[package_manager_name]
             package_manager = importlib.import_module(
                 'kiwi.package_manager.{0}'.format(module_namespace)
             )

@@ -17,9 +17,7 @@
 #
 import os
 import logging
-from typing import (
-    List, Dict, Optional, Union
-)
+from typing import List, Dict, Optional, Union
 
 # project
 from kiwi.defaults import Defaults
@@ -35,10 +33,15 @@ class ImageSystem:
     """
     **Access the target image from the block layer**
     """
+
     def __init__(
-        self, device_map: Dict, root_dir: str,
-        volume_manager: Optional[Union[FileSystemBase, VolumeManagerBase]] = None,
-        partitions: Dict[str, ptable_entry_type] = {}
+        self,
+        device_map: Dict,
+        root_dir: str,
+        volume_manager: Optional[
+            Union[FileSystemBase, VolumeManagerBase]
+        ] = None,
+        partitions: Dict[str, ptable_entry_type] = {},
     ) -> None:
         """
         Construct a new ImageSystem object
@@ -74,11 +77,12 @@ class ImageSystem:
         Mount image system from current block layers
         """
         # mount root boot and efi devices as they are present
-        (root_device, boot_device, efi_device) = self._setup_device_names()
+        root_device, boot_device, efi_device = self._setup_device_names()
         if self.volume_manager:
             self.volume_manager.mount_volumes()
-            self.root_mount_mountpoint = \
+            self.root_mount_mountpoint = (
                 self.volume_manager.get_mountpoint() or ''
+            )
         else:
             root_mount = MountManager(device=root_device)
             self.mount_list.append(root_mount)
@@ -91,21 +95,22 @@ class ImageSystem:
 
         if 's390' in self.arch:
             boot_mount = MountManager(
-                device=boot_device, mountpoint=os.path.join(
+                device=boot_device,
+                mountpoint=os.path.join(
                     self.root_mount_mountpoint, 'boot', 'zipl'
-                )
+                ),
             )
         else:
             boot_mount = MountManager(
-                device=boot_device, mountpoint=os.path.join(
-                    self.root_mount_mountpoint, 'boot'
-                )
+                device=boot_device,
+                mountpoint=os.path.join(self.root_mount_mountpoint, 'boot'),
             )
         if efi_device:
             efi_mount = MountManager(
-                device=efi_device, mountpoint=os.path.join(
+                device=efi_device,
+                mountpoint=os.path.join(
                     self.root_mount_mountpoint, 'boot', 'efi'
-                )
+                ),
             )
         if root_device != boot_device:
             self.mount_list.append(boot_mount)
@@ -122,8 +127,8 @@ class ImageSystem:
                         device=self.device_map[map_name].get_device(),
                         mountpoint=os.path.join(
                             self.root_mount_mountpoint,
-                            self.partitions[map_name].mountpoint.lstrip(os.sep)
-                        )
+                            self.partitions[map_name].mountpoint.lstrip(os.sep),
+                        ),
                     )
                     self.mount_list.append(partition_mount)
                     partition_mount.mount()
@@ -131,27 +136,23 @@ class ImageSystem:
         # bind mount /image from unpacked root to get access to e.g scripts
         image_mount = MountManager(
             device=os.path.join(self.root_dir, 'image'),
-            mountpoint=os.path.join(
-                self.root_mount_mountpoint, 'image'
-            )
+            mountpoint=os.path.join(self.root_mount_mountpoint, 'image'),
         )
         self.mount_list.append(image_mount)
         image_mount.bind_mount()
 
         # mount tmp as tmpfs
         tmp_mount = MountManager(
-            device='tmpfs', mountpoint=os.path.join(
-                self.root_mount_mountpoint, 'tmp'
-            )
+            device='tmpfs',
+            mountpoint=os.path.join(self.root_mount_mountpoint, 'tmp'),
         )
         self.mount_list.append(tmp_mount)
         tmp_mount.tmpfs_mount()
 
         # mount var/tmp as tmpfs
         var_tmp_mount = MountManager(
-            device='tmpfs', mountpoint=os.path.join(
-                self.root_mount_mountpoint, 'var', 'tmp'
-            )
+            device='tmpfs',
+            mountpoint=os.path.join(self.root_mount_mountpoint, 'var', 'tmp'),
         )
         self.mount_list.append(var_tmp_mount)
         var_tmp_mount.tmpfs_mount()
@@ -159,9 +160,8 @@ class ImageSystem:
         # mount kernel interfaces as bind
         for location in ('proc', 'sys', 'dev'):
             shared_mount = MountManager(
-                device=os.path.join('/', location), mountpoint=os.path.join(
-                    self.root_mount_mountpoint, location
-                )
+                device=os.path.join('/', location),
+                mountpoint=os.path.join(self.root_mount_mountpoint, location),
             )
             self.mount_list.append(shared_mount)
             shared_mount.bind_mount()

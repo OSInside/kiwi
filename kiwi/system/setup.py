@@ -24,18 +24,14 @@ from contextlib import ExitStack
 from collections import OrderedDict
 from collections import namedtuple
 from textwrap import dedent
-from typing import (
-    Any, List, Optional, Dict
-)
+from typing import Any, List, Optional, Dict
 
 # project
 import kiwi.defaults as defaults
 
 from kiwi.xml_parse import repository
 from kiwi.utils.fstab import Fstab
-from kiwi.xml_state import (
-    XMLState, FileT
-)
+from kiwi.xml_state import XMLState, FileT
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.mount_manager import MountManager
 from kiwi.system.uri import Uri
@@ -60,7 +56,7 @@ from kiwi.exceptions import (
     KiwiCommandError,
     KiwiImportDescriptionError,
     KiwiScriptFailed,
-    KiwiFileNotFound
+    KiwiFileNotFound,
 )
 
 log: Any = logging.getLogger('kiwi')
@@ -83,10 +79,10 @@ class SystemSetup:
         self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state
-        self.description_dir = \
-            xml_state.xml_data.description_dir
-        self.derived_description_dir = \
+        self.description_dir = xml_state.xml_data.description_dir
+        self.derived_description_dir = (
             xml_state.xml_data.derived_description_dir
+        )
         self.root_dir = root_dir
         self._preferences_lookup()
         self._oemconfig_lookup()
@@ -117,8 +113,9 @@ class SystemSetup:
             log.info('--> Setup kiwi_containers.service import unit')
             service = BuilderTemplateSystemdUnit()
             unit_template = service.get_container_import_template(
-                container_files_to_load, container_execs_to_load,
-                list(after_services)
+                container_files_to_load,
+                container_execs_to_load,
+                list(after_services),
             )
             unit = unit_template.substitute()
             unit_file = '{0}/etc/systemd/system/{1}.service'.format(
@@ -128,8 +125,11 @@ class SystemSetup:
                 systemd.write(unit)
             Command.run(
                 [
-                    'chroot', self.root_dir,
-                    'systemctl', 'enable', 'kiwi_containers'
+                    'chroot',
+                    self.root_dir,
+                    'systemctl',
+                    'enable',
+                    'kiwi_containers',
                 ]
             )
 
@@ -145,9 +145,7 @@ class SystemSetup:
         log.info(
             '--> Importing state XML description to {0}'.format(description)
         )
-        Path.create(
-            os.path.join(self.root_dir, defaults.IMAGE_METADATA_DIR)
-        )
+        Path.create(os.path.join(self.root_dir, defaults.IMAGE_METADATA_DIR))
         with open(description, 'w', encoding='utf-8') as config:
             config.write('<?xml version="1.0" encoding="utf-8"?>')
             self.xml_state.xml_data.export(outfile=config, level=0)
@@ -172,18 +170,18 @@ class SystemSetup:
         """
         Command.run(
             [
-                'chroot', self.root_dir,
-                'rm', '-f',
+                'chroot',
+                self.root_dir,
+                'rm',
+                '-f',
                 '.kconfig',
                 '.profile',
-                'config.bootoptions'
+                'config.bootoptions',
             ]
         )
         meta_dir = f'{self.root_dir}/{defaults.IMAGE_METADATA_DIR}'
         if os.path.isdir(meta_dir):
-            image_meta = MountManager(
-                device='none', mountpoint=meta_dir
-            )
+            image_meta = MountManager(device='none', mountpoint=meta_dir)
             image_meta.umount()
             Path.wipe(meta_dir)
 
@@ -193,11 +191,10 @@ class SystemSetup:
         imageinclude attribute should be permanently added to
         the image repository configuration
         """
-        repository_sections = \
+        repository_sections = (
             self.xml_state.get_repository_sections_used_in_image()
-        root = RootInit(
-            root_dir=self.root_dir, allow_existing=True
         )
+        root = RootInit(root_dir=self.root_dir, allow_existing=True)
         with Repository.new(
             RootBind(root), self.xml_state.get_package_manager()
         ) as repo:
@@ -236,19 +233,28 @@ class SystemSetup:
                     )
                 )
                 log.info('--> Alias: {0}'.format(repo_alias))
-                repo_signing_keys = \
-                    self.xml_state.get_repository_signing_keys(xml_repo)
+                repo_signing_keys = self.xml_state.get_repository_signing_keys(
+                    xml_repo
+                )
                 if repo_signing_keys:
                     repo.import_repository_signing_keys(
                         repo_alias, repo_signing_keys
                     )
                 repo.add_repo(
-                    repo_alias, repo_source_translated,
-                    repo_type, repo_priority, repo_dist, repo_components,
-                    repo_user, repo_secret, uri.credentials_file_name(),
-                    repo_repository_gpgcheck, repo_package_gpgcheck,
-                    repo_sourcetype, repo_customization_script,
-                    repo_architectures
+                    repo_alias,
+                    repo_source_translated,
+                    repo_type,
+                    repo_priority,
+                    repo_dist,
+                    repo_components,
+                    repo_user,
+                    repo_secret,
+                    uri.credentials_file_name(),
+                    repo_repository_gpgcheck,
+                    repo_package_gpgcheck,
+                    repo_sourcetype,
+                    repo_customization_script,
+                    repo_architectures,
                 )
 
     def import_cdroot_files(self, target_dir: str) -> None:
@@ -306,7 +312,8 @@ class SystemSetup:
         if os.path.exists(overlay_directory):
             self._sync_overlay_files(
                 f'{os.path.normpath(overlay_directory)}/',
-                follow_links, preserve_owner_group
+                follow_links,
+                preserve_owner_group,
             )
         elif os.path.exists(overlay_archive):
             log.info('Extracting user defined files from archive to image tree')
@@ -314,13 +321,15 @@ class SystemSetup:
             archive.extract(self.root_dir)
 
         for profile in self.xml_state.profiles:
-            overlay_directory = os.path.join(
-                self.description_dir, profile
-            ) + os.sep
+            overlay_directory = (
+                os.path.join(self.description_dir, profile) + os.sep
+            )
             if os.path.exists(overlay_directory):
                 self._sync_overlay_files(
-                    overlay_directory, follow_links, preserve_owner_group,
-                    profile
+                    overlay_directory,
+                    follow_links,
+                    preserve_owner_group,
+                    profile,
                 )
 
     def setup_machine_id(self) -> None:
@@ -343,9 +352,7 @@ class SystemSetup:
         previous behaviour and what existing images expect. If the image
         has one of the other states, keep it as-is.
         """
-        machine_id = os.path.join(
-            self.root_dir, 'etc', 'machine-id'
-        )
+        machine_id = os.path.join(self.root_dir, 'etc', 'machine-id')
 
         if os.path.exists(machine_id):
             with open(machine_id, 'r+') as f:
@@ -390,14 +397,21 @@ class SystemSetup:
                 'Setting up keytable: {0}'.format(self.preferences['keytable'])
             )
             if CommandCapabilities.has_option_in_help(
-                'systemd-firstboot', '--keymap',
-                root=self.root_dir, raise_on_error=False
+                'systemd-firstboot',
+                '--keymap',
+                root=self.root_dir,
+                raise_on_error=False,
             ):
                 Path.wipe(self.root_dir + '/etc/vconsole.conf')
-                res = Command.run([
-                    'chroot', self.root_dir, 'systemd-firstboot',
-                    '--keymap=' + self.preferences['keytable'],
-                ], raise_on_error=False)
+                res = Command.run(
+                    [
+                        'chroot',
+                        self.root_dir,
+                        'systemd-firstboot',
+                        '--keymap=' + self.preferences['keytable'],
+                    ],
+                    raise_on_error=False,
+                )
                 if res.returncode != 0:
                     message = dedent(f'''\n
                         keyboard setup skipped because `systemd-firstboot --keymap` failed (code {res.returncode}):
@@ -416,10 +430,12 @@ class SystemSetup:
                     raise KiwiCommandError(message)
             elif os.path.exists(self.root_dir + '/etc/sysconfig/keyboard'):
                 Shell.run_common_function(
-                    'baseUpdateSysConfig', [
-                        self.root_dir + '/etc/sysconfig/keyboard', 'KEYTABLE',
-                        '"' + self.preferences['keytable'] + '"'
-                    ]
+                    'baseUpdateSysConfig',
+                    [
+                        self.root_dir + '/etc/sysconfig/keyboard',
+                        'KEYTABLE',
+                        '"' + self.preferences['keytable'] + '"',
+                    ],
                 )
             else:
                 log.warning(
@@ -442,14 +458,20 @@ class SystemSetup:
                 'Setting up locale: {0}'.format(self.preferences['locale'])
             )
             if CommandCapabilities.has_option_in_help(
-                'systemd-firstboot', '--locale',
-                root=self.root_dir, raise_on_error=False
+                'systemd-firstboot',
+                '--locale',
+                root=self.root_dir,
+                raise_on_error=False,
             ):
                 Path.wipe(self.root_dir + '/etc/locale.conf')
-                Command.run([
-                    'chroot', self.root_dir, 'systemd-firstboot',
-                    '--locale=' + locale
-                ])
+                Command.run(
+                    [
+                        'chroot',
+                        self.root_dir,
+                        'systemd-firstboot',
+                        '--locale=' + locale,
+                    ]
+                )
 
     def setup_timezone(self) -> None:
         """
@@ -460,20 +482,33 @@ class SystemSetup:
                 'Setting up timezone: {0}'.format(self.preferences['timezone'])
             )
             if CommandCapabilities.has_option_in_help(
-                'systemd-firstboot', '--timezone',
-                root=self.root_dir, raise_on_error=False
+                'systemd-firstboot',
+                '--timezone',
+                root=self.root_dir,
+                raise_on_error=False,
             ):
                 Path.wipe(self.root_dir + '/etc/localtime')
-                Command.run([
-                    'chroot', self.root_dir, 'systemd-firstboot',
-                    '--timezone=' + self.preferences['timezone']
-                ])
+                Command.run(
+                    [
+                        'chroot',
+                        self.root_dir,
+                        'systemd-firstboot',
+                        '--timezone=' + self.preferences['timezone'],
+                    ]
+                )
             else:
                 zoneinfo = '/usr/share/zoneinfo/' + self.preferences['timezone']
-                Command.run([
-                    'chroot', self.root_dir,
-                    'ln', '-s', '-f', zoneinfo, '/etc/localtime'
-                ])
+                Command.run(
+                    [
+                        'chroot',
+                        self.root_dir,
+                        'ln',
+                        '-s',
+                        '-f',
+                        zoneinfo,
+                        '/etc/localtime',
+                    ]
+                )
 
     def setup_groups(self) -> None:
         """
@@ -486,9 +521,7 @@ class SystemSetup:
             for group, group_id in group_dict.items():
                 if not system_users.group_exists(group):
                     log.info('Adding group {0}'.format(group))
-                    options = self._process_user_options(
-                        group_id=group_id
-                    )
+                    options = self._process_user_options(group_id=group_id)
                     system_users.group_add(group, options)
 
     def setup_users(self) -> None:
@@ -520,12 +553,16 @@ class SystemSetup:
                 user_id=user_id,
                 user_realname=user_realname,
                 user_exists=user_exists,
-                home_path=home_path
+                home_path=home_path,
             )
 
-            group_msg = '--> Primary group for user {0}: {1}'.format(
-                user_name, user_groups[0]
-            ) if len(user_groups) else ''
+            group_msg = (
+                '--> Primary group for user {0}: {1}'.format(
+                    user_name, user_groups[0]
+                )
+                if len(user_groups)
+                else ''
+            )
 
             if user_exists:
                 log.info('--> Modifying user: {0}'.format(user_name))
@@ -545,7 +582,7 @@ class SystemSetup:
                     system_users.setup_home_for_user(
                         user_name,
                         user_groups[0] if len(user_groups) else '',
-                        home_path
+                        home_path,
                     )
 
     def setup_plymouth_splash(self) -> None:
@@ -605,35 +642,48 @@ class SystemSetup:
         # was the only pointer I could come up with to differentiate the
         # call options.
         if CommandCapabilities.has_option_in_help(
-            'setfiles', 'setfiles -c policyfile', ['--help'],
-            root=self.root_dir, raise_on_error=False, silent=True
+            'setfiles',
+            'setfiles -c policyfile',
+            ['--help'],
+            root=self.root_dir,
+            raise_on_error=False,
+            silent=True,
         ):
             Command.run(
                 [
-                    'chroot', self.root_dir, 'setfiles',
-                    '-c', self._find_selinux_policy_file(
-                        self.xml_state.build_type.get_selinux_policy() or 'targeted'
-                    ), security_context_file
+                    'chroot',
+                    self.root_dir,
+                    'setfiles',
+                    '-c',
+                    self._find_selinux_policy_file(
+                        self.xml_state.build_type.get_selinux_policy()
+                        or 'targeted'
+                    ),
+                    security_context_file,
                 ]
             )
             Command.run(
-                [
-                    'chroot', self.root_dir, 'setfiles',
-                    '-F', '-p'
-                ] + exclude + [
-                    security_context_file, '/'
-                ]
+                ['chroot', self.root_dir, 'setfiles', '-F', '-p']
+                + exclude
+                + [security_context_file, '/']
             )
         else:
             Command.run(
                 [
-                    'chroot', self.root_dir, 'setfiles',
-                    '-T0', '-F', '-p', '-c', self._find_selinux_policy_file(
-                        self.xml_state.build_type.get_selinux_policy() or 'targeted'
-                    )
-                ] + exclude + [
-                    security_context_file, '/'
+                    'chroot',
+                    self.root_dir,
+                    'setfiles',
+                    '-T0',
+                    '-F',
+                    '-p',
+                    '-c',
+                    self._find_selinux_policy_file(
+                        self.xml_state.build_type.get_selinux_policy()
+                        or 'targeted'
+                    ),
                 ]
+                + exclude
+                + [security_context_file, '/']
             )
 
     def setup_selinux_file_contexts(self) -> None:
@@ -642,7 +692,9 @@ class SystemSetup:
         """
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
         if os.path.exists(self.root_dir + security_context):
-            if Path.which(filename='setfiles', access_mode=os.X_OK, root_dir=self.root_dir):
+            if Path.which(
+                filename='setfiles', access_mode=os.X_OK, root_dir=self.root_dir
+            ):
                 self.set_selinux_file_contexts(security_context)
             else:
                 log.warning(
@@ -659,12 +711,8 @@ class SystemSetup:
         if os.path.exists(modprobe_config):
             log.info('Export modprobe configuration')
             Path.create(target_root_dir + '/etc')
-            data = DataSync(
-                modprobe_config, target_root_dir + '/etc/'
-            )
-            data.sync_data(
-                options=['-a']
-            )
+            data = DataSync(modprobe_config, target_root_dir + '/etc/')
+            data.sync_data(options=['-a'])
 
     def export_flake_pilot_system_file_list(
         self, target_dir: str, file_name: str
@@ -695,11 +743,12 @@ class SystemSetup:
         image_version = self.xml_state.get_image_version() or 'unspecified'
         filename = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + image_version,
-                '.packages'
+                '.packages',
             ]
         )
         packager = Defaults.get_default_packager_tool(
@@ -727,11 +776,12 @@ class SystemSetup:
         if self.runtime_config.get_package_changes():
             filename = ''.join(
                 [
-                    target_dir, '/',
+                    target_dir,
+                    '/',
                     self.xml_state.xml_data.get_name(),
                     '.' + self.arch,
                     '-' + image_version,
-                    '.changes'
+                    '.changes',
                 ]
             )
             packager = Defaults.get_default_packager_tool(
@@ -755,11 +805,12 @@ class SystemSetup:
         image_version = self.xml_state.get_image_version() or 'unspecified'
         filename = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + image_version,
-                '.verified'
+                '.verified',
             ]
         )
         packager = Defaults.get_default_packager_tool(
@@ -778,59 +829,50 @@ class SystemSetup:
         Call disk.sh script chrooted
         """
         self._call_script(
-            defaults.POST_DISK_SYNC_SCRIPT,
-            root_is_mountpoint=True
+            defaults.POST_DISK_SYNC_SCRIPT, root_is_mountpoint=True
         )
 
     def call_pre_disk_script(self) -> None:
         """
         Call pre_disk_sync.sh script chrooted
         """
-        self._call_script(
-            defaults.PRE_DISK_SYNC_SCRIPT
-        )
+        self._call_script(defaults.PRE_DISK_SYNC_SCRIPT)
 
     def call_post_bootstrap_script(self) -> None:
         """
         Call post_bootstrap.sh script chrooted
         """
-        self._call_script(
-            defaults.POST_BOOTSTRAP_SCRIPT
-        )
+        self._call_script(defaults.POST_BOOTSTRAP_SCRIPT)
 
     def call_config_script(self) -> None:
         """
         Call config.sh script chrooted
         """
-        self._call_script(
-            defaults.POST_PREPARE_SCRIPT
-        )
+        self._call_script(defaults.POST_PREPARE_SCRIPT)
 
     def call_config_overlay_script(self) -> None:
         """
         Call config-overlay.sh script chrooted
         """
-        self._call_script(
-            defaults.POST_PREPARE_OVERLAY_SCRIPT
-        )
+        self._call_script(defaults.POST_PREPARE_OVERLAY_SCRIPT)
 
-    def call_config_host_overlay_script(self, working_directory: str = None) -> None:
+    def call_config_host_overlay_script(
+        self, working_directory: str = None
+    ) -> None:
         """
         Call config-host-overlay.sh script _NON_ chrooted
         """
         self._call_script_no_chroot(
             name=defaults.POST_HOST_PREPARE_OVERLAY_SCRIPT,
             option_list=[],
-            working_directory=working_directory
+            working_directory=working_directory,
         )
 
     def call_image_script(self) -> None:
         """
         Call images.sh script chrooted
         """
-        self._call_script(
-            defaults.PRE_CREATE_SCRIPT
-        )
+        self._call_script(defaults.PRE_CREATE_SCRIPT)
 
     def call_edit_boot_config_script(
         self, filesystem: str, boot_part_id: int, working_directory: str = None
@@ -848,12 +890,14 @@ class SystemSetup:
         self._call_script_no_chroot(
             name=defaults.EDIT_BOOT_CONFIG_SCRIPT,
             option_list=[filesystem, format(boot_part_id)],
-            working_directory=working_directory
+            working_directory=working_directory,
         )
 
     def call_edit_boot_install_script(
-        self, diskname: str, boot_device_node: str,
-        working_directory: str = None
+        self,
+        diskname: str,
+        boot_device_node: str,
+        working_directory: str = None,
     ) -> None:
         """
         Call configured editbootinstall script _NON_ chrooted
@@ -868,7 +912,7 @@ class SystemSetup:
         self._call_script_no_chroot(
             name=defaults.EDIT_BOOT_INSTALL_SCRIPT,
             option_list=[diskname, boot_device_node],
-            working_directory=working_directory
+            working_directory=working_directory,
         )
 
     def create_system_files(self) -> None:
@@ -919,15 +963,11 @@ class SystemSetup:
                 Path.wipe(fstab_append_file)
 
         if os.path.exists(fstab_patch_file):
-            Command.run(
-                ['patch', fstab_file, fstab_patch_file]
-            )
+            Command.run(['patch', fstab_file, fstab_patch_file])
             Path.wipe(fstab_patch_file)
 
         if os.path.exists(fstab_script_file):
-            self._call_script(
-                name='etc/fstab.script', path_prefix=''
-            )
+            self._call_script(name='etc/fstab.script', path_prefix='')
             Path.wipe(fstab_script_file)
 
     def create_init_link_from_linuxrc(self) -> None:
@@ -936,9 +976,7 @@ class SystemSetup:
         also expects an init executable to be present. This method creates
         a hard link to the linuxrc file
         """
-        Command.run(
-            ['ln', self.root_dir + '/linuxrc', self.root_dir + '/init']
-        )
+        Command.run(['ln', self.root_dir + '/linuxrc', self.root_dir + '/init'])
 
     def create_recovery_archive(self) -> None:
         """
@@ -948,30 +986,22 @@ class SystemSetup:
         deleted prior to the creation of a new recovery data set
         """
         # cleanup
-        bash_comand = [
-            'rm', '-f', self.root_dir + '/recovery.*'
-        ]
+        bash_comand = ['rm', '-f', self.root_dir + '/recovery.*']
         Command.run(['bash', '-c', ' '.join(bash_comand)])
         if not self.oemconfig['recovery']:
             return
         # recovery.tar
         log.info('Creating recovery tar archive')
         metadata = {
-            'archive_name':
-                self.root_dir + '/recovery.tar',
-            'archive_filecount':
-                self.root_dir + '/recovery.tar.files',
-            'archive_size':
-                self.root_dir + '/recovery.tar.size',
-            'partition_size':
-                self.root_dir + '/recovery.partition.size',
-            'partition_filesystem':
-                self.root_dir + '/recovery.tar.filesystem'
+            'archive_name': self.root_dir + '/recovery.tar',
+            'archive_filecount': self.root_dir + '/recovery.tar.files',
+            'archive_size': self.root_dir + '/recovery.tar.size',
+            'partition_size': self.root_dir + '/recovery.partition.size',
+            'partition_filesystem': self.root_dir + '/recovery.tar.filesystem',
         }
         pathlib.Path(metadata['archive_name']).touch()
         archive = ArchiveTar(
-            filename=metadata['archive_name'],
-            create_from_file_list=False
+            filename=metadata['archive_name'], create_from_file_list=False
         )
         archive.create(
             source_dir=self.root_dir,
@@ -979,8 +1009,8 @@ class SystemSetup:
             options=[
                 '--numeric-owner',
                 '--hard-dereference',
-                '--preserve-permissions'
-            ]
+                '--preserve-permissions',
+            ],
         )
         # recovery.tar.filesystem
         recovery_filesystem = self.xml_state.build_type.get_filesystem()
@@ -990,18 +1020,12 @@ class SystemSetup:
             '--> Recovery partition filesystem: {0}'.format(recovery_filesystem)
         )
         # recovery.tar.files
-        bash_comand = [
-            'tar', '-tf', metadata['archive_name'], '|', 'wc', '-l'
-        ]
-        tar_files_call = Command.run(
-            ['bash', '-c', ' '.join(bash_comand)]
-        )
+        bash_comand = ['tar', '-tf', metadata['archive_name'], '|', 'wc', '-l']
+        tar_files_call = Command.run(['bash', '-c', ' '.join(bash_comand)])
         tar_files_count = int(tar_files_call.output.rstrip('\n'))
         with open(metadata['archive_filecount'], 'w') as files:
             files.write('{0}{1}'.format(tar_files_count, os.linesep))
-        log.info(
-            '--> Recovery file count: {0} files'.format(tar_files_count)
-        )
+        log.info('--> Recovery file count: {0} files'.format(tar_files_count))
         # recovery.tar.size
         recovery_archive_size_bytes = os.path.getsize(metadata['archive_name'])
         with open(metadata['archive_size'], 'w') as size:
@@ -1019,8 +1043,10 @@ class SystemSetup:
         recovery_archive_gz_size_mbytes = int(
             os.path.getsize(metadata['archive_name'] + '.gz') / 1048576
         )
-        recovery_partition_mbytes = recovery_archive_gz_size_mbytes \
+        recovery_partition_mbytes = (
+            recovery_archive_gz_size_mbytes
             + Defaults.get_recovery_spare_mbytes()
+        )
         with open(metadata['partition_size'], 'w') as gzsize:
             gzsize.write('{0}'.format(recovery_partition_mbytes))
         log.info(
@@ -1034,9 +1060,7 @@ class SystemSetup:
         # is preserved in order to be able to check if enough space
         # is available on the disk to create the recovery archive.
         if self.oemconfig['recovery_inplace']:
-            log.info(
-                '--> Inplace recovery requested, deleting archive'
-            )
+            log.info('--> Inplace recovery requested, deleting archive')
             Path.wipe(metadata['archive_name'] + '.gz')
 
     def _process_user_options(
@@ -1049,7 +1073,7 @@ class SystemSetup:
         group_id: str = '',
         user_realname: str = '',
         user_exists: bool = True,
-        home_path: str = ''
+        home_path: str = '',
     ):
         options = []
         if password_format == 'plain':
@@ -1093,9 +1117,7 @@ class SystemSetup:
                     cdroot_archive, archive_file
                 )
             )
-            Command.run(
-                ['cp', cdroot_archive, archive_file + os.sep]
-            )
+            Command.run(['cp', cdroot_archive, archive_file + os.sep])
             break
 
     def _import_custom_files(self):
@@ -1110,9 +1132,9 @@ class SystemSetup:
         if bootstrap_files:
             file_list += bootstrap_files.keys()
 
-        file_target_dir = os.path.join(
-            self.root_dir, defaults.IMAGE_METADATA_DIR
-        ) + os.sep
+        file_target_dir = (
+            os.path.join(self.root_dir, defaults.IMAGE_METADATA_DIR) + os.sep
+        )
 
         for file in file_list:
             file_is_absolute = file.startswith(os.sep)
@@ -1134,9 +1156,7 @@ class SystemSetup:
                         file_file, file_target_dir
                     )
                 )
-                Command.run(
-                    ['cp', file_file, file_target_dir]
-                )
+                Command.run(['cp', file_file, file_target_dir])
             else:
                 raise KiwiImportDescriptionError(
                     f'Specified file {file_file} does not exist'
@@ -1154,9 +1174,9 @@ class SystemSetup:
         if bootstrap_archives:
             archive_list += bootstrap_archives
 
-        archive_target_dir = os.path.join(
-            self.root_dir, defaults.IMAGE_METADATA_DIR
-        ) + os.sep
+        archive_target_dir = (
+            os.path.join(self.root_dir, defaults.IMAGE_METADATA_DIR) + os.sep
+        )
 
         for archive in archive_list:
             archive_is_absolute = archive.startswith(os.sep)
@@ -1178,9 +1198,7 @@ class SystemSetup:
                         archive_file, archive_target_dir
                     )
                 )
-                Command.run(
-                    ['cp', archive_file, archive_target_dir]
-                )
+                Command.run(['cp', archive_file, archive_target_dir])
             else:
                 raise KiwiImportDescriptionError(
                     'Specified archive {0} does not exist'.format(archive_file)
@@ -1203,44 +1221,40 @@ class SystemSetup:
         custom_scripts = {
             defaults.POST_BOOTSTRAP_SCRIPT: script_type(
                 filepath=defaults.POST_BOOTSTRAP_SCRIPT,
-                raise_if_not_exists=False
+                raise_if_not_exists=False,
             ),
             defaults.POST_PREPARE_SCRIPT: script_type(
-                filepath=defaults.POST_PREPARE_SCRIPT,
-                raise_if_not_exists=False
+                filepath=defaults.POST_PREPARE_SCRIPT, raise_if_not_exists=False
             ),
             defaults.POST_PREPARE_OVERLAY_SCRIPT: script_type(
                 filepath=defaults.POST_PREPARE_OVERLAY_SCRIPT,
-                raise_if_not_exists=False
+                raise_if_not_exists=False,
             ),
             defaults.POST_HOST_PREPARE_OVERLAY_SCRIPT: script_type(
                 filepath=defaults.POST_HOST_PREPARE_OVERLAY_SCRIPT,
-                raise_if_not_exists=False
+                raise_if_not_exists=False,
             ),
             defaults.PRE_CREATE_SCRIPT: script_type(
-                filepath=defaults.PRE_CREATE_SCRIPT,
-                raise_if_not_exists=False
+                filepath=defaults.PRE_CREATE_SCRIPT, raise_if_not_exists=False
             ),
             defaults.PRE_DISK_SYNC_SCRIPT: script_type(
                 filepath=defaults.PRE_DISK_SYNC_SCRIPT,
-                raise_if_not_exists=False
+                raise_if_not_exists=False,
             ),
             defaults.POST_DISK_SYNC_SCRIPT: script_type(
                 filepath=defaults.POST_DISK_SYNC_SCRIPT,
-                raise_if_not_exists=False
+                raise_if_not_exists=False,
             ),
             defaults.EDIT_BOOT_CONFIG_SCRIPT: script_type(
                 filepath=self.xml_state.build_type.get_editbootconfig(),
-                raise_if_not_exists=True
+                raise_if_not_exists=True,
             ),
             defaults.EDIT_BOOT_INSTALL_SCRIPT: script_type(
                 filepath=self.xml_state.build_type.get_editbootinstall(),
-                raise_if_not_exists=True
-            )
+                raise_if_not_exists=True,
+            ),
         }
-        sorted_custom_scripts = OrderedDict(
-            sorted(custom_scripts.items())
-        )
+        sorted_custom_scripts = OrderedDict(sorted(custom_scripts.items()))
 
         script_target_dir = os.path.join(
             self.root_dir, defaults.IMAGE_METADATA_DIR
@@ -1256,17 +1270,13 @@ class SystemSetup:
                         self.description_dir, script.filepath
                     )
                 if os.path.exists(script_file):
-                    script_target_file = os.path.join(
-                        script_target_dir, name
-                    )
+                    script_target_file = os.path.join(script_target_dir, name)
                     log.info(
                         '--> Importing {0} script to {1}'.format(
                             script.filepath, script_target_file
                         )
                     )
-                    Command.run(
-                        ['cp', script_file, script_target_file]
-                    )
+                    Command.run(['cp', script_file, script_target_file])
                     need_script_helper_functions = True
                 elif script.raise_if_not_exists:
                     raise KiwiImportDescriptionError(
@@ -1281,7 +1291,7 @@ class SystemSetup:
                 [
                     'cp',
                     Defaults.get_common_functions_file(),
-                    self.root_dir + '/.kconfig'
+                    self.root_dir + '/.kconfig',
                 ]
             )
 
@@ -1290,7 +1300,7 @@ class SystemSetup:
         name: str,
         option_list: List[str] = [],
         path_prefix: str = defaults.IMAGE_METADATA_DIR,
-        root_is_mountpoint: bool = False
+        root_is_mountpoint: bool = False,
     ):
         with ExitStack() as stack:
             script_path = os.path.join(self.root_dir, path_prefix, name)
@@ -1315,9 +1325,7 @@ class SystemSetup:
                     command = ['chroot', self.root_dir]
                 if not Path.access(script_path, os.X_OK):
                     command.append('bash')
-                command.append(
-                    os.path.join(os.sep, path_prefix, name)
-                )
+                command.append(os.path.join(os.sep, path_prefix, name))
                 command.extend(options)
                 profile = Profile(self.xml_state)
                 caller_environment = copy.deepcopy(os.environ)
@@ -1325,7 +1333,7 @@ class SystemSetup:
                 config_script = Command.call(command, caller_environment)
                 process = CommandProcess(
                     command=config_script,
-                    log_topic='Calling ' + name + ' script'
+                    log_topic='Calling ' + name + ' script',
                 )
                 result = process.poll_and_watch()
                 if result.returncode != 0:
@@ -1336,7 +1344,10 @@ class SystemSetup:
                 self.setup_selinux_file_contexts()
 
     def _call_script_no_chroot(
-        self, name: str, option_list: List[str], working_directory: Optional[str]
+        self,
+        name: str,
+        option_list: List[str],
+        working_directory: Optional[str],
     ):
         if not working_directory:
             working_directory = self.root_dir
@@ -1348,20 +1359,31 @@ class SystemSetup:
         caller_environment.update(profile.get_settings())
         if os.path.exists(script_path):
             bash_command = [
-                'cd', working_directory, '&&',
-                'bash', '--norc', script_path, ' '.join(option_list)
+                'cd',
+                working_directory,
+                '&&',
+                'bash',
+                '--norc',
+                script_path,
+                ' '.join(option_list),
             ]
             if log.getLogFlags().get('run-scripts-in-screen'):
                 # Run scripts in a screen session if requested
                 config_script = Command.call(
-                    ['screen', '-t', '-X', 'bash', '-c', ' '.join(bash_command)],
-                    caller_environment
+                    [
+                        'screen',
+                        '-t',
+                        '-X',
+                        'bash',
+                        '-c',
+                        ' '.join(bash_command),
+                    ],
+                    caller_environment,
                 )
             else:
                 # In standard mode run script through bash
                 config_script = Command.call(
-                    ['bash', '-c', ' '.join(bash_command)],
-                    caller_environment
+                    ['bash', '-c', ' '.join(bash_command)], caller_environment
                 )
             process = CommandProcess(
                 command=config_script, log_topic='Calling ' + name + ' script'
@@ -1392,16 +1414,15 @@ class SystemSetup:
                 self.preferences['keytable'] = keytable_section[0]
 
     def _oemconfig_lookup(self):
-        self.oemconfig = {
-            'recovery_inplace': False,
-            'recovery': False
-        }
+        self.oemconfig = {'recovery_inplace': False, 'recovery': False}
         oemconfig = self.xml_state.get_build_type_oemconfig_section()
         if oemconfig:
-            self.oemconfig['recovery'] = \
-                self._text(oemconfig.get_oem_recovery())
-            self.oemconfig['recovery_inplace'] = \
-                self._text(oemconfig.get_oem_inplace_recovery())
+            self.oemconfig['recovery'] = self._text(
+                oemconfig.get_oem_recovery()
+            )
+            self.oemconfig['recovery_inplace'] = self._text(
+                oemconfig.get_oem_inplace_recovery()
+            )
 
     def _text(self, section_content):
         """
@@ -1413,14 +1434,11 @@ class SystemSetup:
 
     def _export_rpm_flake_pilot_system_file_list(self, filename):
         log.info('Export rpm system files script for flake-pilot')
-        dbpath_option = [
-            '--dbpath', self._get_rpm_database_location()
-        ]
+        dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         skip_list = self.xml_state.get_system_files_ignore_packages()
         query_call = Command.run(
-            [
-                'rpm', '--root', self.root_dir, '-qa', '--qf', '%{NAME}\n'
-            ] + dbpath_option
+            ['rpm', '--root', self.root_dir, '-qa', '--qf', '%{NAME}\n']
+            + dbpath_option
         )
         with open(filename, 'w', encoding='utf-8') as systemfiles:
             systemfiles.write('set -e\n')
@@ -1430,19 +1448,28 @@ class SystemSetup:
 
     def _export_rpm_package_list(self, filename):
         log.info('Export rpm packages metadata')
-        dbpath_option = [
-            '--dbpath', self._get_rpm_database_location()
-        ]
+        dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         query_call = Command.run(
             [
-                'rpm', '--root', self.root_dir, '-qa', '--qf',
+                'rpm',
+                '--root',
+                self.root_dir,
+                '-qa',
+                '--qf',
                 '|'.join(
                     [
-                        '%{NAME}', '%{EPOCH}', '%{VERSION}',
-                        '%{RELEASE}', '%{ARCH}', '%{DISTURL}', '%{LICENSE}'
+                        '%{NAME}',
+                        '%{EPOCH}',
+                        '%{VERSION}',
+                        '%{RELEASE}',
+                        '%{ARCH}',
+                        '%{DISTURL}',
+                        '%{LICENSE}',
                     ]
-                ) + '\\n'
-            ] + dbpath_option
+                )
+                + '\\n',
+            ]
+            + dbpath_option
         )
         with open(filename, 'w', encoding='utf-8') as packages:
             packages.write(
@@ -1454,14 +1481,23 @@ class SystemSetup:
         log.info('Export deb packages metadata')
         query_call = Command.run(
             [
-                'dpkg-query', '--admindir',
-                os.sep.join([self.root_dir, 'var/lib/dpkg']), '-W', '-f',
+                'dpkg-query',
+                '--admindir',
+                os.sep.join([self.root_dir, 'var/lib/dpkg']),
+                '-W',
+                '-f',
                 '|'.join(
                     [
-                        '${Package}', 'None', '${Version}',
-                        'None', '${Architecture}', 'None', 'None'
+                        '${Package}',
+                        'None',
+                        '${Version}',
+                        'None',
+                        '${Architecture}',
+                        'None',
+                        'None',
                     ]
-                ) + '\\n'
+                )
+                + '\\n',
             ]
         )
         with open(filename, 'w', encoding='utf-8') as packages:
@@ -1474,39 +1510,45 @@ class SystemSetup:
         log.info('Export pacman packages metadata')
         query_call = Command.run(
             [
-                'pacman', '--query', '--dbpath',
-                os.sep.join([self.root_dir, 'var/lib/pacman'])
+                'pacman',
+                '--query',
+                '--dbpath',
+                os.sep.join([self.root_dir, 'var/lib/pacman']),
             ]
         )
         with open(filename, 'w') as packages:
             for line in query_call.output.splitlines():
                 package, _, version_release = line.partition(' ')
                 version, _, release = version_release.partition('-')
-                packages.writelines([
-                    '{0}|None|{1}|{2}|None|None|None{3}'.format(
-                        package, version, release, os.linesep
-                    )
-                ])
+                packages.writelines(
+                    [
+                        '{0}|None|{1}|{2}|None|None|None{3}'.format(
+                            package, version, release, os.linesep
+                        )
+                    ]
+                )
 
     def _export_rpm_package_changes(self, filename):
         log.info('Export rpm packages changelog metadata')
-        dbpath_option = [
-            '--dbpath', self._get_rpm_database_location()
-        ]
+        dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         query_call = Command.run(
             [
-                'rpm', '--root', self.root_dir,
-                '-qa', '--qf', '%{NAME}|\\n', '--changelog'
-            ] + dbpath_option
+                'rpm',
+                '--root',
+                self.root_dir,
+                '-qa',
+                '--qf',
+                '%{NAME}|\\n',
+                '--changelog',
+            ]
+            + dbpath_option
         )
         with open(filename, 'w', encoding='utf-8') as changelog:
             changelog.write(query_call.output)
 
     def _export_deb_package_changes(self, filename):
         log.info('Export deb packages changelog metadata')
-        package_doc_dir = os.sep.join(
-            [self.root_dir, '/usr/share/doc']
-        )
+        package_doc_dir = os.sep.join([self.root_dir, '/usr/share/doc'])
         with open(filename, 'w', encoding='utf-8') as changelog:
             for package in sorted(os.listdir(package_doc_dir)):
                 changelog_file = os.sep.join(
@@ -1519,18 +1561,16 @@ class SystemSetup:
                     changelog.write(
                         '{0}{1}'.format(
                             Command.run(['zcat', changelog_file]).output,
-                            os.linesep
+                            os.linesep,
                         )
                     )
 
     def _export_rpm_package_verification(self, filename):
         log.info('Export rpm verification metadata')
-        dbpath_option = [
-            '--dbpath', self._get_rpm_database_location()
-        ]
+        dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         query_call = Command.run(
             command=['rpm', '--root', self.root_dir, '-Va'] + dbpath_option,
-            raise_on_error=False
+            raise_on_error=False,
         )
         with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
@@ -1539,10 +1579,14 @@ class SystemSetup:
         log.info('Export deb verification metadata')
         query_call = Command.run(
             command=[
-                'dpkg', '--root', self.root_dir,
-                '-V', '--verify-format', 'rpm'
+                'dpkg',
+                '--root',
+                self.root_dir,
+                '-V',
+                '--verify-format',
+                'rpm',
             ],
-            raise_on_error=False
+            raise_on_error=False,
         )
         with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
@@ -1569,9 +1613,7 @@ class SystemSetup:
             target = file_t.target
             target_owner = file_t.owner
             target_permissions = file_t.permissions
-            file_file = '/'.join(
-                [self.root_dir, 'image', filename]
-            )
+            file_file = '/'.join([self.root_dir, 'image', filename])
             target_name = self.root_dir
             if target:
                 target_name = os.path.normpath(
@@ -1581,29 +1623,34 @@ class SystemSetup:
             if target_owner:
                 Command.run(
                     [
-                        'chroot', self.root_dir,
-                        'chown', target_owner,
-                        file_file.replace(self.root_dir, '')
+                        'chroot',
+                        self.root_dir,
+                        'chown',
+                        target_owner,
+                        file_file.replace(self.root_dir, ''),
                     ]
                 )
             if target_permissions:
                 Command.run(
                     [
-                        'chroot', self.root_dir,
-                        'chmod', target_permissions,
-                        file_file.replace(self.root_dir, '')
+                        'chroot',
+                        self.root_dir,
+                        'chmod',
+                        target_permissions,
+                        file_file.replace(self.root_dir, ''),
                     ]
                 )
             if os.path.dirname(target_name):
                 Path.create(os.path.dirname(target_name))
             data = DataSync(file_file, target_name)
-            data.sync_data(
-                options=Defaults.get_sync_options()
-            )
+            data.sync_data(options=Defaults.get_sync_options())
 
     def _sync_overlay_files(
-        self, overlay_directory, follow_links=False,
-        preserve_owner_group=False, profile=None
+        self,
+        overlay_directory,
+        follow_links=False,
+        preserve_owner_group=False,
+        profile=None,
     ):
         log.info(
             'Copying user defined {0} to image tree'.format(
@@ -1611,7 +1658,14 @@ class SystemSetup:
             )
         )
         sync_options = [
-            '-r', '-p', '-t', '-D', '-H', '-X', '-A', '--one-file-system'
+            '-r',
+            '-p',
+            '-t',
+            '-D',
+            '-H',
+            '-X',
+            '-A',
+            '--one-file-system',
         ]
         if follow_links:
             sync_options.append('--copy-links')
@@ -1620,12 +1674,8 @@ class SystemSetup:
         if preserve_owner_group:
             sync_options.append('-o')
             sync_options.append('-g')
-        data = DataSync(
-            overlay_directory, self.root_dir
-        )
-        data.sync_data(
-            options=sync_options
-        )
+        data = DataSync(overlay_directory, self.root_dir)
+        data.sync_data(options=sync_options)
 
     def _get_repo_customization_script(self, xml_repo: repository) -> str:
         script_path = xml_repo.get_customize()
@@ -1638,10 +1688,12 @@ class SystemSetup:
         for group_match in self.xml_state.get_user_groups(user):
             group_and_id = group_match.split(':')
             group.update(
-                [(
-                    group_and_id[0],
-                    group_and_id[1] if len(group_and_id) > 1 else ''
-                )]
+                [
+                    (
+                        group_and_id[0],
+                        group_and_id[1] if len(group_and_id) > 1 else '',
+                    )
+                ]
             )
         return group
 

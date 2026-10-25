@@ -11,16 +11,18 @@ class TestRootImport:
     def test_docker_import(self, mock_docker_import):
         RootImport.new('root_dir', 'file:///image.tar.xz', 'docker')
         mock_docker_import.assert_called_once_with(
-            'root_dir', 'file:///image.tar.xz',
-            {'archive_transport': 'docker-archive'}
+            'root_dir',
+            'file:///image.tar.xz',
+            {'archive_transport': 'docker-archive'},
         )
 
     @patch('kiwi.system.root_import.oci.RootImportOCI')
     def test_oci_import(self, mock_oci_import):
         RootImport.new('root_dir', 'file:///image.tar.xz', 'oci')
         mock_oci_import.assert_called_once_with(
-            'root_dir', 'file:///image.tar.xz',
-            {'archive_transport': 'oci-archive'}
+            'root_dir',
+            'file:///image.tar.xz',
+            {'archive_transport': 'oci-archive'},
         )
 
     def test_not_implemented_import(self):

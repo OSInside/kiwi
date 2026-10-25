@@ -23,6 +23,7 @@ class BootLoaderTemplateSystemdBoot:
     """
     **systemd-boot configuraton file templates**
     """
+
     def __init__(self):
         self.cr = '\n'
 

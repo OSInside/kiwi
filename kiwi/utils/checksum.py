@@ -25,9 +25,7 @@ from kiwi.api_helper import decommissioned
 from kiwi.utils.compress import Compress
 from kiwi.utils.primes import factors
 
-from kiwi.exceptions import (
-    KiwiFileNotFound
-)
+from kiwi.exceptions import KiwiFileNotFound
 
 
 class Checksum:
@@ -37,6 +35,7 @@ class Checksum:
     :param str source_filename: source file name to build checksum for
     :param str checksum_filename: target file with checksum information
     """
+
     def __init__(self, source_filename):
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
@@ -126,15 +125,17 @@ class Checksum:
                 haslib_method(), compress.uncompressed_filename
             )
         else:
-            blocks = self._block_list(
-                os.path.getsize(self.source_filename)
-            )
+            blocks = self._block_list(os.path.getsize(self.source_filename))
         with open(filename, encoding=self.ascii, mode='w') as checksum_file:
             if compressed_blocks:
                 checksum_file.write(
-                    '%s %s %s %s %s\n' % (
-                        checksum, blocks.blocks, blocks.blocksize,
-                        compressed_blocks.blocks, compressed_blocks.blocksize
+                    '%s %s %s %s %s\n'
+                    % (
+                        checksum,
+                        blocks.blocks,
+                        blocks.blocksize,
+                        compressed_blocks.blocks,
+                        compressed_blocks.blocksize,
                     )
                 )
             else:
@@ -173,10 +174,5 @@ class Checksum:
                 break
             blocksize *= factor
         blocks = int(file_size / blocksize)
-        block_list = namedtuple(
-            'block_list', ['blocksize', 'blocks']
-        )
-        return block_list(
-            blocksize=blocksize,
-            blocks=blocks
-        )
+        block_list = namedtuple('block_list', ['blocksize', 'blocks'])
+        return block_list(blocksize=blocksize, blocks=blocks)

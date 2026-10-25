@@ -2,12 +2,8 @@ import sys
 import os
 import logging
 import io
-from unittest.mock import (
-    ANY, DEFAULT, patch, call, Mock, MagicMock, mock_open
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import ANY, DEFAULT, patch, call, Mock, MagicMock, mock_open
+from pytest import raises, fixture
 from collections import namedtuple
 
 from ..test_helper import argv_kiwi_tests
@@ -21,7 +17,7 @@ from kiwi.exceptions import (
     KiwiCommandError,
     KiwiScriptFailed,
     KiwiImportDescriptionError,
-    KiwiFileNotFound
+    KiwiFileNotFound,
 )
 
 from kiwi.command import CommandT
@@ -36,48 +32,30 @@ class TestSystemSetup:
     def setup(self, mock_RuntimeConfig):
         Defaults.set_platform_name('x86_64')
         self.runtime_config = Mock()
-        self.runtime_config.get_package_changes = Mock(
-            return_value=True
-        )
+        self.runtime_config.get_package_changes = Mock(return_value=True)
         mock_RuntimeConfig.return_value = self.runtime_config
         self.xml_state = MagicMock()
-        self.xml_state.get_package_manager = Mock(
-            return_value='zypper'
-        )
-        self.xml_state.build_type.get_selinux_policy = Mock(
-            return_value=None
-        )
-        self.xml_state.build_type.get_filesystem = Mock(
-            return_value='ext3'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='some-image'
-        )
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
+        self.xml_state.get_package_manager = Mock(return_value='zypper')
+        self.xml_state.build_type.get_selinux_policy = Mock(return_value=None)
+        self.xml_state.build_type.get_filesystem = Mock(return_value='ext3')
+        self.xml_state.xml_data.get_name = Mock(return_value='some-image')
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
         self.xml_state.build_type.get_provide_system_files = Mock(
             return_value=True
         )
         self.xml_state.xml_data.description_dir = 'description_dir'
-        self.setup = SystemSetup(
-            self.xml_state, 'root_dir'
-        )
+        self.setup = SystemSetup(self.xml_state, 'root_dir')
         description = XMLDescription(
             description='../data/example_config.xml',
-            derived_from='derived/description'
+            derived_from='derived/description',
         )
         self.description_dir = os.path.dirname(description.description_origin)
         self.setup_with_real_xml = SystemSetup(
             XMLState(description.load()), 'root_dir'
         )
-        command_run = namedtuple(
-            'command', ['output', 'error', 'returncode']
-        )
+        command_run = namedtuple('command', ['output', 'error', 'returncode'])
         self.run_result = command_run(
-            output='password-hash\n',
-            error='stderr',
-            returncode=0
+            output='password-hash\n', error='stderr', returncode=0
         )
         self.selinux_policies = os.scandir(
             '../data/etc/selinux/targeted/policy'
@@ -95,17 +73,13 @@ class TestSystemSetup:
 
     def test_setup_ix86(self):
         Defaults.set_platform_name('i686')
-        setup = SystemSetup(
-            MagicMock(), 'root_dir'
-        )
+        setup = SystemSetup(MagicMock(), 'root_dir')
         assert setup.arch == 'ix86'
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
     @patch('kiwi.system.setup.glob.iglob')
-    def test_import_description(
-        self, mock_iglob, mock_path, mock_command
-    ):
+    def test_import_description(self, mock_iglob, mock_path, mock_command):
         mock_iglob.return_value = ['config-cdroot.tar.xz']
         mock_path.return_value = True
 
@@ -118,97 +92,98 @@ class TestSystemSetup:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', '{0}/config-host-overlay.sh'.format(self.description_dir),
-                    'root_dir/image/config-host-overlay.sh'
+                    'cp',
+                    '{0}/config-host-overlay.sh'.format(self.description_dir),
+                    'root_dir/image/config-host-overlay.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/config-overlay.sh'.format(self.description_dir),
-                    'root_dir/image/config-overlay.sh'
+                    'cp',
+                    '{0}/config-overlay.sh'.format(self.description_dir),
+                    'root_dir/image/config-overlay.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/config.sh'.format(self.description_dir),
-                    'root_dir/image/config.sh'
+                    'cp',
+                    '{0}/config.sh'.format(self.description_dir),
+                    'root_dir/image/config.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/disk.sh'.format(self.description_dir),
-                    'root_dir/image/disk.sh'
+                    'cp',
+                    '{0}/disk.sh'.format(self.description_dir),
+                    'root_dir/image/disk.sh',
                 ]
             ),
             call(
                 [
                     'cp',
                     '{0}/my_edit_boot_script'.format(self.description_dir),
-                    'root_dir/image/edit_boot_config.sh'
+                    'root_dir/image/edit_boot_config.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '/absolute/path/to/my_edit_boot_install',
-                    'root_dir/image/edit_boot_install.sh'
+                    'cp',
+                    '/absolute/path/to/my_edit_boot_install',
+                    'root_dir/image/edit_boot_install.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/images.sh'.format(self.description_dir),
-                    'root_dir/image/images.sh'
+                    'cp',
+                    '{0}/images.sh'.format(self.description_dir),
+                    'root_dir/image/images.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/post_bootstrap.sh'.format(self.description_dir),
-                    'root_dir/image/post_bootstrap.sh'
+                    'cp',
+                    '{0}/post_bootstrap.sh'.format(self.description_dir),
+                    'root_dir/image/post_bootstrap.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/pre_disk_sync.sh'.format(self.description_dir),
-                    'root_dir/image/pre_disk_sync.sh'
+                    'cp',
+                    '{0}/pre_disk_sync.sh'.format(self.description_dir),
+                    'root_dir/image/pre_disk_sync.sh',
                 ]
             ),
             call(
                 [
-                    'cp', Defaults.project_file('config/functions.sh'),
-                    'root_dir/.kconfig'
+                    'cp',
+                    Defaults.project_file('config/functions.sh'),
+                    'root_dir/.kconfig',
+                ]
+            ),
+            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
+            call(
+                [
+                    'cp',
+                    '{0}/bootstrap.tgz'.format(self.description_dir),
+                    'root_dir/image/',
                 ]
             ),
             call(
                 [
-                    'cp', '/absolute/path/to/image.tgz', 'root_dir/image/'
+                    'cp',
+                    '{0}/some'.format(self.description_dir),
+                    'root_dir/image/',
                 ]
             ),
+            call(['cp', '/absolute/path/to/some', 'root_dir/image/']),
             call(
                 [
-                    'cp', '{0}/bootstrap.tgz'.format(self.description_dir),
-                    'root_dir/image/'
+                    'cp',
+                    '{0}/some'.format(self.description_dir),
+                    'root_dir/image/',
                 ]
             ),
-            call(
-                [
-                    'cp', '{0}/some'.format(self.description_dir),
-                    'root_dir/image/'
-                ]
-            ),
-            call(
-                [
-                    'cp', '/absolute/path/to/some',
-                    'root_dir/image/'
-                ]
-            ),
-            call(
-                [
-                    'cp', '{0}/some'.format(self.description_dir),
-                    'root_dir/image/'
-                ]
-            ),
-            call(
-                ['cp', 'config-cdroot.tar.xz', 'root_dir/image/']
-            )
+            call(['cp', 'config-cdroot.tar.xz', 'root_dir/image/']),
         ]
 
     @patch('kiwi.path.Path.create')
@@ -218,8 +193,22 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            True, True, True, False, True, False, True, True,
-            True, True, True, True, True, True, True, True
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
         ]
 
         def side_effect(arg):
@@ -233,89 +222,87 @@ class TestSystemSetup:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', '{0}/config-host-overlay.sh'.format(self.description_dir),
-                    'root_dir/image/config-host-overlay.sh'
+                    'cp',
+                    '{0}/config-host-overlay.sh'.format(self.description_dir),
+                    'root_dir/image/config-host-overlay.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/config-overlay.sh'.format(self.description_dir),
-                    'root_dir/image/config-overlay.sh'
+                    'cp',
+                    '{0}/config-overlay.sh'.format(self.description_dir),
+                    'root_dir/image/config-overlay.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/config.sh'.format(self.description_dir),
-                    'root_dir/image/config.sh'
+                    'cp',
+                    '{0}/config.sh'.format(self.description_dir),
+                    'root_dir/image/config.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/disk.sh'.format(self.description_dir),
-                    'root_dir/image/disk.sh'
+                    'cp',
+                    '{0}/disk.sh'.format(self.description_dir),
+                    'root_dir/image/disk.sh',
                 ]
             ),
             call(
                 [
                     'cp',
                     '{0}/my_edit_boot_script'.format(self.description_dir),
-                    'root_dir/image/edit_boot_config.sh'
+                    'root_dir/image/edit_boot_config.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '/absolute/path/to/my_edit_boot_install',
-                    'root_dir/image/edit_boot_install.sh'
+                    'cp',
+                    '/absolute/path/to/my_edit_boot_install',
+                    'root_dir/image/edit_boot_install.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/images.sh'.format(self.description_dir),
-                    'root_dir/image/images.sh'
+                    'cp',
+                    '{0}/images.sh'.format(self.description_dir),
+                    'root_dir/image/images.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/post_bootstrap.sh'.format(self.description_dir),
-                    'root_dir/image/post_bootstrap.sh'
+                    'cp',
+                    '{0}/post_bootstrap.sh'.format(self.description_dir),
+                    'root_dir/image/post_bootstrap.sh',
                 ]
             ),
             call(
                 [
-                    'cp', '{0}/pre_disk_sync.sh'.format(self.description_dir),
-                    'root_dir/image/pre_disk_sync.sh'
+                    'cp',
+                    '{0}/pre_disk_sync.sh'.format(self.description_dir),
+                    'root_dir/image/pre_disk_sync.sh',
                 ]
             ),
             call(
                 [
-                    'cp', Defaults.project_file('config/functions.sh'),
-                    'root_dir/.kconfig'
+                    'cp',
+                    Defaults.project_file('config/functions.sh'),
+                    'root_dir/.kconfig',
                 ]
             ),
-            call(
-                ['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']
-            ),
+            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
             call(
                 ['cp', 'derived/description/bootstrap.tgz', 'root_dir/image/']
             ),
+            call(['cp', 'derived/description/some', 'root_dir/image/']),
+            call(['cp', '/absolute/path/to/some', 'root_dir/image/']),
             call(
                 [
-                    'cp', 'derived/description/some',
-                    'root_dir/image/'
+                    'cp',
+                    '{0}/some'.format(self.description_dir),
+                    'root_dir/image/',
                 ]
             ),
-            call(
-                [
-                    'cp', '/absolute/path/to/some',
-                    'root_dir/image/'
-                ]
-            ),
-            call(
-                [
-                    'cp', '{0}/some'.format(self.description_dir),
-                    'root_dir/image/'
-                ]
-            )
         ]
         mock_create.assert_called_once_with('root_dir/image')
 
@@ -341,7 +328,16 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            False, False, True, True, True, True, True, True, True, True
+            False,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
         ]
 
         def side_effect(arg):
@@ -360,8 +356,19 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            False, False, True, True, True, True, True,
-            True, True, True, True, True, True
+            False,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
         ]
 
         def side_effect(arg):
@@ -382,7 +389,7 @@ class TestSystemSetup:
         mock_MountManager,
         mock_Path_wipe,
         mock_os_path_isdir,
-        mock_Command_run
+        mock_Command_run,
     ):
         image_meta = Mock()
         mock_MountManager.return_value = image_meta
@@ -390,10 +397,13 @@ class TestSystemSetup:
         self.setup.cleanup()
         mock_Command_run.assert_called_once_with(
             [
-                'chroot', 'root_dir', 'rm', '-f',
+                'chroot',
+                'root_dir',
+                'rm',
+                '-f',
                 '.kconfig',
                 '.profile',
-                'config.bootoptions'
+                'config.bootoptions',
             ]
         )
         mock_MountManager.assert_called_once_with(
@@ -425,16 +435,22 @@ class TestSystemSetup:
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'chroot', 'root_dir',
-                    'chown', 'bob:users', '/image//absolute/path/to/some'
+                    'chroot',
+                    'root_dir',
+                    'chown',
+                    'bob:users',
+                    '/image//absolute/path/to/some',
                 ]
             ),
             call(
                 [
-                    'chroot', 'root_dir',
-                    'chmod', 'u+x', '/image//absolute/path/to/some'
+                    'chroot',
+                    'root_dir',
+                    'chmod',
+                    'u+x',
+                    '/image//absolute/path/to/some',
                 ]
-            )
+            ),
         ]
         mock_Path_create.assert_called_once_with('root_dir/some')
         assert data.sync_data.called
@@ -456,8 +472,17 @@ class TestSystemSetup:
         )
         data.sync_data.assert_called_once_with(
             options=[
-                '-r', '-p', '-t', '-D', '-H', '-X', '-A',
-                '--one-file-system', '--copy-links', '-o', '-g'
+                '-r',
+                '-p',
+                '-t',
+                '-D',
+                '-H',
+                '-X',
+                '-A',
+                '--one-file-system',
+                '--copy-links',
+                '-o',
+                '-g',
             ]
         )
 
@@ -478,8 +503,17 @@ class TestSystemSetup:
         )
         data.sync_data.assert_called_once_with(
             options=[
-                '-r', '-p', '-t', '-D', '-H', '-X', '-A',
-                '--one-file-system', '--links', '-o', '-g'
+                '-r',
+                '-p',
+                '-t',
+                '-D',
+                '-H',
+                '-X',
+                '-A',
+                '--one-file-system',
+                '--links',
+                '-o',
+                '-g',
             ]
         )
 
@@ -500,12 +534,8 @@ class TestSystemSetup:
 
         self.setup.import_overlay_files()
 
-        mock_archive.assert_called_once_with(
-            'description_dir/root.tar.gz'
-        )
-        archive.extract.assert_called_once_with(
-            'root_dir'
-        )
+        mock_archive.assert_called_once_with('description_dir/root.tar.gz')
+        archive.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.system.setup.DataSync')
     @patch('os.path.exists')
@@ -527,8 +557,15 @@ class TestSystemSetup:
         )
         data.sync_data.assert_called_once_with(
             options=[
-                '-r', '-p', '-t', '-D', '-H', '-X', '-A',
-                '--one-file-system', '--links'
+                '-r',
+                '-p',
+                '-t',
+                '-D',
+                '-H',
+                '-X',
+                '-A',
+                '--one-file-system',
+                '--links',
             ]
         )
 
@@ -540,9 +577,8 @@ class TestSystemSetup:
         self.setup.preferences['keytable'] = 'keytable'
         self.setup.setup_keyboard_map()
         mock_shell.assert_called_once_with(
-            'baseUpdateSysConfig', [
-                'root_dir/etc/sysconfig/keyboard', 'KEYTABLE', '"keytable"'
-            ]
+            'baseUpdateSysConfig',
+            ['root_dir/etc/sysconfig/keyboard', 'KEYTABLE', '"keytable"'],
         )
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
@@ -557,13 +593,20 @@ class TestSystemSetup:
         mock_run.return_value = CommandT("", "", 0)
         self.setup.preferences['keytable'] = 'keytable'
         self.setup.setup_keyboard_map()
-        mock_run.assert_has_calls([
-            call(['rm', '-r', '-f', 'root_dir/etc/vconsole.conf']),
-            call([
-                'chroot', 'root_dir', 'systemd-firstboot',
-                '--keymap=keytable'
-            ], raise_on_error=False)
-        ])
+        mock_run.assert_has_calls(
+            [
+                call(['rm', '-r', '-f', 'root_dir/etc/vconsole.conf']),
+                call(
+                    [
+                        'chroot',
+                        'root_dir',
+                        'systemd-firstboot',
+                        '--keymap=keytable',
+                    ],
+                    raise_on_error=False,
+                ),
+            ]
+        )
 
     @patch('os.path.exists')
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
@@ -576,37 +619,54 @@ class TestSystemSetup:
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
-    def test_setup_keyboard_skipped_systemd_incompatible(self, mock_run, mock_caps):
-        mock_caps.return_value = True  # systemd-firstboot --keymap found in help
+    def test_setup_keyboard_skipped_systemd_incompatible(
+        self, mock_run, mock_caps
+    ):
+        mock_caps.return_value = (
+            True  # systemd-firstboot --keymap found in help
+        )
         self.setup.preferences['keytable'] = 'keytable'
 
         # mock the Command.run for `localectl list-keymaps`
         def side_effect(args, **kwargs):
-            if args == ['chroot', ANY, 'systemd-firstboot', '--keymap=keytable']:
+            if args == [
+                'chroot',
+                ANY,
+                'systemd-firstboot',
+                '--keymap=keytable',
+            ]:
                 return CommandT("", "Keymap us is not installed.", 1)
             return DEFAULT
+
         mock_run.side_effect = side_effect
         with raises(KiwiCommandError) as excinfo:
             self.setup.setup_keyboard_map()
-        assert 'your system does not support the systemd way of managing keymaps' in str(excinfo.value)
+        assert (
+            'your system does not support the systemd way of managing keymaps'
+            in str(excinfo.value)
+        )
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_locale(
-        self, mock_path, mock_run, mock_caps
-    ):
+    def test_setup_locale(self, mock_path, mock_run, mock_caps):
         mock_caps.return_valure = True
         mock_path.return_value = True
         self.setup.preferences['locale'] = 'locale1,locale2'
         self.setup.setup_locale()
-        mock_run.assert_has_calls([
-            call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
-            call([
-                'chroot', 'root_dir', 'systemd-firstboot',
-                '--locale=locale1.UTF-8'
-            ])
-        ])
+        mock_run.assert_has_calls(
+            [
+                call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
+                call(
+                    [
+                        'chroot',
+                        'root_dir',
+                        'systemd-firstboot',
+                        '--locale=locale1.UTF-8',
+                    ]
+                ),
+            ]
+        )
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
@@ -616,24 +676,39 @@ class TestSystemSetup:
         mock_path.return_value = True
         self.setup.preferences['locale'] = 'POSIX,locale2'
         self.setup.setup_locale()
-        mock_run.assert_has_calls([
-            call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
-            call([
-                'chroot', 'root_dir', 'systemd-firstboot',
-                '--locale=POSIX'
-            ])
-        ])
+        mock_run.assert_has_calls(
+            [
+                call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
+                call(
+                    [
+                        'chroot',
+                        'root_dir',
+                        'systemd-firstboot',
+                        '--locale=POSIX',
+                    ]
+                ),
+            ]
+        )
 
     @patch('kiwi.system.setup.Command.run')
     def test_setup_timezone(self, mock_command):
         self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
-        mock_command.assert_has_calls([
-            call([
-                'chroot', 'root_dir', 'ln', '-s', '-f',
-                '/usr/share/zoneinfo/timezone', '/etc/localtime'
-            ])
-        ])
+        mock_command.assert_has_calls(
+            [
+                call(
+                    [
+                        'chroot',
+                        'root_dir',
+                        'ln',
+                        '-s',
+                        '-f',
+                        '/usr/share/zoneinfo/timezone',
+                        '/etc/localtime',
+                    ]
+                )
+            ]
+        )
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
@@ -641,34 +716,34 @@ class TestSystemSetup:
         mock_caps.return_value = True
         self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
-        mock_command.assert_has_calls([
-            call([
-                'chroot', 'root_dir', 'systemd-firstboot',
-                '--timezone=timezone'
-            ])
-        ])
+        mock_command.assert_has_calls(
+            [
+                call(
+                    [
+                        'chroot',
+                        'root_dir',
+                        'systemd-firstboot',
+                        '--timezone=timezone',
+                    ]
+                )
+            ]
+        )
 
     @patch('kiwi.system.setup.Users')
     def test_setup_groups(self, mock_users):
         users = Mock()
-        users.group_exists = Mock(
-            return_value=False
-        )
+        users.group_exists = Mock(return_value=False)
         mock_users.return_value = users
 
         self.setup_with_real_xml.setup_groups()
 
-        calls = [
-            call('users'),
-            call('kiwi'),
-            call('admin')
-        ]
+        calls = [call('users'), call('kiwi'), call('admin')]
         users.group_exists.assert_has_calls(calls)
 
         calls = [
             call('users', []),
             call('kiwi', []),
-            call('admin', ['-g', '42'])
+            call('admin', ['-g', '42']),
         ]
         users.group_add.assert_has_calls(calls)
 
@@ -676,43 +751,48 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Command.run')
     def test_setup_users_add(self, mock_command, mock_users):
         users = Mock()
-        users.user_exists = Mock(
-            return_value=False
-        )
+        users.user_exists = Mock(return_value=False)
         mock_users.return_value = users
         mock_command.return_value = self.run_result
 
         self.setup_with_real_xml.setup_users()
 
-        calls = [
-            call('root'),
-            call('tux'),
-            call('kiwi')
-        ]
+        calls = [call('root'), call('tux'), call('kiwi')]
         users.user_exists.assert_has_calls(calls)
 
         calls = [
             call(
-                'root', [
-                    '-p', 'password-hash',
-                    '-s', '/bin/bash',
-                    '-u', '815', '-c', 'Bob',
-                    '-m', '-d', '/root'
-                ]
+                'root',
+                [
+                    '-p',
+                    'password-hash',
+                    '-s',
+                    '/bin/bash',
+                    '-u',
+                    '815',
+                    '-c',
+                    'Bob',
+                    '-m',
+                    '-d',
+                    '/root',
+                ],
             ),
             call(
-                'tux', [
-                    '-p', 'password-hash',
-                    '-g', 'users',
-                    '-m', '-d', '/home/tux'
-                ]
+                'tux',
+                ['-p', 'password-hash', '-g', 'users', '-m', '-d', '/home/tux'],
             ),
             call(
-                'kiwi', [
-                    '-p', 'password-hash',
-                    '-g', 'kiwi', '-G', 'admin,users', '-m'
-                ]
-            )
+                'kiwi',
+                [
+                    '-p',
+                    'password-hash',
+                    '-g',
+                    'kiwi',
+                    '-G',
+                    'admin,users',
+                    '-m',
+                ],
+            ),
         ]
         users.user_add.assert_has_calls(calls)
 
@@ -724,39 +804,33 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Command.run')
     def test_setup_users_modify(self, mock_command, mock_users):
         users = Mock()
-        users.user_exists = Mock(
-            return_value=True
-        )
+        users.user_exists = Mock(return_value=True)
         mock_users.return_value = users
         mock_command.return_value = self.run_result
 
         self.setup_with_real_xml.setup_users()
-        calls = [
-            call('root'),
-            call('tux'),
-            call('kiwi')
-        ]
+        calls = [call('root'), call('tux'), call('kiwi')]
         users.user_exists.assert_has_calls(calls)
 
         calls = [
             call(
-                'root', [
-                    '-p', 'password-hash',
-                    '-s', '/bin/bash', '-u', '815', '-c', 'Bob'
-                ]
+                'root',
+                [
+                    '-p',
+                    'password-hash',
+                    '-s',
+                    '/bin/bash',
+                    '-u',
+                    '815',
+                    '-c',
+                    'Bob',
+                ],
             ),
+            call('tux', ['-p', 'password-hash', '-g', 'users']),
             call(
-                'tux', [
-                    '-p', 'password-hash',
-                    '-g', 'users'
-                ]
+                'kiwi',
+                ['-p', 'password-hash', '-g', 'kiwi', '-G', 'admin,users'],
             ),
-            call(
-                'kiwi', [
-                    '-p', 'password-hash',
-                    '-g', 'kiwi', '-G', 'admin,users'
-                ]
-            )
         ]
         users.user_modify.assert_has_calls(calls)
 
@@ -765,16 +839,13 @@ class TestSystemSetup:
     def test_setup_plymouth_splash(self, mock_command, mock_which):
         mock_which.return_value = 'plymouth-set-default-theme'
         preferences = Mock()
-        preferences.get_bootsplash_theme = Mock(
-            return_value=['some-theme']
-        )
+        preferences.get_bootsplash_theme = Mock(return_value=['some-theme'])
         self.xml_state.get_preferences_sections = Mock(
             return_value=[preferences]
         )
         self.setup.setup_plymouth_splash()
         mock_which.assert_called_once_with(
-            root_dir='root_dir',
-            filename='plymouth-set-default-theme'
+            root_dir='root_dir', filename='plymouth-set-default-theme'
         )
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'plymouth-set-default-theme', 'some-theme']
@@ -782,9 +853,7 @@ class TestSystemSetup:
 
     @patch('os.path.exists')
     def test_import_image_identifier(self, mock_os_path):
-        self.xml_state.xml_data.get_id = Mock(
-            return_value='42'
-        )
+        self.xml_state.xml_data.get_id = Mock(return_value='42')
         mock_os_path.return_value = True
 
         m_open = mock_open()
@@ -803,16 +872,21 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_call_non_excutable_config_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_setup_selinux_file_contexts
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_setup_selinux_file_contexts,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -834,16 +908,21 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_call_excutable_config_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_setup_selinux_file_contexts
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_setup_selinux_file_contexts,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -867,16 +946,21 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_call_excutable_post_bootstrap_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_setup_selinux_file_contexts
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_setup_selinux_file_contexts,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -914,22 +998,18 @@ class TestSystemSetup:
         mock_Profile,
         mock_getLogFlags,
         mock_is_buildservice_worker,
-        mock_setup_selinux_file_contexts
+        mock_setup_selinux_file_contexts,
     ):
         chroot_mount = Mock()
         chroot_mount.is_mounted.return_value = False
         mock_MountManager.return_value = chroot_mount
         mock_is_buildservice_worker.return_value = False
-        mock_getLogFlags.return_value = {
-            'run-scripts-in-screen': True
-        }
+        mock_getLogFlags.return_value = {'run-scripts-in-screen': True}
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -939,9 +1019,15 @@ class TestSystemSetup:
         mock_copy_deepcopy.assert_called_once_with(os.environ)
         mock_command.assert_called_once_with(
             [
-                'screen', '-t', '-X',
-                'chroot', 'root_dir', 'bash', '/image/disk.sh'
-            ], {}
+                'screen',
+                '-t',
+                '-X',
+                'chroot',
+                'root_dir',
+                'bash',
+                '/image/disk.sh',
+            ],
+            {},
         )
         mock_setup_selinux_file_contexts.assert_called_once_with()
         mock_MountManager.assert_called_once_with(
@@ -960,21 +1046,25 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_call_pre_disk_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_getLogFlags,
-        mock_is_buildservice_worker, mock_setup_selinux_file_contexts
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_getLogFlags,
+        mock_is_buildservice_worker,
+        mock_setup_selinux_file_contexts,
     ):
         mock_is_buildservice_worker.return_value = False
-        mock_getLogFlags.return_value = {
-            'run-scripts-in-screen': True
-        }
+        mock_getLogFlags.return_value = {'run-scripts-in-screen': True}
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -984,9 +1074,15 @@ class TestSystemSetup:
         mock_copy_deepcopy.assert_called_once_with(os.environ)
         mock_command.assert_called_once_with(
             [
-                'screen', '-t', '-X',
-                'chroot', 'root_dir', 'bash', '/image/pre_disk_sync.sh'
-            ], {}
+                'screen',
+                '-t',
+                '-X',
+                'chroot',
+                'root_dir',
+                'bash',
+                '/image/pre_disk_sync.sh',
+            ],
+            {},
         )
         mock_setup_selinux_file_contexts.assert_called_once_with()
 
@@ -999,16 +1095,21 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_call_image_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_setup_selinux_file_contexts
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_setup_selinux_file_contexts,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -1030,16 +1131,21 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_call_config_overlay_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_setup_selinux_file_contexts
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_setup_selinux_file_contexts,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -1065,15 +1171,13 @@ class TestSystemSetup:
         mock_exists,
         mock_watch,
         mock_command,
-        mock_Profile
+        mock_Profile,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_exists.return_value = True
         mock_abspath.return_value = '/root_dir/image/config-host-overlay.sh'
@@ -1084,9 +1188,11 @@ class TestSystemSetup:
         )
         mock_command.assert_called_once_with(
             [
-                'bash', '-c',
-                'cd root_dir && bash --norc /root_dir/image/config-host-overlay.sh '
-            ], {}
+                'bash',
+                '-c',
+                'cd root_dir && bash --norc /root_dir/image/config-host-overlay.sh ',
+            ],
+            {},
         )
 
     @patch('kiwi.system.setup.Profile')
@@ -1102,15 +1208,13 @@ class TestSystemSetup:
         mock_exists,
         mock_watch,
         mock_command,
-        mock_Profile
+        mock_Profile,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_exists.return_value = True
         mock_abspath.return_value = '/root_dir/image/edit_boot_config.sh'
@@ -1121,10 +1225,12 @@ class TestSystemSetup:
         )
         mock_command.assert_called_once_with(
             [
-                'bash', '-c',
+                'bash',
+                '-c',
                 'cd root_dir && bash --norc /root_dir/image/edit_boot_config.sh '
-                'ext4 1'
-            ], {}
+                'ext4 1',
+            ],
+            {},
         )
 
     @patch('kiwi.system.setup.Profile')
@@ -1144,19 +1250,15 @@ class TestSystemSetup:
         mock_command,
         mock_getLogFlags,
         mock_is_buildservice_worker,
-        mock_Profile
+        mock_Profile,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
         mock_is_buildservice_worker.return_value = False
-        mock_getLogFlags.return_value = {
-            'run-scripts-in-screen': True
-        }
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        mock_getLogFlags.return_value = {'run-scripts-in-screen': True}
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_exists.return_value = True
         mock_abspath.return_value = '/root_dir/image/edit_boot_install.sh'
@@ -1169,12 +1271,16 @@ class TestSystemSetup:
         )
         mock_command.assert_called_once_with(
             [
-                'screen', '-t', '-X',
-                'bash', '-c',
+                'screen',
+                '-t',
+                '-X',
+                'bash',
+                '-c',
                 'cd root_dir && bash --norc '
                 '/root_dir/image/edit_boot_install.sh '
-                'my_image.raw /dev/mapper/loop0p1'
-            ], {}
+                'my_image.raw /dev/mapper/loop0p1',
+            ],
+            {},
         )
 
     @patch('kiwi.system.setup.Profile')
@@ -1184,15 +1290,18 @@ class TestSystemSetup:
     @patch('os.stat')
     @patch('os.access')
     def test_call_image_script_raises(
-        self, mock_access, mock_stat, mock_os_path, mock_watch,
-        mock_command, mock_Profile
+        self,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
     ):
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=1)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -1211,15 +1320,13 @@ class TestSystemSetup:
         mock_os_path,
         mock_watch,
         mock_command,
-        mock_Profile
+        mock_Profile,
     ):
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=1)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -1255,9 +1362,18 @@ class TestSystemSetup:
     @patch('os.access')
     @patch('copy.deepcopy')
     def test_create_fstab(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command_run, mock_command_call, mock_Profile,
-        mock_setup_selinux_file_contexts, mock_wipe, mock_exists
+        self,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command_run,
+        mock_command_call,
+        mock_Profile,
+        mock_setup_selinux_file_contexts,
+        mock_wipe,
+        mock_exists,
     ):
         fstab = Mock()
         mock_exists.return_value = True
@@ -1266,9 +1382,7 @@ class TestSystemSetup:
         profile = Mock()
         mock_Profile.return_value = profile
         profile.get_settings.return_value = {}
-        result_type = namedtuple(
-            'result_type', ['stderr', 'returncode']
-        )
+        result_type = namedtuple('result_type', ['stderr', 'returncode'])
         mock_result = result_type(stderr='stderr', returncode=0)
         mock_os_path.return_value = True
         mock_watch.return_value = mock_result
@@ -1282,7 +1396,7 @@ class TestSystemSetup:
 
         assert m_open.call_args_list == [
             call('root_dir/etc/fstab', 'a'),
-            call('root_dir/etc/fstab.append', 'r')
+            call('root_dir/etc/fstab.append', 'r'),
         ]
         assert m_open.return_value.write.call_args_list == [
             call('append_entry')
@@ -1296,7 +1410,7 @@ class TestSystemSetup:
         assert mock_wipe.call_args_list == [
             call('root_dir/etc/fstab.append'),
             call('root_dir/etc/fstab.patch'),
-            call('root_dir/etc/fstab.script')
+            call('root_dir/etc/fstab.script'),
         ]
         mock_setup_selinux_file_contexts.assert_called_once_with()
 
@@ -1307,8 +1421,13 @@ class TestSystemSetup:
     @patch('os.path.getsize')
     @patch('kiwi.system.setup.Path.wipe')
     def test_create_recovery_archive(
-        self, mock_wipe, mock_getsize, mock_compress,
-        mock_archive, mock_pathlib_Path_touch, mock_command
+        self,
+        mock_wipe,
+        mock_getsize,
+        mock_compress,
+        mock_archive,
+        mock_pathlib_Path_touch,
+        mock_command,
     ):
         mock_getsize.return_value = 42
         compress = Mock()
@@ -1333,9 +1452,9 @@ class TestSystemSetup:
             options=[
                 '--numeric-owner',
                 '--hard-dereference',
-                '--preserve-permissions'
+                '--preserve-permissions',
             ],
-            source_dir='root_dir'
+            source_dir='root_dir',
         )
         assert m_open.call_args_list[0] == call(
             'root_dir/recovery.tar.filesystem', 'w'
@@ -1348,17 +1467,13 @@ class TestSystemSetup:
         assert m_open.call_args_list[1] == call(
             'root_dir/recovery.tar.files', 'w'
         )
-        assert mock_getsize.call_args_list[0] == call(
-            'root_dir/recovery.tar'
-        )
+        assert mock_getsize.call_args_list[0] == call('root_dir/recovery.tar')
         assert m_open.return_value.write.call_args_list[1] == call('1\n')
         assert m_open.call_args_list[2] == call(
             'root_dir/recovery.tar.size', 'w'
         )
         assert m_open.return_value.write.call_args_list[2] == call('42')
-        mock_compress.assert_called_once_with(
-            'root_dir/recovery.tar'
-        )
+        mock_compress.assert_called_once_with('root_dir/recovery.tar')
         compress.gzip.assert_called_once_with()
         assert mock_getsize.call_args_list[1] == call(
             'root_dir/recovery.tar.gz'
@@ -1367,9 +1482,7 @@ class TestSystemSetup:
             'root_dir/recovery.partition.size', 'w'
         )
         assert m_open.return_value.write.call_args_list[3] == call('300')
-        mock_wipe.assert_called_once_with(
-            'root_dir/recovery.tar.gz'
-        )
+        mock_wipe.assert_called_once_with('root_dir/recovery.tar.gz')
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.Path.create')
@@ -1386,9 +1499,7 @@ class TestSystemSetup:
         mock_DataSync.assert_called_once_with(
             'root_dir/etc/modprobe.d', 'target_root_dir/etc/'
         )
-        data.sync_data.assert_called_once_with(
-            options=['-a']
-        )
+        data.sync_data.assert_called_once_with(options=['-a'])
 
     @patch('kiwi.defaults.Defaults.get_default_packager_tool')
     def test_export_package_list_unknown_packager(
@@ -1400,9 +1511,12 @@ class TestSystemSetup:
     def test_export_flake_pilot_system_file_list_unknown_packager(
         self, mock_get_default_packager_tool
     ):
-        assert self.setup.export_flake_pilot_system_file_list(
-            'target_dir', 'system_files'
-        ) == ''
+        assert (
+            self.setup.export_flake_pilot_system_file_list(
+                'target_dir', 'system_files'
+            )
+            == ''
+        )
 
     @patch('kiwi.defaults.Defaults.get_default_packager_tool')
     def test_export_package_changes_unknown_packager(
@@ -1442,13 +1556,20 @@ class TestSystemSetup:
                 'target_dir/system_files', 'w', encoding='utf-8'
             )
             assert file_handle.write.call_args_list == [
-                call('set -e\n'), call('rpm --noghost -ql glibc\n')
+                call('set -e\n'),
+                call('rpm --noghost -ql glibc\n'),
             ]
         assert result == 'target_dir/system_files'
         mock_command_run.assert_called_once_with(
             [
-                'rpm', '--root', 'root_dir',
-                '-qa', '--qf', '%{NAME}\n', '--dbpath', 'image_dbpath'
+                'rpm',
+                '--root',
+                'root_dir',
+                '-qa',
+                '--qf',
+                '%{NAME}\n',
+                '--dbpath',
+                'image_dbpath',
             ]
         )
 
@@ -1470,17 +1591,23 @@ class TestSystemSetup:
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_list('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.packages', 'w',
-                encoding='utf-8'
+                'target_dir/some-image.x86_64-1.2.3.packages',
+                'w',
+                encoding='utf-8',
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with(
             [
-                'rpm', '--root', 'root_dir', '-qa', '--qf',
+                'rpm',
+                '--root',
+                'root_dir',
+                '-qa',
+                '--qf',
                 '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|'
                 '%{DISTURL}|%{LICENSE}\\n',
-                '--dbpath', 'image_dbpath'
+                '--dbpath',
+                'image_dbpath',
             ]
         )
         rpmdb.has_rpm.return_value = False
@@ -1492,10 +1619,15 @@ class TestSystemSetup:
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
         mock_command.assert_called_once_with(
             [
-                'rpm', '--root', 'root_dir', '-qa', '--qf',
+                'rpm',
+                '--root',
+                'root_dir',
+                '-qa',
+                '--qf',
                 '%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}|'
                 '%{DISTURL}|%{LICENSE}\\n',
-                '--dbpath', 'host_dbpath'
+                '--dbpath',
+                'host_dbpath',
             ]
         )
 
@@ -1513,34 +1645,26 @@ class TestSystemSetup:
         m_open = mock_open(read_data='')
         with patch('builtins.open', m_open):
             self.setup.setup_machine_id()
-            m_open.assert_called_once_with(
-                'root_dir/etc/machine-id', 'r+'
-            )
+            m_open.assert_called_once_with('root_dir/etc/machine-id', 'r+')
             m_open().truncate.assert_called_once_with(0)
 
         # Filled /etc/machine-id -> truncate
         m_open = mock_open(read_data='9d75e31cca5943b3a527345e0684d5b6')
         with patch('builtins.open', m_open):
             self.setup.setup_machine_id()
-            m_open.assert_called_once_with(
-                'root_dir/etc/machine-id', 'r+'
-            )
+            m_open.assert_called_once_with('root_dir/etc/machine-id', 'r+')
             m_open().truncate.assert_called_once_with(0)
 
         # Explicitly uninitialized /etc/machine-id -> keep
         m_open = mock_open(read_data='uninitialized')
         with patch('builtins.open', m_open):
             self.setup.setup_machine_id()
-            m_open.assert_called_once_with(
-                'root_dir/etc/machine-id', 'r+'
-            )
+            m_open.assert_called_once_with('root_dir/etc/machine-id', 'r+')
             m_open().truncate.assert_not_called()
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.Path.which')
-    def test_setup_permissions(
-        self, mock_path_which, mock_command
-    ):
+    def test_setup_permissions(self, mock_path_which, mock_command):
         mock_path_which.return_value = 'chkstat'
         self.setup.setup_permissions()
         mock_command.assert_called_once_with(
@@ -1564,31 +1688,34 @@ class TestSystemSetup:
         command = Mock()
         command.output = 'packages_data'
         mock_command.return_value = command
-        self.xml_state.get_package_manager = Mock(
-            return_value='apt'
-        )
+        self.xml_state.get_package_manager = Mock(return_value='apt')
 
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_list('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.packages', 'w',
-                encoding='utf-8'
+                'target_dir/some-image.x86_64-1.2.3.packages',
+                'w',
+                encoding='utf-8',
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
-        mock_command.assert_called_once_with([
-            'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg', '-W',
-            '-f', '${Package}|None|${Version}|None|${Architecture}|None|None\\n'
-        ])
+        mock_command.assert_called_once_with(
+            [
+                'dpkg-query',
+                '--admindir',
+                'root_dir/var/lib/dpkg',
+                '-W',
+                '-f',
+                '${Package}|None|${Version}|None|${Architecture}|None|None\\n',
+            ]
+        )
 
     @patch('kiwi.system.setup.Command.run')
     def test_export_package_list_pacman(self, mock_command):
         command = Mock()
         command.output = 'packages_data'
         mock_command.return_value = command
-        self.xml_state.get_package_manager = Mock(
-            return_value='pacman'
-        )
+        self.xml_state.get_package_manager = Mock(return_value='pacman')
 
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_list('target_dir')
@@ -1620,15 +1747,23 @@ class TestSystemSetup:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             result = self.setup.export_package_changes('target_dir')
             mock_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.changes', 'w',
-                encoding='utf-8'
+                'target_dir/some-image.x86_64-1.2.3.changes',
+                'w',
+                encoding='utf-8',
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.changes'
         mock_command.assert_called_once_with(
             [
-                'rpm', '--root', 'root_dir', '-qa', '--qf',
-                '%{NAME}|\\n', '--changelog', '--dbpath', 'image_dbpath'
+                'rpm',
+                '--root',
+                'root_dir',
+                '-qa',
+                '--qf',
+                '%{NAME}|\\n',
+                '--changelog',
+                '--dbpath',
+                'image_dbpath',
             ]
         )
         self.runtime_config.get_package_changes.assert_called_once_with()
@@ -1642,9 +1777,7 @@ class TestSystemSetup:
         command = Mock()
         command.output = 'changes'
         mock_command.return_value = command
-        self.xml_state.get_package_manager = Mock(
-            return_value='apt'
-        )
+        self.xml_state.get_package_manager = Mock(return_value='apt')
         mock_os_listdir.return_value = ['package_b', 'package_a']
         mock_os_path_exists.return_value = True
 
@@ -1653,15 +1786,16 @@ class TestSystemSetup:
             result = self.setup.export_package_changes('target_dir')
             file_handle = mock_open.return_value.__enter__.return_value
             mock_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.changes', 'w',
-                encoding='utf-8'
+                'target_dir/some-image.x86_64-1.2.3.changes',
+                'w',
+                encoding='utf-8',
             )
             assert result == 'target_dir/some-image.x86_64-1.2.3.changes'
             assert file_handle.write.call_args_list == [
                 call('package_a|\n'),
                 call('changes\n'),
                 call('package_b|\n'),
-                call('changes\n')
+                call('changes\n'),
             ]
         self.runtime_config.get_package_changes.assert_called_once_with()
 
@@ -1691,16 +1825,22 @@ class TestSystemSetup:
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_verification('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.verified', 'w',
-                encoding='utf-8'
+                'target_dir/some-image.x86_64-1.2.3.verified',
+                'w',
+                encoding='utf-8',
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=[
-                'rpm', '--root', 'root_dir', '-Va',
-                '--dbpath', 'image_dbpath'
-            ], raise_on_error=False
+                'rpm',
+                '--root',
+                'root_dir',
+                '-Va',
+                '--dbpath',
+                'image_dbpath',
+            ],
+            raise_on_error=False,
         )
 
         mock_MountManager.assert_called_once_with(
@@ -1719,9 +1859,14 @@ class TestSystemSetup:
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=[
-                'rpm', '--root', 'root_dir', '-Va',
-                '--dbpath', 'host_dbpath'
-            ], raise_on_error=False
+                'rpm',
+                '--root',
+                'root_dir',
+                '-Va',
+                '--dbpath',
+                'host_dbpath',
+            ],
+            raise_on_error=False,
         )
         shared_mount.bind_mount.assert_called_once_with()
         shared_mount.umount_lazy.assert_called_once_with()
@@ -1731,24 +1876,27 @@ class TestSystemSetup:
         command = Mock()
         command.output = 'verification_data'
         mock_command.return_value = command
-        self.xml_state.get_package_manager = Mock(
-            return_value='apt'
-        )
+        self.xml_state.get_package_manager = Mock(return_value='apt')
 
         with patch('builtins.open') as m_open:
             result = self.setup.export_package_verification('target_dir')
             m_open.assert_called_once_with(
-                'target_dir/some-image.x86_64-1.2.3.verified', 'w',
-                encoding='utf-8'
+                'target_dir/some-image.x86_64-1.2.3.verified',
+                'w',
+                encoding='utf-8',
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.verified'
         mock_command.assert_called_once_with(
             command=[
-                'dpkg', '--root', 'root_dir', '-V',
-                '--verify-format', 'rpm'
+                'dpkg',
+                '--root',
+                'root_dir',
+                '-V',
+                '--verify-format',
+                'rpm',
             ],
-            raise_on_error=False
+            raise_on_error=False,
         )
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
@@ -1762,11 +1910,22 @@ class TestSystemSetup:
         self.setup.set_selinux_file_contexts('security_context_file')
         mock_command.assert_called_once_with(
             [
-                'chroot', 'root_dir',
-                'setfiles', '-T0', '-F', '-p',
-                '-c', '/etc/selinux/targeted/policy/policy.some_policy',
-                '-e', '/proc', '-e', '/sys', '-e', '/dev',
-                'security_context_file', '/'
+                'chroot',
+                'root_dir',
+                'setfiles',
+                '-T0',
+                '-F',
+                '-p',
+                '-c',
+                '/etc/selinux/targeted/policy/policy.some_policy',
+                '-e',
+                '/proc',
+                '-e',
+                '/sys',
+                '-e',
+                '/dev',
+                'security_context_file',
+                '/',
             ]
         )
 
@@ -1775,8 +1934,11 @@ class TestSystemSetup:
     @patch('os.scandir')
     @patch('os.access')
     def test_set_selinux_file_contexts_read_only_root(
-        self, mock_os_access, mock_os_scandir, mock_command,
-        mock_has_option_in_help
+        self,
+        mock_os_access,
+        mock_os_scandir,
+        mock_command,
+        mock_has_option_in_help,
     ):
         mock_os_access.return_value = False
         mock_has_option_in_help.return_value = False
@@ -1796,18 +1958,31 @@ class TestSystemSetup:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'chroot', 'root_dir', 'setfiles', '-c',
+                    'chroot',
+                    'root_dir',
+                    'setfiles',
+                    '-c',
                     '/etc/selinux/targeted/policy/policy.some_policy',
-                    'security_context_file'
+                    'security_context_file',
                 ]
             ),
             call(
                 [
-                    'chroot', 'root_dir', 'setfiles', '-F', '-p',
-                    '-e', '/proc', '-e', '/sys', '-e', '/dev',
-                    'security_context_file', '/'
+                    'chroot',
+                    'root_dir',
+                    'setfiles',
+                    '-F',
+                    '-p',
+                    '-e',
+                    '/proc',
+                    '-e',
+                    '/sys',
+                    '-e',
+                    '/dev',
+                    'security_context_file',
+                    '/',
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.system.setup.Command.run')
@@ -1823,8 +1998,10 @@ class TestSystemSetup:
     @patch.object(SystemSetup, 'set_selinux_file_contexts')
     @patch('kiwi.system.setup.Path.which')
     def test_setup_selinux_file_contexts(
-        self, mock_Path_which, mock_set_selinux_file_contexts,
-        mock_os_path_exists
+        self,
+        mock_Path_which,
+        mock_set_selinux_file_contexts,
+        mock_os_path_exists,
     ):
         mock_os_path_exists.return_value = True
         mock_Path_which.return_value = 'setfiles'
@@ -1844,22 +2021,28 @@ class TestSystemSetup:
     ):
         uri = Mock()
         mock_uri.return_value = uri
-        uri.translate = Mock(
-            return_value="uri"
-        )
-        uri.alias = Mock(
-            return_value="uri-alias"
-        )
-        uri.credentials_file_name = Mock(
-            return_value='kiwiRepoCredentials'
-        )
+        uri.translate = Mock(return_value="uri")
+        uri.alias = Mock(return_value="uri-alias")
+        uri.credentials_file_name = Mock(return_value='kiwiRepoCredentials')
         mock_uri.return_value = uri
         repo = Mock()
         mock_repo.return_value.__enter__.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
         assert repo.add_repo.call_args_list[0] == call(
-            'uri-alias', 'uri', 'rpm-md', None, None, None, None, None,
-            'kiwiRepoCredentials', None, None, None, '../data/script', None
+            'uri-alias',
+            'uri',
+            'rpm-md',
+            None,
+            None,
+            None,
+            None,
+            None,
+            'kiwiRepoCredentials',
+            None,
+            None,
+            None,
+            '../data/script',
+            None,
         )
         # only the imageonly repository provides a signing key,
         # which is stored in the image prior adding the repository
@@ -1867,17 +2050,19 @@ class TestSystemSetup:
             'use_default_location',
             'add_repo',
             'import_repository_signing_keys',
-            'add_repo'
+            'add_repo',
         ]
         repo.import_repository_signing_keys.assert_called_once_with(
             'uri-alias',
-            [os.path.abspath(os.path.join(self.description_dir, 'key_b'))]
+            [os.path.abspath(os.path.join(self.description_dir, 'key_b'))],
         )
 
     @patch('os.path.exists')
     def test_script_exists(self, mock_path_exists):
-        assert self.setup.script_exists('some-script') == \
-            mock_path_exists.return_value
+        assert (
+            self.setup.script_exists('some-script')
+            == mock_path_exists.return_value
+        )
 
     @patch('pathlib.Path')
     @patch('kiwi.system.setup.Command.run')
@@ -1887,42 +2072,51 @@ class TestSystemSetup:
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'chroot',
+                    'root_dir',
+                    '/usr/bin/skopeo',
+                    'copy',
                     'docker://registry.suse.com/home/mschaefer/images_pubcloud'
                     '/pct/rmtserver:latest',
                     'oci-archive:/var/tmp/kiwi_containers/'
                     'rmtserver_latest:registry.suse.com/home/mschaefer/'
-                    'images_pubcloud/pct/rmtserver:latest'
+                    'images_pubcloud/pct/rmtserver:latest',
                 ]
             ),
             call(
                 [
-                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'chroot',
+                    'root_dir',
+                    '/usr/bin/skopeo',
+                    'copy',
                     'docker://registry.suse.com/some:latest',
                     'oci-archive:/var/tmp/kiwi_containers/'
-                    'some_latest:registry.suse.com/some:latest'
+                    'some_latest:registry.suse.com/some:latest',
                 ]
             ),
             call(
                 [
-                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'chroot',
+                    'root_dir',
+                    '/usr/bin/skopeo',
+                    'copy',
                     'docker://docker.io/foo:latest',
                     'oci-archive:/var/tmp/kiwi_containers/'
-                    'foo_latest:docker.io/foo:latest'
+                    'foo_latest:docker.io/foo:latest',
                 ]
             ),
             call(
                 [
-                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'chroot',
+                    'root_dir',
+                    '/usr/bin/skopeo',
+                    'copy',
                     'docker://registry.example.com/test-app:v1.0',
                     'oci-archive:/var/tmp/kiwi_containers/'
-                    'test-app_v1.0:registry.example.com/test-app:v1.0'
+                    'test-app_v1.0:registry.example.com/test-app:v1.0',
                 ]
             ),
             call(
-                [
-                    'chroot', 'root_dir', 'systemctl',
-                    'enable', 'kiwi_containers'
-                ]
-            )
+                ['chroot', 'root_dir', 'systemctl', 'enable', 'kiwi_containers']
+            ),
         ]

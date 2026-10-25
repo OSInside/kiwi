@@ -31,9 +31,7 @@ from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
 from kiwi.xml_state import volume_type
 
-from kiwi.exceptions import (
-    KiwiVolumeManagerSetupError
-)
+from kiwi.exceptions import KiwiVolumeManagerSetupError
 
 log = logging.getLogger('kiwi')
 
@@ -57,7 +55,7 @@ class VolumeManagerBase(DeviceProvider):
         device_map: Dict[str, DeviceProvider],
         root_dir: str,
         volumes: List[volume_type],
-        custom_args: Optional[Dict[str, Any]] = None
+        custom_args: Optional[Dict[str, Any]] = None,
     ) -> None:
 
         self.temp_directories: List[Temporary] = []
@@ -102,20 +100,23 @@ class VolumeManagerBase(DeviceProvider):
         #: FileSystem instance
         self.custom_filesystem_args: Dict[str, Any] = {
             'create_options': [],
-            'mount_options': []
+            'mount_options': [],
         }
 
         if custom_args and 'fs_create_options' in custom_args:
-            self.custom_filesystem_args['create_options'] = \
-                custom_args['fs_create_options']
+            self.custom_filesystem_args['create_options'] = custom_args[
+                'fs_create_options'
+            ]
 
         if custom_args and 'fs_mount_options' in custom_args:
-            self.custom_filesystem_args['mount_options'] = \
-                custom_args['fs_mount_options']
+            self.custom_filesystem_args['mount_options'] = custom_args[
+                'fs_mount_options'
+            ]
 
         if custom_args and 'fs_create_options' in custom_args:
-            self.custom_filesystem_args['create_options'] = \
-                custom_args['fs_create_options']
+            self.custom_filesystem_args['create_options'] = custom_args[
+                'fs_create_options'
+            ]
 
         self.post_init(custom_args)
 
@@ -160,8 +161,9 @@ class VolumeManagerBase(DeviceProvider):
                 )
                 Command.run(
                     [
-                        'chattr', '+C',
-                        os.path.normpath(toplevel + os.sep + volume.realpath)
+                        'chattr',
+                        '+C',
+                        os.path.normpath(toplevel + os.sep + volume.realpath),
                     ]
                 )
 
@@ -266,9 +268,7 @@ class VolumeManagerBase(DeviceProvider):
         :rtype: list
         """
         canonical_volume_type = namedtuple(
-            'canonical_volume_type', [
-                'volumes', 'full_size_volume'
-            ]
+            'canonical_volume_type', ['volumes', 'full_size_volume']
         )
         volume_paths = {}
         full_size_volume = None
@@ -344,7 +344,7 @@ class VolumeManagerBase(DeviceProvider):
                 mbsize += Defaults.get_min_volume_mbytes(filesystem_name)
             mbsize += volume_size.customize(
                 volume_size.accumulate_mbyte_file_sizes(exclude_paths),
-                filesystem_name
+                filesystem_name,
             )
         return mbsize
 
@@ -414,9 +414,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         Implements setup of read-only root property
         """
-        raise KiwiVolumeManagerSetupError(
-            'read only property not supported'
-        )
+        raise KiwiVolumeManagerSetupError('read only property not supported')
 
     def setup_mountpoint(self):
         """

@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.storage.subformat import DiskFormat
@@ -25,9 +23,7 @@ class TestDiskFormat:
             return_value=None
         )
         with raises(KiwiDiskFormatSetupError):
-            DiskFormat.new(
-                'vagrant', self.xml_state, 'root_dir', 'target_dir'
-            )
+            DiskFormat.new('vagrant', self.xml_state, 'root_dir', 'target_dir')
 
     @patch('kiwi.storage.subformat.qcow2.DiskFormatQcow2')
     def test_disk_format_qcow2(self, mock_qcow2):
@@ -74,86 +70,80 @@ class TestDiskFormat:
         )
         DiskFormat.new('gce', self.xml_state, 'root_dir', 'target_dir')
         mock_gce.assert_called_once_with(
-            self.xml_state, 'root_dir', 'target_dir',
-            {'--tag': 'gce_license_tag'}
+            self.xml_state,
+            'root_dir',
+            'target_dir',
+            {'--tag': 'gce_license_tag'},
         )
 
     @patch('kiwi.storage.subformat.vmdk.DiskFormatVmdk')
     def test_disk_format_vmdk(self, mock_vmdk):
         vmdisk = Mock()
-        vmdisk.get_controller = Mock(
-            return_value='controller'
-        )
-        vmdisk.get_diskmode = Mock(
-            return_value='disk-mode'
-        )
-        self.xml_state.get_build_type_vmdisk_section = Mock(
-            return_value=vmdisk
-        )
+        vmdisk.get_controller = Mock(return_value='controller')
+        vmdisk.get_diskmode = Mock(return_value='disk-mode')
+        self.xml_state.get_build_type_vmdisk_section = Mock(return_value=vmdisk)
         DiskFormat.new('vmdk', self.xml_state, 'root_dir', 'target_dir')
         mock_vmdk.assert_called_once_with(
-            self.xml_state, 'root_dir', 'target_dir',
-            {'adapter_type=controller': None, 'subformat=disk-mode': None}
+            self.xml_state,
+            'root_dir',
+            'target_dir',
+            {'adapter_type=controller': None, 'subformat=disk-mode': None},
         )
 
     @patch('kiwi.storage.subformat.ova.DiskFormatOva')
     def test_disk_format_ova(self, mock_ova):
         vmdisk = Mock()
-        vmdisk.get_controller = Mock(
-            return_value='controller'
-        )
-        vmdisk.get_diskmode = Mock(
-            return_value='disk-mode'
-        )
-        self.xml_state.get_build_type_vmdisk_section = Mock(
-            return_value=vmdisk
-        )
+        vmdisk.get_controller = Mock(return_value='controller')
+        vmdisk.get_diskmode = Mock(return_value='disk-mode')
+        self.xml_state.get_build_type_vmdisk_section = Mock(return_value=vmdisk)
         DiskFormat.new('ova', self.xml_state, 'root_dir', 'target_dir')
         mock_ova.assert_called_once_with(
-            self.xml_state, 'root_dir', 'target_dir',
-            {'adapter_type=controller': None, 'subformat=disk-mode': None}
+            self.xml_state,
+            'root_dir',
+            'target_dir',
+            {'adapter_type=controller': None, 'subformat=disk-mode': None},
         )
 
     @patch('kiwi.storage.subformat.oci.DiskFormatOci')
     def test_disk_format_oci(self, mock_oci):
-        DiskFormat.new(
-            'oci:raw', self.xml_state, 'root_dir', 'target_dir'
-        )
+        DiskFormat.new('oci:raw', self.xml_state, 'root_dir', 'target_dir')
         mock_oci.assert_called_once_with(
-            self.xml_state, 'root_dir', 'target_dir',
-            {'base_format': 'raw', 'container_format': 'oci'}
+            self.xml_state,
+            'root_dir',
+            'target_dir',
+            {'base_format': 'raw', 'container_format': 'oci'},
         )
         mock_oci.reset_mock()
-        DiskFormat.new(
-            'docker:raw', self.xml_state, 'root_dir', 'target_dir'
-        )
+        DiskFormat.new('docker:raw', self.xml_state, 'root_dir', 'target_dir')
         mock_oci.assert_called_once_with(
-            self.xml_state, 'root_dir', 'target_dir',
-            {'base_format': 'raw', 'container_format': 'docker'}
+            self.xml_state,
+            'root_dir',
+            'target_dir',
+            {'base_format': 'raw', 'container_format': 'docker'},
         )
 
-    @patch('kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox')
+    @patch(
+        'kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox'
+    )
     @patch('kiwi.storage.subformat.vagrant_libvirt.DiskFormatVagrantLibVirt')
     def test_disk_format_vagrant_libvirt(
         self, mock_vagrant_libvirt, mock_vagrant_virt_box
     ):
         for provider_name, provider_mock in (
-                ('libvirt', mock_vagrant_libvirt),
-                ('virtualbox', mock_vagrant_virt_box)
+            ('libvirt', mock_vagrant_libvirt),
+            ('virtualbox', mock_vagrant_virt_box),
         ):
             vagrant_config = Mock()
-            vagrant_config.get_provider = Mock(
-                return_value=provider_name
-            )
+            vagrant_config.get_provider = Mock(return_value=provider_name)
             self.xml_state.get_build_type_vagrant_config_section = Mock(
                 return_value=vagrant_config
             )
-            DiskFormat.new(
-                'vagrant', self.xml_state, 'root_dir', 'target_dir'
-            )
+            DiskFormat.new('vagrant', self.xml_state, 'root_dir', 'target_dir')
             provider_mock.assert_called_once_with(
-                self.xml_state, 'root_dir', 'target_dir',
-                {'vagrantconfig': vagrant_config}
+                self.xml_state,
+                'root_dir',
+                'target_dir',
+                {'vagrantconfig': vagrant_config},
             )
 
     @patch('kiwi.storage.subformat.base.DiskFormatBase')

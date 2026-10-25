@@ -18,9 +18,7 @@
 import os
 import logging
 import functools
-from typing import (
-    Literal, List, Optional, NamedTuple, Callable, Dict, Any
-)
+from typing import Literal, List, Optional, NamedTuple, Callable, Dict, Any
 import yaml
 
 # project
@@ -31,7 +29,7 @@ from kiwi.utils.size import StringToSize
 from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import (
     KiwiRuntimeConfigFormatError,
-    KiwiRuntimeConfigFileError
+    KiwiRuntimeConfigFileError,
 )
 
 log = logging.getLogger('kiwi')
@@ -66,6 +64,7 @@ class RuntimeConfig:
 
     :param bool reread: reread runtime config
     """
+
     def __init__(self, reread: bool = False):
         global RUNTIME_CONFIG
 
@@ -104,9 +103,7 @@ class RuntimeConfig:
             # read and merge all config files...
             RUNTIME_CONFIG = {}
             for config_file in config_files:
-                log.info(
-                    f'Reading runtime config file: {config_file!r}'
-                )
+                log.info(f'Reading runtime config file: {config_file!r}')
                 with open(config_file, 'r') as config:
                     next_config = yaml.safe_load(config) or {}
                     RUNTIME_CONFIG = RuntimeConfig._merge(
@@ -129,7 +126,7 @@ class RuntimeConfig:
         """
         signing_key_file = self._get_attribute(
             element='credentials',
-            attribute='verification_metadata_signing_key_file'
+            attribute='verification_metadata_signing_key_file',
         )
         return signing_key_file if signing_key_file else ''
 
@@ -150,8 +147,11 @@ class RuntimeConfig:
         obs_download_server_url = self._get_attribute(
             element='obs', attribute='download_url'
         )
-        return obs_download_server_url if obs_download_server_url else \
-            Defaults.get_obs_download_server_url()
+        return (
+            obs_download_server_url
+            if obs_download_server_url
+            else Defaults.get_obs_download_server_url()
+        )
 
     def get_obs_api_server_url(self) -> str:
         """
@@ -170,8 +170,11 @@ class RuntimeConfig:
         obs_api_server_url = self._get_attribute(
             element='obs', attribute='api_url'
         )
-        return obs_api_server_url if obs_api_server_url else \
-            Defaults.get_obs_api_server_url()
+        return (
+            obs_api_server_url
+            if obs_api_server_url
+            else Defaults.get_obs_api_server_url()
+        )
 
     def is_obs_public(self) -> bool:
         """
@@ -256,7 +259,7 @@ class RuntimeConfig:
         source_filename: str,
         target_filename: Optional[str] = None,
         default: str = '256',
-        bundle_lookup: bool = False
+        bundle_lookup: bool = False,
     ) -> ShasumT:
         """
         Return a ShasumT with information about the configured
@@ -289,18 +292,16 @@ class RuntimeConfig:
                 suffix='.sha256',
                 digest=functools.partial(
                     Checksum(source_filename).sha256, target_filename
-                )
+                ),
             ),
             '512': ShasumT(
                 suffix='.sha512',
                 digest=functools.partial(
                     Checksum(source_filename).sha512, target_filename
-                )
-            )
+                ),
+            ),
         }
-        shasum_size = self._get_attribute(
-            element='shasum', attribute='size'
-        )
+        shasum_size = self._get_attribute(element='shasum', attribute='size')
         if bundle_lookup:
             bundle_shasum_size = self._get_attribute(
                 element='bundle', attribute='shasum_size'
@@ -357,9 +358,7 @@ class RuntimeConfig:
         :rtype: bool
 
         """
-        sync_sparse = self._get_attribute(
-            element='sync', attribute='sparse'
-        )
+        sync_sparse = self._get_attribute(element='sync', attribute='sparse')
         if sync_sparse is None:
             return Defaults.get_sync_sparse()
         return bool(sync_sparse)
@@ -526,9 +525,10 @@ class RuntimeConfig:
         if the provided string does not match any RuntimeChecker method it is
         just ignored.
         """
-        disabled_checks = self._get_attribute(
-            element='runtime_checks', attribute='disable'
-        ) or []
+        disabled_checks = (
+            self._get_attribute(element='runtime_checks', attribute='disable')
+            or []
+        )
         for check in disabled_checks:
             log.warning(f'Runtime check: {check}: disabled')
         return disabled_checks
@@ -569,10 +569,12 @@ class RuntimeConfig:
                 'structures referencing themselves'
             )
         if slave:
-            if not master or \
-               isinstance(master, str) or \
-               isinstance(master, int) or \
-               isinstance(master, float):
+            if (
+                not master
+                or isinstance(master, str)
+                or isinstance(master, int)
+                or isinstance(master, float)
+            ):
                 # border case for first run or if slave is a
                 # primitive type in the recursive iteration
                 master = slave

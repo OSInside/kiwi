@@ -17,9 +17,7 @@
 #
 import os
 import logging
-from typing import (
-    Dict, List, Optional, Union
-)
+from typing import Dict, List, Optional, Union
 
 # project
 from kiwi.iso_tools.base import IsoToolsBase
@@ -38,6 +36,7 @@ class IsoToolsXorrIso(IsoToolsBase):
     Implementation of Parameter API for iso creation tools using
     the libburnia project. Addressed here is the tool xorriso
     """
+
     def has_iso_hybrid_capability(self) -> bool:
         """
         Indicate if the iso tool has the capability to embed a
@@ -75,83 +74,100 @@ class IsoToolsXorrIso(IsoToolsBase):
         """
         legacy_bios_mode = True
         if custom_args:
-            application_id = \
-                custom_args.get('application_id') or custom_args.get('mbr_id')
+            application_id = custom_args.get(
+                'application_id'
+            ) or custom_args.get('mbr_id')
             if application_id:
                 self.iso_parameters += [
-                    '-application_id', format(application_id)
+                    '-application_id',
+                    format(application_id),
                 ]
             if 'publisher' in custom_args:
                 self.iso_parameters += [
-                    '-publisher', format(custom_args['publisher'])
+                    '-publisher',
+                    format(custom_args['publisher']),
                 ]
             if 'preparer' in custom_args:
                 self.iso_parameters += [
-                    '-preparer_id', format(custom_args['preparer'])
+                    '-preparer_id',
+                    format(custom_args['preparer']),
                 ]
             if 'volume_id' in custom_args:
                 self.iso_parameters += [
-                    '-volid', format(custom_args['volume_id'])
+                    '-volid',
+                    format(custom_args['volume_id']),
                 ]
             if 'legacy_bios_mode' in custom_args:
                 legacy_bios_mode = bool(custom_args['legacy_bios_mode'])
         catalog_file = self.boot_path + '/boot.catalog'
-        self.iso_parameters += [
-            '-joliet', 'on', '-padding', '0'
-        ]
+        self.iso_parameters += ['-joliet', 'on', '-padding', '0']
         if Defaults.is_ppc64_arch(self.arch):
-            self.iso_parameters += [
-                '-compliance', 'untranslated_names'
-            ]
+            self.iso_parameters += ['-compliance', 'untranslated_names']
         else:
             self.iso_parameters += [
                 # https://lists.gnu.org/archive/html/bug-xorriso/2024-11/msg00012.html
-                '-compliance', 'no_emul_toc'
+                '-compliance',
+                'no_emul_toc',
             ]
 
         if Defaults.is_x86_arch(self.arch) and legacy_bios_mode:
             mbr_file = os.sep.join(
                 [
-                    self.source_dir, self.boot_path, 'loader',
-                    Defaults.get_iso_grub_mbr()
+                    self.source_dir,
+                    self.boot_path,
+                    'loader',
+                    Defaults.get_iso_grub_mbr(),
                 ]
             )
             loader_file = os.sep.join(
-                [
-                    self.boot_path, 'loader',
-                    Defaults.get_iso_grub_loader()
-                ]
+                [self.boot_path, 'loader', Defaults.get_iso_grub_loader()]
             )
             self.iso_loaders += [
-                '-boot_image', 'grub', 'bin_path={0}'.format(loader_file)
+                '-boot_image',
+                'grub',
+                'bin_path={0}'.format(loader_file),
             ]
             if os.path.exists(mbr_file):
                 self.iso_loaders += [
-                    '-boot_image', 'grub', 'grub2_mbr={0}'.format(mbr_file)
+                    '-boot_image',
+                    'grub',
+                    'grub2_mbr={0}'.format(mbr_file),
                 ]
             else:
                 log.warning(f'No hybrid MBR file found: {mbr_file}: skipped')
-            self.iso_loaders += [
-                '-boot_image', 'grub', 'grub2_boot_info=on'
-            ]
+            self.iso_loaders += ['-boot_image', 'grub', 'grub2_boot_info=on']
 
         if Defaults.is_ppc64_arch(self.arch):
-            self.iso_loaders += [
-                '-boot_image', 'any', 'chrp_boot_part=on'
-            ]
+            self.iso_loaders += ['-boot_image', 'any', 'chrp_boot_part=on']
         else:
             self.iso_loaders += [
-                '-boot_image', 'any', 'partition_offset=16',
-                '-boot_image', 'any', 'cat_path={0}'.format(catalog_file),
-                '-boot_image', 'any', 'cat_hidden=on',
-                '-boot_image', 'any', 'boot_info_table=on',
-                '-boot_image', 'any', 'platform_id=0x00',
-                '-boot_image', 'any', 'emul_type=no_emulation',
-                '-boot_image', 'any', 'load_size=2048'
+                '-boot_image',
+                'any',
+                'partition_offset=16',
+                '-boot_image',
+                'any',
+                'cat_path={0}'.format(catalog_file),
+                '-boot_image',
+                'any',
+                'cat_hidden=on',
+                '-boot_image',
+                'any',
+                'boot_info_table=on',
+                '-boot_image',
+                'any',
+                'platform_id=0x00',
+                '-boot_image',
+                'any',
+                'emul_type=no_emulation',
+                '-boot_image',
+                'any',
+                'load_size=2048',
             ]
 
     def add_efi_loader_parameters(
-        self, loader_file: str, custom_args: Optional[Dict[str, Union[str, bool]]] = None
+        self,
+        loader_file: str,
+        custom_args: Optional[Dict[str, Union[str, bool]]] = None,
     ) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
@@ -169,24 +185,36 @@ class IsoToolsXorrIso(IsoToolsBase):
             gpt_hybrid_mbr = custom_args.get('gpt_hybrid_mbr', False)
             if efi_partition_table == 'gpt':
                 self.iso_loaders += [
-                    '-boot_image', 'any', 'appended_part_as=gpt',
+                    '-boot_image',
+                    'any',
+                    'appended_part_as=gpt',
                 ]
                 if gpt_hybrid_mbr and legacy_bios_mode:
                     self.iso_loaders += [
-                        '-boot_image', 'any', 'mbr_force_bootable=on',
+                        '-boot_image',
+                        'any',
+                        'mbr_force_bootable=on',
                     ]
         self.iso_loaders += [
-            '-append_partition', '2', '0xef', loader_file,
-            '-boot_image', 'any', 'next',
-            '-boot_image', 'any',
+            '-append_partition',
+            '2',
+            '0xef',
+            loader_file,
+            '-boot_image',
+            'any',
+            'next',
+            '-boot_image',
+            'any',
             'efi_path=--interval:appended_partition_2:all::',
-            '-boot_image', 'any', 'platform_id=0xef',
-            '-boot_image', 'any', 'emul_type=no_emulation'
+            '-boot_image',
+            'any',
+            'platform_id=0xef',
+            '-boot_image',
+            'any',
+            'emul_type=no_emulation',
         ]
 
-    def create_iso(
-        self, filename: str, hidden_files: List[str] = None
-    ) -> None:
+    def create_iso(self, filename: str, hidden_files: List[str] = None) -> None:
         """
         Creates the iso file with the given filename using xorriso
 
@@ -197,21 +225,38 @@ class IsoToolsXorrIso(IsoToolsBase):
         if hidden_files:
             for hidden_file in hidden_files:
                 hidden_files_parameters += [
-                    '--', '-find', hidden_file, '-exec', 'hide', 'on'
+                    '--',
+                    '-find',
+                    hidden_file,
+                    '-exec',
+                    'hide',
+                    'on',
                 ]
         Path.wipe(filename)
         Command.run(
-            [
-                self.get_tool_name()
-            ] + self.iso_parameters + [
-                '-outdev', filename, '-map', self.source_dir, '/',
-                '-chmod', '0755', '/', '--'
-            ] + self.iso_loaders + hidden_files_parameters
+            [self.get_tool_name()]
+            + self.iso_parameters
+            + [
+                '-outdev',
+                filename,
+                '-map',
+                self.source_dir,
+                '/',
+                '-chmod',
+                '0755',
+                '/',
+                '--',
+            ]
+            + self.iso_loaders
+            + hidden_files_parameters
         )
         report_call = Command.run(
             [
-                self.get_tool_name(), '-indev', filename,
-                '-report_system_area', 'plain'
+                self.get_tool_name(),
+                '-indev',
+                filename,
+                '-report_system_area',
+                'plain',
             ]
         )
         log.debug(report_call.output)

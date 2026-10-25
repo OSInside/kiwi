@@ -26,6 +26,7 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
     """
     **Class for SAT solvable creation for rpm-md type repositories.**
     """
+
     def _setup_repository_metadata(self):
         """
         Download repo metadata for rpm-md specific repositories
@@ -41,11 +42,9 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
         for rpm_md_file in rpm_md_data.metadata_files:
             self.download_from_repository(
                 rpm_md_file,
-                os.sep.join([rpm_md_dir, os.path.basename(rpm_md_file)])
+                os.sep.join([rpm_md_dir, os.path.basename(rpm_md_file)]),
             )
-        self._create_solvables(
-            rpm_md_dir, rpm_md_data.solv_tool
-        )
+        self._create_solvables(rpm_md_dir, rpm_md_data.solv_tool)
 
         # Download rpm-md metadata for the comps2solv solvable
         # creation. This includes the files marked as group_gz
@@ -53,17 +52,13 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
         # information but for RHEL. In order to allow resolving
         # group id names this information needs to be present
         rpm_comps_dir = self._create_temporary_metadata_dir()
-        rpm_comps_data = self._find_repomd_files(
-            ['group_gz'], 'comps2solv'
-        )
+        rpm_comps_data = self._find_repomd_files(['group_gz'], 'comps2solv')
         for rpm_comps_file in rpm_comps_data.metadata_files:
             self.download_from_repository(
                 rpm_comps_file,
-                os.sep.join([rpm_comps_dir, os.path.basename(rpm_comps_file)])
+                os.sep.join([rpm_comps_dir, os.path.basename(rpm_comps_file)]),
             )
-        self._create_solvables(
-            rpm_comps_dir, rpm_comps_data.solv_tool
-        )
+        self._create_solvables(rpm_comps_dir, rpm_comps_data.solv_tool)
 
     def timestamp(self):
         """
@@ -74,8 +69,7 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
         :rtype: str
         """
         return self._get_repomd_xpath(
-            self._get_repomd_xml(),
-            'repo:data[@type="primary"]/repo:timestamp'
+            self._get_repomd_xml(), 'repo:data[@type="primary"]/repo:timestamp'
         )[0].text
 
     def _find_repomd_files(self, type_list, tool):
@@ -93,18 +87,14 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
 
         :rtype: tuple
         """
-        result_type = namedtuple(
-            'result_type', ['solv_tool', 'metadata_files']
-        )
+        result_type = namedtuple('result_type', ['solv_tool', 'metadata_files'])
         metadata_files = []
         for metadata_type in type_list:
             metadata_locations = self._get_repomd_xpath(
                 self._get_repomd_xml(),
-                'repo:data[@type="{0}"]/repo:location'.format(metadata_type)
+                'repo:data[@type="{0}"]/repo:location'.format(metadata_type),
             )
             for location in metadata_locations:
                 metadata_files.append(location.get('href'))
 
-        return result_type(
-            solv_tool=tool, metadata_files=metadata_files
-        )
+        return result_type(solv_tool=tool, metadata_files=metadata_files)

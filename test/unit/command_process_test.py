@@ -1,16 +1,9 @@
 import logging
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 from builtins import bytes
 
-from kiwi.command_process import (
-    CommandProcess,
-    CommandIterator
-)
+from kiwi.command_process import CommandProcess, CommandIterator
 
 from kiwi.exceptions import KiwiCommandError
 
@@ -41,17 +34,28 @@ class TestCommandProcess:
     def create_flow_method(self, method):
         def create_method(arg=None):
             return method()
+
         return create_method
 
     def setup(self):
         self.data_flow = [True, None, None, None, None, None, None, None]
         self.data_out = [
-            bytes(b''), bytes(b''), bytes(b'\n'), bytes(b'a'),
-            bytes(b't'), bytes(b'a'), bytes(b'd')
+            bytes(b''),
+            bytes(b''),
+            bytes(b'\n'),
+            bytes(b'a'),
+            bytes(b't'),
+            bytes(b'a'),
+            bytes(b'd'),
         ]
         self.data_err = [
-            bytes(b''), bytes(b'\n'), bytes(b'r'), bytes(b'o'),
-            bytes(b'r'), bytes(b'r'), bytes(b'e')
+            bytes(b''),
+            bytes(b'\n'),
+            bytes(b'r'),
+            bytes(b'o'),
+            bytes(b'r'),
+            bytes(b'r'),
+            bytes(b'e'),
         ]
         self.flow = self.create_flow_method(self.poll)
         self.flow_out_available = self.create_flow_method(self.outavailable)

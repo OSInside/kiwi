@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, call, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, Mock
+from pytest import raises, fixture
 
 from kiwi.partitioner.gpt import PartitionerGpt
 
@@ -18,9 +14,7 @@ class TestPartitionerGpt:
 
     def setup(self):
         disk_provider = Mock()
-        disk_provider.get_device = Mock(
-            return_value='/dev/loop0'
-        )
+        disk_provider.get_device = Mock(return_value='/dev/loop0')
         self.partitioner = PartitionerGpt(disk_provider)
 
     def setup_method(self, cls):
@@ -32,41 +26,56 @@ class TestPartitionerGpt:
         self.partitioner.create('name', 100, 't.linux', ['t.csm'])
         mock_command.assert_called_once_with(
             [
-                'sgdisk', '--align-end', '-n', '1:0:+100M',
-                '-c', '1:name', '/dev/loop0'
+                'sgdisk',
+                '--align-end',
+                '-n',
+                '1:0:+100M',
+                '-c',
+                '1:name',
+                '/dev/loop0',
             ]
         )
         call = mock_flag.call_args_list[0]
-        assert mock_flag.call_args_list[0] == \
-            call(1, 't.linux')
+        assert mock_flag.call_args_list[0] == call(1, 't.linux')
         call = mock_flag.call_args_list[1]
-        assert mock_flag.call_args_list[1] == \
-            call(1, 't.csm')
+        assert mock_flag.call_args_list[1] == call(1, 't.csm')
 
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create_custom_start_sector(self, mock_flag, mock_command):
         disk_provider = Mock()
-        disk_provider.get_device = Mock(
-            return_value='/dev/loop0'
-        )
+        disk_provider.get_device = Mock(return_value='/dev/loop0')
         partitioner = PartitionerGpt(disk_provider, 4096)
         partitioner.create('name', 100, 't.linux', ['t.csm'])
         partitioner.create('name', 100, 't.linux', ['t.csm'])
-        mock_command.assert_has_calls([
-            call([
-                'sgdisk', '--align-end', '-n', '1:4096:+100M',
-                '-c', '1:name', '/dev/loop0'
-            ]),
-            call([
-                'sgdisk', '--align-end', '-n', '2:0:+100M',
-                '-c', '2:name', '/dev/loop0'
-            ])
-        ])
-        assert mock_flag.call_args_list[0] == \
-            call(1, 't.linux')
-        assert mock_flag.call_args_list[1] == \
-            call(1, 't.csm')
+        mock_command.assert_has_calls(
+            [
+                call(
+                    [
+                        'sgdisk',
+                        '--align-end',
+                        '-n',
+                        '1:4096:+100M',
+                        '-c',
+                        '1:name',
+                        '/dev/loop0',
+                    ]
+                ),
+                call(
+                    [
+                        'sgdisk',
+                        '--align-end',
+                        '-n',
+                        '2:0:+100M',
+                        '-c',
+                        '2:name',
+                        '/dev/loop0',
+                    ]
+                ),
+            ]
+        )
+        assert mock_flag.call_args_list[0] == call(1, 't.linux')
+        assert mock_flag.call_args_list[1] == call(1, 't.csm')
 
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
@@ -74,8 +83,13 @@ class TestPartitionerGpt:
         self.partitioner.create('name', 'all_free', 't.linux')
         mock_command.assert_called_once_with(
             [
-                'sgdisk', '--align-end', '-n', '1:0:0',
-                '-c', '1:name', '/dev/loop0'
+                'sgdisk',
+                '--align-end',
+                '-n',
+                '1:0:0',
+                '-c',
+                '1:name',
+                '/dev/loop0',
             ]
         )
 
@@ -98,13 +112,7 @@ class TestPartitionerGpt:
     def test_set_hybrid_mbr(self, mock_command):
         self.partitioner.partition_id = 5
         self.partitioner.partition_count = 5
-        self.partitioner.partition_map = {
-            1: 1,
-            2: 2,
-            3: 3,
-            4: 4,
-            5: 5
-        }
+        self.partitioner.partition_map = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
         self.partitioner.set_hybrid_mbr()
         mock_command.assert_called_once_with(
             ['sgdisk', '-h', '1:2:3', '/dev/loop0']
@@ -116,12 +124,7 @@ class TestPartitionerGpt:
         command_output.output = '...(EFI System)'
         self.partitioner.partition_id = 4
         self.partitioner.partition_count = 4
-        self.partitioner.partition_map = {
-            1: 1,
-            2: 2,
-            3: 3,
-            4: 4
-        }
+        self.partitioner.partition_map = {1: 1, 2: 2, 3: 3, 4: 4}
         mock_command.return_value = command_output
         self.partitioner.set_mbr()
         assert mock_command.call_args_list == [
@@ -130,7 +133,7 @@ class TestPartitionerGpt:
             call(['sgdisk', '-i=3', '/dev/loop0']),
             call(['sgdisk', '-i=4', '/dev/loop0']),
             call(['sgdisk', '-t', '4:8300', '/dev/loop0']),
-            call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0'])
+            call(['sgdisk', '-m', '1:2:3:4', '/dev/loop0']),
         ]
 
     @patch('kiwi.partitioner.gpt.Command.run')

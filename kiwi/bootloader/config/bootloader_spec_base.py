@@ -17,9 +17,7 @@
 #
 import os
 import glob
-from typing import (
-    Dict, NamedTuple
-)
+from typing import Dict, NamedTuple
 
 # project
 from kiwi.firmware import FirmWare
@@ -29,13 +27,8 @@ from kiwi.defaults import Defaults
 from kiwi.utils.os_release import OsRelease
 from kiwi.system.kernel import Kernel
 
-
 target_type = NamedTuple(
-    'target_type', [
-        ('disk', str),
-        ('install', str),
-        ('live', str)
-    ]
+    'target_type', [('disk', str), ('install', str), ('live', str)]
 )
 
 
@@ -57,6 +50,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
     :param dict custom_args:
         custom bootloader configuration parameters
     """
+
     def post_init(self, custom_args: Dict = {}) -> None:
         """
         Post init for all bootloader spec loaders
@@ -103,8 +97,13 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.cmdline = f'{self.cmdline} {boot_options}'.strip()
 
     def setup_disk_image_config(
-        self, boot_uuid: str = '', root_uuid: str = '', hypervisor: str = '',
-        kernel: str = '', initrd: str = '', boot_options: Dict = {}
+        self,
+        boot_uuid: str = '',
+        root_uuid: str = '',
+        hypervisor: str = '',
+        kernel: str = '',
+        initrd: str = '',
+        boot_options: Dict = {},
     ) -> None:
         """
         Create boot config file to boot from disk
@@ -128,7 +127,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
             [
                 self.get_boot_cmdline(
                     boot_options.get('root_device'),
-                    boot_options.get('write_device')
+                    boot_options.get('write_device'),
                 )
             ]
         )
@@ -136,8 +135,11 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.setup_loader(self.target.disk)
 
     def setup_install_image_config(
-        self, mbrid: SystemIdentifier, hypervisor: str = '',
-        kernel: str = '', initrd: str = ''
+        self,
+        mbrid: SystemIdentifier,
+        hypervisor: str = '',
+        kernel: str = '',
+        initrd: str = '',
     ) -> None:
         """
         Create boot config file to boot install ISO image
@@ -152,8 +154,11 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         pass
 
     def setup_live_image_config(
-        self, mbrid: SystemIdentifier, hypervisor: str = '',
-        kernel: str = '', initrd: str = ''
+        self,
+        mbrid: SystemIdentifier,
+        hypervisor: str = '',
+        kernel: str = '',
+        initrd: str = '',
     ) -> None:
         """
         Create boot config file to boot live ISO image

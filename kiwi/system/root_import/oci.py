@@ -18,9 +18,7 @@
 import os
 import logging
 import pathlib
-from typing import (
-    Dict, List
-)
+from typing import Dict, List
 
 # project
 from kiwi.system.root_import.base import RootImportBase
@@ -38,6 +36,7 @@ class RootImportOCI(RootImportBase):
     Implements the base class for importing a root system from
     a oci image tarball file.
     """
+
     def post_init(self, custom_args: Dict[str, str]):
         self.archive_transport = custom_args['archive_transport']
         self.compressed_image_files: List[Compress] = []
@@ -61,8 +60,7 @@ class RootImportOCI(RootImportBase):
 
         Path.create(os.path.dirname(image_copy))
         oci.export_container_image(
-            image_copy, 'oci-archive',
-            Defaults.get_container_base_image_tag()
+            image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
         )
         self._make_checksum(image_copy)
 
@@ -101,7 +99,9 @@ class RootImportOCI(RootImportBase):
                     uncompressed_image = compressor.uncompressed_filename
                 else:
                     uncompressed_image = image_file
-                image_urls.append(f"{self.archive_transport}:{uncompressed_image}")
+                image_urls.append(
+                    f"{self.archive_transport}:{uncompressed_image}"
+                )
             return image_urls
         else:
             log.warning('Bypassing base image URI to OCI tools')

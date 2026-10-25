@@ -25,10 +25,7 @@ from kiwi.firmware import FirmWare
 from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
-from kiwi.exceptions import (
-    KiwiVolumeTooSmallError,
-    KiwiPartitionTooSmallError
-)
+from kiwi.exceptions import KiwiVolumeTooSmallError, KiwiPartitionTooSmallError
 
 log = logging.getLogger('kiwi')
 
@@ -43,6 +40,7 @@ class DiskSetup:
     :param object xml_state: Instance of XMLState
     :param string root_dir: root directory path name
     """
+
     def __init__(self, xml_state: XMLState, root_dir: str):
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
@@ -60,12 +58,8 @@ class DiskSetup:
         self.volumes = xml_state.get_volumes()
         self.custom_partitions = xml_state.get_partitions()
 
-        self.firmware = FirmWare(
-            xml_state
-        )
-        self.rootsize = SystemSize(
-            root_dir
-        )
+        self.firmware = FirmWare(xml_state)
+        self.rootsize = SystemSize(root_dir)
 
         self.root_dir = root_dir
         self.xml_state = xml_state
@@ -101,7 +95,7 @@ class DiskSetup:
         calculated_disk_mbytes += root_filesystem_mbytes
         log.info(
             '--> system data with filesystem overhead needs %s MB',
-            root_filesystem_mbytes
+            root_filesystem_mbytes,
         )
         if self.custom_partitions:
             partition_mbytes = self._accumulate_partitions_size()
@@ -112,30 +106,22 @@ class DiskSetup:
                 )
         if self.volume_manager and self.volume_manager == 'lvm':
             lvm_overhead_mbytes = Defaults.get_lvm_overhead_mbytes()
-            log.info(
-                '--> LVM overhead adding %s MB', lvm_overhead_mbytes
-            )
+            log.info('--> LVM overhead adding %s MB', lvm_overhead_mbytes)
             calculated_disk_mbytes += lvm_overhead_mbytes
-            volume_mbytes = self._accumulate_volume_size(
-                root_filesystem_mbytes
-            )
+            volume_mbytes = self._accumulate_volume_size(root_filesystem_mbytes)
             if volume_mbytes:
                 calculated_disk_mbytes += volume_mbytes
-                log.info(
-                    '--> volume(s) size setup adding %s MB', volume_mbytes
-                )
+                log.info('--> volume(s) size setup adding %s MB', volume_mbytes)
         elif self.swap_mbytes:
             calculated_disk_mbytes += self.swap_mbytes
-            log.info(
-                '--> swap partition adding %s MB', self.swap_mbytes
-            )
+            log.info('--> swap partition adding %s MB', self.swap_mbytes)
 
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
             calculated_disk_mbytes += legacy_bios_mbytes
             log.info(
                 '--> legacy bios boot partition adding %s MB',
-                legacy_bios_mbytes
+                legacy_bios_mbytes,
             )
 
         boot_mbytes = self.boot_partition_size()
@@ -149,63 +135,53 @@ class DiskSetup:
                 )
                 boot_mbytes *= boot_clone
             calculated_disk_mbytes += boot_mbytes
-            log.info(
-                '--> boot partition adding %s MB', boot_mbytes
-            )
+            log.info('--> boot partition adding %s MB', boot_mbytes)
 
         if self.spare_part_mbytes:
             calculated_disk_mbytes += self.spare_part_mbytes
-            log.info(
-                '--> spare partition adding %s MB', self.spare_part_mbytes
-            )
+            log.info('--> spare partition adding %s MB', self.spare_part_mbytes)
 
         efi_mbytes = self.firmware.get_efi_partition_size()
         if efi_mbytes:
             calculated_disk_mbytes += efi_mbytes
-            log.info(
-                '--> EFI partition adding %s MB', efi_mbytes
-            )
+            log.info('--> EFI partition adding %s MB', efi_mbytes)
 
         prep_mbytes = self.firmware.get_prep_partition_size()
         if prep_mbytes:
             calculated_disk_mbytes += prep_mbytes
-            log.info(
-                '--> PReP partition adding %s MB', prep_mbytes
-            )
+            log.info('--> PReP partition adding %s MB', prep_mbytes)
 
         recovery_mbytes = self._inplace_recovery_partition_size()
         if recovery_mbytes:
             calculated_disk_mbytes += recovery_mbytes
             log.info(
-                '--> In-place recovery partition adding: %s MB',
-                recovery_mbytes
+                '--> In-place recovery partition adding: %s MB', recovery_mbytes
             )
 
         if not self.configured_size:
             log.info(
-                'Using calculated disk size: %d MB',
-                calculated_disk_mbytes
+                'Using calculated disk size: %d MB', calculated_disk_mbytes
             )
             return calculated_disk_mbytes
         elif self.configured_size.additive:
-            result_disk_mbytes = \
+            result_disk_mbytes = (
                 self.configured_size.mbytes + calculated_disk_mbytes
+            )
             log.info(
                 'Using configured disk size: %d MB + %d MB calculated = %d MB',
                 self.configured_size.mbytes,
                 calculated_disk_mbytes,
-                result_disk_mbytes
+                result_disk_mbytes,
             )
             return result_disk_mbytes
         else:
             log.info(
-                'Using configured disk size: %d MB',
-                self.configured_size.mbytes
+                'Using configured disk size: %d MB', self.configured_size.mbytes
             )
             if self.configured_size.mbytes < calculated_disk_mbytes:
                 log.warning(
                     '--> Configured size smaller than calculated size: %d MB',
-                    calculated_disk_mbytes
+                    calculated_disk_mbytes,
                 )
             return self.configured_size.mbytes
 
@@ -319,8 +295,10 @@ class DiskSetup:
                     # use size as configured
                     disk_add_mbytes = int(partition_mbsize)
                 else:
-                    disk_add_mbytes = int(partition_mbsize) - \
-                        data_partition_mbytes.partition[partition_mount_path]
+                    disk_add_mbytes = (
+                        int(partition_mbsize)
+                        - data_partition_mbytes.partition[partition_mount_path]
+                    )
                 if disk_add_mbytes > 0:
                     if partition_clone:
                         partition_clone += 1
@@ -340,8 +318,11 @@ class DiskSetup:
                     ''')
                     raise KiwiPartitionTooSmallError(
                         message.format(
-                            partition_mbsize, partition_mount_path,
-                            data_partition_mbytes.partition[partition_mount_path]
+                            partition_mbsize,
+                            partition_mount_path,
+                            data_partition_mbytes.partition[
+                                partition_mount_path
+                            ],
                         )
                     )
         return disk_partition_mbytes
@@ -376,11 +357,15 @@ class DiskSetup:
                 if size_type == 'freespace':
                     disk_add_mbytes += int(req_size)
                 else:
-                    disk_add_mbytes += int(req_size) - \
-                        data_volume_mbytes.volume[volume.realpath]
+                    disk_add_mbytes += (
+                        int(req_size)
+                        - data_volume_mbytes.volume[volume.realpath]
+                    )
                 if disk_add_mbytes > 0:
-                    disk_volume_mbytes += disk_add_mbytes + \
-                        Defaults.get_min_volume_mbytes(self.filesystem)
+                    disk_volume_mbytes += (
+                        disk_add_mbytes
+                        + Defaults.get_min_volume_mbytes(self.filesystem)
+                    )
                 else:
                     message = dedent('''\n
                         Requested volume size {0}MB for {1!r} is too small
@@ -390,8 +375,9 @@ class DiskSetup:
                     ''')
                     raise KiwiVolumeTooSmallError(
                         message.format(
-                            req_size, volume.realpath,
-                            data_volume_mbytes.volume[volume.realpath]
+                            req_size,
+                            volume.realpath,
+                            data_volume_mbytes.volume[volume.realpath],
                         )
                     )
 
@@ -399,16 +385,21 @@ class DiskSetup:
             if root_volume.size_type == 'freespace':
                 disk_add_mbytes = root_volume.req_size
             else:
-                disk_add_mbytes = root_volume.req_size - \
-                    root_mbytes + data_volume_mbytes.total
+                disk_add_mbytes = (
+                    root_volume.req_size
+                    - root_mbytes
+                    + data_volume_mbytes.total
+                )
 
             if disk_add_mbytes > 0:
-                disk_volume_mbytes += disk_add_mbytes + \
-                    Defaults.get_min_volume_mbytes(self.filesystem)
+                disk_volume_mbytes += (
+                    disk_add_mbytes
+                    + Defaults.get_min_volume_mbytes(self.filesystem)
+                )
             else:
                 log.warning(
                     'root volume size of %s MB is too small, skipped',
-                    root_volume.req_size
+                    root_volume.req_size,
                 )
 
         return disk_volume_mbytes
@@ -427,8 +418,7 @@ class DiskSetup:
                 if volume.size:
                     [size_type, req_size] = volume.size.split(':')
                     return root_volume_type(
-                        size_type=size_type,
-                        req_size=int(req_size)
+                        size_type=size_type, req_size=int(req_size)
                     )
 
     def _calculate_volume_mbytes(self):
@@ -448,16 +438,13 @@ class DiskSetup:
                     volume_size = SystemSize(path_to_volume)
                     volume_mbytes[volume.realpath] = volume_size.customize(
                         volume_size.accumulate_mbyte_file_sizes(),
-                        self.filesystem
+                        self.filesystem,
                     )
                 else:
                     volume_mbytes[volume.realpath] = 0
                 volume_total += volume_mbytes[volume.realpath]
 
-        return volume_mbytes_type(
-            volume=volume_mbytes,
-            total=volume_total
-        )
+        return volume_mbytes_type(volume=volume_mbytes, total=volume_total)
 
     def _calculate_partition_mbytes(self):
         """
@@ -470,18 +457,20 @@ class DiskSetup:
         for map_name in sorted(self.custom_partitions.keys()):
             partition_mount_path = self.custom_partitions[map_name].mountpoint
             if partition_mount_path:
-                partition_filesystem = self.custom_partitions[map_name].filesystem
+                partition_filesystem = self.custom_partitions[
+                    map_name
+                ].filesystem
                 path_to_partition = os.path.normpath(
                     os.sep.join([self.root_dir, partition_mount_path])
                 )
                 if os.path.exists(path_to_partition):
                     partition_size = SystemSize(path_to_partition)
-                    partition_mbytes[partition_mount_path] = partition_size.customize(
-                        partition_size.accumulate_mbyte_file_sizes(),
-                        partition_filesystem
+                    partition_mbytes[partition_mount_path] = (
+                        partition_size.customize(
+                            partition_size.accumulate_mbyte_file_sizes(),
+                            partition_filesystem,
+                        )
                     )
                 else:
                     partition_mbytes[partition_mount_path] = 0
-        return partition_mbytes_type(
-            partition=partition_mbytes
-        )
+        return partition_mbytes_type(partition=partition_mbytes)

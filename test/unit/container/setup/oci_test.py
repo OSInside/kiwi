@@ -32,7 +32,7 @@ class TestContainerSetupOCI:
             call('kbd.service'),
             call('swap.service'),
             call('udev.service'),
-            call('proc-sys-fs-binfmt_misc.automount')
+            call('proc-sys-fs-binfmt_misc.automount'),
         ]
 
     def test_post_init(self):

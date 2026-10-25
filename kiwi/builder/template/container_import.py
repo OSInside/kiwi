@@ -25,6 +25,7 @@ class BuilderTemplateSystemdUnit:
     """
     **systemd unit file templates**
     """
+
     def __init__(self):
         self.unit = dedent('''
             # kiwi generated unit file
@@ -43,8 +44,10 @@ class BuilderTemplateSystemdUnit:
         ''').strip() + os.linesep
 
     def get_container_import_template(
-        self, container_files: List[str], load_commands: List[List[str]],
-        after: List[str]
+        self,
+        container_files: List[str],
+        load_commands: List[List[str]],
+        after: List[str],
     ):
         template_data = self.unit
         for container_file in container_files:
@@ -52,9 +55,7 @@ class BuilderTemplateSystemdUnit:
                 container_file, os.linesep
             )
         if after:
-            template_data += 'After={0}{1}'.format(
-                ' '.join(after), os.linesep
-            )
+            template_data += 'After={0}{1}'.format(' '.join(after), os.linesep)
         template_data += self.service
         for load_command in load_commands:
             template_data += 'ExecStart={0}{1}'.format(

@@ -27,6 +27,7 @@ class Signature:
     """
     **Create signatures**
     """
+
     def __init__(self, filepath: str) -> None:
         """
         Construct new Signature object
@@ -47,8 +48,9 @@ class Signature:
           - verification_metadata_signing_key_file: /path/to/pkey
         """
         runtime_config = RuntimeConfig()
-        signing_key_file = runtime_config.\
-            get_credentials_verification_metadata_signing_key_file()
+        signing_key_file = (
+            runtime_config.get_credentials_verification_metadata_signing_key_file()
+        )
         if not signing_key_file:
             raise KiwiCredentialsError(
                 '{0} not configured in runtime config'.format(
@@ -58,13 +60,20 @@ class Signature:
         signature_file = Temporary().new_file()
         Command.run(
             [
-                'openssl', 'dgst', '-sha256',
-                '-sigopt', 'rsa_padding_mode:pss',
-                '-sigopt', 'rsa_pss_saltlen:-1',
-                '-sigopt', 'rsa_mgf1_md:sha256',
-                '-sign', signing_key_file,
-                '-out', signature_file.name,
-                self.filepath
+                'openssl',
+                'dgst',
+                '-sha256',
+                '-sigopt',
+                'rsa_padding_mode:pss',
+                '-sigopt',
+                'rsa_pss_saltlen:-1',
+                '-sigopt',
+                'rsa_mgf1_md:sha256',
+                '-sign',
+                signing_key_file,
+                '-out',
+                signature_file.name,
+                self.filepath,
             ]
         )
         with open(signature_file.name, 'rb') as sig_fd:

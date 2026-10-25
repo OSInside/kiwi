@@ -17,10 +17,7 @@
 #
 from typing import IO, NamedTuple
 
-from tempfile import (
-    NamedTemporaryFile,
-    TemporaryDirectory
-)
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 # project
 import kiwi.defaults as defaults
@@ -34,21 +31,16 @@ class Temporary:
     """
     **Provides namespace to handle temporary files and directories**
     """
-    def __init__(
-        self, path: str = '', prefix: str = ''
-    ):
+
+    def __init__(self, path: str = '', prefix: str = ''):
         self.prefix = prefix if prefix else 'kiwi_'
         self.path = path or defaults.TEMP_DIR
 
     def new_file(self) -> IO[bytes]:
-        return NamedTemporaryFile(
-            dir=self.path, prefix=self.prefix
-        )
+        return NamedTemporaryFile(dir=self.path, prefix=self.prefix)
 
     def new_dir(self) -> TemporaryDirectory:
-        return TemporaryDirectory(
-            dir=self.path, prefix=self.prefix
-        )
+        return TemporaryDirectory(dir=self.path, prefix=self.prefix)
 
     def unmanaged_file(self) -> TmpT:
         return TmpT(name=f'{self.path}/{self.prefix}')

@@ -26,9 +26,13 @@ class FileSystemExt2(FileSystemBase):
     """
     **Implements creation of ext2 filesystem**
     """
+
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
-        uuid: str = None
+        self,
+        label: str = None,
+        size: int = 0,
+        unit: str = defaults.UNIT.kb,
+        uuid: str = None,
     ):
         """
         Create ext2 filesystem on block device
@@ -56,21 +60,16 @@ class FileSystemExt2(FileSystemBase):
                 self._fs_size(
                     size=self._map_size(
                         size, from_unit=unit, to_unit=defaults.UNIT.kb
-                    ), unit=defaults.UNIT.kb
+                    ),
+                    unit=defaults.UNIT.kb,
                 )
             )
-        Command.run(
-            ['mkfs.ext2'] + call_args + device_args
-        )
+        Command.run(['mkfs.ext2'] + call_args + device_args)
 
     def set_uuid(self):
         """
         Create new random filesystem UUID
         """
         device = self.device_provider.get_device()
-        Command.run(
-            ['e2fsck', '-y', '-f', device], raise_on_error=False
-        )
-        Command.run(
-            ['tune2fs', '-f', '-U', 'random', device]
-        )
+        Command.run(['e2fsck', '-y', '-f', device], raise_on_error=False)
+        Command.run(['tune2fs', '-f', '-U', 'random', device])

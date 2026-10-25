@@ -18,15 +18,14 @@
 import os
 
 # project
-from .exceptions import (
-    KiwiPrivilegesError
-)
+from .exceptions import KiwiPrivilegesError
 
 
 class Privileges:
     """
     **Implements check for root privileges**
     """
+
     @staticmethod
     def check_for_root_permissions():
         """
@@ -38,7 +37,5 @@ class Privileges:
         :rtype: bool
         """
         if os.geteuid() != 0:
-            raise KiwiPrivilegesError(
-                'operation requires root permissions'
-            )
+            raise KiwiPrivilegesError('operation requires root permissions')
         return True

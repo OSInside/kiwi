@@ -18,9 +18,7 @@
 from typing import TYPE_CHECKING, Dict, Literal, Union, overload
 
 
-from kiwi.exceptions import (
-    KiwiBootLoaderConfigSetupError
-)
+from kiwi.exceptions import KiwiBootLoaderConfigSetupError
 
 if TYPE_CHECKING:  # pragma: nocover
     from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
@@ -31,61 +29,88 @@ if TYPE_CHECKING:  # pragma: nocover
 
 @overload
 def create_boot_loader_config(
-    *, name: Literal["grub2"], xml_state: object, root_dir: str,
-    boot_dir: str = None, custom_args: Dict = None
-) -> "BootLoaderConfigGrub2":
-    ...  # pragma: nocover
+    *,
+    name: Literal["grub2"],
+    xml_state: object,
+    root_dir: str,
+    boot_dir: str = None,
+    custom_args: Dict = None,
+) -> "BootLoaderConfigGrub2": ...  # pragma: nocover
 
 
 @overload
 def create_boot_loader_config(
-    *, name: Literal["grub2_s390x_emu"], xml_state: object, root_dir: str,
-    boot_dir: str = None, custom_args: Dict = None
-) -> "BootLoaderConfigGrub2":
-    ...  # pragma: nocover
+    *,
+    name: Literal["grub2_s390x_emu"],
+    xml_state: object,
+    root_dir: str,
+    boot_dir: str = None,
+    custom_args: Dict = None,
+) -> "BootLoaderConfigGrub2": ...  # pragma: nocover
 
 
 @overload
 def create_boot_loader_config(
-    *, name: Literal["systemd_boot"], xml_state: object, root_dir: str,
-    boot_dir: str = None, custom_args: Dict = None
-) -> "BootLoaderSystemdBoot":
-    ...  # pragma: nocover
+    *,
+    name: Literal["systemd_boot"],
+    xml_state: object,
+    root_dir: str,
+    boot_dir: str = None,
+    custom_args: Dict = None,
+) -> "BootLoaderSystemdBoot": ...  # pragma: nocover
 
 
 @overload
 def create_boot_loader_config(
-    *, name: Literal["zipl"], xml_state: object, root_dir: str,
-    boot_dir: str = None, custom_args: Dict = None
-) -> "BootLoaderZipl":
-    ...  # pragma: nocover
+    *,
+    name: Literal["zipl"],
+    xml_state: object,
+    root_dir: str,
+    boot_dir: str = None,
+    custom_args: Dict = None,
+) -> "BootLoaderZipl": ...  # pragma: nocover
 
 
 @overload
 def create_boot_loader_config(
-    *, name: str, xml_state: object, root_dir: str,
-    boot_dir: str = None, custom_args: Dict = None
-) -> "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl]":
-    ...  # pragma: nocover
+    *,
+    name: str,
+    xml_state: object,
+    root_dir: str,
+    boot_dir: str = None,
+    custom_args: Dict = None,
+) -> (
+    "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl]"
+): ...  # pragma: nocover
 
 
 def create_boot_loader_config(
-    *, name: str, xml_state: object, root_dir: str,
-    boot_dir: str = None, custom_args: Dict = None
+    *,
+    name: str,
+    xml_state: object,
+    root_dir: str,
+    boot_dir: str = None,
+    custom_args: Dict = None,
 ) -> "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl, BootLoaderConfigCustom]":
 
     if name in ("grub2", "grub2_s390x_emu"):
         from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
+
         return BootLoaderConfigGrub2(xml_state, root_dir, boot_dir, custom_args)
     if name == "systemd_boot":
         from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
+
         return BootLoaderSystemdBoot(xml_state, root_dir, boot_dir, custom_args)
     if name == "zipl":
         from kiwi.bootloader.config.zipl import BootLoaderZipl
+
         return BootLoaderZipl(xml_state, root_dir, boot_dir, custom_args)
     if name == "custom":
         from kiwi.bootloader.config.custom import BootLoaderConfigCustom
-        return BootLoaderConfigCustom(xml_state, root_dir, boot_dir, custom_args)
+
+        return BootLoaderConfigCustom(
+            xml_state, root_dir, boot_dir, custom_args
+        )
 
     raise KiwiBootLoaderConfigSetupError(
         f'Support for {name} bootloader config not implemented'

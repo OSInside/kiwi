@@ -1,11 +1,7 @@
 import logging
 import io
-from unittest.mock import (
-    patch, call, Mock, MagicMock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, Mock, MagicMock
+from pytest import raises, fixture
 
 from kiwi.package_manager.apt import PackageManagerApt
 
@@ -14,7 +10,7 @@ import kiwi.defaults as defaults
 from kiwi.exceptions import (
     KiwiDebianBootstrapError,
     KiwiRequestError,
-    KiwiFileNotFound
+    KiwiFileNotFound,
 )
 
 
@@ -35,7 +31,7 @@ class TestPackageManagerApt:
                 'apt_get_args': ['-c', 'apt.conf', '-y'],
                 'command_env': self.env,
                 'distribution': 'xenial',
-                'distribution_path': 'xenial_path'
+                'distribution_path': 'xenial_path',
             }
         )
         self.manager = PackageManagerApt(repository)
@@ -70,8 +66,11 @@ class TestPackageManagerApt:
     @patch.object(PackageManagerApt, 'process_install_requests')
     @patch('os.path.isfile')
     def test_process_install_requests_bootstrap_prebuild_root(
-        self, mock_os_path_isfile, mock_process_install_requests,
-        mock_Command_run, mock_pathlib_Path
+        self,
+        mock_os_path_isfile,
+        mock_process_install_requests,
+        mock_Command_run,
+        mock_pathlib_Path,
     ):
         mock_os_path_isfile.return_value = True
         self.manager.process_install_requests_bootstrap(
@@ -81,18 +80,26 @@ class TestPackageManagerApt:
             call(['apt-get', '-c', 'apt.conf', '-y', 'update'], self.env),
             call(
                 [
-                    'apt-get', '-c', 'apt.conf', '-y',
-                    'install', 'bootstrap-package'
-                ], self.env
+                    'apt-get',
+                    '-c',
+                    'apt.conf',
+                    '-y',
+                    'install',
+                    'bootstrap-package',
+                ],
+                self.env,
             ),
             call(
                 [
-                    'tar', '-C', 'root-dir', '-xf',
+                    'tar',
+                    '-C',
+                    'root-dir',
+                    '-xf',
                     '/var/lib/bootstrap/bootstrap-package.{0}.tar.xz'.format(
                         defaults.PLATFORM_MACHINE
-                    )
+                    ),
                 ]
-            )
+            ),
         ]
         mock_process_install_requests.assert_called_once_with()
         mock_os_path_isfile.return_value = False
@@ -120,15 +127,21 @@ class TestPackageManagerApt:
     @patch('kiwi.package_manager.apt.Temporary.new_dir')
     @patch('os.path.exists')
     def test_process_install_requests_bootstrap(
-        self, mock_os_path_exists, mock_Temporary_new_dir,
-        mock_Temporary_new_file, mock_Command_call, mock_Command_run,
-        mock_pathlib_Path
+        self,
+        mock_os_path_exists,
+        mock_Temporary_new_dir,
+        mock_Temporary_new_file,
+        mock_Command_call,
+        mock_Command_run,
+        mock_pathlib_Path,
     ):
         def command_run(command, env=None):
             # mock a postinst error for base-passwd to test the retry logic
             if command == [
-                'chroot', 'root-dir',
-                'tempdir/base-passwd/postinst', 'configure'
+                'chroot',
+                'root-dir',
+                'tempdir/base-passwd/postinst',
+                'configure',
             ]:
                 raise Exception
             return MagicMock(stdout='stdout', stderr='stderr')
@@ -144,134 +157,131 @@ class TestPackageManagerApt:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
-            file_handle.__iter__.return_value = ['base-passwd\n', 'usrmerge', 'vim\n']
+            file_handle.__iter__.return_value = [
+                'base-passwd\n',
+                'usrmerge',
+                'vim\n',
+            ]
             self.manager.process_install_requests_bootstrap()
         new_env = self.env | {
             'PATH': '$PATH:/usr/bin:/bin:/usr/sbin:/sbin',
             'DPKG_MAINTSCRIPT_NAME': 'true',
-            'DPKG_MAINTSCRIPT_PACKAGE': 'libc6'
+            'DPKG_MAINTSCRIPT_PACKAGE': 'libc6',
         }
         assert mock_Command_run.call_args_list == [
-            call(
-                ['apt-get', '-c', 'apt.conf', '-y', 'update'], self.env
-            ),
+            call(['apt-get', '-c', 'apt.conf', '-y', 'update'], self.env),
             call(
                 [
-                    'apt-get', '-c', 'apt.conf', '-y', 'install',
+                    'apt-get',
+                    '-c',
+                    'apt.conf',
+                    '-y',
+                    'install',
                     '-oDebug::pkgDPkgPm=1',
                     '-oDPkg::Pre-Install-Pkgs::=cat >temporary',
                     '?essential',
                     'vim',
-                    'apt'
-                ], self.env
+                    'apt',
+                ],
+                self.env,
             ),
             call(
                 [
-                    'bash', '-c',
-                    'dpkg-deb --fsys-tarfile base-passwd | tar -C root-dir -x'
-                ], self.env
+                    'bash',
+                    '-c',
+                    'dpkg-deb --fsys-tarfile base-passwd | tar -C root-dir -x',
+                ],
+                self.env,
             ),
             call(
                 [
-                    'bash', '-c',
-                    'dpkg-deb --fsys-tarfile usrmerge | tar -C root-dir -x'
-                ], self.env
+                    'bash',
+                    '-c',
+                    'dpkg-deb --fsys-tarfile usrmerge | tar -C root-dir -x',
+                ],
+                self.env,
             ),
             call(
                 [
-                    'bash', '-c',
-                    'dpkg-deb --fsys-tarfile vim | tar -C root-dir -x'
-                ], self.env
+                    'bash',
+                    '-c',
+                    'dpkg-deb --fsys-tarfile vim | tar -C root-dir -x',
+                ],
+                self.env,
+            ),
+            call(['dpkg', '-e', 'base-passwd', 'tempdir/base-passwd']),
+            call(['chmod', '755', 'tempdir/base-passwd/preinst']),
+            call(
+                [
+                    'chroot',
+                    'root-dir',
+                    'tempdir/base-passwd/preinst',
+                    'install',
+                ],
+                new_env,
+            ),
+            call(['chmod', '755', 'tempdir/base-passwd/postinst']),
+            call(
+                [
+                    'chroot',
+                    'root-dir',
+                    'tempdir/base-passwd/postinst',
+                    'configure',
+                ],
+                new_env,
             ),
             call(
                 [
-                    'dpkg', '-e', 'base-passwd', 'tempdir/base-passwd'
-                ]
+                    'chroot',
+                    'root-dir',
+                    'tempdir/base-passwd/postinst',
+                    'configure',
+                    '0',
+                ],
+                new_env,
+            ),
+            call(['dpkg', '-e', 'base-passwd', 'tempdir/base-passwd']),
+            call(['chmod', '755', 'tempdir/base-passwd/preinst']),
+            call(
+                [
+                    'chroot',
+                    'root-dir',
+                    'tempdir/base-passwd/preinst',
+                    'install',
+                ],
+                new_env,
+            ),
+            call(['chmod', '755', 'tempdir/base-passwd/postinst']),
+            call(
+                [
+                    'chroot',
+                    'root-dir',
+                    'tempdir/base-passwd/postinst',
+                    'configure',
+                ],
+                new_env,
             ),
             call(
                 [
-                    'chmod', '755', 'tempdir/base-passwd/preinst'
-                ]
+                    'chroot',
+                    'root-dir',
+                    'tempdir/base-passwd/postinst',
+                    'configure',
+                    '0',
+                ],
+                new_env,
             ),
+            call(['dpkg', '-e', 'vim', 'tempdir/vim']),
+            call(['chmod', '755', 'tempdir/vim/preinst']),
             call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/base-passwd/preinst', 'install'
-                ], new_env
+                ['chroot', 'root-dir', 'tempdir/vim/preinst', 'install'],
+                new_env,
             ),
+            call(['chmod', '755', 'tempdir/vim/postinst']),
             call(
-                [
-                    'chmod', '755', 'tempdir/base-passwd/postinst'
-                ]
+                ['chroot', 'root-dir', 'tempdir/vim/postinst', 'configure'],
+                new_env,
             ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/base-passwd/postinst', 'configure'
-                ], new_env
-            ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/base-passwd/postinst', 'configure', '0'
-                ], new_env
-            ),
-            call(
-                ['dpkg', '-e', 'base-passwd', 'tempdir/base-passwd']
-            ),
-            call(
-                [
-                    'chmod', '755', 'tempdir/base-passwd/preinst'
-                ]
-            ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/base-passwd/preinst', 'install'
-                ], new_env
-            ),
-            call(
-                [
-                    'chmod', '755', 'tempdir/base-passwd/postinst'
-                ]
-            ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/base-passwd/postinst', 'configure'
-                ], new_env
-            ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/base-passwd/postinst', 'configure', '0'
-                ], new_env
-            ),
-            call(
-                ['dpkg', '-e', 'vim', 'tempdir/vim']
-            ),
-            call(
-                [
-                    'chmod', '755', 'tempdir/vim/preinst'
-                ]
-            ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/vim/preinst', 'install'
-                ], new_env
-            ),
-            call(
-                [
-                    'chmod', '755', 'tempdir/vim/postinst'
-                ]
-            ),
-            call(
-                [
-                    'chroot', 'root-dir',
-                    'tempdir/vim/postinst', 'configure'
-                ], new_env
-            )
         ]
 
     @patch('kiwi.command.Command.call')
@@ -282,10 +292,18 @@ class TestPackageManagerApt:
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'apt-get',
-                '-c', 'apt.conf', '-y', 'install',
-                '?essential', 'some', 'vim'
-            ], self.env
+                'chroot',
+                'root-dir',
+                'apt-get',
+                '-c',
+                'apt.conf',
+                '-y',
+                'install',
+                '?essential',
+                'some',
+                'vim',
+            ],
+            self.env,
         )
 
     @patch('kiwi.command.Command.call')
@@ -295,9 +313,17 @@ class TestPackageManagerApt:
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'apt-get', '-c', 'apt.conf', '-y',
-                '--auto-remove', 'remove', 'vim'
-            ], self.env
+                'chroot',
+                'root-dir',
+                'apt-get',
+                '-c',
+                'apt.conf',
+                '-y',
+                '--auto-remove',
+                'remove',
+                'vim',
+            ],
+            self.env,
         )
 
     @patch('kiwi.command.Command.call')
@@ -311,38 +337,36 @@ class TestPackageManagerApt:
         self.manager.request_package('vim')
         self.manager.process_delete_requests(True)
         assert mock_run.call_args_list == [
+            call(['chroot', 'root-dir', 'dpkg', '-l', 'vim']),
             call(
                 [
-                    'chroot', 'root-dir', 'dpkg', '-l', 'vim'
+                    'cp',
+                    'root-dir/usr/sbin/ldconfig',
+                    'root-dir/usr/sbin/ldconfig.orig',
                 ]
             ),
-            call(
-                [
-                    'cp', 'root-dir/usr/sbin/ldconfig',
-                    'root-dir/usr/sbin/ldconfig.orig'
-                ]
-            ),
-            call(
-                [
-                    'cp', 'root-dir/usr/bin/true',
-                    'root-dir/usr/sbin/ldconfig'
-                ]
-            )
+            call(['cp', 'root-dir/usr/bin/true', 'root-dir/usr/sbin/ldconfig']),
         ]
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'dpkg',
-                '--remove', '--force-remove-reinstreq',
-                '--force-remove-essential', '--force-depends', 'vim'
+                'chroot',
+                'root-dir',
+                'dpkg',
+                '--remove',
+                '--force-remove-reinstreq',
+                '--force-remove-essential',
+                '--force-depends',
+                'vim',
             ],
-            self.env
+            self.env,
         )
         mock_iglob.call_args_list == [
             call('root-dir/var/lib/dpkg/info/vim*.pre*'),
-            call('root-dir/var/lib/dpkg/info/vim*.post*')
+            call('root-dir/var/lib/dpkg/info/vim*.post*'),
         ]
         mock_Path_wipe.call_args_list == [
-            call('glob-result'), call('glob-result')
+            call('glob-result'),
+            call('glob-result'),
         ]
 
     @patch('kiwi.command.Command.run')
@@ -351,8 +375,9 @@ class TestPackageManagerApt:
         assert mock_run.call_args_list == [
             call(
                 [
-                    'mv', 'root-dir/usr/sbin/ldconfig.orig',
-                    'root-dir/usr/sbin/ldconfig'
+                    'mv',
+                    'root-dir/usr/sbin/ldconfig.orig',
+                    'root-dir/usr/sbin/ldconfig',
                 ]
             )
         ]
@@ -367,10 +392,17 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
-        mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            '-c', 'apt.conf', '-y', 'upgrade'],
-            self.env
+        mock_call.assert_called_once_with(
+            [
+                'chroot',
+                'root-dir',
+                'apt-get',
+                '-c',
+                'apt.conf',
+                '-y',
+                'upgrade',
+            ],
+            self.env,
         )
 
     def test_process_only_required(self):

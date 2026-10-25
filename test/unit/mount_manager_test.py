@@ -1,11 +1,7 @@
 import logging
 from typing import NoReturn
-from pytest import (
-    fixture, raises
-)
-from unittest.mock import (
-    patch, call, Mock
-)
+from pytest import fixture, raises
+from unittest.mock import patch, call, Mock
 from kiwi.exceptions import KiwiCommandError, KiwiUmountBusyError
 from kiwi.mount_manager import MountManager
 
@@ -51,13 +47,19 @@ class TestMountManager:
         mock_mounted.return_value = False
         self.mount_manager.overlay_mount('lower_path')
         assert mock_path_create.call_args_list == [
-            call('/some/mountpoint_cow'), call('/some/mountpoint_work')
+            call('/some/mountpoint_cow'),
+            call('/some/mountpoint_work'),
         ]
         mock_command.assert_called_once_with(
             [
-                'mount', '-t', 'overlay', 'overlay', '/some/mountpoint',
-                '-o', 'lowerdir=lower_path,'
-                'upperdir=/some/mountpoint_cow,workdir=/some/mountpoint_work'
+                'mount',
+                '-t',
+                'overlay',
+                'overlay',
+                '/some/mountpoint',
+                '-o',
+                'lowerdir=lower_path,'
+                'upperdir=/some/mountpoint_cow,workdir=/some/mountpoint_work',
             ]
         )
 
@@ -79,13 +81,23 @@ class TestMountManager:
         self.mount_manager.mount(['options'])
         mock_BlockID.assert_called_once_with('/dev/some-device')
         mock_command.assert_called_once_with(
-            ['mount', '-t', 'vfat', '-o', 'options', '/dev/some-device', '/some/mountpoint']
+            [
+                'mount',
+                '-t',
+                'vfat',
+                '-o',
+                'options',
+                '/dev/some-device',
+                '/some/mountpoint',
+            ]
         )
 
     @patch('kiwi.mount_manager.BlockID')
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
-    def test_mount_unknown_filesystem(self, mock_mounted, mock_command, mock_BlockID):
+    def test_mount_unknown_filesystem(
+        self, mock_mounted, mock_command, mock_BlockID
+    ):
         mock_mounted.return_value = False
         mock_BlockID.return_value.get_filesystem.return_value = ''
         self.mount_manager.mount(['options'])
@@ -100,9 +112,7 @@ class TestMountManager:
         mock_mounted.return_value = True
         with self.mount_manager:
             pass
-        mock_command.assert_called_once_with(
-            ['umount', '/some/mountpoint']
-        )
+        mock_command.assert_called_once_with(['umount', '/some/mountpoint'])
 
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
@@ -119,9 +129,7 @@ class TestMountManager:
     def test_umount_with_errors_but_lazy(
         self, mock_sleep, mock_mounted, mock_command
     ):
-        command_errors = [
-            True, False, False, False, False, False
-        ]
+        command_errors = [True, False, False, False, False, False]
 
         def _cmd_err(args) -> NoReturn:
             if not command_errors.pop():
@@ -143,9 +151,7 @@ class TestMountManager:
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
     @patch('time.sleep')
-    def test_umount_with_errors(
-        self, mock_sleep, mock_mounted, mock_command
-    ):
+    def test_umount_with_errors(self, mock_sleep, mock_mounted, mock_command):
         def _cmd_err(args) -> NoReturn:
             raise KiwiCommandError('error')
 
@@ -206,9 +212,7 @@ class TestMountManager:
     def test_umount_success(self, mock_mounted, mock_command):
         mock_mounted.return_value = True
         assert self.mount_manager.umount() is True
-        mock_command.assert_called_once_with(
-            ['umount', '/some/mountpoint']
-        )
+        mock_command.assert_called_once_with(['umount', '/some/mountpoint'])
 
     @patch('kiwi.mount_manager.Command.run')
     def test_is_mounted_true(self, mock_command):
@@ -218,7 +222,7 @@ class TestMountManager:
         assert self.mount_manager.is_mounted() is True
         mock_command.assert_called_once_with(
             command=['mountpoint', '-q', '/some/mountpoint'],
-            raise_on_error=False
+            raise_on_error=False,
         )
 
     @patch('kiwi.mount_manager.Command.run')
@@ -229,5 +233,5 @@ class TestMountManager:
         assert self.mount_manager.is_mounted() is False
         mock_command.assert_called_once_with(
             command=['mountpoint', '-q', '/some/mountpoint'],
-            raise_on_error=False
+            raise_on_error=False,
         )

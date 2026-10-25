@@ -36,10 +36,15 @@ class CommandCapabilities:
     so it can look specific flags on help message, check
     command version, etc.
     """
+
     @staticmethod
     def has_option_in_help(
-        call: str, flag: str, help_flags: List[str] = [],
-        root: str = '', raise_on_error: bool = True, silent: bool = False
+        call: str,
+        flag: str,
+        help_flags: List[str] = [],
+        root: str = '',
+        raise_on_error: bool = True,
+        silent: bool = False,
     ):
         """
         Checks if the given flag is present in the help output
@@ -86,8 +91,12 @@ class CommandCapabilities:
 
     @staticmethod
     def check_version(
-        call: str, version_waterline: tuple, version_flags: List[str] = [],
-        root: str = '', raise_on_error: bool = True, silent: bool = False
+        call: str,
+        version_waterline: tuple,
+        version_flags: List[str] = [],
+        root: str = '',
+        raise_on_error: bool = True,
+        silent: bool = False,
     ) -> bool:
         """
         Checks if the given command version is equal or higher than
@@ -119,9 +128,7 @@ class CommandCapabilities:
                 matches = re.findall(r'([0-9]+(\.[0-9]+)*)', line)
                 if matches:
                     match = max([m[0] for m in matches], key=len)
-                    version_info = tuple(
-                        int(elt) for elt in match.split('.')
-                    )
+                    version_info = tuple(int(elt) for elt in match.split('.'))
                     break
             if version_info is None:
                 raise Exception

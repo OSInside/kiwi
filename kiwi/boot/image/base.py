@@ -19,9 +19,7 @@ import re
 import os
 import logging
 import glob
-from typing import (
-    Optional, List, Dict, NamedTuple
-)
+from typing import Optional, List, Dict, NamedTuple
 
 # project
 from kiwi.mount_manager import MountManager
@@ -40,16 +38,17 @@ from kiwi.command import Command
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiConfigFileNotFound,
-    KiwiDiskBootImageError
+    KiwiDiskBootImageError,
 )
 
 boot_names_type = NamedTuple(
-    'boot_names_type', [
+    'boot_names_type',
+    [
         ('kernel_name', str),
         ('initrd_name', str),
         ('kernel_version', str),
-        ('kernel_filename', str)
-    ]
+        ('kernel_filename', str),
+    ],
 )
 
 log = logging.getLogger('kiwi')
@@ -59,11 +58,14 @@ class BootImageBase:
     """
     **Base class for boot image(initrd) task**
     """
+
     def __init__(
-        self, xml_state: XMLState, target_dir: str,
+        self,
+        xml_state: XMLState,
+        target_dir: str,
         root_dir: Optional[str] = None,
         signing_keys: Optional[List[str]] = None,
-        target_arch: Optional[str] = None
+        target_arch: Optional[str] = None,
     ) -> None:
         """
         Create a base class instance of a BootImage
@@ -97,7 +99,7 @@ class BootImageBase:
                 self.xml_state.xml_data.get_name(),
                 '.' + Defaults.get_platform_name(),
                 '-' + self.xml_state.get_image_version(),
-                '.initrd'
+                '.initrd',
             ]
         )
         self.post_init()
@@ -241,15 +243,15 @@ class BootImageBase:
 
         :rtype: boot_names_type
         """
-        kernel = Kernel(
-            self.boot_root_directory
-        )
+        kernel = Kernel(self.boot_root_directory)
         kernel_info = kernel.get_kernel()
         if not kernel_info:
             if self.xml_state.get_initrd_system() == 'none':
                 return boot_names_type(
-                    kernel_name='none', initrd_name='none',
-                    kernel_version='none', kernel_filename='none'
+                    kernel_name='none',
+                    initrd_name='none',
+                    kernel_version='none',
+                    kernel_filename='none',
                 )
             raise KiwiDiskBootImageError(
                 f'No kernel in boot image tree {self.boot_root_directory} found'
@@ -263,7 +265,7 @@ class BootImageBase:
             initrd_name=dracut_output_format.format(
                 kernel_version=kernel_info.version
             ),
-            kernel_filename=kernel_info.filename
+            kernel_filename=kernel_info.filename,
         )
 
     def prepare(self) -> None:
@@ -284,8 +286,10 @@ class BootImageBase:
         raise NotImplementedError
 
     def create_initrd(
-        self, mbrid: Optional[SystemIdentifier] = None,
-        basename: Optional[str] = None, install_initrd: bool = False
+        self,
+        mbrid: Optional[SystemIdentifier] = None,
+        basename: Optional[str] = None,
+        install_initrd: bool = False,
     ) -> None:
         """
         Implements creation of the initrd
@@ -326,7 +330,7 @@ class BootImageBase:
             )
         boot_description = XMLDescription(
             description=boot_config_file,
-            derived_from=self.xml_state.xml_data.description_dir
+            derived_from=self.xml_state.xml_data.description_dir,
         )
 
         boot_image_profile = self.xml_state.build_type.get_bootprofile()
@@ -343,12 +347,13 @@ class BootImageBase:
         if self.boot_xml_state.build_type:
             log.info(
                 '--> Selected build type: %s',
-                self.boot_xml_state.get_build_type_name()
+                self.boot_xml_state.get_build_type_name(),
             )
         if self.boot_xml_state.profiles:
             log.info(
                 '--> Selected boot profiles: image: %s, kernel: %s',
-                boot_image_profile, boot_kernel_profile
+                boot_image_profile,
+                boot_kernel_profile,
             )
 
     def import_system_description_elements(self) -> None:
@@ -356,29 +361,16 @@ class BootImageBase:
         Copy information from the system image relevant to create the
         boot image to the boot image state XML description
         """
-        self.xml_state.copy_displayname(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_name(
-            self.boot_xml_state
-        )
+        self.xml_state.copy_displayname(self.boot_xml_state)
+        self.xml_state.copy_name(self.boot_xml_state)
         self.xml_state.copy_repository_sections(
-            target_state=self.boot_xml_state,
-            wipe=True
+            target_state=self.boot_xml_state, wipe=True
         )
-        self.xml_state.copy_drivers_sections(
-            self.boot_xml_state
-        )
-        strip_description = XMLDescription(
-            Defaults.get_boot_image_strip_file()
-        )
+        self.xml_state.copy_drivers_sections(self.boot_xml_state)
+        strip_description = XMLDescription(Defaults.get_boot_image_strip_file())
         strip_xml_state = XMLState(strip_description.load())
-        strip_xml_state.copy_strip_sections(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_strip_sections(
-            self.boot_xml_state
-        )
+        strip_xml_state.copy_strip_sections(self.boot_xml_state)
+        self.xml_state.copy_strip_sections(self.boot_xml_state)
         preferences_subsection_names = [
             'bootloader_theme',
             'bootsplash_theme',
@@ -386,20 +378,14 @@ class BootImageBase:
             'packagemanager',
             'rpm_check_signatures',
             'rpm_excludedocs',
-            'showlicense'
+            'showlicense',
         ]
         self.xml_state.copy_preferences_subsections(
             preferences_subsection_names, self.boot_xml_state
         )
-        self.xml_state.copy_bootincluded_packages(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_bootincluded_archives(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_bootdelete_packages(
-            self.boot_xml_state
-        )
+        self.xml_state.copy_bootincluded_packages(self.boot_xml_state)
+        self.xml_state.copy_bootincluded_archives(self.boot_xml_state)
+        self.xml_state.copy_bootdelete_packages(self.boot_xml_state)
         type_attributes = [
             'bootkernel',
             'bootprofile',
@@ -417,23 +403,15 @@ class BootImageBase:
             'kernelcmdline',
             'ramonly',
             'target_removable',
-            'wwid_wait_timeout'
+            'wwid_wait_timeout',
         ]
         self.xml_state.copy_build_type_attributes(
             type_attributes, self.boot_xml_state
         )
-        self.xml_state.copy_bootloader_section(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_systemdisk_section(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_machine_section(
-            self.boot_xml_state
-        )
-        self.xml_state.copy_oemconfig_section(
-            self.boot_xml_state
-        )
+        self.xml_state.copy_bootloader_section(self.boot_xml_state)
+        self.xml_state.copy_systemdisk_section(self.boot_xml_state)
+        self.xml_state.copy_machine_section(self.boot_xml_state)
+        self.xml_state.copy_oemconfig_section(self.boot_xml_state)
 
     def get_boot_description_directory(self) -> Optional[str]:
         """
@@ -446,9 +424,11 @@ class BootImageBase:
         boot_description = self.xml_state.build_type.get_boot()
         if boot_description:
             if not boot_description[0] == '/':
-                boot_description = \
-                    Defaults.get_boot_image_description_path() + '/' + \
-                    boot_description
+                boot_description = (
+                    Defaults.get_boot_image_description_path()
+                    + '/'
+                    + boot_description
+                )
         return boot_description
 
     def cleanup(self) -> None:
@@ -487,19 +467,22 @@ class BootImageBase:
         else:
             default_outfile_format = 'initramfs-{kernel_version}.img'
 
-        outfile_format = \
+        outfile_format = (
             self._get_boot_image_output_file_format_from_existing_file(
                 kernel_version
             )
+        )
         if not outfile_format:
-            outfile_format = \
+            outfile_format = (
                 self._get_boot_image_output_file_format_from_dracut_code()
+            )
 
         if not outfile_format:
-            outfile_format = \
+            outfile_format = (
                 self._get_boot_image_output_file_format_from_config(
                     kernel_version
                 )
+            )
 
         if outfile_format:
             return outfile_format
@@ -513,7 +496,7 @@ class BootImageBase:
             return default_outfile_format
 
     def _get_boot_image_output_file_format_from_dracut_code(
-        self
+        self,
     ) -> Optional[str]:
         dracut_tool = Path.which(
             'dracut', root_dir=self.boot_root_directory, access_mode=os.X_OK
@@ -523,10 +506,10 @@ class BootImageBase:
             with open(dracut_tool) as dracut:
                 matches = re.findall(outfile_expression, dracut.read())
                 if matches:
-                    return matches[0].replace(
-                        '$kernel', '{kernel_version}'
-                    ).replace(
-                        '${kernel}', '{kernel_version}'
+                    return (
+                        matches[0]
+                        .replace('$kernel', '{kernel_version}')
+                        .replace('${kernel}', '{kernel_version}')
                     )
         return None
 
@@ -559,19 +542,23 @@ class BootImageBase:
         self, kernel_version: str
     ) -> Optional[str]:
         if CommandCapabilities.has_option_in_help(
-            'dracut', '--printconfig', ['--help'],
-            root=self.boot_root_directory, raise_on_error=False
+            'dracut',
+            '--printconfig',
+            ['--help'],
+            root=self.boot_root_directory,
+            raise_on_error=False,
         ):
             with MountManager(
-                device='tmpfs', mountpoint=os.path.join(
-                    self.boot_root_directory, 'var/tmp'
-                )
+                device='tmpfs',
+                mountpoint=os.path.join(self.boot_root_directory, 'var/tmp'),
             ) as var_tmp_mount:
                 var_tmp_mount.tmpfs_mount()
                 dracut_call = Command.run(
                     [
-                        'chroot', self.boot_root_directory,
-                        'dracut', '--printconfig'
+                        'chroot',
+                        self.boot_root_directory,
+                        'dracut',
+                        '--printconfig',
                     ]
                 )
                 temp_file = Temporary().new_file()

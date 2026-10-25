@@ -18,9 +18,7 @@
 from contextlib import ExitStack
 import os
 import logging
-from typing import (
-    Dict, List, Union
-)
+from typing import Dict, List, Union
 import shutil
 
 # project
@@ -68,59 +66,72 @@ class LiveImageBuilder:
     :param str root_dir: root directory path name
     :param dict custom_args: Custom processing arguments
     """
+
     def __init__(
-        self, xml_state: XMLState, target_dir: str,
-        root_dir: str, custom_args: Dict = None
+        self,
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str,
+        custom_args: Dict = None,
     ):
         self.bootloader = xml_state.get_build_type_bootloader_name()
         if self.bootloader != 'systemd_boot':
             self.bootloader = 'grub2'
-        self.root_filesystem_verity_blocks = \
+        self.root_filesystem_verity_blocks = (
             xml_state.build_type.get_verity_blocks()
+        )
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.live_type = xml_state.build_type.get_flags()
-        self.volume_id = xml_state.build_type.get_volid() or \
-            Defaults.get_volume_id()
+        self.volume_id = (
+            xml_state.build_type.get_volid() or Defaults.get_volume_id()
+        )
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
-        self.application_id = \
-            self.xml_state.build_type.get_application_id() or \
-            self.mbrid.get_id()
-        self.publisher = xml_state.build_type.get_publisher() or \
-            Defaults.get_publisher()
+        self.application_id = (
+            self.xml_state.build_type.get_application_id()
+            or self.mbrid.get_id()
+        )
+        self.publisher = (
+            xml_state.build_type.get_publisher() or Defaults.get_publisher()
+        )
         self.custom_args = custom_args
         self.luks = xml_state.get_luks_credentials()
         self.luks_os = xml_state.build_type.get_luksOS()
         self.luks_format_options = xml_state.get_luks_format_options()
-        self.luks_randomize = xml_state.build_type.get_luks_randomize() \
-            if xml_state.build_type.get_luks_randomize() is not None else True
+        self.luks_randomize = (
+            xml_state.build_type.get_luks_randomize()
+            if xml_state.build_type.get_luks_randomize() is not None
+            else True
+        )
 
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
 
         self.boot_image = BootImageDracut(
             xml_state,
-            f'{root_dir}/boot'
-            if self.bootloader == 'systemd_boot' else target_dir,
-            self.root_dir
+            (
+                f'{root_dir}/boot'
+                if self.bootloader == 'systemd_boot'
+                else target_dir
+            ),
+            self.root_dir,
         )
-        self.firmware = FirmWare(
-            xml_state
-        )
+        self.firmware = FirmWare(xml_state)
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
         self.bundle_format = xml_state.get_build_type_bundle_format()
         self.isoname = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 xml_state.xml_data.get_name(),
                 '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
-                '.iso'
+                '.iso',
             ]
         )
         self.result = Result(xml_state)
@@ -135,7 +146,7 @@ class LiveImageBuilder:
                 'efi_mode': self.firmware.efi_mode(),
                 'efi_partition_table': self.firmware.get_partition_table_type(),
                 'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
-                'legacy_bios_mode': self.firmware.legacy_bios_mode()
+                'legacy_bios_mode': self.firmware.legacy_bios_mode(),
             }
         }
 
@@ -168,28 +179,25 @@ class LiveImageBuilder:
         log.info('--> Application id: {0}'.format(self.application_id))
         log.info('--> Publisher: {0}'.format(self.publisher))
         log.info('--> Volume id: {0}'.format(self.volume_id))
-        log.info(
-            'Setting up live image bootloader configuration'
-        )
+        log.info('Setting up live image bootloader configuration')
         with self._create_bootloader_instance() as bootloader_config:
             bootloader_config.setup_live_boot_images(
                 mbrid=self.mbrid, lookup_path=self.root_dir
             )
             IsoToolsBase.setup_media_loader_directory(
-                self.boot_image.boot_root_directory, self.media_dir.name,
-                bootloader_config.get_boot_theme()
+                self.boot_image.boot_root_directory,
+                self.media_dir.name,
+                bootloader_config.get_boot_theme(),
             )
             bootloader_config.write_meta_data()
-            bootloader_config.setup_live_image_config(
-                mbrid=self.mbrid
-            )
+            bootloader_config.setup_live_image_config(mbrid=self.mbrid)
             bootloader_config.write()
 
             # call custom editbootconfig script if present
             self.system_setup.call_edit_boot_config_script(
                 filesystem='iso:{0}'.format(self.media_dir.name),
                 boot_part_id=1,
-                working_directory=self.root_dir
+                working_directory=self.root_dir,
             )
 
             self.system_setup.setup_selinux_file_contexts()
@@ -222,18 +230,19 @@ class LiveImageBuilder:
             )
         )
         root_filesystem = self.xml_state.build_type.get_filesystem()
-        root_filesystem = root_filesystem if root_filesystem else \
-            Defaults.get_default_live_iso_root_filesystem()
+        root_filesystem = (
+            root_filesystem
+            if root_filesystem
+            else Defaults.get_default_live_iso_root_filesystem()
+        )
         filesystem_custom_parameters = {
             'mount_options': self.xml_state.get_fs_mount_option_list(),
-            'create_options': self.xml_state.get_fs_create_option_list()
+            'create_options': self.xml_state.get_fs_create_option_list(),
         }
 
         self.system_setup.setup_selinux_file_contexts()
 
-        filesystem_setup = FileSystemSetup(
-            self.xml_state, self.root_dir
-        )
+        filesystem_setup = FileSystemSetup(self.xml_state, self.root_dir)
 
         if root_filesystem not in ['squashfs', 'erofs']:
             # Create a filesystem image of the specified type
@@ -243,7 +252,7 @@ class LiveImageBuilder:
                 loop_provider = LoopDevice(
                     root_image.name,
                     filesystem_setup.get_size_mbytes(root_filesystem),
-                    self.xml_state.build_type.get_target_blocksize()
+                    self.xml_state.build_type.get_target_blocksize(),
                 )
                 stack.push(loop_provider)
                 loop_provider.create()
@@ -258,17 +267,19 @@ class LiveImageBuilder:
                         options=self.luks_format_options,
                         keyfile='',
                         randomize=self.luks_randomize,
-                        root_dir=self.root_dir
+                        root_dir=self.root_dir,
                     )
 
-                device_provider = \
-                    luks_provider.get_device() or DeviceProvider() \
-                    if luks_provider else loop_provider
+                device_provider = (
+                    luks_provider.get_device() or DeviceProvider()
+                    if luks_provider
+                    else loop_provider
+                )
                 live_filesystem = FileSystem.new(
                     name=root_filesystem,
                     device_provider=device_provider,
                     root_dir=self.root_dir + os.sep,
-                    custom_args=filesystem_custom_parameters
+                    custom_args=filesystem_custom_parameters,
                 )
                 stack.push(live_filesystem)
                 live_filesystem.create_on_device()
@@ -276,9 +287,10 @@ class LiveImageBuilder:
                     '--> Syncing data to {0} root image'.format(root_filesystem)
                 )
                 live_filesystem.sync_data(
-                    Defaults.
-                    get_exclude_list_for_root_data_sync() + Defaults.
-                    get_exclude_list_from_custom_exclude_files(self.root_dir)
+                    Defaults.get_exclude_list_for_root_data_sync()
+                    + Defaults.get_exclude_list_from_custom_exclude_files(
+                        self.root_dir
+                    )
                 )
 
             log.info('--> Creating squashfs container for root image')
@@ -288,25 +300,23 @@ class LiveImageBuilder:
             Path.create(self.live_container_dir.name + '/LiveOS')
             shutil.copy(
                 root_image.name,
-                self.live_container_dir.name + '/LiveOS/rootfs.img'
+                self.live_container_dir.name + '/LiveOS/rootfs.img',
             )
             with FileSystem.new(
                 name='squashfs',
                 device_provider=DeviceProvider(),
                 root_dir=self.live_container_dir.name,
                 custom_args={
-                    'compression':
-                        self.xml_state.build_type.get_squashfscompression()
-                }
+                    'compression': self.xml_state.build_type.get_squashfscompression()
+                },
             ) as live_container_image:
                 container_image = Temporary().new_file()
-                live_container_image.create_on_file(
-                    container_image.name
-                )
+                live_container_image.create_on_file(container_image.name)
                 if self.root_filesystem_verity_blocks:
                     live_container_image.create_verity_layer(
-                        self.root_filesystem_verity_blocks if
-                        self.root_filesystem_verity_blocks != 'all' else None
+                        self.root_filesystem_verity_blocks
+                        if self.root_filesystem_verity_blocks != 'all'
+                        else None
                     )
                     self._write_veritytab_to_boot_image(
                         container_image.name, live_container_image.veritysetup
@@ -315,17 +325,17 @@ class LiveImageBuilder:
                 os.chmod(container_image.name, 0o644)
                 shutil.copy(
                     container_image.name,
-                    self.media_dir.name + '/LiveOS/squashfs.img'
+                    self.media_dir.name + '/LiveOS/squashfs.img',
                 )
         else:
             # Put the root filesystem into SquashFS/EroFS directly
             filesystem_custom_parameters.update(
                 {
-                    'compression':
-                        self.xml_state.build_type.get_squashfscompression()
-                } if root_filesystem == 'squashfs' else {
-                    'compression':
-                        self.xml_state.build_type.get_erofscompression()
+                    'compression': self.xml_state.build_type.get_squashfscompression()
+                }
+                if root_filesystem == 'squashfs'
+                else {
+                    'compression': self.xml_state.build_type.get_erofscompression()
                 }
             )
             with ExitStack() as stack:
@@ -333,21 +343,23 @@ class LiveImageBuilder:
                     name=root_filesystem,
                     device_provider=DeviceProvider(),
                     root_dir=self.root_dir + os.sep,
-                    custom_args=filesystem_custom_parameters
+                    custom_args=filesystem_custom_parameters,
                 )
                 stack.push(live_container_image)
                 container_image = Temporary().new_file()
                 live_container_image.create_on_file(
                     filename=container_image.name,
-                    exclude=Defaults.
-                    get_exclude_list_for_root_data_sync() + Defaults.
-                    get_exclude_list_from_custom_exclude_files(self.root_dir)
+                    exclude=Defaults.get_exclude_list_for_root_data_sync()
+                    + Defaults.get_exclude_list_from_custom_exclude_files(
+                        self.root_dir
+                    ),
                 )
 
                 if self.root_filesystem_verity_blocks:
                     live_container_image.create_verity_layer(
-                        self.root_filesystem_verity_blocks if
-                        self.root_filesystem_verity_blocks != 'all' else None
+                        self.root_filesystem_verity_blocks
+                        if self.root_filesystem_verity_blocks != 'all'
+                        else None
                     )
                     self._write_veritytab_to_boot_image(
                         container_image.name, live_container_image.veritysetup
@@ -357,14 +369,14 @@ class LiveImageBuilder:
                 if self.luks is not None:
                     # dump root filesystem blob on top of a LUKS blob
                     # we are adding 20MB LUKS overhead
-                    luks_size_mb = os.path.getsize(
-                        container_image.name
-                    ) / 1048576
+                    luks_size_mb = (
+                        os.path.getsize(container_image.name) / 1048576
+                    )
                     luks_image = Temporary().new_file()
                     loop_provider = LoopDevice(
                         luks_image.name,
                         int(luks_size_mb) + 20,
-                        self.xml_state.build_type.get_target_blocksize()
+                        self.xml_state.build_type.get_target_blocksize(),
                     )
                     stack.push(loop_provider)
                     loop_provider.create()
@@ -377,14 +389,14 @@ class LiveImageBuilder:
                         options=self.luks_format_options,
                         keyfile='',
                         randomize=self.luks_randomize,
-                        root_dir=self.root_dir
+                        root_dir=self.root_dir,
                     )
                     luks_device = luks_provider.get_device() or DeviceProvider()
                     Command.run(
                         [
                             'dd',
                             f'if={container_image.name}',
-                            f'of={luks_device.get_device()}'
+                            f'of={luks_device.get_device()}',
                         ]
                     )
                 Path.create(self.media_dir.name + '/LiveOS')
@@ -397,7 +409,7 @@ class LiveImageBuilder:
                 # with the rd.live.squashimg boot option though.
                 shutil.copy(
                     luks_image.name if luks_image else container_image.name,
-                    self.media_dir.name + '/LiveOS/squashfs.img'
+                    self.media_dir.name + '/LiveOS/squashfs.img',
                 )
 
         if self.root_filesystem_verity_blocks:
@@ -412,8 +424,9 @@ class LiveImageBuilder:
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
         with FileSystemIsoFs(
-            device_provider=DeviceProvider(), root_dir=self.media_dir.name,
-            custom_args=self.custom_iso_args
+            device_provider=DeviceProvider(),
+            root_dir=self.media_dir.name,
+            custom_args=self.custom_iso_args,
         ) as iso_image:
             iso_image.create_on_file(self.isoname)
 
@@ -422,8 +435,7 @@ class LiveImageBuilder:
             Iso.set_media_tag(self.isoname)
 
         Result.verify_image_size(
-            self.runtime_config.get_max_size_constraint(),
-            self.isoname
+            self.runtime_config.get_max_size_constraint(), self.isoname
         )
         if self.bundle_format:
             self.result.add_bundle_format(self.bundle_format)
@@ -432,25 +444,21 @@ class LiveImageBuilder:
             filename=self.isoname,
             use_for_bundle=True,
             compress=False,
-            shasum=True
+            shasum=True,
         )
         self.result.add(
             key='image_packages',
-            filename=self.system_setup.export_package_list(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_list(self.target_dir),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_changes',
-            filename=self.system_setup.export_package_changes(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_changes(self.target_dir),
             use_for_bundle=True,
             compress=True,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_verified',
@@ -459,25 +467,23 @@ class LiveImageBuilder:
             ),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         return self.result
 
     def create_live_iso_boot_images(
         self,
         bootloader_config: Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot],
-        modules: List[str] = []
+        modules: List[str] = [],
     ) -> None:
-        live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
-            self.live_type
-        ) + modules
+        live_dracut_modules = (
+            Defaults.get_live_dracut_modules_from_flag(self.live_type) + modules
+        )
         for dracut_module in live_dracut_modules:
             self.boot_image.include_module(dracut_module)
         self.boot_image.write_system_config_file(
-            config={
-                'modules': live_dracut_modules
-            },
-            config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+            config={'modules': live_dracut_modules},
+            config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf',
         )
         self.boot_image.create_initrd(self.mbrid)
         # Clean up leftover dracut config file (which can break installs)
@@ -489,10 +495,10 @@ class LiveImageBuilder:
             if self.boot_image.initrd_filename:
                 Command.run(
                     [
-                        'mv', self.boot_image.initrd_filename,
-                        self.root_dir + ''.join(
-                            ['/boot/', boot_names.initrd_name]
-                        )
+                        'mv',
+                        self.boot_image.initrd_filename,
+                        self.root_dir
+                        + ''.join(['/boot/', boot_names.initrd_name]),
                     ]
                 )
 
@@ -504,8 +510,9 @@ class LiveImageBuilder:
             bootloader_config._create_embedded_fat_efi_image(
                 self.efi_loader.name
             )
-            self.custom_iso_args['meta_data']['efi_loader'] = \
-                self.efi_loader.name
+            self.custom_iso_args['meta_data'][
+                'efi_loader'
+            ] = self.efi_loader.name
 
     def _write_veritytab_to_boot_image(
         self, container_image_name: str, veritysetup: VeritySetup
@@ -521,32 +528,34 @@ class LiveImageBuilder:
             # based on the loopsetup result of the compressed image file
             device_id = 'PLACEHOLDER'
         else:
-            device_id = 'UUID={}'.format(
-                block_operation.get_blkid('UUID')
-            )
+            device_id = 'UUID={}'.format(block_operation.get_blkid('UUID'))
         with open(veritytab_filename, 'w') as veritytab:
             veritytab.write(
                 'verityroot {0} {0} {1} {2},{3}{4}'.format(
-                    device_id, veritysetup.verity_dict.get('Roothash'),
+                    device_id,
+                    veritysetup.verity_dict.get('Roothash'),
                     f'hash-offset={veritysetup.verity_hash_offset}',
                     f'hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}',
-                    os.linesep
+                    os.linesep,
                 )
             )
             self.boot_image.include_file(
-                filename=os.sep + os.sep.join(
-                    ['etc', os.path.basename(veritytab_filename)]
-                ), delete_after_include=True
+                filename=os.sep
+                + os.sep.join(['etc', os.path.basename(veritytab_filename)]),
+                delete_after_include=True,
             )
 
     def _create_bootloader_instance(self) -> BootLoaderConfigBase:
         return create_boot_loader_config(
-            name=self.bootloader, xml_state=self.xml_state,
+            name=self.bootloader,
+            xml_state=self.xml_state,
             root_dir=self.root_dir,
             boot_dir=self.media_dir.name,
-            custom_args=Defaults.get_grub_custom_arguments(
-                self.root_dir
-            ) if self.bootloader.startswith('grub') else {}
+            custom_args=(
+                Defaults.get_grub_custom_arguments(self.root_dir)
+                if self.bootloader.startswith('grub')
+                else {}
+            ),
         )
 
     def _setup_live_iso_kernel_and_initrd(self) -> None:
@@ -581,13 +590,11 @@ class LiveImageBuilder:
         # Move initrd to iso filesystem structure
         if os.path.exists(self.boot_image.initrd_filename):
             os.chmod(self.boot_image.initrd_filename, 0o644)
-            shutil.move(
-                self.boot_image.initrd_filename, boot_path + '/initrd'
-            )
+            shutil.move(self.boot_image.initrd_filename, boot_path + '/initrd')
         else:
             raise KiwiLiveBootImageError(
                 'No boot image {0} in boot image tree {1} found'.format(
                     self.boot_image.initrd_filename,
-                    self.boot_image.boot_root_directory
+                    self.boot_image.boot_root_directory,
                 )
             )

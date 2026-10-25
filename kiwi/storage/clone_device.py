@@ -32,6 +32,7 @@ class CloneDevice(DeviceProvider):
     """
     **Implements device cloning**
     """
+
     def __init__(self, source_provider: DeviceProvider, root_dir: str):
         """
         Construct a new CloneDevice layout object
@@ -57,7 +58,7 @@ class CloneDevice(DeviceProvider):
                     'dd',
                     'if={0}'.format(self.source_provider.get_device()),
                     'of={0}'.format(target_device.get_device()),
-                    'bs=1M'
+                    'bs=1M',
                 ]
             )
             clone_id = BlockID(target_device.get_device())
@@ -71,18 +72,19 @@ class CloneDevice(DeviceProvider):
             elif target_filesystem == 'LVM2_member':
                 # Volume Group clones requires to be unique on the vgroup
                 # name to avoid conflicts on the running system
-                Command.run(
-                    ['vgimportclone', target_device.get_device()]
-                )
+                Command.run(['vgimportclone', target_device.get_device()])
             elif target_filesystem == 'crypto_LUKS':
                 # Device mapper clones based on the LUKS header needs to be
                 # unique in the LUKS UUID to avoid conflicts on the running
                 # system
                 Command.run(
                     [
-                        'cryptsetup', '-q', 'luksUUID',
-                        target_device.get_device(), '--uuid',
-                        format(uuid.uuid4())
+                        'cryptsetup',
+                        '-q',
+                        'luksUUID',
+                        target_device.get_device(),
+                        '--uuid',
+                        format(uuid.uuid4()),
                     ]
                 )
             elif target_filesystem == 'linux_raid_member':
@@ -95,27 +97,30 @@ class CloneDevice(DeviceProvider):
                         raid_config = mdadm.readline().split(' ')
                     md_device = raid_config[1]
                     md_name = raid_config[3].split('=')[1]
-                    Command.run(
-                        ['mdadm', '--stop', md_device]
-                    )
+                    Command.run(['mdadm', '--stop', md_device])
                     Command.run(
                         [
-                            'mdadm', '--assemble', '--update=uuid', '--name',
-                            md_name, md_device, target_device.get_device()
+                            'mdadm',
+                            '--assemble',
+                            '--update=uuid',
+                            '--name',
+                            md_name,
+                            md_device,
+                            target_device.get_device(),
                         ]
                     )
                     with FileSystem.new(
                         BlockID(md_device).get_filesystem(),
-                        MappedDevice(md_device, target_device)
+                        MappedDevice(md_device, target_device),
                     ) as fs:
                         fs.set_uuid()
-                    Command.run(
-                        ['mdadm', '--stop', md_device]
-                    )
+                    Command.run(['mdadm', '--stop', md_device])
                     Command.run(
                         [
-                            'mdadm', '--assemble', md_device,
-                            self.source_provider.get_device()
+                            'mdadm',
+                            '--assemble',
+                            md_device,
+                            self.source_provider.get_device(),
                         ]
                     )
                 except Exception as issue:

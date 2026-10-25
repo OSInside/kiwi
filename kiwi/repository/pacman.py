@@ -18,15 +18,11 @@
 import os
 import logging
 from configparser import ConfigParser
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 import kiwi.defaults as defaults
-from kiwi.utils.temporary import (
-    Temporary, TmpT
-)
+from kiwi.utils.temporary import Temporary, TmpT
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
@@ -63,9 +59,11 @@ class RepositoryPacman(RepositoryBase):
 
         # delete custom arguments not used for pacman
         for argument in self.custom_args:
-            if '_install_langs' in argument or \
-               '_target_arch' in argument or \
-               'exclude_docs' in argument:
+            if (
+                '_install_langs' in argument
+                or '_target_arch' in argument
+                or 'exclude_docs' in argument
+            ):
                 log.warning(
                     f'Custom argument {argument} will be ignored for pacman'
                 )
@@ -83,13 +81,14 @@ class RepositoryPacman(RepositoryBase):
 
         self.shared_pacman_dir = {
             'cache-dir': manager_base + '/cache',
-            'repos-dir': manager_base + '/repos'
+            'repos-dir': manager_base + '/repos',
         }
         Path.create(self.shared_pacman_dir['repos-dir'])
 
         self.pacman_args = [
-            '--config', self.runtime_pacman_config_file.name,
-            '--noconfirm'
+            '--config',
+            self.runtime_pacman_config_file.name,
+            '--noconfirm',
         ]
 
         self._write_runtime_config()
@@ -99,8 +98,7 @@ class RepositoryPacman(RepositoryBase):
         Setup pacman repository operations to store all data
         in the default places
         """
-        self.shared_pacman_dir['repos-dir'] = \
-            self.root_dir + '/etc/pacman.d'
+        self.shared_pacman_dir['repos-dir'] = self.root_dir + '/etc/pacman.d'
 
     def runtime_config(self) -> Dict:
         """
@@ -109,31 +107,46 @@ class RepositoryPacman(RepositoryBase):
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return {
             'pacman_args': self.pacman_args,
-            'command_env': dict(os.environ, **HostProxy().get_env())
+            'command_env': dict(os.environ, **HostProxy().get_env()),
         }
 
     def _add_repo_section(
-        self, config_parser: ConfigParser, name: str, uri: str,
-        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False
+        self,
+        config_parser: ConfigParser,
+        name: str,
+        uri: str,
+        repo_gpgcheck: bool = False,
+        pkg_gpgcheck: bool = False,
     ) -> None:
         config_parser.add_section(name)
         if uri.startswith(os.sep) and os.path.exists(uri):
             uri = 'file://{}'.format(uri)
         config_parser.set(name, 'Server', uri)
         config_parser.set(
-            name, 'SigLevel', '{0} {1}'.format(
+            name,
+            'SigLevel',
+            '{0} {1}'.format(
                 'Required' if pkg_gpgcheck else 'Never',
-                'DatabaseRequired' if repo_gpgcheck else 'DatabaseNever'
-            )
+                'DatabaseRequired' if repo_gpgcheck else 'DatabaseNever',
+            ),
         )
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str = None,
-        prio: int = None, dist: str = None, components: str = None,
-        user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None,
-        architectures: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str = None,
+        prio: int = None,
+        dist: str = None,
+        components: str = None,
+        user: str = None,
+        secret: str = None,
+        credentials_file: str = None,
+        repo_gpgcheck: bool = False,
+        pkg_gpgcheck: bool = False,
+        sourcetype: str = None,
+        customization_script: str = None,
+        architectures: str = None,
     ) -> None:
         """
         Add pacman repository
@@ -162,14 +175,12 @@ class RepositoryPacman(RepositoryBase):
         repo_config.optionxform = str  # type: ignore
         if not components:
             self._add_repo_section(
-                repo_config, name, uri, repo_gpgcheck,
-                pkg_gpgcheck
+                repo_config, name, uri, repo_gpgcheck, pkg_gpgcheck
             )
         else:
             for component in components.split():
                 self._add_repo_section(
-                    repo_config, component, uri, repo_gpgcheck,
-                    pkg_gpgcheck
+                    repo_config, component, uri, repo_gpgcheck, pkg_gpgcheck
                 )
 
         with open(repo_file, 'w') as config:
@@ -183,13 +194,9 @@ class RepositoryPacman(RepositoryBase):
         """
         for signing_key in signing_keys:
             if os.path.exists(signing_key):
-                Command.run(
-                    ['pacman-key', '--recv-keys', signing_key]
-                )
+                Command.run(['pacman-key', '--recv-keys', signing_key])
             else:
-                Command.run(
-                    ['pacman-key', '--add', signing_key]
-                )
+                Command.run(['pacman-key', '--add', signing_key])
 
     def delete_repo(self, name: str) -> None:
         """
@@ -244,9 +251,7 @@ class RepositoryPacman(RepositoryBase):
         runtime_pacman_config.optionxform = str  # type: ignore
         runtime_pacman_config.add_section('options')
 
-        runtime_pacman_config.set(
-            'options', 'Architecture', 'auto'
-        )
+        runtime_pacman_config.set('options', 'Architecture', 'auto')
         runtime_pacman_config.set(
             'options', 'CacheDir', self.shared_pacman_dir['cache-dir']
         )
@@ -267,9 +272,9 @@ class RepositoryPacman(RepositoryBase):
             )
 
         runtime_pacman_config.set(
-            'options', 'Include', '{0}/*.repo'.format(
-                self.shared_pacman_dir['repos-dir']
-            )
+            'options',
+            'Include',
+            '{0}/*.repo'.format(self.shared_pacman_dir['repos-dir']),
         )
 
         with open(self.runtime_pacman_config_file.name, 'w') as config:

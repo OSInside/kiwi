@@ -11,8 +11,9 @@ class TestFileSystemEroFs:
     def setup(self, mock_exists):
         mock_exists.return_value = True
         self.erofs = FileSystemEroFs(
-            mock.Mock(), 'root_dir',
-            custom_args={'compression': 'zstd,level=21'}
+            mock.Mock(),
+            'root_dir',
+            custom_args={'compression': 'zstd,level=21'},
         )
 
     @patch('os.path.exists')
@@ -25,8 +26,13 @@ class TestFileSystemEroFs:
         self.erofs.create_on_file('myimage', 'label')
         mock_command.assert_called_once_with(
             [
-                'mkfs.erofs', '-z', 'zstd,level=21',
-                '-L', 'label', 'myimage', 'root_dir'
+                'mkfs.erofs',
+                '-z',
+                'zstd,level=21',
+                '-L',
+                'label',
+                'myimage',
+                'root_dir',
             ]
         )
 
@@ -36,8 +42,13 @@ class TestFileSystemEroFs:
         self.erofs.create_on_file('myimage', 'label', ['foo'])
         mock_command.assert_called_once_with(
             [
-                'mkfs.erofs', '-z', 'zstd,level=21',
-                '-L', 'label', '--exclude-regex=^foo$',
-                'myimage', 'root_dir'
+                'mkfs.erofs',
+                '-z',
+                'zstd,level=21',
+                '-L',
+                'label',
+                '--exclude-regex=^foo$',
+                'myimage',
+                'root_dir',
             ]
         )

@@ -29,12 +29,8 @@ class TestFileSystemIsoFs:
     @patch('kiwi.filesystem.isofs.IsoTools')
     def test_create_on_file(self, mock_IsoTools):
         iso_tool = mock.Mock()
-        iso_tool.has_iso_hybrid_capability = mock.Mock(
-            return_value=True
-        )
-        iso_tool.get_tool_name = mock.Mock(
-            return_value='/usr/bin/xorriso'
-        )
+        iso_tool.has_iso_hybrid_capability = mock.Mock(return_value=True)
+        iso_tool.get_tool_name = mock.Mock(return_value='/usr/bin/xorriso')
         mock_IsoTools.new.return_value = iso_tool
         self.isofs.create_on_file('myimage', None)
 
@@ -45,12 +41,8 @@ class TestFileSystemIsoFs:
     @patch('kiwi.filesystem.isofs.IsoTools')
     def test_create_on_file_EFI_enabled(self, mock_IsoTools):
         iso_tool = mock.Mock()
-        iso_tool.has_iso_hybrid_capability = mock.Mock(
-            return_value=True
-        )
-        iso_tool.get_tool_name = mock.Mock(
-            return_value='/usr/bin/xorriso'
-        )
+        iso_tool.has_iso_hybrid_capability = mock.Mock(return_value=True)
+        iso_tool.get_tool_name = mock.Mock(return_value='/usr/bin/xorriso')
         mock_IsoTools.new.return_value = iso_tool
         self.isofs.custom_args['meta_data']['efi_mode'] = 'uefi'
         self.isofs.custom_args['meta_data']['efi_loader'] = 'esp-image-file'
@@ -59,5 +51,5 @@ class TestFileSystemIsoFs:
             iso_tool.create_iso.assert_called_once_with('myimage')
             iso_tool.add_efi_loader_parameters.assert_called_once_with(
                 'esp-image-file',
-                {'efi_mode': 'uefi', 'efi_loader': 'esp-image-file'}
+                {'efi_mode': 'uefi', 'efi_loader': 'esp-image-file'},
             )
