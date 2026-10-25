@@ -58,6 +58,8 @@ class RepositoryApt(RepositoryBase):
         location of the keyring files permanently stored in the image
     :param dict repository_keyrings:
         keyring files referenced via Signed-By per repository name
+    :param list repo_files:
+        sources, auth and preferences files written for this build
     """
 
     def post_init(self, custom_args: List = []) -> None:
@@ -94,7 +96,7 @@ class RepositoryApt(RepositoryBase):
 
         self.distribution: str = ''
         self.distribution_path: str = ''
-        self.repo_names: List = []
+        self.repo_files: List[str] = []
         self.components: List = []
 
         # apt-get support is based on creating a sources file which
@@ -212,7 +214,8 @@ class RepositoryApt(RepositoryBase):
         :param str name: repository base file name
         :param str uri: repository URI
         :param str repo_type: unused
-        :param int prio: unused
+        :param int prio:
+            apt Pin-Priority of the repository, see apt_preferences(5)
         :param str dist: distribution name for non flat deb repos
         :param str components: distribution categories
         :param str user: username
@@ -235,7 +238,7 @@ class RepositoryApt(RepositoryBase):
         pref_file = '/'.join(
             [self.shared_apt_get_dir['preferences-dir'], name + '.pref']
         )
-        self.repo_names.append(name + '.sources')
+        self.repo_files.append(sources_file)
         if os.path.exists(uri):
             # apt-get requires local paths to take the file: type
             uri = 'file:/' + uri
@@ -275,6 +278,7 @@ class RepositoryApt(RepositoryBase):
                 repo_details += 'check-valid-until: no' + os.linesep
             repo.write(repo_details)
         if secret:
+            self.repo_files.append(auth_file)
             with open(auth_file, 'w') as auth:
                 if user:
                     auth.write(
@@ -289,6 +293,7 @@ class RepositoryApt(RepositoryBase):
         if customization_script:
             self.run_repo_customize(customization_script, sources_file)
         if prio:
+            self.repo_files.append(pref_file)
             uri_parsed = urlparse(uri.replace('file://', 'file:/'))
             with open(pref_file, 'w') as pref:
                 pref.write('Package: *{0}'.format(os.linesep))
@@ -479,15 +484,19 @@ class RepositoryApt(RepositoryBase):
         """
         Delete unused apt_get repositories
 
-        Repository configurations which are not used for this build
-        must be removed otherwise they are taken into account for
-        the package installations
+        Repository sources, auth and preferences files which were
+        not written for this build must be removed otherwise they
+        are taken into account for the package installations. This
+        also applies to e.g. a preferences file of a repository
+        which was set up with a priority in a former build but is
+        set up without a priority in this build
         """
-        repos_dir = self.shared_apt_get_dir['sources-dir']
-        repo_files = list(os.walk(repos_dir))[0][2]
-        for repo_file in repo_files:
-            if repo_file not in self.repo_names:
-                Path.wipe(repos_dir + '/' + repo_file)
+        for dirname in ['sources-dir', 'netrcparts-dir', 'preferences-dir']:
+            config_dir = self.shared_apt_get_dir[dirname]
+            for config_file in list(os.walk(config_dir))[0][2]:
+                config_file = '/'.join([config_dir, config_file])
+                if config_file not in self.repo_files:
+                    Path.wipe(config_file)
 
     def _add_components(self, components: str) -> None:
         for component in components.split():

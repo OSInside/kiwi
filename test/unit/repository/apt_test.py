@@ -688,12 +688,42 @@ class TestRepositoryApt:
     @patch('kiwi.path.Path.wipe')
     @patch('os.walk')
     def test_cleanup_unused_repos(self, mock_walk, mock_path):
-        mock_walk.return_value = [('/foo', ('bar', 'baz'), ('spam', 'eggs'))]
-        self.repo.repo_names = ['eggs']
+        mock_walk.side_effect = [
+            [('/foo', (), ('spam.sources', 'eggs.sources'))],
+            [('/foo', (), ('spam.conf',))],
+            [('/foo', (), ('spam.pref', 'eggs.pref'))],
+        ]
+        self.repo.repo_files = [
+            '/shared-dir/apt-get/sources.list.d/eggs.sources'
+        ]
         self.repo.cleanup_unused_repos()
-        mock_path.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/spam'
-        )
+        assert mock_walk.call_args_list == [
+            call('/shared-dir/apt-get/sources.list.d'),
+            call('/shared-dir/apt-get/auth.conf.d'),
+            call('/shared-dir/apt-get/preferences.d'),
+        ]
+        assert mock_path.call_args_list == [
+            call('/shared-dir/apt-get/sources.list.d/spam.sources'),
+            call('/shared-dir/apt-get/auth.conf.d/spam.conf'),
+            call('/shared-dir/apt-get/preferences.d/spam.pref'),
+            call('/shared-dir/apt-get/preferences.d/eggs.pref'),
+        ]
+
+    @patch('os.path.exists')
+    def test_add_repo_tracks_written_files(self, mock_exists):
+        mock_exists.return_value = False
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            self.repo.add_repo('foo', 'http://example.com/repo')
+            self.repo.add_repo(
+                'bar', 'http://example.com/repo', prio=600, secret='token'
+            )
+        assert self.repo.repo_files == [
+            '/shared-dir/apt-get/sources.list.d/foo.sources',
+            '/shared-dir/apt-get/sources.list.d/bar.sources',
+            '/shared-dir/apt-get/auth.conf.d/bar.conf',
+            '/shared-dir/apt-get/preferences.d/bar.pref',
+        ]
 
     @patch('kiwi.path.Path.wipe')
     @patch('kiwi.path.Path.create')

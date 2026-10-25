@@ -1914,6 +1914,18 @@ priority="number"
   configured repositories. The zypper package manager, for example,
   prefers packages from a repository with a *lower* priority over
   packages from a repository with higher priority values.
+  The apt package manager behaves the other way round: {kiwi} writes the
+  value verbatim as ``Pin-Priority`` into an apt preferences file for the
+  repository, and apt prefers packages from the repository with the
+  *higher* priority. The default priority of a repository in apt is 500.
+  A value of 1, for example, causes apt to use a package from this
+  repository only if no other repository provides it, even if the
+  version in this repository is newer. A value above 1000 forces apt to
+  use packages from this repository, even if this means a downgrade.
+  The priority is pinned to the host name of the repository URI, or to
+  all local repositories in case of a local path. Thus it also applies
+  to all other repositories from the same host, or to all other local
+  repositories. For details see ``apt_preferences(5)``.
   If the attribute is not set, {kiwi} writes no priority into the generated
   repository configuration, so the package manager's own default applies.
   For other package managers, please refer to the individual documentation
