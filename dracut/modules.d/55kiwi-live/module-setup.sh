@@ -10,7 +10,10 @@ check() {
 
 # called by dracut
 depends() {
-    echo network rootfs-block dm
+    # The kiwi-live hooks are bash scripts sourced by the dracut
+    # /bin/sh scripts. Depending on bash makes bash the initrd
+    # /bin/sh, also on hosts where /bin/sh is e.g. dash
+    echo network rootfs-block dm bash
     return 0
 }
 
