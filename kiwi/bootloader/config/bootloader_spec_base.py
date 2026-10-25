@@ -27,7 +27,7 @@ from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.defaults import Defaults
 from kiwi.utils.os_release import OsRelease
-from kiwi.exceptions import KiwiKernelLookupError
+from kiwi.system.kernel import Kernel
 
 
 target_type = NamedTuple(
@@ -252,26 +252,36 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         [OS_release_ID]-[kernel-version].conf or use the
         naming policy of an existing entries file
 
+        The entry belongs to the kernel of the latest version, the one
+        kiwi creates the initrd for. An entry file produced by the
+        distribution logic/policy is preferred over the kiwi naming
+        policy: the entry of that kernel if there is one, otherwise the
+        name of the entry of another installed kernel with the version
+        replaced. An entry name without a kernel version is used as it
+        is if no entry refers to a kernel
+
         :return: file basename
 
         :rtype: str
         """
         os_release = OsRelease(self.root_dir)
-        try:
-            kernel_name = os.path.basename(
-                list(glob.iglob(f'{self.root_dir}/lib/modules/*'))[0]
-            )
-        except Exception as issue:
-            raise KiwiKernelLookupError(
-                'Kernel lookup in {0}/lib/modules failed with: {1}'.format(
-                    self.root_dir, issue
-                )
-            )
+        kernel = Kernel(self.root_dir)
+        kernel_info = kernel.get_kernel(raise_on_not_found=True)
+        kernel_name = kernel_info.version if kernel_info else ''
         entry_filename = f'{os_release.get("ID")}-{kernel_name}.conf'
-        # Check if there is already an entry file name produced by the
-        # distribution logic/policy. If we can find an already present
-        # entry name, prefer this name over the kiwi naming policy
-        for dist_entry in glob.iglob(f'{self.root_dir}/{self.entries_dir}/*'):
-            entry_filename = os.path.basename(dist_entry)
-            break
-        return entry_filename
+        other_kernel_entry = ''
+        versionless_entry = ''
+        for dist_entry in sorted(
+            glob.iglob(f'{self.root_dir}/{self.entries_dir}/*')
+        ):
+            dist_entry_name = os.path.basename(dist_entry)
+            version = kernel.get_version_in_name(dist_entry_name)
+            if version == kernel_name:
+                return dist_entry_name
+            if version and not other_kernel_entry:
+                other_kernel_entry = dist_entry_name.replace(
+                    version, kernel_name
+                )
+            if not version and not versionless_entry:
+                versionless_entry = dist_entry_name
+        return other_kernel_entry or versionless_entry or entry_filename
