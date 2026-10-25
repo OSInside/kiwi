@@ -50,8 +50,11 @@ following optional attributes:
   false.
 
 - `priority`: An integer value for all packages in this repository. If
-  the same package is available in more than one repository, then the one
-  with the highest priority is used.
+  the same package is available in more than one repository, the priority
+  decides which one is used. How the value is evaluated depends on the
+  package manager: zypper and dnf prefer the repository with the *lower*
+  value, while apt prefers the repository with the *higher* value and
+  follows the `Pin-Priority` semantics of `apt_preferences(5)`.
 
 - `alias`: Name to use for the repository. It appears as the repository's name
   in the image, visible via `zypper repos` or `dnf repolist`. If `alias` is
