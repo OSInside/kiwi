@@ -26,7 +26,7 @@ case "${liveroot}" in
         root="${root//\//\\x2f}"
         root="live:aoe:/dev/etherd/${root#AOEINTERFACE=}"
         rootok=1 ;;
-    live:ftp:*|live:http:*|live:https:*|live:dolly:*) \
+    live:ftp:*|live:http:*|live:https:*|live:nbd:*|live:dolly:*) \
         modprobe -q brd
         root="${root#live:}"
         root="live:net:${root}"
