@@ -14,23 +14,15 @@ class TestFileSystemSetup:
     @patch('kiwi.filesystem.setup.SystemSize')
     def setup(self, mock_size):
         size = mock.Mock()
-        size.accumulate_mbyte_file_sizes = mock.Mock(
-            return_value=42
-        )
-        size.customize = mock.Mock(
-            return_value=42
-        )
+        size.accumulate_mbyte_file_sizes = mock.Mock(return_value=42)
+        size.customize = mock.Mock(return_value=42)
         mock_size.return_value = size
         self.xml_state = mock.Mock()
-        self.xml_state.get_build_type_name = mock.Mock(
-            return_value='ext4'
-        )
+        self.xml_state.get_build_type_name = mock.Mock(return_value='ext4')
         self.xml_state.get_build_type_unpartitioned_bytes = mock.Mock(
             return_value=0
         )
-        self.setup = FileSystemSetup(
-            self.xml_state, 'root_dir'
-        )
+        self.setup = FileSystemSetup(self.xml_state, 'root_dir')
 
     @patch('kiwi.filesystem.setup.SystemSize')
     def setup_method(self, cls, mock_size):
@@ -43,15 +35,9 @@ class TestFileSystemSetup:
         FileSystemSetup(self.xml_state, 'root_dir')
 
     def test_setup_with_pxe_type(self):
-        self.xml_state.get_build_type_name = mock.Mock(
-            return_value='pxe'
-        )
-        self.xml_state.build_type.get_filesystem = mock.Mock(
-            return_value='xfs'
-        )
-        setup = FileSystemSetup(
-            self.xml_state, 'root_dir'
-        )
+        self.xml_state.get_build_type_name = mock.Mock(return_value='pxe')
+        self.xml_state.build_type.get_filesystem = mock.Mock(return_value='xfs')
+        setup = FileSystemSetup(self.xml_state, 'root_dir')
         assert setup.requested_filesystem == 'xfs'
 
     def test_get_size_mbytes_calculated(self):

@@ -18,9 +18,7 @@
 # project
 import importlib
 from typing import Dict
-from abc import (
-    ABCMeta, abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
 
@@ -31,14 +29,17 @@ class ImageBuilder(metaclass=ABCMeta):
     """
     Image builder factory
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        xml_state: XMLState, target_dir: str,
-        root_dir: str, custom_args: Dict = None
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str,
+        custom_args: Dict = None,
     ):
         image_type = xml_state.get_build_type_name()
         if image_type in Defaults.get_filesystem_image_types():
@@ -58,7 +59,7 @@ class ImageBuilder(metaclass=ABCMeta):
         else:
             name_token = ('None', 'None')
         try:
-            (builder_namespace, builder_name) = name_token
+            builder_namespace, builder_name = name_token
             builder = importlib.import_module(
                 'kiwi.builder.{0}'.format(builder_namespace)
             )

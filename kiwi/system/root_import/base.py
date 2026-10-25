@@ -18,9 +18,7 @@
 import os
 import logging
 import pathlib
-from typing import (
-    Dict, List, Optional
-)
+from typing import Dict, List, Optional
 
 # project
 from kiwi.runtime_config import RuntimeConfig
@@ -31,10 +29,7 @@ from kiwi.path import Path
 from kiwi.system.uri import Uri
 from kiwi.command import Command
 from kiwi.mount_manager import MountManager
-from kiwi.exceptions import (
-    KiwiRootImportError,
-    KiwiUriTypeUnknown
-)
+from kiwi.exceptions import KiwiRootImportError, KiwiUriTypeUnknown
 
 log = logging.getLogger('kiwi')
 
@@ -52,9 +47,12 @@ class RootImportBase:
     * :attr:`custom_args`
         Dictonary to set specialized class specific configuration values
     """
+
     def __init__(
-        self, root_dir: str, image_uris: List[Uri],
-        custom_args: Dict[str, str] = {}
+        self,
+        root_dir: str,
+        image_uris: List[Uri],
+        custom_args: Dict[str, str] = {},
     ):
         self.runtime_config = RuntimeConfig()
         self.raw_urls: List[str] = []
@@ -78,9 +76,7 @@ class RootImportBase:
             except KiwiUriTypeUnknown:
                 # Let specialized class handle unknown uri schemes
                 raw_url = image_uri.uri
-                log.warning(
-                    f'Unkown URI type for the base image: {raw_url}'
-                )
+                log.warning(f'Unkown URI type for the base image: {raw_url}')
                 self.raw_urls.append(raw_url)
 
         self.post_init(custom_args)
@@ -139,11 +135,11 @@ class RootImportBase:
             for item in Defaults.get_exclude_list_for_removed_files_detection():
                 exclude_options.append('--exclude')
                 exclude_options.append(item)
-            get_removed = [
-                'rsync', '-av', '--dry-run', '--out-format=%n'
-            ] + exclude_options + [
-                f'{pinch_reference}/', f'{self.root_dir}/'
-            ]
+            get_removed = (
+                ['rsync', '-av', '--dry-run', '--out-format=%n']
+                + exclude_options
+                + [f'{pinch_reference}/', f'{self.root_dir}/']
+            )
             for item in Command.run(get_removed).output.split(os.linesep):
                 entry = f'{pinch_reference}/{item}'
                 if item and os.path.exists(entry) and not os.path.isdir(entry):
@@ -160,11 +156,7 @@ class RootImportBase:
             # and directories from the lower path of the overlayfs
             # tree. Since we extract the upper path of the overlay
             # any changes to the lower tree cannot be tracked.
-            Command.run(
-                [
-                    'find', self.root_dir, '-type', 'c', '-delete'
-                ]
-            )
+            Command.run(['find', self.root_dir, '-type', 'c', '-delete'])
             Path.wipe(self.overlay.lower)
             Path.wipe(self.overlay.work)
 
@@ -190,6 +182,6 @@ class RootImportBase:
             source_filename=image,
             target_filename='{}{}'.format(
                 image, self.runtime_config.get_checksum_handler(image).suffix
-            )
+            ),
         )
         shasum.digest()

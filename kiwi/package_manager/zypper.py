@@ -17,10 +17,7 @@
 #
 import re
 import os
-from typing import (
-    List, Dict
-)
-
+from typing import List, Dict
 
 # project
 from kiwi.command import CommandCallT
@@ -44,6 +41,7 @@ class PackageManagerZypper(PackageManagerBase):
         zypper command environment from repository
         runtime configuration
     """
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -125,14 +123,22 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        command = ['zypper'] + self.zypper_args + [
-            '--root', self.root_dir,
-            'install', '--download', 'in-advance',
-            '--auto-agree-with-licenses'
-        ] + self.custom_args + ['--'] + self._install_items()
-        return Command.call(
-            command, self.command_env
+        command = (
+            ['zypper']
+            + self.zypper_args
+            + [
+                '--root',
+                self.root_dir,
+                'install',
+                '--download',
+                'in-advance',
+                '--auto-agree-with-licenses',
+            ]
+            + self.custom_args
+            + ['--']
+            + self._install_items()
         )
+        return Command.call(command, self.command_env)
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -152,17 +158,25 @@ class PackageManagerZypper(PackageManagerBase):
                 Path.create(metadata_dir)
             for package in self.exclude_requests:
                 Command.run(
-                    [
-                        'chroot', self.root_dir, 'zypper'
-                    ] + self.chroot_zypper_args + ['al'] + [package],
-                    self.chroot_command_env
+                    ['chroot', self.root_dir, 'zypper']
+                    + self.chroot_zypper_args
+                    + ['al']
+                    + [package],
+                    self.chroot_command_env,
                 )
         return Command.call(
-            ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
-                'install', '--download', 'in-advance',
-                '--auto-agree-with-licenses'
-            ] + self.custom_args + ['--'] + self._install_items(),
-            self.chroot_command_env
+            ['chroot', self.root_dir, 'zypper']
+            + self.chroot_zypper_args
+            + [
+                'install',
+                '--download',
+                'in-advance',
+                '--auto-agree-with-licenses',
+            ]
+            + self.custom_args
+            + ['--']
+            + self._install_items(),
+            self.chroot_command_env,
         )
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
@@ -195,21 +209,20 @@ class PackageManagerZypper(PackageManagerBase):
             self.cleanup_requests()
             force_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
-                [
-                    'chroot', self.root_dir, 'rpm', '-e'
-                ] + force_options + delete_items,
-                self.chroot_command_env
+                ['chroot', self.root_dir, 'rpm', '-e']
+                + force_options
+                + delete_items,
+                self.chroot_command_env,
             )
         else:
-            zypper_command = [
-                'chroot', self.root_dir, 'zypper'
-            ] + self.chroot_zypper_args + [
-                'remove', '-u', '--force-resolution'
-            ] + self._delete_items()
-            self.cleanup_requests()
-            return Command.call(
-                zypper_command, self.chroot_command_env
+            zypper_command = (
+                ['chroot', self.root_dir, 'zypper']
+                + self.chroot_zypper_args
+                + ['remove', '-u', '--force-resolution']
+                + self._delete_items()
             )
+            self.cleanup_requests()
+            return Command.call(zypper_command, self.chroot_command_env)
 
     def update(self) -> CommandCallT:
         """
@@ -220,11 +233,16 @@ class PackageManagerZypper(PackageManagerBase):
         :rtype: namedtuple
         """
         return Command.call(
-            ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
-                'update', '--download', 'in-advance',
-                '--auto-agree-with-licenses'
-            ] + self.custom_args,
-            self.chroot_command_env
+            ['chroot', self.root_dir, 'zypper']
+            + self.chroot_zypper_args
+            + [
+                'update',
+                '--download',
+                'in-advance',
+                '--auto-agree-with-licenses',
+            ]
+            + self.custom_args,
+            self.chroot_command_env,
         )
 
     def process_only_required(self) -> None:
@@ -262,7 +280,7 @@ class PackageManagerZypper(PackageManagerBase):
         return bool(
             re.match(
                 '.*Installing: {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -282,7 +300,7 @@ class PackageManagerZypper(PackageManagerBase):
         return bool(
             re.match(
                 '.*Removing: {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -322,7 +340,7 @@ class PackageManagerZypper(PackageManagerBase):
             104,  # - ZYPPER_EXIT_INF_CAP_NOT_FOUND
             105,  # - ZYPPER_EXIT_ON_SIGNAL
             106,  # - ZYPPER_EXIT_INF_REPOS_SKIPPED
-            127   # - Command Not Found
+            127,  # - Command Not Found
         ]
         if returncode == 0:
             # All is good
@@ -352,8 +370,11 @@ class PackageManagerZypper(PackageManagerBase):
             os.unlink(id_file)
 
     def _install_items(self) -> List:
-        items = self.package_requests + self.collection_requests \
+        items = (
+            self.package_requests
+            + self.collection_requests
             + self.product_requests
+        )
         self.cleanup_requests()
         return items
 

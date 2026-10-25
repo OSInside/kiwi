@@ -23,6 +23,7 @@ class OvaComposeTemplate:
     """
     OVA compose settings template
     """
+
     def __init__(self):
         self.cr = '\n'
 
@@ -42,7 +43,9 @@ class OvaComposeTemplate:
                     description: "The VM Network"
         ''').strip() + self.cr
 
-    def _get_controller(self, controller: str | None, device_id: str) -> tuple[str, str, str]:
+    def _get_controller(
+        self, controller: str | None, device_id: str
+    ) -> tuple[str, str, str]:
         controller_map = {
             'ide': ('ide', 'ide_controller'),
             'sata': ('sata', 'sata_controller'),
@@ -50,18 +53,26 @@ class OvaComposeTemplate:
             'lsilogic': ('scsi', 'scsi_controller'),
             'lsisas1068': ('scsi', 'scsi_controller'),
             'paravirtual': ('scsi', 'scsi_controller'),
-            'nvme': ('nvme', 'nvme_controller')
+            'nvme': ('nvme', 'nvme_controller'),
         }
         normalized_controller = (controller or 'nvme').lower()
         controller_name, controller_type = controller_map.get(
             normalized_controller, ('nvme', 'nvme_controller')
         )
-        return f'{controller_name}{device_id}', controller_type, normalized_controller
+        return (
+            f'{controller_name}{device_id}',
+            controller_type,
+            normalized_controller,
+        )
 
     def _add_controller(
-            self, hardware_lines: list, controllers_added: set,
-            controller_name: str, controller_type: str,
-            controller_subtype: str | None = None) -> None:
+        self,
+        hardware_lines: list,
+        controllers_added: set,
+        controller_name: str,
+        controller_type: str,
+        controller_subtype: str | None = None,
+    ) -> None:
         if controller_name in controllers_added:
             return
         hardware_lines.append(f'    {controller_name}:')
@@ -70,11 +81,11 @@ class OvaComposeTemplate:
             hardware_lines.append(f'        subtype: {controller_subtype}')
         controllers_added.add(controller_name)
 
-    def _get_network_setup(self, network_setup: dict = None) -> tuple[list, list]:
+    def _get_network_setup(
+        self, network_setup: dict = None
+    ) -> tuple[list, list]:
         hardware_lines = []
-        network_lines = [
-            'networks:'
-        ]
+        network_lines = ['networks:']
 
         if network_setup:
             for nic_id, nic_setup in list(network_setup.items()):
@@ -82,12 +93,14 @@ class OvaComposeTemplate:
                 nic_name = f'ethernet{nic_id}'
                 nic_driver = nic_setup.get('driver') or 'VmxNet3'
 
-                hardware_lines.extend([
-                    f'    {nic_name}:',
-                    '        type: ethernet',
-                    f'        subtype: {nic_driver}',
-                    f'        network: {network_name}'
-                ])
+                hardware_lines.extend(
+                    [
+                        f'    {nic_name}:',
+                        '        type: ethernet',
+                        f'        subtype: {nic_driver}',
+                        f'        network: {network_name}',
+                    ]
+                )
 
                 if nic_setup.get('mac') and nic_setup['mac'] != 'generated':
                     hardware_lines.append(
@@ -99,39 +112,49 @@ class OvaComposeTemplate:
                         f'        connection_type: "{nic_setup["connection_type"]}"'
                     )
 
-                network_lines.extend([
-                    f'    {network_name}:',
-                    f'        name: "VM Network {nic_id}"',
-                    f'        description: "The VM Network {nic_id} network"'
-                ])
+                network_lines.extend(
+                    [
+                        f'    {network_name}:',
+                        f'        name: "VM Network {nic_id}"',
+                        f'        description: "The VM Network {nic_id} network"',
+                    ]
+                )
         else:
-            hardware_lines.extend([
-                '    ethernet0:',
-                '        type: ethernet',
-                '        subtype: VmxNet3',
-                '        network: vm_network_0'
-            ])
-            network_lines.extend([
-                '    vm_network_0:',
-                '        name: "VM Network"',
-                '        description: "The VM Network network"'
-            ])
+            hardware_lines.extend(
+                [
+                    '    ethernet0:',
+                    '        type: ethernet',
+                    '        subtype: VmxNet3',
+                    '        network: vm_network_0',
+                ]
+            )
+            network_lines.extend(
+                [
+                    '    vm_network_0:',
+                    '        name: "VM Network"',
+                    '        description: "The VM Network network"',
+                ]
+            )
 
         return hardware_lines, network_lines
 
     def _get_hardware_template(
-            self, memory_setup: bool = False, cpu_setup: bool = False,
-            network_setup: dict = None, iso_setup: bool = False,
-            disk_controller: str = None, iso_controller: str = 'ide',
-            disk_id: str = '0', iso_id: str = '0') -> str:
+        self,
+        memory_setup: bool = False,
+        cpu_setup: bool = False,
+        network_setup: dict = None,
+        iso_setup: bool = False,
+        disk_controller: str = None,
+        iso_controller: str = 'ide',
+        disk_id: str = '0',
+        iso_id: str = '0',
+    ) -> str:
         """
         Generate hardware template with VMware feature parity.
 
         :rtype: str
         """
-        hardware_lines = [
-            'hardware:'
-        ]
+        hardware_lines = ['hardware:']
         if cpu_setup:
             hardware_lines.append('    cpus: ${number_of_cpus}')
         if memory_setup:
@@ -139,48 +162,70 @@ class OvaComposeTemplate:
 
         controllers_added: set[str] = set()
 
-        disk_parent, disk_controller_type, disk_controller_subtype = self._get_controller(
-            disk_controller, str(disk_id)
+        disk_parent, disk_controller_type, disk_controller_subtype = (
+            self._get_controller(disk_controller, str(disk_id))
         )
         self._add_controller(
-            hardware_lines, controllers_added,
-            disk_parent, disk_controller_type, disk_controller_subtype
+            hardware_lines,
+            controllers_added,
+            disk_parent,
+            disk_controller_type,
+            disk_controller_subtype,
         )
 
         if iso_setup:
-            iso_parent, iso_controller_type, iso_controller_subtype = self._get_controller(
-                iso_controller, str(iso_id)
+            iso_parent, iso_controller_type, iso_controller_subtype = (
+                self._get_controller(iso_controller, str(iso_id))
             )
             self._add_controller(
-                hardware_lines, controllers_added,
-                iso_parent, iso_controller_type, iso_controller_subtype
+                hardware_lines,
+                controllers_added,
+                iso_parent,
+                iso_controller_type,
+                iso_controller_subtype,
             )
-            hardware_lines.extend([
-                f'    cdrom{iso_id}:',
-                '        type: cd_drive',
-                f'        parent: {iso_parent}'
-            ])
+            hardware_lines.extend(
+                [
+                    f'    cdrom{iso_id}:',
+                    '        type: cd_drive',
+                    f'        parent: {iso_parent}',
+                ]
+            )
 
-        hardware_lines.extend([
-            '    rootdisk:',
-            '        type: hard_disk',
-            f'        parent: {disk_parent}',
-            '        disk_image: "${vmdk_file}"',
-            '    usb2:',
-            '        type: usb_controller',
-            '    usb3:',
-            '        type: usb3_controller'
-        ])
+        hardware_lines.extend(
+            [
+                '    rootdisk:',
+                '        type: hard_disk',
+                f'        parent: {disk_parent}',
+                '        disk_image: "${vmdk_file}"',
+                '    usb2:',
+                '        type: usb_controller',
+                '    usb3:',
+                '        type: usb3_controller',
+            ]
+        )
 
         nic_hardware, network_lines = self._get_network_setup(network_setup)
         hardware_lines.extend(nic_hardware)
 
-        return '\n'.join(hardware_lines) + self.cr + '\n'.join(network_lines) + self.cr
+        return (
+            '\n'.join(hardware_lines)
+            + self.cr
+            + '\n'.join(network_lines)
+            + self.cr
+        )
 
     def get_template(
-            self, memory_setup=False, cpu_setup=False, network_setup=False,
-            iso_setup=False, disk_controller='ide', iso_controller='ide',
-            disk_id='0', iso_id='0') -> Template:
+        self,
+        memory_setup=False,
+        cpu_setup=False,
+        network_setup=False,
+        iso_setup=False,
+        disk_controller='ide',
+        iso_controller='ide',
+        disk_id='0',
+        iso_id='0',
+    ) -> Template:
         """
         Set data for the ova-compose template
 
@@ -204,7 +249,7 @@ class OvaComposeTemplate:
             disk_controller=disk_controller,
             iso_controller=iso_controller,
             disk_id=disk_id,
-            iso_id=iso_id
+            iso_id=iso_id,
         )
         template_data += hardware
 

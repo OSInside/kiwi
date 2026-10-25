@@ -21,9 +21,7 @@ import os
 # project
 from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiContainerSetupError
-)
+from kiwi.exceptions import KiwiContainerSetupError
 
 
 class ContainerSetupBase:
@@ -41,6 +39,7 @@ class ContainerSetupBase:
     * :attr:`custom_args`
         dict of custom arguments
     """
+
     def __init__(self, root_dir, custom_args=None):
         if not os.path.exists(root_dir):
             raise KiwiContainerSetupError(
@@ -83,8 +82,8 @@ class ContainerSetupBase:
                 bootloader_setup,
                 {
                     'LOADER_LOCATION': 'LOADER_LOCATION="none"',
-                    'LOADER_TYPE': 'LOADER_TYPE="none"'
-                }
+                    'LOADER_TYPE': 'LOADER_TYPE="none"',
+                },
             )
 
     def deactivate_root_filesystem_check(self):
@@ -99,10 +98,7 @@ class ContainerSetupBase:
         boot_setup = self.root_dir + '/etc/sysconfig/boot'
         if os.path.exists(boot_setup):
             self._update_config(
-                boot_setup,
-                {
-                    'ROOTFS_BLKDEV': 'ROOTFS_BLKDEV="/dev/null"'
-                }
+                boot_setup, {'ROOTFS_BLKDEV': 'ROOTFS_BLKDEV="/dev/null"'}
             )
 
     def deactivate_systemd_service(self, name):
@@ -118,9 +114,7 @@ class ContainerSetupBase:
         service_file = self.root_dir + '/usr/lib/systemd/system/' + name
         if os.path.exists(service_file):
             try:
-                Command.run(
-                    ['ln', '-s', '-f', '/dev/null', service_file]
-                )
+                Command.run(['ln', '-s', '-f', '/dev/null', service_file])
             except Exception as e:
                 raise KiwiContainerSetupError(
                     f'Failed to deactivate service {name}: {format(e)}'
@@ -136,12 +130,7 @@ class ContainerSetupBase:
         if not os.path.exists(securetty):
             with open(securetty, 'w'):
                 pass
-        self._update_config(
-            securetty,
-            {
-                'console': 'console'
-            }
-        )
+        self._update_config(securetty, {'console': 'console'})
 
     def get_container_name(self):
         """
@@ -157,9 +146,7 @@ class ContainerSetupBase:
         with open(filename, 'r') as config:
             data = config.read().rsplit('\n')
 
-        sorted_record = collections.OrderedDict(
-            sorted(update_record.items())
-        )
+        sorted_record = collections.OrderedDict(sorted(update_record.items()))
         for current_value, new_value in list(sorted_record.items()):
             entry_found = False
             for index in range(0, len(data)):

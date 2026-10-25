@@ -26,14 +26,20 @@ class BootLoaderConfigCustom(BootLoaderConfigBase):
     """
     **custom bootloader configuration.**
     """
+
     def setup_disk_boot_images(
         self, boot_uuid, efi_uuid=None, lookup_path=None
     ) -> None:
         raise NotImplementedError
 
     def setup_disk_image_config(
-        self, boot_uuid: str = '', root_uuid: str = '', hypervisor: str = '',
-        kernel: str = '', initrd: str = '', boot_options: Dict[str, str] = {}
+        self,
+        boot_uuid: str = '',
+        root_uuid: str = '',
+        hypervisor: str = '',
+        kernel: str = '',
+        initrd: str = '',
+        boot_options: Dict[str, str] = {},
     ) -> None:
         raise NotImplementedError
 
@@ -43,8 +49,11 @@ class BootLoaderConfigCustom(BootLoaderConfigBase):
         raise NotImplementedError
 
     def setup_install_image_config(
-        self, mbrid: SystemIdentifier, hypervisor: str = '',
-        kernel: str = '', initrd: str = ''
+        self,
+        mbrid: SystemIdentifier,
+        hypervisor: str = '',
+        kernel: str = '',
+        initrd: str = '',
     ) -> None:
         raise NotImplementedError
 
@@ -54,8 +63,11 @@ class BootLoaderConfigCustom(BootLoaderConfigBase):
         raise NotImplementedError
 
     def setup_live_image_config(
-        self, mbrid: SystemIdentifier, hypervisor: str = '',
-        kernel: str = '', initrd: str = ''
+        self,
+        mbrid: SystemIdentifier,
+        hypervisor: str = '',
+        kernel: str = '',
+        initrd: str = '',
     ) -> None:
         raise NotImplementedError
 

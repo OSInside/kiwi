@@ -17,10 +17,7 @@
 #
 import importlib
 from typing import Any
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiIsoToolError
@@ -31,21 +28,18 @@ class IsoTools(metaclass=ABCMeta):
     """
     **IsoTools factory**
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(source_dir: str) -> Any:
-        name_map = {
-            'xorriso': 'XorrIso'
-        }
+        name_map = {'xorriso': 'XorrIso'}
         runtime_config = RuntimeConfig()
         tool = runtime_config.get_iso_tool_category()
         try:
-            iso_tool = importlib.import_module(
-                'kiwi.iso_tools.{}'.format(tool)
-            )
+            iso_tool = importlib.import_module('kiwi.iso_tools.{}'.format(tool))
             module_name = 'IsoTools{}'.format(name_map[tool])
             return iso_tool.__dict__[module_name](source_dir)
         except Exception:

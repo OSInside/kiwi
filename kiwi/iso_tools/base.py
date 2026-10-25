@@ -18,9 +18,7 @@
 import os
 import shutil
 import logging
-from typing import (
-    Dict, List, Optional, Union
-)
+from typing import Dict, List, Optional, Union
 
 # project
 from kiwi.defaults import Defaults
@@ -35,6 +33,7 @@ class IsoToolsBase:
     """
     **Base Class for Parameter API for iso creation tools**
     """
+
     def __init__(self, source_dir: str) -> None:
         """
         Base class for IsoTools
@@ -73,7 +72,9 @@ class IsoToolsBase:
         raise NotImplementedError
 
     def add_efi_loader_parameters(
-        self, loader_file: str, custom_args: Optional[Dict[str, Union[str, bool]]] = None
+        self,
+        loader_file: str,
+        custom_args: Optional[Dict[str, Union[str, bool]]] = None,
     ) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
@@ -82,9 +83,7 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def create_iso(
-        self, filename: str, hidden_files: List[str] = None
-    ) -> None:
+    def create_iso(self, filename: str, hidden_files: List[str] = None) -> None:
         """
         Create iso file
 
@@ -125,13 +124,14 @@ class IsoToolsBase:
         Path.create(loader_data)
         grub_image_file_names = [
             Defaults.get_iso_grub_loader(),
-            Defaults.get_iso_grub_mbr()
+            Defaults.get_iso_grub_mbr(),
         ]
         loader_files = []
         for grub_image_file_name in grub_image_file_names:
             grub_file = Defaults.get_grub_path(
-                lookup_path, 'i386-pc/{0}'.format(grub_image_file_name),
-                raise_on_error=False
+                lookup_path,
+                'i386-pc/{0}'.format(grub_image_file_name),
+                raise_on_error=False,
             )
             if grub_file and os.path.exists(grub_file):
                 loader_files.append(grub_file)
@@ -144,9 +144,7 @@ class IsoToolsBase:
         bash_command = ' '.join(
             ['cp', lookup_path + '/boot/memtest*', loader_data + '/memtest']
         )
-        Command.run(
-            command=['bash', '-c', bash_command], raise_on_error=False
-        )
+        Command.run(command=['bash', '-c', bash_command], raise_on_error=False)
 
         if boot_theme:
             theme_path = ''.join(
@@ -156,15 +154,15 @@ class IsoToolsBase:
                 bash_command = ' '.join(
                     ['cp', theme_path + '/cdrom/*', loader_data]
                 )
-                Command.run(
-                    ['bash', '-c', bash_command]
-                )
+                Command.run(['bash', '-c', bash_command])
                 # don't move down one menu entry the first time a F-key is used
                 Command.run(
                     [
                         'gfxboot',
-                        '--config-file', loader_data + '/gfxboot.cfg',
-                        '--change-config', 'install::autodown=0'
+                        '--config-file',
+                        loader_data + '/gfxboot.cfg',
+                        '--change-config',
+                        'install::autodown=0',
                     ]
                 )
 
@@ -174,9 +172,5 @@ class IsoToolsBase:
                 )
 
         Path.create(media_boot_path)
-        data = DataSync(
-            loader_data, media_boot_path
-        )
-        data.sync_data(
-            options=['-a']
-        )
+        data = DataSync(loader_data, media_boot_path)
+        data.sync_data(options=['-a'])

@@ -38,6 +38,7 @@ class DataOutput:
     :type data: dict, list
     :param str style: output style could be either standard or color
     """
+
     def __init__(self, data, style='standard'):
         self.data = data
         self.style = style
@@ -90,7 +91,5 @@ class DataOutput:
         out_file = Temporary().new_file()
         out_file.write(json.dumps(self.data, sort_keys=True).encode())
         out_file.flush()
-        pjson_cmd = ''.join(
-            ['cat ', out_file.name, ' | pjson']
-        )
+        pjson_cmd = ''.join(['cat ', out_file.name, ' | pjson'])
         os.system(pjson_cmd)

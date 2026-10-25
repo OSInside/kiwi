@@ -19,9 +19,7 @@ import os
 import time
 import logging
 from textwrap import dedent
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.path import Path
@@ -47,9 +45,9 @@ class MountManager:
     * :param string mountpoint: mountpoint directory name
     * :param dict attributes: optional attributes to store
     """
+
     def __init__(
-        self, device: str, mountpoint: str = '',
-        attributes: Dict[str, str] = {}
+        self, device: str, mountpoint: str = '', attributes: Dict[str, str] = {}
     ):
         self.device = device
         self.attributes = attributes
@@ -79,9 +77,7 @@ class MountManager:
         Bind mount the device to the mountpoint
         """
         if self.device and not self.is_mounted():
-            Command.run(
-                ['mount', '-n', '--bind', self.device, self.mountpoint]
-            )
+            Command.run(['mount', '-n', '--bind', self.device, self.mountpoint])
 
     def overlay_mount(self, lower: str) -> None:
         self.device = 'overlay'
@@ -93,11 +89,15 @@ class MountManager:
         if not self.is_mounted():
             Command.run(
                 [
-                    'mount', '-t', 'overlay',
-                    self.device, self.mountpoint, '-o',
+                    'mount',
+                    '-t',
+                    'overlay',
+                    self.device,
+                    self.mountpoint,
+                    '-o',
                     'lowerdir={0},upperdir={1},workdir={2}'.format(
                         lower, self.upper, self.work
-                    )
+                    ),
                 ]
             )
 
@@ -106,9 +106,7 @@ class MountManager:
         tmpfs mount the device to the mountpoint
         """
         if not self.is_mounted():
-            Command.run(
-                ['mount', '-t', 'tmpfs', 'tmpfs', self.mountpoint]
-            )
+            Command.run(['mount', '-t', 'tmpfs', 'tmpfs', self.mountpoint])
 
     def mount(self, options: List[str] = []) -> None:
         """
@@ -125,7 +123,10 @@ class MountManager:
             if filesystem:
                 type_list = ['-t', filesystem]
             Command.run(
-                ['mount'] + type_list + option_list + [self.device, self.mountpoint]
+                ['mount']
+                + type_list
+                + option_list
+                + [self.device, self.mountpoint]
             )
 
     def umount_lazy(self) -> None:
@@ -170,16 +171,14 @@ class MountManager:
                     Command.run(['umount', '--lazy', self.mountpoint])
                     umounted_successfully = True
                 except KiwiCommandError as err:
-                    log.error(
-                        f'umount of {self.mountpoint} failed with: {err}'
-                    )
+                    log.error(f'umount of {self.mountpoint} failed with: {err}')
             if not umounted_successfully:
                 if raise_on_busy:
                     lsof = Path.which('lsof', access_mode=os.X_OK)
                     if lsof:
                         open_files = Command.run(
                             [lsof, '+c', '0', self.mountpoint],
-                            raise_on_error=False
+                            raise_on_error=False,
                         )
                         open_files_info = 'Open files status:{0}{1}'.format(
                             os.linesep, open_files.output
@@ -223,7 +222,6 @@ class MountManager:
         :rtype: bool
         """
         mountpoint_call = Command.run(
-            command=['mountpoint', '-q', self.mountpoint],
-            raise_on_error=False
+            command=['mountpoint', '-q', self.mountpoint], raise_on_error=False
         )
         return mountpoint_call.returncode == 0

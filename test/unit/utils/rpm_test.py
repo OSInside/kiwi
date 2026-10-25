@@ -1,7 +1,5 @@
 import os
-from unittest.mock import (
-    patch, Mock, call, mock_open
-)
+from unittest.mock import patch, Mock, call, mock_open
 
 from kiwi.utils.rpm import Rpm
 from kiwi.defaults import Defaults
@@ -14,7 +12,7 @@ class TestRpm:
         self.macro_file = os.sep.join(
             [
                 Defaults.get_custom_rpm_macros_path(),
-                Defaults.get_custom_rpm_bootstrap_macro_name()
+                Defaults.get_custom_rpm_bootstrap_macro_name(),
             ]
         )
 
@@ -24,9 +22,7 @@ class TestRpm:
     @patch('kiwi.utils.rpm.Command.run')
     def test_expand_query(self, mock_Command_run):
         self.rpm_host.expand_query('foo')
-        mock_Command_run.assert_called_once_with(
-            ['rpm', '-E', 'foo']
-        )
+        mock_Command_run.assert_called_once_with(['rpm', '-E', 'foo'])
         mock_Command_run.reset_mock()
         self.rpm_image.expand_query('foo')
         mock_Command_run.assert_called_once_with(
@@ -38,14 +34,10 @@ class TestRpm:
         rpmdb_call = Mock()
         rpmdb_call.output = '%_dbpath  %{_usr}/lib/sysimage/rpm'
         mock_Command_run.return_value = rpmdb_call
-        assert self.rpm_host.get_query('_dbpath') == \
-            '%{_usr}/lib/sysimage/rpm'
-        mock_Command_run.assert_called_once_with(
-            ['rpmdb', '--showrc']
-        )
+        assert self.rpm_host.get_query('_dbpath') == '%{_usr}/lib/sysimage/rpm'
+        mock_Command_run.assert_called_once_with(['rpmdb', '--showrc'])
         mock_Command_run.reset_mock()
-        assert self.rpm_image.get_query('_dbpath') == \
-            '%{_usr}/lib/sysimage/rpm'
+        assert self.rpm_image.get_query('_dbpath') == '%{_usr}/lib/sysimage/rpm'
         mock_Command_run.assert_called_once_with(
             ['chroot', 'root_dir', 'rpmdb', '--showrc']
         )
@@ -57,9 +49,7 @@ class TestRpm:
     @patch('kiwi.utils.rpm.Path.wipe')
     def test_wipe_config(self, mock_Path_wipe):
         self.rpm_host.wipe_config()
-        mock_Path_wipe.assert_called_once_with(
-            os.sep + self.macro_file
-        )
+        mock_Path_wipe.assert_called_once_with(os.sep + self.macro_file)
         mock_Path_wipe.reset_mock()
         self.rpm_image.wipe_config()
         mock_Path_wipe.assert_called_once_with(
@@ -74,9 +64,7 @@ class TestRpm:
         with patch('builtins.open', m_open, create=True):
             self.rpm_host.write_config()
 
-        m_open.assert_called_once_with(
-            os.sep + self.macro_file, 'w'
-        )
+        m_open.assert_called_once_with(os.sep + self.macro_file, 'w')
         assert m_open.return_value.write.call_args_list == [
             call('%key\tvalue\n')
         ]
@@ -90,6 +78,4 @@ class TestRpm:
         m_open.assert_called_once_with(
             os.sep.join(['root_dir', self.macro_file]), 'w'
         )
-        assert m_open.return_value.write.call_args_list == [
-            call('%foo\tbar\n')
-        ]
+        assert m_open.return_value.write.call_args_list == [call('%foo\tbar\n')]

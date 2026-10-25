@@ -17,9 +17,7 @@
 #
 import re
 import os
-from typing import (
-    NamedTuple, Optional, List, Tuple, Union
-)
+from typing import NamedTuple, Optional, List, Tuple, Union
 
 # project
 from kiwi.command import Command
@@ -27,17 +25,10 @@ from kiwi.command import Command
 from kiwi.exceptions import KiwiKernelLookupError
 
 kernel_type = NamedTuple(
-    'kernel_type', [
-        ('name', str),
-        ('filename', str),
-        ('version', str)
-    ]
+    'kernel_type', [('name', str), ('filename', str), ('version', str)]
 )
 xen_hypervisor_type = NamedTuple(
-    'xen_hypervisor_type', [
-        ('filename', str),
-        ('name', str)
-    ]
+    'xen_hypervisor_type', [('filename', str), ('name', str)]
 )
 
 
@@ -56,6 +47,7 @@ class Kernel:
         file so that we do not have to search for many different
         names in this code
     """
+
     def __init__(self, root_dir: str):
         self.root_dir = root_dir
         self.kernel_names = self._setup_kernel_names_for_lookup()
@@ -84,12 +76,10 @@ class Kernel:
         """
         kernel_patterns = [
             r'^boot/[^/-]+-(.+)$',
-            r'^(?:usr/)?lib/modules/([^/]+)/[^/]+$'
+            r'^(?:usr/)?lib/modules/([^/]+)/[^/]+$',
         ]
         for kernel_name in self.kernel_names:
-            kernel_file = os.sep.join(
-                [self.root_dir, kernel_name]
-            )
+            kernel_file = os.sep.join([self.root_dir, kernel_name])
             if os.path.exists(kernel_file):
                 for kernel_pattern in kernel_patterns:
                     version_match = re.match(kernel_pattern, kernel_name)
@@ -100,7 +90,7 @@ class Kernel:
                                 os.path.realpath(kernel_file)
                             ),
                             filename=kernel_file,
-                            version=version
+                            version=version,
                         )
         if raise_on_not_found:
             raise KiwiKernelLookupError(
@@ -129,7 +119,7 @@ class Kernel:
         kernel_versions = set()
         kernel_module_dirs = [
             os.sep.join([self.root_dir, 'lib/modules']),
-            os.sep.join([self.root_dir, 'usr/lib/modules'])
+            os.sep.join([self.root_dir, 'usr/lib/modules']),
         ]
         for kernel_module_dir in kernel_module_dirs:
             if os.path.isdir(kernel_module_dir):
@@ -137,7 +127,7 @@ class Kernel:
         return sorted(
             kernel_versions,
             key=lambda version: (Kernel.version_key(version), version),
-            reverse=True
+            reverse=True,
         )
 
     def get_version_in_name(self, name: str) -> Optional[str]:
@@ -157,7 +147,7 @@ class Kernel:
         """
         for version in sorted(
             self.get_kernel_versions(),
-            key=lambda version: (-len(version), version)
+            key=lambda version: (-len(version), version),
         ):
             if version in name:
                 return version
@@ -200,10 +190,7 @@ class Kernel:
         """
         xen_hypervisor = self.root_dir + '/boot/xen.gz'
         if os.path.exists(xen_hypervisor):
-            return xen_hypervisor_type(
-                filename=xen_hypervisor,
-                name='xen.gz'
-            )
+            return xen_hypervisor_type(filename=xen_hypervisor, name='xen.gz')
         return None
 
     def copy_kernel(self, target_dir: str, file_name: str = None) -> None:
@@ -220,9 +207,7 @@ class Kernel:
         if kernel:
             if not file_name:
                 file_name = 'kernel-' + kernel.version + '.kernel'
-            target_file = ''.join(
-                [target_dir, '/', file_name]
-            )
+            target_file = ''.join([target_dir, '/', file_name])
             Command.run(['cp', kernel.filename, target_file])
 
     def copy_xen_hypervisor(
@@ -241,9 +226,7 @@ class Kernel:
         if xen:
             if not file_name:
                 file_name = 'hypervisor-' + xen.name
-            target_file = ''.join(
-                [target_dir, '/', file_name]
-            )
+            target_file = ''.join([target_dir, '/', file_name])
             Command.run(['cp', xen.filename, target_file])
 
     def _setup_kernel_names_for_lookup(self) -> List[str]:
@@ -268,14 +251,18 @@ class Kernel:
             # depending on the arch and os they are different
             # in their prefix
             kernel_prefixes = [
-                'uImage', 'Image', 'zImage', 'vmlinuz', 'image', 'vmlinux', 'kernel'
+                'uImage',
+                'Image',
+                'zImage',
+                'vmlinuz',
+                'image',
+                'vmlinux',
+                'kernel',
             ]
             for kernel_dir in kernel_dirs:
                 for kernel_prefix in kernel_prefixes:
                     # add kernel names to be found in boot
-                    kernel_names.append(
-                        f'boot/{kernel_prefix}-{kernel_dir}'
-                    )
+                    kernel_names.append(f'boot/{kernel_prefix}-{kernel_dir}')
                     # add kernel names to be found in modules
                     kernel_names.append(
                         f'lib/modules/{kernel_dir}/{kernel_prefix}'

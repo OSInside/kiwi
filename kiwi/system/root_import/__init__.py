@@ -18,10 +18,7 @@
 import logging
 import importlib
 from typing import List
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.system.uri import Uri
@@ -45,21 +42,18 @@ class RootImport(metaclass=ABCMeta):
     * :attr:`image_type`
         type of the image to import
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(root_dir: str, image_uri: List[Uri], image_type: str):
-        name_map = {
-            'docker': 'OCI',
-            'oci': 'OCI'
-        }
-        log.info(
-            'Importing root from a {0} image type'.format(image_type)
+        name_map = {'docker': 'OCI', 'oci': 'OCI'}
+        log.info('Importing root from a {0} image type'.format(image_type))
+        custom_args, module_namespace = RootImport._custom_args_for_root_import(
+            image_type
         )
-        (custom_args, module_namespace) = \
-            RootImport._custom_args_for_root_import(image_type)
         try:
             rootimport = importlib.import_module(
                 'kiwi.system.root_import.{0}'.format(module_namespace)

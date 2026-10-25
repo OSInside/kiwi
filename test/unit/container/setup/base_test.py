@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call, mock_open
-)
+from unittest.mock import patch, call, mock_open
 from pytest import raises
 
 from kiwi.container.setup.base import ContainerSetupBase
@@ -72,8 +70,11 @@ class TestContainerSetupBase:
         self.container.deactivate_systemd_service('my.service')
         mock_command.assert_called_once_with(
             [
-                'ln', '-s', '-f', '/dev/null',
-                'root_dir/usr/lib/systemd/system/my.service'
+                'ln',
+                '-s',
+                '-f',
+                '/dev/null',
+                'root_dir/usr/lib/systemd/system/my.service',
             ]
         )
 
@@ -96,8 +97,6 @@ class TestContainerSetupBase:
         assert m_open.call_args_list == [
             call('root_dir/etc/securetty', 'w'),
             call('root_dir/etc/securetty', 'r'),
-            call('root_dir/etc/securetty', 'w')
+            call('root_dir/etc/securetty', 'w'),
         ]
-        assert m_open.return_value.write.call_args_list == [
-            call('\nconsole\n')
-        ]
+        assert m_open.return_value.write.call_args_list == [call('\nconsole\n')]

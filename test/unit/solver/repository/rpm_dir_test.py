@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
@@ -27,8 +25,11 @@ class TestSolverRepositoryRpmDir:
     @patch.object(SolverRepositoryBase, '_create_temporary_metadata_dir')
     @patch('kiwi.solver.repository.rpm_dir.glob.iglob')
     def test__setup_repository_metadata(
-        self, mock_iglob, mock_mkdtemp, mock_create_solvables,
-        mock_download_from_repository
+        self,
+        mock_iglob,
+        mock_mkdtemp,
+        mock_create_solvables,
+        mock_download_from_repository,
     ):
         self.uri.is_remote.return_value = False
         self.uri.translate.return_value = '/some/local/repo'

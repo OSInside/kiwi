@@ -12,9 +12,7 @@ class TestDataOutput:
         self._caplog = caplog
 
     def setup(self):
-        test_data = {
-            'some-name': 'some-data'
-        }
+        test_data = {'some-name': 'some-data'}
         self.expected_out = json.dumps(
             test_data, sort_keys=True, indent=4, separators=(',', ': ')
         )
@@ -46,9 +44,7 @@ class TestDataOutput:
         self.out.style = 'color'
         self.out.color_json = True
         self.out.display()
-        mock_system.assert_called_once_with(
-            'cat tmpfile | pjson'
-        )
+        mock_system.assert_called_once_with('cat tmpfile | pjson')
 
     @patch('sys.stdout')
     def test_display_color_no_pjson(self, mock_stdout):

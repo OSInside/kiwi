@@ -1,8 +1,6 @@
 import io
 from pytest import raises
-from unittest.mock import (
-    Mock, patch, call, MagicMock
-)
+from unittest.mock import Mock, patch, call, MagicMock
 from kiwi.bootloader.config.zipl import BootLoaderZipl
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.command import CommandT
@@ -10,7 +8,7 @@ from kiwi.command import CommandT
 from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderTargetError,
-    KiwiDiskGeometryError
+    KiwiDiskGeometryError,
 )
 
 
@@ -25,7 +23,7 @@ class TestBootLoaderZipl:
                 'hkd_cert': ['/path/to/host.crt'],
                 'hkd_revocation_list': ['/path/to/revocation-list.crl'],
                 'hkd_ca_cert': '/path/to/DigiCertCA.crt',
-                'hkd_sign_cert': '/path/to/ibm-z-host-key-signing.crt'
+                'hkd_sign_cert': '/path/to/ibm-z-host-key-signing.crt',
             }
         ]
         self.state.get_build_type_bootloader_targettype.return_value = 'CDL'
@@ -40,20 +38,12 @@ class TestBootLoaderZipl:
         self.bootloader.custom_args['boot_options'] = {}
         self.bootloader.custom_args['targetbase'] = '/dev/disk'
         self.bootloader.custom_args['target_dir'] = 'target_dir'
-        self.bootloader.sys_mount = Mock(
-            mountpoint='sys_mount'
-        )
-        self.bootloader.root_mount = Mock(
-            mountpoint='system_root_mount'
-        )
+        self.bootloader.sys_mount = Mock(mountpoint='sys_mount')
+        self.bootloader.root_mount = Mock(mountpoint='system_root_mount')
         self.bootloader._mount_system = Mock()
         self.bootloader.create_efi_path = Mock()
-        self.bootloader.get_boot_path = Mock(
-            return_value='bootpath'
-        )
-        self.bootloader.get_menu_entry_title = Mock(
-            return_value='title'
-        )
+        self.bootloader.get_boot_path = Mock(return_value='bootpath')
+        self.bootloader.get_menu_entry_title = Mock(return_value='title')
         self.bootloader.arch = 's390x'
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
@@ -78,21 +68,28 @@ class TestBootLoaderZipl:
     @patch.object(BootLoaderZipl, '_get_template_parameters')
     @patch.object(BootLoaderSpecBase, 'get_entry_name')
     def test_setup_loader(
-        self, mock_get_entry_name, mock_get_template_parameters,
-        mock_write_config_file, mock_Temporary_new_file,
-        mock_BootLoaderTemplateZipl, mock_Command_run,
-        mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
-        mock_os_path_exists, mock_os_unlink, mock_shutil_move
+        self,
+        mock_get_entry_name,
+        mock_get_template_parameters,
+        mock_write_config_file,
+        mock_Temporary_new_file,
+        mock_BootLoaderTemplateZipl,
+        mock_Command_run,
+        mock_Path_create,
+        mock_Path_wipe,
+        mock_BootImageBase_get_boot_names,
+        mock_os_path_exists,
+        mock_os_unlink,
+        mock_shutil_move,
     ):
         temporary = Mock()
         temporary.name = 'system_root_mount/kiwi_zipl.conf_'
         mock_Temporary_new_file.return_value.__enter__.return_value = temporary
-        mock_get_entry_name.return_value = \
+        mock_get_entry_name.return_value = (
             'opensuse-leap-5.3.18-59.10-default.conf'
+        )
 
-        mock_get_template_parameters.return_value = {
-            'targetbase': '/dev/loop'
-        }
+        mock_get_template_parameters.return_value = {'targetbase': '/dev/loop'}
         kernel_info = Mock()
         kernel_info.kernel_version = 'kernel-version'
         kernel_info.kernel_filename = 'kernel-filename'
@@ -106,96 +103,128 @@ class TestBootLoaderZipl:
         file_handle.write.assert_called_once_with('options\n')
         assert mock_write_config_file.call_args_list == [
             call(
-                mock_BootLoaderTemplateZipl.
-                return_value.get_loader_template.return_value,
+                mock_BootLoaderTemplateZipl.return_value.get_loader_template.return_value,
                 'system_root_mount/kiwi_zipl.conf_',
-                mock_get_template_parameters.return_value
+                mock_get_template_parameters.return_value,
             ),
             call(
-                mock_BootLoaderTemplateZipl.
-                return_value.get_entry_template.return_value,
+                mock_BootLoaderTemplateZipl.return_value.get_entry_template.return_value,
                 'system_root_mount/boot/loader/entries/'
                 'opensuse-leap-5.3.18-59.10-default.conf',
-                mock_get_template_parameters.return_value
-            )
+                mock_get_template_parameters.return_value,
+            ),
         ]
         assert self.bootloader._mount_system.called
         assert self.bootloader.sys_mount.umount.called
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'chroot', 'system_root_mount', 'genprotimg',
-                    '--offline', '--verbose',
-                    '-o', 'bootpath/kernel-filename.cc',
-                    '-i', 'bootpath/kernel-filename',
-                    '-r', 'bootpath/initrd-name',
-                    '-p', temporary.name.replace('system_root_mount', ''),
-                    '--cert', '/path/to/DigiCertCA.crt',
-                    '--cert', '/path/to/ibm-z-host-key-signing.crt',
-                    '-k', '/path/to/host.crt',
-                    '--crl', '/path/to/revocation-list.crl'
+                    'chroot',
+                    'system_root_mount',
+                    'genprotimg',
+                    '--offline',
+                    '--verbose',
+                    '-o',
+                    'bootpath/kernel-filename.cc',
+                    '-i',
+                    'bootpath/kernel-filename',
+                    '-r',
+                    'bootpath/initrd-name',
+                    '-p',
+                    temporary.name.replace('system_root_mount', ''),
+                    '--cert',
+                    '/path/to/DigiCertCA.crt',
+                    '--cert',
+                    '/path/to/ibm-z-host-key-signing.crt',
+                    '-k',
+                    '/path/to/host.crt',
+                    '--crl',
+                    '/path/to/revocation-list.crl',
                 ]
             ),
             call(
                 [
-                    'chroot', 'system_root_mount', 'genprotimg',
-                    '--offline', '--verbose',
-                    '-o', 'bootpath/kernel-filename.cc',
-                    '-i', 'bootpath/kernel-filename',
-                    '-r', 'bootpath/initrd-name',
-                    '-p', temporary.name.replace('system_root_mount', ''),
+                    'chroot',
+                    'system_root_mount',
+                    'genprotimg',
+                    '--offline',
+                    '--verbose',
+                    '-o',
+                    'bootpath/kernel-filename.cc',
+                    '-i',
+                    'bootpath/kernel-filename',
+                    '-r',
+                    'bootpath/initrd-name',
+                    '-p',
+                    temporary.name.replace('system_root_mount', ''),
                     '--no-verify',
-                    '-k', '/path/to/host.crt',
-                    '--crl', '/path/to/revocation-list.crl',
+                    '-k',
+                    '/path/to/host.crt',
+                    '--crl',
+                    '/path/to/revocation-list.crl',
                 ]
             ),
             call(
                 [
-                    'chroot', 'system_root_mount', 'pvextract-hdr',
-                    '-o', 'secure_execution_header.bin',
-                    'bootpath/kernel-filename.cc'
+                    'chroot',
+                    'system_root_mount',
+                    'pvextract-hdr',
+                    '-o',
+                    'secure_execution_header.bin',
+                    'bootpath/kernel-filename.cc',
                 ]
             ),
             call(
                 [
-                    'chroot', 'system_root_mount', 'pvattest', 'create',
-                    '--no-verify', '--verbose',
-                    '-o', 'attestation_request.bin',
-                    '--arpk', 'attestation_response.key',
-                    '-k', '/path/to/host.crt'
+                    'chroot',
+                    'system_root_mount',
+                    'pvattest',
+                    'create',
+                    '--no-verify',
+                    '--verbose',
+                    '-o',
+                    'attestation_request.bin',
+                    '--arpk',
+                    'attestation_response.key',
+                    '-k',
+                    '/path/to/host.crt',
                 ]
             ),
             call(
                 [
-                    'chroot', 'system_root_mount', 'zipl',
+                    'chroot',
+                    'system_root_mount',
+                    'zipl',
                     '--noninteractive',
-                    '--config', '/kiwi_zipl.conf_',
-                    '--blsdir', '/boot/loader/entries',
-                    '--verbose'
+                    '--config',
+                    '/kiwi_zipl.conf_',
+                    '--blsdir',
+                    '/boot/loader/entries',
+                    '--verbose',
                 ]
-            )
+            ),
         ]
         assert mock_shutil_move.call_args_list == [
             call(
                 'system_root_mount/secure_execution_header.bin',
                 'target_dir/image-name.s390x-image-version.'
-                'secure_execution_header.bin'
+                'secure_execution_header.bin',
             ),
             call(
                 'system_root_mount/attestation_request.bin',
                 'target_dir/image-name.s390x-image-version.'
-                'attestation_request.bin'
+                'attestation_request.bin',
             ),
             call(
                 'system_root_mount/attestation_response.key',
                 'target_dir/image-name.s390x-image-version.'
-                'attestation_response.key'
-            )
+                'attestation_response.key',
+            ),
         ]
         assert mock_os_unlink.call_args_list == [
             call('system_root_mount/bootpath/kernel-filename.cc'),
             call('system_root_mount/bootpath/kernel-filename'),
-            call('system_root_mount/bootpath/initrd-name')
+            call('system_root_mount/bootpath/initrd-name'),
         ]
 
     @patch.object(BootLoaderZipl, '_get_disk_geometry')
@@ -208,8 +237,9 @@ class TestBootLoaderZipl:
         self.bootloader.timeout = 0
         self.bootloader.disk_type = 'CDL'
         self.bootloader.disk_blocksize = 4096
-        self.bootloader.custom_args['secure_image_file'] = \
+        self.bootloader.custom_args['secure_image_file'] = (
             'bootpath/kernel-filename.cc'
+        )
         assert self.bootloader._get_template_parameters() == {
             'secure_image_file': 'bootpath/kernel-filename.cc',
             'kernel_file': 'vmlinuz',
@@ -223,7 +253,7 @@ class TestBootLoaderZipl:
             'targetoffset': '42',
             'targetgeometry': 'targetgeometry=123,53,9',
             'title': 'title',
-            'default_entry': ''
+            'default_entry': '',
         }
 
     @patch('kiwi.bootloader.config.zipl.Path.create')
@@ -252,16 +282,15 @@ class TestBootLoaderZipl:
         command_return_values = [
             CommandT(
                 output='  cylinders ............: 10017\n',
-                error='', returncode=0
+                error='',
+                returncode=0,
             ),
             CommandT(
-                output='  tracks per cylinder ..: 15\n',
-                error='', returncode=0
+                output='  tracks per cylinder ..: 15\n', error='', returncode=0
             ),
             CommandT(
-                output='  blocks per track .....: 12\n',
-                error='', returncode=0
-            )
+                output='  blocks per track .....: 12\n', error='', returncode=0
+            ),
         ]
 
         def command_run(arg):
@@ -276,13 +305,13 @@ class TestBootLoaderZipl:
         self.firmware.get_partition_table_type.return_value = 'dasd'
         command_return_values = [
             CommandT(
-                output='  blocks per track .....: 12\n',
-                error='', returncode=0
+                output='  blocks per track .....: 12\n', error='', returncode=0
             ),
             CommandT(
                 output=' /dev/loop01 2 6401 6400 1 Linux native\n',
-                error='', returncode=0
-            )
+                error='',
+                returncode=0,
+            ),
         ]
 
         def command_run(arg):
@@ -293,17 +322,19 @@ class TestBootLoaderZipl:
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'bash', '-c',
-                    'fdasd -f -p /dev/disk | grep "blocks per track"'
+                    'bash',
+                    '-c',
+                    'fdasd -f -p /dev/disk | grep "blocks per track"',
                 ]
             ),
             call(
                 [
-                    'bash', '-c',
+                    'bash',
+                    '-c',
                     'fdasd -f -s -p /dev/disk | grep "^ " |'
-                    ' head -n 1 | tr -s " "'
+                    ' head -n 1 | tr -s " "',
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
@@ -315,9 +346,10 @@ class TestBootLoaderZipl:
         assert self.bootloader._get_partition_start() == '2048'
         mock_Command_run.assert_called_once_with(
             [
-                'bash', '-c',
+                'bash',
+                '-c',
                 'sfdisk --dump /dev/disk | grep "1 :" |'
-                ' cut -f1 -d, | cut -f2 -d='
+                ' cut -f1 -d, | cut -f2 -d=',
             ]
         )
 
@@ -334,9 +366,7 @@ class TestBootLoaderZipl:
             self.bootloader._get_partition_start()
 
     @patch('kiwi.bootloader.config.zipl.Command.run')
-    def test_get_dasd_disk_geometry_element_raises(
-        self, mock_Command_run
-    ):
+    def test_get_dasd_disk_geometry_element_raises(self, mock_Command_run):
         self.bootloader.target_table_type = 'dasd'
         mock_Command_run.return_value = CommandT(
             output='bogus data', error='', returncode=0

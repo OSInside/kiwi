@@ -29,7 +29,7 @@ from kiwi.utils.sparse import SparseFile
 from kiwi.exceptions import (
     KiwiLoopSetupError,
     KiwiCommandNotFound,
-    KiwiCommandError
+    KiwiCommandError,
 )
 
 log = logging.getLogger('kiwi')
@@ -43,15 +43,16 @@ class LoopDevice(DeviceProvider):
     :param int filesize_mbytes: size of the loop file
     :param int blocksize_bytes: blocksize used in loop driver
     """
+
     def __init__(
-        self, filename: str, filesize_mbytes: int = None,
-        blocksize_bytes: int = None
+        self,
+        filename: str,
+        filesize_mbytes: int = None,
+        blocksize_bytes: int = None,
     ):
         self.node_name = ''
         if not os.path.exists(filename) and not filesize_mbytes:
-            raise KiwiLoopSetupError(
-                'Can not create loop file without a size'
-            )
+            raise KiwiLoopSetupError('Can not create loop file without a size')
         self.filename = filename
         self.filesize_mbytes = filesize_mbytes
         self.blocksize_bytes = blocksize_bytes

@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, MagicMock, mock_open, call
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, MagicMock, mock_open, call
+from pytest import raises, fixture
 
 from kiwi.system.result import Result
 
@@ -58,7 +54,7 @@ class TestResult:
 
         assert m_open.call_args_list == [
             call('kiwi.result', 'wb'),
-            call('kiwi.result.json', 'w')
+            call('kiwi.result.json', 'w'),
         ]
         mock_pickle_dump.assert_called_once_with(
             self.result, m_open.return_value
@@ -84,12 +80,8 @@ class TestResult:
         with patch('builtins.open', m_open, create=True):
             assert Result.load('kiwi.result') is Result
 
-        m_open.assert_called_once_with(
-            'kiwi.result', 'rb'
-        )
-        mock_pickle_load.assert_called_once_with(
-            m_open.return_value
-        )
+        m_open.assert_called_once_with('kiwi.result', 'rb')
+        mock_pickle_load.assert_called_once_with(m_open.return_value)
 
     @patch('os.path.exists')
     def test_load_result_not_present(self, mock_exists):
@@ -123,6 +115,7 @@ class TestResult:
         self.xml_state.get_build_type_name.return_value = 'oem'
         self.result.add('foo', 'bar')
         self.result.add_bundle_format('%N_%I')
-        assert self.result.get_name_for_pattern(
-            command_args={'--id': '0'}
-        ) == 'foo_0'
+        assert (
+            self.result.get_name_for_pattern(command_args={'--id': '0'})
+            == 'foo_0'
+        )

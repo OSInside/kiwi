@@ -17,9 +17,7 @@
 #
 import os
 import re
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.command import CommandCallT
@@ -43,6 +41,7 @@ class PackageManagerDnf4(PackageManagerBase):
     :param dict command_env: dnf command environment from repository runtime
         configuration
     """
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -100,15 +99,13 @@ class PackageManagerDnf4(PackageManagerBase):
         :rtype: str
         """
         dnf4_binary = 'dnf-3'
-        dnf4_search_env = {
-            'PATH': os.sep.join([root, 'usr', 'bin'])
-        } if root else None
+        dnf4_search_env = (
+            {'PATH': os.sep.join([root, 'usr', 'bin'])} if root else None
+        )
 
         # Python interpreter specific path
         if Path.which(
-            filename='dnf4',
-            custom_env=dnf4_search_env,
-            access_mode=os.X_OK
+            filename='dnf4', custom_env=dnf4_search_env, access_mode=os.X_OK
         ):
             dnf4_binary = 'dnf4'
 
@@ -134,30 +131,29 @@ class PackageManagerDnf4(PackageManagerBase):
                     ]
                 }
         """
-        dnf_module_command = [
-            self._get_dnf4_binary_name()
-        ] + self.dnf_args + [
-            '--installroot', self.root_dir,
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + [
-            'module'
-        ]
+        dnf_module_command = (
+            [self._get_dnf4_binary_name()]
+            + self.dnf_args
+            + [
+                '--installroot',
+                self.root_dir,
+                f'--releasever={self.release_version}',
+            ]
+            + self.custom_args
+            + ['module']
+        )
         for disable_module in collection_modules['disable']:
             Command.run(
-                dnf_module_command + [
-                    'disable', disable_module
-                ], self.command_env
+                dnf_module_command + ['disable', disable_module],
+                self.command_env,
             )
         for enable_module in collection_modules['enable']:
             Command.run(
-                dnf_module_command + [
-                    'reset', enable_module.split(':')[0]
-                ], self.command_env
+                dnf_module_command + ['reset', enable_module.split(':')[0]],
+                self.command_env,
             )
             Command.run(
-                dnf_module_command + [
-                    'enable', enable_module
-                ], self.command_env
+                dnf_module_command + ['enable', enable_module], self.command_env
             )
 
     def process_install_requests_bootstrap(
@@ -183,22 +179,28 @@ class PackageManagerDnf4(PackageManagerBase):
             for package in self.exclude_requests:
                 exclude_args.append('--exclude=' + package)
         Command.run(
-            [dnf4] + self.dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + ['makecache'], self.command_env
+            [dnf4]
+            + self.dnf_args
+            + [f'--releasever={self.release_version}']
+            + ['makecache'],
+            self.command_env,
         )
-        dnf_command = [
-            dnf4
-        ] + self.dnf_args + [
-            '--installroot', self.root_dir,
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + exclude_args + [
-            'install'
-        ] + self.package_requests + self.collection_requests
+        dnf_command = (
+            [dnf4]
+            + self.dnf_args
+            + [
+                '--installroot',
+                self.root_dir,
+                f'--releasever={self.release_version}',
+            ]
+            + self.custom_args
+            + exclude_args
+            + ['install']
+            + self.package_requests
+            + self.collection_requests
+        )
         self.cleanup_requests()
-        return Command.call(
-            dnf_command, self.command_env
-        )
+        return Command.call(dnf_command, self.command_env)
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -217,20 +219,19 @@ class PackageManagerDnf4(PackageManagerBase):
             # hard required by another package, it will break the transaction.
             for package in self.exclude_requests:
                 exclude_args.append('--exclude=' + package)
-        chroot_dnf_args = Path.move_to_root(
-            self.root_dir, self.dnf_args
+        chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
+        dnf_command = (
+            ['chroot', self.root_dir, dnf4]
+            + chroot_dnf_args
+            + [f'--releasever={self.release_version}']
+            + self.custom_args
+            + exclude_args
+            + ['install']
+            + self.package_requests
+            + self.collection_requests
         )
-        dnf_command = [
-            'chroot', self.root_dir, dnf4
-        ] + chroot_dnf_args + [
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + exclude_args + [
-            'install'
-        ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
-        return Command.call(
-            dnf_command, self.command_env
-        )
+        return Command.call(dnf_command, self.command_env)
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
@@ -262,25 +263,24 @@ class PackageManagerDnf4(PackageManagerBase):
             self.cleanup_requests()
             delete_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
-                [
-                    'chroot', self.root_dir, 'rpm', '-e'
-                ] + delete_options + delete_items,
-                self.command_env
+                ['chroot', self.root_dir, 'rpm', '-e']
+                + delete_options
+                + delete_items,
+                self.command_env,
             )
         else:
             dnf4 = self._get_dnf4_binary_name(self.root_dir)
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
-            dnf_command = [
-                'chroot', self.root_dir, dnf4
-            ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + self.custom_args + [
-                'autoremove'
-            ] + self.package_requests
-            self.cleanup_requests()
-            return Command.call(
-                dnf_command, self.command_env
+            dnf_command = (
+                ['chroot', self.root_dir, dnf4]
+                + chroot_dnf_args
+                + [f'--releasever={self.release_version}']
+                + self.custom_args
+                + ['autoremove']
+                + self.package_requests
             )
+            self.cleanup_requests()
+            return Command.call(dnf_command, self.command_env)
 
     def update(self) -> CommandCallT:
         """
@@ -293,14 +293,12 @@ class PackageManagerDnf4(PackageManagerBase):
         dnf4 = self._get_dnf4_binary_name(self.root_dir)
         chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
         return Command.call(
-            [
-                'chroot', self.root_dir, dnf4
-            ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + self.custom_args + [
-                'upgrade'
-            ],
-            self.command_env
+            ['chroot', self.root_dir, dnf4]
+            + chroot_dnf_args
+            + [f'--releasever={self.release_version}']
+            + self.custom_args
+            + ['upgrade'],
+            self.command_env,
         )
 
     def process_only_required(self) -> None:
@@ -338,7 +336,7 @@ class PackageManagerDnf4(PackageManagerBase):
         return bool(
             re.match(
                 '.*Installing.*: {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -358,7 +356,7 @@ class PackageManagerDnf4(PackageManagerBase):
         return bool(
             re.match(
                 '.*Removing.*: {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 

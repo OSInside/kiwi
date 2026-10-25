@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, mock_open
-)
+from unittest.mock import patch, mock_open
 
 from kiwi.system.identifier import SystemIdentifier
 
@@ -42,5 +40,4 @@ class TestSystemIdentifier:
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            assert self.identifier.write_to_disk(mock_device_provider) \
-                is None
+            assert self.identifier.write_to_disk(mock_device_provider) is None

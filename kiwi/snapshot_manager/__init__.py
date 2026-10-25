@@ -17,10 +17,7 @@
 #
 import importlib
 from typing import Dict
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiSnapshotManagerSetupError
@@ -38,14 +35,19 @@ class SnapshotManager(metaclass=ABCMeta):
         snapshots are hosted in a subvolume.
     :param dict custom_args: dictionary of custom snapshot manager arguments
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        name: str, device: str, root_dir: str, mountpoint: str,
-        root_volume_name: str, custom_args: Dict = None
+        name: str,
+        device: str,
+        root_dir: str,
+        mountpoint: str,
+        root_volume_name: str,
+        custom_args: Dict = None,
     ):
         name_map = {
             'snapper': 'Snapper',

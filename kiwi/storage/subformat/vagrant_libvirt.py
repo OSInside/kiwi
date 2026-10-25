@@ -17,9 +17,7 @@
 #
 import os
 from textwrap import dedent
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
@@ -31,6 +29,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
     """
     **Create a vagrant box for the libvirt provider**
     """
+
     def vagrant_post_init(self) -> None:
         self.image_format = 'vagrant.libvirt.box'
         self.provider = 'libvirt'
@@ -48,15 +47,14 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
 
         :rtype: list
         """
-        qcow = DiskFormatQcow2(
-            self.xml_state, self.root_dir, self.target_dir
-        )
+        qcow = DiskFormatQcow2(self.xml_state, self.root_dir, self.target_dir)
         qcow.create_image_format()
         box_img = os.sep.join([temp_image_dir, 'box.img'])
         Command.run(
             [
-                'mv', self.get_target_file_path_for_format(qcow.image_format),
-                box_img
+                'mv',
+                self.get_target_file_path_for_format(qcow.image_format),
+                box_img,
             ]
         )
         return [box_img]
@@ -73,7 +71,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
         """
         return {
             'format': 'qcow2',
-            'virtual_size': int(self.vagrantconfig.get_virtualsize() or 42)
+            'virtual_size': int(self.vagrantconfig.get_virtualsize() or 42),
         }
 
     def get_additional_vagrant_config_settings(self) -> str:

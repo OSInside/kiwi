@@ -33,7 +33,7 @@ from kiwi.system.root_init import RootInit
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
     KiwiMountSharedDirectoryError,
-    KiwiSetupIntermediateConfigError
+    KiwiSetupIntermediateConfigError,
 )
 
 log = logging.getLogger('kiwi')
@@ -53,6 +53,7 @@ class RootBind:
     :param str shared_location: shared directory between image root and
         build system root
     """
+
     def __init__(self, root_init: RootInit):
         self.runtime_config = RuntimeConfig()
         self.root_dir = root_init.root_dir
@@ -64,7 +65,7 @@ class RootBind:
         self.config_files = [
             '/etc/resolv.conf',
             '/etc/hosts',
-            '/etc/sysconfig/proxy'
+            '/etc/sysconfig/proxy',
         ]
         # need kernel filesystems bind mounted
         self.bind_locations = [
@@ -72,7 +73,7 @@ class RootBind:
             '/dev',
             '/var/run/dbus',
             '/sys',
-            '/sys/fs/cgroup'
+            '/sys/fs/cgroup',
         ]
         # share the following directory with the host
         self.shared_location = '/' + Defaults.get_shared_cache_location()
@@ -98,9 +99,9 @@ class RootBind:
                 self.mount_stack.append(shared_mount)
 
             for location in self.bind_locations:
-                location_mount_target = os.path.normpath(os.sep.join([
-                    self.root_dir, location
-                ]))
+                location_mount_target = os.path.normpath(
+                    os.sep.join([self.root_dir, location])
+                )
                 if os.path.exists(location) and os.path.exists(
                     location_mount_target
                 ):
@@ -123,8 +124,7 @@ class RootBind:
             fails to mount
         """
         umounts = [
-            mnt for mnt in self.mount_stack if mnt.device
-            in self.bind_locations
+            mnt for mnt in self.mount_stack if mnt.device in self.bind_locations
         ]
         self._cleanup_mounts(umounts)
 
@@ -219,9 +219,7 @@ class RootBind:
         config_file = self.root_dir + config + '.kiwi'
         self.cleanup_files.append(config + '.kiwi')
         link_target = os.path.basename(config) + '.kiwi'
-        Command.run(
-            ['ln', '-s', '-f', link_target, self.root_dir + config]
-        )
+        Command.run(['ln', '-s', '-f', link_target, self.root_dir + config])
         shasum = self.runtime_config.get_checksum_handler(
             source_filename=config_file
         )
@@ -309,7 +307,7 @@ class RootBind:
         }
         template_dirs = [
             self.root_dir + '/var/adm/fillup-templates',
-            self.root_dir + '/usr/share/fillup-templates'
+            self.root_dir + '/usr/share/fillup-templates',
         ]
         if template_map.get(config_file):
             for template_dir in template_dirs:
@@ -317,9 +315,7 @@ class RootBind:
                     [template_dir, template_map.get(config_file)]
                 )
                 if os.path.exists(template_file):
-                    Command.run(
-                        ['cp', template_file, config_file]
-                    )
+                    Command.run(['cp', template_file, config_file])
 
     def _restore_intermediate_config_rpmnew_variants(self):
         """
@@ -329,8 +325,9 @@ class RootBind:
         """
         for config in self.config_files:
             config_rpm_new = self.root_dir + config + '.rpmnew'
-            if os.path.exists(config_rpm_new) and not \
-               os.path.exists(self.root_dir + config):
+            if os.path.exists(config_rpm_new) and not os.path.exists(
+                self.root_dir + config
+            ):
 
                 shutil.move(config_rpm_new, self.root_dir + config)
 
@@ -343,7 +340,8 @@ class RootBind:
                 except Exception as e:
                     log.warning(
                         'Image root directory %s not cleanly umounted: %s',
-                        self.root_dir, format(e)
+                        self.root_dir,
+                        format(e),
                     )
             else:
                 log.warning('Path %s not a mountpoint', umount.mountpoint)

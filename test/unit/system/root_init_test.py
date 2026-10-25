@@ -1,17 +1,12 @@
 import sys
-from unittest.mock import (
-    patch, call, Mock
-)
+from unittest.mock import patch, call, Mock
 from pytest import raises
 
 from ..test_helper import argv_kiwi_tests
 
 from kiwi.system.root_init import RootInit
 
-from kiwi.exceptions import (
-    KiwiRootDirExists,
-    KiwiRootInitCreationError
-)
+from kiwi.exceptions import KiwiRootDirExists, KiwiRootInitCreationError
 
 
 class TestRootInit:
@@ -29,8 +24,14 @@ class TestRootInit:
     @patch('kiwi.system.root_init.Temporary')
     @patch('kiwi.system.root_init.Path.create')
     def test_create_raises_error(
-        self, mock_Path_create, mock_Temporary, mock_data_sync,
-        mock_symlink, mock_chwon, mock_makedirs, mock_path
+        self,
+        mock_Path_create,
+        mock_Temporary,
+        mock_data_sync,
+        mock_symlink,
+        mock_chwon,
+        mock_makedirs,
+        mock_path,
     ):
         mock_path.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
@@ -51,17 +52,34 @@ class TestRootInit:
     @patch('kiwi.system.root_init.Temporary')
     @patch('kiwi.system.root_init.Path.create')
     def test_create(
-        self, mock_Path_create, mock_Temporary, mock_data_sync,
-        mock_copy, mock_create, mock_chmod, mock_makedev,
-        mock_symlink, mock_chwon, mock_makedirs,
-        mock_path
+        self,
+        mock_Path_create,
+        mock_Temporary,
+        mock_data_sync,
+        mock_copy,
+        mock_create,
+        mock_chmod,
+        mock_makedev,
+        mock_symlink,
+        mock_chwon,
+        mock_makedirs,
+        mock_path,
     ):
         data_sync = Mock()
         mock_data_sync.return_value = data_sync
         mock_makedev.return_value = 'makedev'
         mock_path_return = [
-            True, True, True, True, False, False,
-            False, False, False, False, False
+            True,
+            True,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
         ]
 
         def path_exists(self):
@@ -80,7 +98,7 @@ class TestRootInit:
             call('tmpdir/etc/sysconfig'),
             call('tmpdir/run'),
             call('tmpdir/sys'),
-            call('tmpdir/var')
+            call('tmpdir/var'),
         ]
         assert mock_chwon.call_args_list == [
             call('tmpdir/var/cache/kiwi', 0, 0),
@@ -89,24 +107,20 @@ class TestRootInit:
             call('tmpdir/etc/sysconfig', 0, 0),
             call('tmpdir/run', 0, 0),
             call('tmpdir/sys', 0, 0),
-            call('tmpdir/var', 0, 0)
+            call('tmpdir/var', 0, 0),
         ]
         assert mock_symlink.call_args_list == [
             call('/proc/self/fd', 'tmpdir/dev/fd'),
             call('fd/2', 'tmpdir/dev/stderr'),
             call('fd/0', 'tmpdir/dev/stdin'),
-            call('fd/1', 'tmpdir/dev/stdout')
+            call('fd/1', 'tmpdir/dev/stdout'),
         ]
-        mock_data_sync.assert_called_once_with(
-            'tmpdir/', 'root_dir'
-        )
+        mock_data_sync.assert_called_once_with('tmpdir/', 'root_dir')
         data_sync.sync_data.assert_called_once_with(
             options=['-a', '--ignore-existing']
         )
 
-        mock_copy.assert_called_once_with(
-            '/.buildenv', 'root_dir'
-        )
+        mock_copy.assert_called_once_with('/.buildenv', 'root_dir')
         mock_create.assert_called_once_with('root_dir')
         mock_chmod.assert_called_once_with('root_dir', 0o755)
 

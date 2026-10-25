@@ -30,9 +30,7 @@ from kiwi.defaults import Defaults
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 
-from kiwi.exceptions import (
-    KiwiLuksSetupError
-)
+from kiwi.exceptions import KiwiLuksSetupError
 
 log = logging.getLogger('kiwi')
 
@@ -43,6 +41,7 @@ class LuksDevice(DeviceProvider):
 
     :param object storage_provider: Instance of class based on DeviceProvider
     """
+
     def __init__(self, storage_provider: DeviceProvider) -> None:
         self.runtime_config = RuntimeConfig()
         self.storage_provider = storage_provider
@@ -58,9 +57,12 @@ class LuksDevice(DeviceProvider):
 
         self.option_map = {
             'sle12': [
-                '--cipher', 'aes-xts-plain64',
-                '--key-size', '256',
-                '--hash', 'sha1'
+                '--cipher',
+                'aes-xts-plain64',
+                '--key-size',
+                '256',
+                '--hash',
+                'sha1',
             ]
         }
 
@@ -76,15 +78,17 @@ class LuksDevice(DeviceProvider):
         :rtype: MappedDevice
         """
         if self.luks_device:
-            return MappedDevice(
-                device=self.luks_device, device_provider=self
-            )
+            return MappedDevice(device=self.luks_device, device_provider=self)
         return None
 
     def create_crypto_luks(
-        self, passphrase: str, osname: str = None,
-        options: list = None, keyfile: str = '', randomize: bool = True,
-        root_dir: str = ''
+        self,
+        passphrase: str,
+        osname: str = None,
+        options: list = None,
+        keyfile: str = '',
+        randomize: bool = True,
+        root_dir: str = '',
     ) -> None:
         """
         Create luks device. Please note the passphrase is readable
@@ -128,14 +132,16 @@ class LuksDevice(DeviceProvider):
 
         if randomize:
             log.info('--> Randomizing...')
-            storage_size_mbytes = self.storage_provider.get_byte_size(
-                storage_device
-            ) / 1048576
+            storage_size_mbytes = (
+                self.storage_provider.get_byte_size(storage_device) / 1048576
+            )
             Command.run(
                 [
-                    'dd', 'if=/dev/urandom', 'bs=1M',
+                    'dd',
+                    'if=/dev/urandom',
+                    'bs=1M',
                     'count=%d' % storage_size_mbytes,
-                    f'of={storage_device}'
+                    f'of={storage_device}',
                 ]
             )
 
@@ -163,37 +169,34 @@ class LuksDevice(DeviceProvider):
             # for initial deployment which then applies a process
             # to secure the image e.g reencrypt
             passphrase_file_zero = '/dev/zero'
-            extra_options = [
-                '--keyfile-size', '32'
-            ]
+            extra_options = ['--keyfile-size', '32']
             passphrase_file = passphrase_file_zero
 
         Command.run(
-            [
-                'cryptsetup', '-q', '--key-file', passphrase_file
-            ] + options + extra_options + [
-                'luksFormat', storage_device
-            ]
+            ['cryptsetup', '-q', '--key-file', passphrase_file]
+            + options
+            + extra_options
+            + ['luksFormat', storage_device]
         )
 
         if keyfile:
             Command.run(
-                [
-                    'cryptsetup', '--key-file', passphrase_file
-                ] + extra_options + [
-                    'luksAddKey', storage_device, keyfile_path
-                ]
+                ['cryptsetup', '--key-file', passphrase_file]
+                + extra_options
+                + ['luksAddKey', storage_device, keyfile_path]
             )
 
         # Create backup header checksum as reencryption reference
         master_checksum = f'{root_dir}/root/.luks.header'
         Path.wipe(master_checksum)
         Command.run(
-            [
-                'cryptsetup', '--key-file', passphrase_file
-            ] + extra_options + [
-                'luksHeaderBackup', storage_device,
-                '--header-backup-file', master_checksum
+            ['cryptsetup', '--key-file', passphrase_file]
+            + extra_options
+            + [
+                'luksHeaderBackup',
+                storage_device,
+                '--header-backup-file',
+                master_checksum,
             ]
         )
         shasum = self.runtime_config.get_checksum_handler(
@@ -219,11 +222,9 @@ class LuksDevice(DeviceProvider):
 
         # open the pool
         Command.run(
-            [
-                'cryptsetup', '--key-file', passphrase_file
-            ] + extra_options + [
-                'luksOpen', storage_device, self.luks_name
-            ]
+            ['cryptsetup', '--key-file', passphrase_file]
+            + extra_options
+            + ['luksOpen', storage_device, self.luks_name]
         )
         self.luks_device = '/dev/mapper/' + self.luks_name
 
@@ -243,11 +244,7 @@ class LuksDevice(DeviceProvider):
                     )
                 )
             else:
-                crypttab.write(
-                    'luks UUID={0}{1}'.format(
-                        luks_uuid, os.linesep
-                    )
-                )
+                crypttab.write('luks UUID={0}{1}'.format(luks_uuid, os.linesep))
 
     def is_loop(self) -> bool:
         """
@@ -279,9 +276,7 @@ class LuksDevice(DeviceProvider):
     def __exit__(self, exc_type, exc_value, traceback):
         if self.luks_device:
             try:
-                Command.run(
-                    ['cryptsetup', 'luksClose', self.luks_name]
-                )
+                Command.run(['cryptsetup', 'luksClose', self.luks_name])
             except Exception as issue:
                 log.error(
                     'Shutdown of luks map {0}:{1} failed with: {2}'.format(

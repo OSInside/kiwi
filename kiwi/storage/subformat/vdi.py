@@ -25,6 +25,7 @@ class DiskFormatVdi(DiskFormatBase):
     """
     **Create vdi disk format**
     """
+
     def post_init(self, custom_args: Dict) -> None:
         """
         vdi disk format post initialization method
@@ -42,9 +43,14 @@ class DiskFormatVdi(DiskFormatBase):
         """
         Command.run(
             [
-                'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', self.image_format
-            ] + self.options + [
-                self.get_target_file_path_for_format(self.image_format)
+                'qemu-img',
+                'convert',
+                '-f',
+                'raw',
+                self.diskname,
+                '-O',
+                self.image_format,
             ]
+            + self.options
+            + [self.get_target_file_path_for_format(self.image_format)]
         )

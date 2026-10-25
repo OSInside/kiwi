@@ -36,6 +36,7 @@ class SystemUpdateTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Update root system with latest repository updates
@@ -62,9 +63,7 @@ class SystemUpdateTask(CliTask):
 
         log.info('Updating system')
         with SystemPrepare(
-            self.xml_state,
-            abs_root_path,
-            allow_existing=True
+            self.xml_state, abs_root_path, allow_existing=True
         ) as system:
             with system.setup_repositories(
                 target_arch=self.global_args['--target-arch']

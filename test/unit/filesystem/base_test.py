@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 
 import kiwi.defaults as defaults
 
@@ -20,15 +16,9 @@ class TestFileSystemBase:
 
     def setup(self):
         provider = Mock()
-        provider.get_device = Mock(
-            return_value='/dev/loop0'
-        )
-        provider.get_byte_size = Mock(
-            return_value=1073741824  # 1GB
-        )
-        custom_args = {
-            'fs_attributes': ['no-copy-on-write']
-        }
+        provider.get_device = Mock(return_value='/dev/loop0')
+        provider.get_byte_size = Mock(return_value=1073741824)  # 1GB
+        custom_args = {'fs_attributes': ['no-copy-on-write']}
         self.fsbase = FileSystemBase(provider, 'root_dir', custom_args)
 
     def setup_method(self, cls):
@@ -77,16 +67,16 @@ class TestFileSystemBase:
         data_sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
             options=[
-                '--archive', '--hard-links', '--xattrs',
-                '--acls', '--one-file-system', '--inplace'
-            ]
+                '--archive',
+                '--hard-links',
+                '--xattrs',
+                '--acls',
+                '--one-file-system',
+                '--inplace',
+            ],
         )
-        mock_mount.assert_called_once_with(
-            device='/dev/loop0'
-        )
-        mock_Command_run.assert_called_once_with(
-            ['chattr', '+C', 'tmpdir']
-        )
+        mock_mount.assert_called_once_with(device='/dev/loop0')
+        mock_Command_run.assert_called_once_with(['chattr', '+C', 'tmpdir'])
         filesystem_mount.mount.assert_called_once_with([])
         assert self.fsbase.get_mountpoint() == 'tmpdir'
 
@@ -201,9 +191,10 @@ class TestFileSystemBase:
         # size of 1073741824b (see test init) - 100k must be 1048476k
         assert self.fsbase._fs_size(-100) == '1048476'
         # size of 1073741824b (see test init) - 102400b must be 1073639424b
-        assert self.fsbase._fs_size(
-            -102400, unit=defaults.UNIT.byte
-        ) == '1073639424'
+        assert (
+            self.fsbase._fs_size(-102400, unit=defaults.UNIT.byte)
+            == '1073639424'
+        )
         # size of 1073741824b - 1024m must be zero
         assert self.fsbase._fs_size(-1024, unit=defaults.UNIT.mb) == '0'
         # size of 1073741824b - 1g must be zero
@@ -221,8 +212,10 @@ class TestFileSystemBase:
 
     def test_generate_seed_uuid(self):
         with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '123456'}):
-            assert self.fsbase._generate_seed_uuid('label') == \
-                'c0cbf4e3-10a7-86ea-9472-87aaca0074f2'
+            assert (
+                self.fsbase._generate_seed_uuid('label')
+                == 'c0cbf4e3-10a7-86ea-9472-87aaca0074f2'
+            )
 
     @patch('kiwi.filesystem.base.uuid')
     def test_generate_seed_uuid_random(self, mock_uuid):

@@ -1,7 +1,5 @@
 from collections import namedtuple
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.volume_manager.base import VolumeManagerBase
@@ -13,40 +11,43 @@ class TestVolumeManagerBase:
     @patch('os.path.exists')
     def setup(self, mock_path):
         self.volume_type = namedtuple(
-            'volume_type', [
+            'volume_type',
+            [
                 'name',
                 'size',
                 'realpath',
                 'mountpoint',
                 'fullsize',
                 'attributes',
-                'is_root_volume'
-            ]
+                'is_root_volume',
+            ],
         )
         mock_path.return_value = True
-        self.device_map = {
-            'root': Mock()
-        }
-        self.device_map['root'].is_loop = Mock(
-            return_value=True
-        )
-        self.device_map['root'].get_device = Mock(
-            return_value='/dev/storage'
-        )
+        self.device_map = {'root': Mock()}
+        self.device_map['root'].is_loop = Mock(return_value=True)
+        self.device_map['root'].get_device = Mock(return_value='/dev/storage')
         self.volume_manager = VolumeManagerBase(
             self.device_map, 'root_dir', Mock()
         )
         self.volume_manager.volumes = [
             self.volume_type(
-                name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False, attributes=[],
-                is_root_volume=False
+                name='LVetc',
+                size='freespace:200',
+                realpath='/etc',
+                mountpoint='/etc',
+                fullsize=False,
+                attributes=[],
+                is_root_volume=False,
             ),
             self.volume_type(
-                name='LVRoot', size='size:500', realpath='/',
-                mountpoint='/', fullsize=True, attributes=[],
-                is_root_volume=True
-            )
+                name='LVRoot',
+                size='size:500',
+                realpath='/',
+                mountpoint='/',
+                fullsize=True,
+                attributes=[],
+                is_root_volume=True,
+            ),
         ]
 
     @patch('os.path.exists')
@@ -60,15 +61,22 @@ class TestVolumeManagerBase:
     def test_init_custom_args(self, mock_exists):
         mock_exists.return_value = True
         volume_manager = VolumeManagerBase(
-            self.device_map, 'root_dir', Mock(), {
+            self.device_map,
+            'root_dir',
+            Mock(),
+            {
                 'fs_create_options': 'create-opts',
-                'fs_mount_options': 'mount-opts'
-            }
+                'fs_mount_options': 'mount-opts',
+            },
         )
-        assert volume_manager.custom_filesystem_args['mount_options'] == \
-            'mount-opts'
-        assert volume_manager.custom_filesystem_args['create_options'] == \
-            'create-opts'
+        assert (
+            volume_manager.custom_filesystem_args['mount_options']
+            == 'mount-opts'
+        )
+        assert (
+            volume_manager.custom_filesystem_args['create_options']
+            == 'create-opts'
+        )
 
     @patch('os.path.exists')
     def test_root_dir_does_not_exist(self, mock_exists):
@@ -77,14 +85,17 @@ class TestVolumeManagerBase:
             VolumeManagerBase(self.device_map, 'root_dir', Mock())
 
     def test_is_loop(self):
-        assert self.volume_manager.is_loop() == \
-            self.device_map['root'].is_loop()
+        assert (
+            self.volume_manager.is_loop() == self.device_map['root'].is_loop()
+        )
 
     @patch('os.path.exists')
     def test_get_device(self, mock_exists):
         mock_exists.return_value = True
-        assert self.volume_manager.get_device()['root'].get_device() == \
-            '/dev/storage'
+        assert (
+            self.volume_manager.get_device()['root'].get_device()
+            == '/dev/storage'
+        )
 
     def test_setup(self):
         with raises(NotImplementedError):
@@ -112,19 +123,19 @@ class TestVolumeManagerBase:
 
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('os.path.exists')
-    def test_get_volume_mbsize(
-        self, mock_os_path_exists, mock_size
-    ):
+    def test_get_volume_mbsize(self, mock_os_path_exists, mock_size):
         mock_os_path_exists.return_value = True
         size = Mock()
-        size.customize = Mock(
-            return_value=42
-        )
+        size.customize = Mock(return_value=42)
         mock_size.return_value = size
-        assert self.volume_manager.get_volume_mbsize(
-            self.volume_manager.volumes[0], self.volume_manager.volumes,
-            'ext3'
-        ) == 272
+        assert (
+            self.volume_manager.get_volume_mbsize(
+                self.volume_manager.volumes[0],
+                self.volume_manager.volumes,
+                'ext3',
+            )
+            == 272
+        )
 
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('os.path.exists')
@@ -133,14 +144,17 @@ class TestVolumeManagerBase:
     ):
         mock_os_path_exists.return_value = True
         size = Mock()
-        size.customize = Mock(
-            return_value=42
-        )
+        size.customize = Mock(return_value=42)
         mock_size.return_value = size
-        assert self.volume_manager.get_volume_mbsize(
-            self.volume_manager.volumes[0], self.volume_manager.volumes,
-            'ext3', True
-        ) == 72
+        assert (
+            self.volume_manager.get_volume_mbsize(
+                self.volume_manager.volumes[0],
+                self.volume_manager.volumes,
+                'ext3',
+                True,
+            )
+            == 72
+        )
 
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('os.path.exists')
@@ -149,26 +163,36 @@ class TestVolumeManagerBase:
     ):
         mock_os_path_exists.return_value = True
         size = Mock()
-        size.customize = Mock(
-            return_value=42
-        )
+        size.customize = Mock(return_value=42)
         mock_size.return_value = size
         self.volume_manager.volumes = [
             self.volume_type(
-                name='LVusr', size='freespace:200', realpath='/usr',
-                mountpoint='/usr', fullsize=False, attributes=[],
-                is_root_volume=False
+                name='LVusr',
+                size='freespace:200',
+                realpath='/usr',
+                mountpoint='/usr',
+                fullsize=False,
+                attributes=[],
+                is_root_volume=False,
             ),
             self.volume_type(
-                name='LVusr_lib', size='freespace:100', realpath='/usr/lib',
-                mountpoint='/usr/lib', fullsize=False, attributes=[],
-                is_root_volume=False
-            )
+                name='LVusr_lib',
+                size='freespace:100',
+                realpath='/usr/lib',
+                mountpoint='/usr/lib',
+                fullsize=False,
+                attributes=[],
+                is_root_volume=False,
+            ),
         ]
-        assert self.volume_manager.get_volume_mbsize(
-            self.volume_manager.volumes[0], self.volume_manager.volumes,
-            'ext3'
-        ) == 272
+        assert (
+            self.volume_manager.get_volume_mbsize(
+                self.volume_manager.volumes[0],
+                self.volume_manager.volumes,
+                'ext3',
+            )
+            == 272
+        )
         size.accumulate_mbyte_file_sizes.assert_called_once_with(
             ['root_dir/usr/lib']
         )
@@ -180,31 +204,46 @@ class TestVolumeManagerBase:
     ):
         mock_os_path_exists.return_value = True
         size = Mock()
-        size.customize = Mock(
-            return_value=42
-        )
+        size.customize = Mock(return_value=42)
         mock_size.return_value = size
         self.volume_manager.volumes = [
             self.volume_type(
-                name='LVusr', size='freespace:200', realpath='/usr',
-                mountpoint='/usr', fullsize=False, attributes=[],
-                is_root_volume=False
+                name='LVusr',
+                size='freespace:200',
+                realpath='/usr',
+                mountpoint='/usr',
+                fullsize=False,
+                attributes=[],
+                is_root_volume=False,
             ),
             self.volume_type(
-                name='LVusr_lib', size='freespace:100', realpath='/usr/lib',
-                mountpoint='/usr/lib', fullsize=False, attributes=[],
-                is_root_volume=False
+                name='LVusr_lib',
+                size='freespace:100',
+                realpath='/usr/lib',
+                mountpoint='/usr/lib',
+                fullsize=False,
+                attributes=[],
+                is_root_volume=False,
             ),
             self.volume_type(
-                name='LVRoot', size='size:500', realpath='/',
-                mountpoint='/', fullsize=True, attributes=[],
-                is_root_volume=True
-            )
+                name='LVRoot',
+                size='size:500',
+                realpath='/',
+                mountpoint='/',
+                fullsize=True,
+                attributes=[],
+                is_root_volume=True,
+            ),
         ]
-        assert self.volume_manager.get_volume_mbsize(
-            self.volume_manager.volumes[2], self.volume_manager.volumes,
-            'ext3', True
-        ) == 72
+        assert (
+            self.volume_manager.get_volume_mbsize(
+                self.volume_manager.volumes[2],
+                self.volume_manager.volumes,
+                'ext3',
+                True,
+            )
+            == 72
+        )
         size.accumulate_mbyte_file_sizes.assert_called_once_with(
             ['root_dir/usr', 'root_dir/usr/lib']
         )
@@ -242,15 +281,17 @@ class TestVolumeManagerBase:
         self.volume_manager.mountpoint = 'mountpoint'
         self.volume_manager.sync_data(['exclude_me'])
         mock_mount_volumes.assert_called_once_with()
-        mock_sync.assert_called_once_with(
-            'root_dir', 'mountpoint'
-        )
+        mock_sync.assert_called_once_with('root_dir', 'mountpoint')
         data_sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
             options=[
-                '--archive', '--hard-links', '--xattrs',
-                '--acls', '--one-file-system', '--inplace'
-            ]
+                '--archive',
+                '--hard-links',
+                '--xattrs',
+                '--acls',
+                '--one-file-system',
+                '--inplace',
+            ],
         )
         assert self.volume_manager.get_mountpoint() == 'mountpoint'
 
@@ -281,16 +322,18 @@ class TestVolumeManagerBase:
     @patch('kiwi.volume_manager.base.Command.run')
     def test_apply_attributes_on_volume(self, mock_command):
         self.volume_manager.apply_attributes_on_volume(
-            'toplevel', self.volume_type(
-                name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False,
+            'toplevel',
+            self.volume_type(
+                name='LVetc',
+                size='freespace:200',
+                realpath='/etc',
+                mountpoint='/etc',
+                fullsize=False,
                 attributes=['no-copy-on-write'],
-                is_root_volume=False
-            )
+                is_root_volume=False,
+            ),
         )
-        mock_command.assert_called_once_with(
-            ['chattr', '+C', 'toplevel/etc']
-        )
+        mock_command.assert_called_once_with(['chattr', '+C', 'toplevel/etc'])
 
     @patch('os.path.exists')
     def test_context_manager_exit(self, mock_os_path_exists):

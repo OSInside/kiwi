@@ -1,9 +1,6 @@
 from pytest import raises
 from unittest.mock import patch
-from kiwi.api_helper import (
-    obsolete,
-    decommissioned
-)
+from kiwi.api_helper import obsolete, decommissioned
 
 
 @decommissioned

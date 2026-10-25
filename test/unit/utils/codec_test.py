@@ -1,8 +1,6 @@
 import logging
 from unittest.mock import patch
-from pytest import (
-    raises, fixture
-)
+from pytest import raises, fixture
 
 from kiwi.utils.codec import Codec
 

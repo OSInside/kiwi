@@ -29,6 +29,7 @@ class Users:
 
     :param str root_dir: root directory path name
     """
+
     def __init__(self, root_dir: str):
         self.root_dir = root_dir
 
@@ -129,9 +130,9 @@ class Users:
             # dirname() keeps a leading separator; drop it so join does not
             # discard root_dir (os.path.join ignores earlier parts on abs paths).
             # An empty relative parent means the home is directly under '/'.
-            relative_parent = os.path.dirname(
-                home_path.rstrip(os.sep)
-            ).lstrip(os.sep)
+            relative_parent = os.path.dirname(home_path.rstrip(os.sep)).lstrip(
+                os.sep
+            )
             if relative_parent:
                 parent = os.path.join(self.root_dir, relative_parent)
                 if not os.path.isdir(parent):

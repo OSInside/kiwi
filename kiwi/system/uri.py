@@ -19,9 +19,7 @@ import os
 import re
 import logging
 from lxml import etree
-from urllib.parse import (
-    urlparse, ParseResult, quote
-)
+from urllib.parse import urlparse, ParseResult, quote
 from urllib.request import urlopen
 from urllib.request import Request
 import requests
@@ -35,7 +33,7 @@ from kiwi.runtime_config import RuntimeConfig
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
     KiwiUriTypeUnknown,
-    KiwiUriOpenError
+    KiwiUriOpenError,
 )
 
 log = logging.getLogger('kiwi')
@@ -45,6 +43,7 @@ class Uri:
     """
     **Normalize and manage URI types**
     """
+
     def __init__(
         self, uri: str, repo_type: str = 'rpm-md', source_type: str = ''
     ):
@@ -85,20 +84,22 @@ class Uri:
             uri = self._resolve_metalink_uri(uri)
 
         self.repo_type = repo_type
-        self.uri = uri if not uri.startswith(os.sep) else ''.join(
-            [Defaults.get_default_uri_type(), uri]
+        self.uri = (
+            uri
+            if not uri.startswith(os.sep)
+            else ''.join([Defaults.get_default_uri_type(), uri])
         )
 
         self.remote_uri_types = {
             'http': True,
             'https': True,
             'ftp': True,
-            'obs': True
+            'obs': True,
         }
         self.local_uri_type = {
             'dir': True,
             'file': True,
-            'obsrepositories': True
+            'obsrepositories': True,
         }
 
     def translate(self, check_build_environment: bool = True) -> str:
@@ -130,7 +131,7 @@ class Uri:
                 return self._buildservice_path(
                     name=''.join([uri.netloc, uri.path]).replace(':/', ':'),
                     fragment=uri.fragment,
-                    urischeme=uri.scheme
+                    urischeme=uri.scheme,
                 )
             else:
                 return self._obs_project_download_link(
@@ -146,7 +147,7 @@ class Uri:
             return self._buildservice_path(
                 name=''.join([uri.netloc, uri.path]).replace(':/', ':'),
                 fragment=uri.fragment,
-                urischeme=uri.scheme
+                urischeme=uri.scheme,
             )
         elif uri.scheme == 'dir':
             return self._local_path(uri.path)
@@ -160,20 +161,16 @@ class Uri:
                 netloc = "{0}:{1}@{2}".format(
                     quote(sensitive_match.group(1)),
                     quote(sensitive_match.group(2)),
-                    sensitive_match.group(3)
+                    sensitive_match.group(3),
                 )
             if self._get_credentials_uri() or not uri.query:
-                return ''.join(
-                    [uri.scheme, '://', netloc, uri.path]
-                )
+                return ''.join([uri.scheme, '://', netloc, uri.path])
             else:
                 return ''.join(
                     [uri.scheme, '://', netloc, uri.path, '?', uri.query]
                 )
         else:
-            raise KiwiUriStyleUnknown(
-                f'URI schema {self.uri} not supported'
-            )
+            raise KiwiUriStyleUnknown(f'URI schema {self.uri} not supported')
 
     @staticmethod
     def print_sensitive(location: str) -> str:
@@ -228,9 +225,7 @@ class Uri:
         """
         uri = urlparse(self.uri)
         if not uri.scheme:
-            raise KiwiUriStyleUnknown(
-                f'URI scheme not detected {self.uri}'
-            )
+            raise KiwiUriStyleUnknown(f'URI scheme not detected {self.uri}')
         if uri.scheme == 'obs' and Defaults.is_buildservice_worker():
             return False
         elif uri.scheme in self.remote_uri_types:
@@ -238,9 +233,7 @@ class Uri:
         elif uri.scheme in self.local_uri_type:
             return False
         else:
-            raise KiwiUriTypeUnknown(
-                f'URI type {uri.scheme} unknown'
-            )
+            raise KiwiUriTypeUnknown(f'URI type {uri.scheme} unknown')
 
     def is_public(self) -> bool:
         """
@@ -294,7 +287,8 @@ class Uri:
             download_link = os.sep.join(
                 [
                     self.runtime_config.get_obs_download_server_url(),
-                    project.replace(':', ':/'), repository
+                    project.replace(':', ':/'),
+                    repository,
                 ]
             )
             if not Defaults.is_buildservice_worker():
@@ -308,9 +302,7 @@ class Uri:
                 )
                 return download_link
         except Exception as issue:
-            raise KiwiUriOpenError(
-                f'{download_link}: {issue}'
-            )
+            raise KiwiUriOpenError(f'{download_link}: {issue}')
 
     def _buildservice_path(
         self, name: str, urischeme: str, fragment: str = ''
@@ -327,29 +319,21 @@ class Uri:
                     [bs_source_dir, 'containers/_obsrepositories', name]
                 )
             else:
-                local_path = os.sep.join(
-                    [bs_source_dir, 'containers', name]
-                )
+                local_path = os.sep.join([bs_source_dir, 'containers', name])
             if fragment:
                 local_path = ''.join([local_path, '#', fragment])
         else:
-            local_path = os.sep.join(
-                [bs_source_dir, 'repos', name]
-            )
+            local_path = os.sep.join([bs_source_dir, 'repos', name])
         return self._local_path(local_path)
 
     def _resolve_metalink_uri(self, uri: str) -> str:
         selected_repo_source = uri
-        namespace_map = dict(
-            metalink="http://www.metalinker.org/"
-        )
+        namespace_map = dict(metalink="http://www.metalinker.org/")
         expression = '//metalink:file[@name="repomd.xml"]/metalink:resources/*'
         try:
             metalink_location = urlopen(Request(uri))
             xml = etree.parse(metalink_location)
-            url_list = xml.getroot().xpath(
-                expression, namespaces=namespace_map
-            )
+            url_list = xml.getroot().xpath(expression, namespaces=namespace_map)
             source_dict = {}
             for url in url_list:
                 if url.get('protocol') == 'https':

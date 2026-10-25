@@ -15,23 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 from kiwi.oci_tools.base import OCIBase
 
 # project
 from kiwi.runtime_config import RuntimeConfig
-from kiwi.exceptions import (
-    KiwiOCIArchiveToolError
-)
+from kiwi.exceptions import KiwiOCIArchiveToolError
 
 
 class OCI(metaclass=ABCMeta):
     """
     **OCI Factory**
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
@@ -41,9 +37,11 @@ class OCI(metaclass=ABCMeta):
         tool_name = RuntimeConfig().get_oci_archive_tool()
         if tool_name == "umoci":
             from kiwi.oci_tools.umoci import OCIUmoci
+
             return OCIUmoci()
         elif tool_name == "buildah":
             from kiwi.oci_tools.buildah import OCIBuildah
+
             return OCIBuildah()
         else:
             raise KiwiOCIArchiveToolError(

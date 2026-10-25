@@ -17,9 +17,7 @@
 #
 import os
 from urllib.parse import urlparse
-from typing import (
-    List, Optional, Any, Dict, NamedTuple, Callable, Union
-)
+from typing import List, Optional, Any, Dict, NamedTuple, Callable, Union
 import re
 import logging
 import copy
@@ -40,35 +38,29 @@ from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
     KiwiFileAccessError,
-    KiwiUriStyleUnknown
+    KiwiUriStyleUnknown,
 )
 
 log = logging.getLogger('kiwi')
 
 description_type = NamedTuple(
-    'description_type', [
-        ('author', str),
-        ('contact', str),
-        ('specification', str)
-    ]
+    'description_type',
+    [('author', str), ('contact', str), ('specification', str)],
 )
 
 package_type = NamedTuple(
-    'package_type', [
+    'package_type',
+    [
         ('packages_section', xml_parse.packages),
-        ('package_section', xml_parse.package)
-    ]
+        ('package_section', xml_parse.package),
+    ],
 )
 
-size_type = NamedTuple(
-    'size_type', [
-        ('mbytes', int),
-        ('additive', str)
-    ]
-)
+size_type = NamedTuple('size_type', [('mbytes', int), ('additive', str)])
 
 volume_type = NamedTuple(
-    'volume_type', [
+    'volume_type',
+    [
         ('name', str),
         ('parent', str),
         ('size', str),
@@ -77,8 +69,8 @@ volume_type = NamedTuple(
         ('fullsize', bool),
         ('label', Optional[str]),
         ('attributes', list),
-        ('is_root_volume', bool)
-    ]
+        ('is_root_volume', bool),
+    ],
 )
 
 
@@ -111,18 +103,16 @@ class XMLState:
     :param list profiles: list of used profiles
     :param object build_type: build <type> section reference
     """
+
     def __init__(
-        self, xml_data: Any, profiles: List = None,
-        build_type: Any = None
+        self, xml_data: Any, profiles: List = None, build_type: Any = None
     ):
         self.root_partition_uuid: Optional[str] = None
         self.root_filesystem_uuid: Optional[str] = None
         self.host_architecture = defaults.PLATFORM_MACHINE
         self.xml_data = xml_data
         self.profiles = self._used_profiles(profiles)
-        self.build_type = self._build_type_section(
-            build_type
-        )
+        self.build_type = self._build_type_section(build_type)
         self.resolve_this_path()
 
     def get_preferences_sections(self) -> List:
@@ -154,7 +144,7 @@ class XMLState:
         return description_type(
             author=description.get_author()[0],
             contact=description.get_contact()[0],
-            specification=description.get_specification()[0].strip()
+            specification=description.get_specification()[0].strip(),
         )
 
     def get_users_sections(self) -> List:
@@ -376,9 +366,7 @@ class XMLState:
         :rtype: list
         """
         result = []
-        packages_sections = self._profiled(
-            self.xml_data.get_packages()
-        )
+        packages_sections = self._profiled(self.xml_data.get_packages())
         for packages in packages_sections:
             packages_type = packages.get_type()
             if packages_type in section_types:
@@ -573,7 +561,7 @@ class XMLState:
                             result.append(
                                 package_type(
                                     packages_section=packages_section,
-                                    package_section=package
+                                    package_section=package,
                                 )
                             )
         return result
@@ -638,9 +626,7 @@ class XMLState:
         """
         result = []
         bootstrap_packages_sections = self.get_bootstrap_packages_sections()
-        package_list = self.get_package_sections(
-            bootstrap_packages_sections
-        )
+        package_list = self.get_package_sections(bootstrap_packages_sections)
         if package_list:
             for package in package_list:
                 result.append(package.package_section.get_name().strip())
@@ -670,9 +656,7 @@ class XMLState:
         image_packages_sections = self.get_packages_sections(
             ['image', self.get_build_type_name()]
         )
-        package_list = self.get_package_sections(
-            image_packages_sections
-        )
+        package_list = self.get_package_sections(image_packages_sections)
         if package_list:
             for package in package_list:
                 result.append(package.package_section.get_name().strip())
@@ -695,7 +679,7 @@ class XMLState:
                     result[file.get_name()] = FileT(
                         target=file.get_target() or '',
                         owner=file.get_owner() or '',
-                        permissions=file.get_permissions() or ''
+                        permissions=file.get_permissions() or '',
                     )
         return result
 
@@ -717,7 +701,7 @@ class XMLState:
                 result[file.get_name()] = FileT(
                     target=file.get_target() or '',
                     owner=file.get_owner() or '',
-                    permissions=file.get_permissions() or ''
+                    permissions=file.get_permissions() or '',
                 )
         return result
 
@@ -892,10 +876,7 @@ class XMLState:
 
         :rtype: dict
         """
-        modules: Dict[str, List[str]] = {
-            'disable': [],
-            'enable': []
-        }
+        modules: Dict[str, List[str]] = {'disable': [], 'enable': []}
         for packages in self.get_bootstrap_packages_sections():
             for collection_module in packages.get_collectionModule():
                 module_name = collection_module.get_name()
@@ -1186,8 +1167,11 @@ class XMLState:
         :rtype: str
         """
         bootloader = self.get_build_type_bootloader_section()
-        return bootloader.get_name() if bootloader else \
-            Defaults.get_default_bootloader()
+        return (
+            bootloader.get_name()
+            if bootloader
+            else Defaults.get_default_bootloader()
+        )
 
     def get_build_type_bootloader_bls(self) -> bool:
         """
@@ -1220,7 +1204,7 @@ class XMLState:
             console_in = console_in if console_in else console_out
             result = [
                 console_out if console_out and console_out != 'none' else '',
-                console_in if console_in and console_in != 'none' else ''
+                console_in if console_in and console_in != 'none' else '',
             ]
         return result
 
@@ -1306,8 +1290,9 @@ class XMLState:
         bootloader_section = self.get_build_type_bootloader_section()
         bootloader_settings_section = None
         if bootloader_section and bootloader_section.get_bootloadersettings():
-            bootloader_settings_section = \
+            bootloader_settings_section = (
                 bootloader_section.get_bootloadersettings()[0]
+            )
         return bootloader_settings_section
 
     def get_build_type_bootloader_securelinux_section(self) -> List[Any]:
@@ -1322,8 +1307,9 @@ class XMLState:
         bootloader_section = self.get_build_type_bootloader_section()
         bootloader_securelinux_section = []
         if bootloader_section and bootloader_section.get_securelinux():
-            bootloader_securelinux_section = \
+            bootloader_securelinux_section = (
                 bootloader_section.get_securelinux()
+            )
         return bootloader_securelinux_section
 
     def get_build_type_bootloader_environment_variables(self) -> List[str]:
@@ -1332,8 +1318,9 @@ class XMLState:
         type > bootloader > bootloadersettings section
         """
         variable_list = []
-        bootloader_settings_section = \
+        bootloader_settings_section = (
             self.get_build_type_bootloader_settings_section()
+        )
         if bootloader_settings_section:
             environment = bootloader_settings_section.get_environment()
             if environment and environment[0].get_env():
@@ -1341,7 +1328,7 @@ class XMLState:
                     variable_list.append(
                         '{}{}'.format(
                             env.get_name(),
-                            f'={env.get_value()}' if env.get_value() else ''
+                            f'={env.get_value()}' if env.get_value() else '',
                         )
                     )
         return variable_list
@@ -1528,9 +1515,7 @@ class XMLState:
                         modules.append(dracut.get_module())
                     if dracut.get_driver():
                         drivers.append(dracut.get_driver())
-        return DracutT(
-            uefi=uefi, modules=modules, drivers=drivers
-        )
+        return DracutT(uefi=uefi, modules=modules, drivers=drivers)
 
     def get_installmedia_initrd_modules(self, action: str) -> List[str]:
         """
@@ -1596,9 +1581,7 @@ class XMLState:
                 value -= unpartitioned
             if unit == 'G':
                 value *= 1024
-            return size_type(
-                mbytes=value, additive=additive
-            )
+            return size_type(mbytes=value, additive=additive)
         return None
 
     def get_build_type_unpartitioned_bytes(self) -> int:
@@ -1751,30 +1734,14 @@ class XMLState:
         <containerconfig> section and stores it in a dictionary
         """
         container_config = self._match_docker_base_data()
-        container_config.update(
-            self._match_docker_entrypoint()
-        )
-        container_config.update(
-            self._match_docker_subcommand()
-        )
-        container_config.update(
-            self._match_docker_expose_ports()
-        )
-        container_config.update(
-            self._match_docker_volumes()
-        )
-        container_config.update(
-            self._match_docker_stopsignal()
-        )
-        container_config.update(
-            self._match_docker_environment()
-        )
-        container_config.update(
-            self._match_docker_labels()
-        )
-        container_config.update(
-            self._match_docker_history()
-        )
+        container_config.update(self._match_docker_entrypoint())
+        container_config.update(self._match_docker_subcommand())
+        container_config.update(self._match_docker_expose_ports())
+        container_config.update(self._match_docker_volumes())
+        container_config.update(self._match_docker_stopsignal())
+        container_config.update(self._match_docker_environment())
+        container_config.update(self._match_docker_labels())
+        container_config.update(self._match_docker_history())
 
         desc = self.get_description_section()
         author_contact = "{0} <{1}>".format(desc.author, desc.contact)
@@ -1830,7 +1797,7 @@ class XMLState:
         if not container_config_section:
             container_config_section = xml_parse.containerconfig(
                 name=Defaults.get_default_container_name(),
-                tag=Defaults.get_default_container_tag()
+                tag=Defaults.get_default_container_tag(),
             )
             self.build_type.set_containerconfig([container_config_section])
 
@@ -1845,7 +1812,7 @@ class XMLState:
         if label_name in label_names:
             labels[0].replace_label_at(
                 label_names.index(label_name),
-                xml_parse.label(label_name, value)
+                xml_parse.label(label_name, value),
             )
         else:
             labels[0].add_label(xml_parse.label(label_name, value))
@@ -1889,30 +1856,34 @@ class XMLState:
             partition_name = partition.get_partition_name() or f'p.lx{name}'
             partitions[name] = ptable_entry_type(
                 mbsize=self._to_mega_byte(partition.get_size()),
-                clone=int(partition.get_clone()) if partition.get_clone() else 0,
+                clone=(
+                    int(partition.get_clone()) if partition.get_clone() else 0
+                ),
                 partition_name=partition_name,
                 partition_type=partition.get_partition_type() or 't.linux',
-                partition_id=int(partition.get_part_id())
-                if partition.get_part_id() else None,
+                partition_id=(
+                    int(partition.get_part_id())
+                    if partition.get_part_id()
+                    else None
+                ),
                 mountpoint=partition.get_mountpoint(),
                 filesystem=partition.get_filesystem(),
-                label=partition.get_label() or ''
+                label=partition.get_label() or '',
             )
         return partitions
 
     def get_host_key_certificates(
-        self
+        self,
     ) -> Union[List[Dict[str, List[str]]], List[Dict[str, str]]]:
         cc_result = []
         cc_certificates: Dict[str, List[str]] = {}
-        securelinux_list = \
-            self.get_build_type_bootloader_securelinux_section()
+        securelinux_list = self.get_build_type_bootloader_securelinux_section()
         for securelinux in securelinux_list:
             cc_certificates = {
                 'hkd_cert': [],
                 'hkd_revocation_list': [],
                 'hkd_ca_cert': securelinux.get_hkd_ca_cert(),
-                'hkd_sign_cert': securelinux.get_hkd_sign_cert()
+                'hkd_sign_cert': securelinux.get_hkd_sign_cert(),
             }
             for hkd_cert in securelinux.get_hkd_cert():
                 cc_certificates['hkd_cert'].append(hkd_cert.get_name())
@@ -1930,9 +1901,10 @@ class XMLState:
             root_dir: str,
             container_uri: str = '',
             container_file_name: str = '',
-            container_endpoint: str = ''
+            container_endpoint: str = '',
         ):
             pass  # pragma: nocover
+
         for containers_section in self.get_containers_sections():
             for container in containers_section.get_container():
                 if self.container_matches_host_architecture(container):
@@ -1942,42 +1914,53 @@ class XMLState:
                     container_path = container.get_path() or ''
                     container_endpoint = os.path.normpath(
                         '{0}/{1}/{2}:{3}'.format(
-                            containers_section.get_source(), container_path,
-                            container.name, container_tag
+                            containers_section.get_source(),
+                            container_path,
+                            container.name,
+                            container_tag,
                         )
                     )
                     container_file_name = '{0}/{1}_{2}'.format(
                         defaults.LOCAL_CONTAINERS, container.name, container_tag
                     )
                     container_backend = containers_section.get_backend() or ''
-                    if container_backend in ['podman', 'docker', 'container-snap']:
+                    if container_backend in [
+                        'podman',
+                        'docker',
+                        'container-snap',
+                    ]:
                         if Defaults.is_buildservice_worker():
                             container_uri = Uri(
                                 'obsrepositories:/{0}'.format(
                                     container_endpoint
-                                ), 'container'
+                                ),
+                                'container',
                             ).translate()
 
                             def build_fetch_command(
                                 root_dir: str,
                                 container_uri: str = container_uri,
                                 container_file_name: str = container_file_name,
-                                container_endpoint: str = container_endpoint
+                                container_endpoint: str = container_endpoint,
                             ):
                                 def perform():
                                     Command.run(
                                         [
-                                            'cp', '{0}.ociarchive'.format(
+                                            'cp',
+                                            '{0}.ociarchive'.format(
                                                 container_uri
-                                            ), os.path.normpath(
+                                            ),
+                                            os.path.normpath(
                                                 '{0}/{1}'.format(
                                                     root_dir,
-                                                    container_file_name
+                                                    container_file_name,
                                                 )
-                                            )
+                                            ),
                                         ]
                                     )
+
                                 perform()
+
                             fetch_command = build_fetch_command
                         else:
 
@@ -1985,28 +1968,34 @@ class XMLState:
                                 root_dir: str,
                                 container_uri: str = '',
                                 container_file_name: str = container_file_name,
-                                container_endpoint: str = container_endpoint
+                                container_endpoint: str = container_endpoint,
                             ):
                                 def perform():
                                     Command.run(
                                         [
-                                            'chroot', root_dir,
-                                            '/usr/bin/skopeo', 'copy',
+                                            'chroot',
+                                            root_dir,
+                                            '/usr/bin/skopeo',
+                                            'copy',
                                             'docker://{0}'.format(
                                                 container_endpoint
                                             ),
                                             'oci-archive:{0}:{1}'.format(
                                                 container_file_name,
-                                                container_endpoint
-                                            )
+                                                container_endpoint,
+                                            ),
                                         ]
                                     )
+
                                 perform()
+
                             fetch_command = build_fetch_command
                         if not container.get_fetch_only():
                             load_command = [
                                 f'/usr/bin/{container_backend}',
-                                'load', '-i', container_file_name
+                                'load',
+                                '-i',
+                                container_file_name,
                             ]
                     containers.append(
                         ContainerT(
@@ -2015,7 +2004,7 @@ class XMLState:
                             container_file=container_file_name,
                             fetch_only=bool(container.get_fetch_only()),
                             fetch_command=fetch_command,
-                            load_command=load_command
+                            load_command=load_command,
                         )
                     )
         return containers
@@ -2106,9 +2095,7 @@ class XMLState:
                     mountpoint = None
                     realpath = '/'
                     is_root_volume = True
-                    root_volume_expression = re.match(
-                        r'@root=(.+)', name
-                    )
+                    root_volume_expression = re.match(r'@root=(.+)', name)
                     if root_volume_expression:
                         name = root_volume_expression.group(1)
                     else:
@@ -2123,13 +2110,9 @@ class XMLState:
                     name = self._to_volume_name(name)
 
                 if size:
-                    size = 'size:' + format(
-                        self._to_mega_byte(size)
-                    )
+                    size = 'size:' + format(self._to_mega_byte(size))
                 elif freespace:
-                    size = 'freespace:' + format(
-                        self._to_mega_byte(freespace)
-                    )
+                    size = 'freespace:' + format(self._to_mega_byte(freespace))
                 else:
                     size = 'freespace:' + format(
                         Defaults.get_min_volume_mbytes(selected_filesystem)
@@ -2150,7 +2133,7 @@ class XMLState:
                         realpath=realpath,
                         label=label,
                         attributes=attributes,
-                        is_root_volume=is_root_volume
+                        is_root_volume=is_root_volume,
                     )
                 )
 
@@ -2158,8 +2141,9 @@ class XMLState:
             # There must always be a root volume setup. It will be the
             # full size volume if no other volume has this setup
             volume_management = self.get_volume_management()
-            root_volume_name = \
+            root_volume_name = (
                 defaults.ROOT_VOLUME_NAME if volume_management == 'lvm' else ''
+            )
             if have_full_size_volume:
                 size = 'freespace:' + format(
                     Defaults.get_min_volume_mbytes(selected_filesystem)
@@ -2178,7 +2162,7 @@ class XMLState:
                     realpath='/',
                     label=None,
                     attributes=[],
-                    is_root_volume=True
+                    is_root_volume=True,
                 )
             )
 
@@ -2193,7 +2177,7 @@ class XMLState:
                     realpath='swap',
                     label='SWAP',
                     attributes=[],
-                    is_root_volume=False
+                    is_root_volume=False,
                 )
             )
 
@@ -2233,9 +2217,7 @@ class XMLState:
 
         :rtype: list
         """
-        drivers_sections = self._profiled(
-            self.xml_data.get_drivers()
-        )
+        drivers_sections = self._profiled(self.xml_data.get_drivers())
         result = []
         if drivers_sections:
             for driver in drivers_sections:
@@ -2254,9 +2236,7 @@ class XMLState:
 
         :rtype: list
         """
-        strip_sections = self._profiled(
-            self.xml_data.get_strip()
-        )
+        strip_sections = self._profiled(self.xml_data.get_strip())
         result = []
         if strip_sections:
             for strip in strip_sections:
@@ -2348,9 +2328,7 @@ class XMLState:
         :rtype: list
         """
         repos = self.get_repository_sections()
-        return list(
-            repo for repo in repos if not repo.get_imageonly()
-        )
+        return list(repo for repo in repos if not repo.get_imageonly())
 
     def get_repository_sections_used_in_image(self) -> List:
         """
@@ -2363,7 +2341,8 @@ class XMLState:
         """
         repos = self.get_repository_sections()
         return list(
-            repo for repo in repos
+            repo
+            for repo in repos
             if repo.get_imageinclude() or repo.get_imageonly()
         )
 
@@ -2381,9 +2360,7 @@ class XMLState:
         used_for_build = self.get_repository_sections_used_for_build()
         all_repos = self.get_repository_sections()
         self.xml_data.set_repository(
-            [
-                repo for repo in all_repos if repo not in used_for_build
-            ]
+            [repo for repo in all_repos if repo not in used_for_build]
         )
 
     def get_repositories_signing_keys(self) -> List[str]:
@@ -2413,15 +2390,14 @@ class XMLState:
         """
         key_file_list: List[str] = []
         release_version = self.get_release_version()
-        release_vars = [
-            '$releasever',
-            '${releasever}'
-        ]
+        release_vars = ['$releasever', '${releasever}']
         for signing in repository.get_source().get_signing() or []:
             key_url = signing.get_key()
             uri = urlparse(key_url)
-            is_absolute_path = uri.netloc in ('', 'localhost') and \
-                uri.path.startswith(os.sep)
+            is_absolute_path = uri.netloc in (
+                '',
+                'localhost',
+            ) and uri.path.startswith(os.sep)
             if uri.scheme == 'file' and not is_absolute_path:
                 # RFC8089: file URIs only support absolute paths
                 raise KiwiUriStyleUnknown(
@@ -2442,12 +2418,18 @@ class XMLState:
         return key_file_list
 
     def set_repository(
-        self, repo_source: str, repo_type: str, repo_alias: str,
-        repo_prio: str, repo_imageinclude: bool = False,
+        self,
+        repo_source: str,
+        repo_type: str,
+        repo_alias: str,
+        repo_prio: str,
+        repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
-        repo_signing_keys: List[str] = [], components: str = None,
-        distribution: str = None, repo_gpgcheck: Optional[bool] = None,
-        repo_sourcetype: str = None
+        repo_signing_keys: List[str] = [],
+        components: str = None,
+        distribution: str = None,
+        repo_gpgcheck: Optional[bool] = None,
+        repo_sourcetype: str = None,
     ) -> None:
         """
         Overwrite repository data of the first repository
@@ -2492,12 +2474,18 @@ class XMLState:
                 repository.set_sourcetype(repo_sourcetype)
 
     def add_repository(
-        self, repo_source: str, repo_type: str, repo_alias: str = None,
-        repo_prio: str = '', repo_imageinclude: bool = False,
+        self,
+        repo_source: str,
+        repo_type: str,
+        repo_alias: str = None,
+        repo_prio: str = '',
+        repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
-        repo_signing_keys: List[str] = [], components: str = None,
-        distribution: str = None, repo_gpgcheck: Optional[bool] = None,
-        repo_sourcetype: str = None
+        repo_signing_keys: List[str] = [],
+        components: str = None,
+        distribution: str = None,
+        repo_gpgcheck: Optional[bool] = None,
+        repo_sourcetype: str = None,
     ) -> None:
         """
         Add a new repository section at the end of the list
@@ -2528,14 +2516,14 @@ class XMLState:
                     path=repo_source,
                     signing=[
                         xml_parse.signing(key=k) for k in repo_signing_keys
-                    ]
+                    ],
                 ),
                 imageinclude=repo_imageinclude,
                 package_gpgcheck=repo_package_gpgcheck,
                 repository_gpgcheck=repo_gpgcheck,
                 components=components,
                 distribution=distribution,
-                sourcetype=repo_sourcetype
+                sourcetype=repo_sourcetype,
             )
         )
 
@@ -2545,26 +2533,20 @@ class XMLState:
         The main section will be created if it does not exist. Also
         setup the target_distribution in the resulting main section.
         """
-        certificates_section = self._profiled(
-            self.xml_data.get_certificates()
-        )
+        certificates_section = self._profiled(self.xml_data.get_certificates())
         if not certificates_section:
             self.xml_data.set_certificates(
                 [
                     xml_parse.certificates(
                         target_distribution=target_distribution,
-                        certificate=[xml_parse.certificate(name=cert_file)]
+                        certificate=[xml_parse.certificate(name=cert_file)],
                     )
                 ]
             )
         else:
-            certificates_section[0].set_target_distribution(
-                target_distribution
-            )
+            certificates_section[0].set_target_distribution(target_distribution)
             certificates_section[0].add_certificate(
-                xml_parse.certificate(
-                    name=cert_file
-                )
+                xml_parse.certificate(name=cert_file)
             )
 
     def get_certificates(self) -> List[str]:
@@ -2572,9 +2554,7 @@ class XMLState:
         Read list of certificates
         """
         cert_list = []
-        certificates_section = self._profiled(
-            self.xml_data.get_certificates()
-        )
+        certificates_section = self._profiled(self.xml_data.get_certificates())
         if certificates_section:
             for certificate in certificates_section[0].get_certificate():
                 cert_list.append(certificate.get_name())
@@ -2585,12 +2565,11 @@ class XMLState:
         Read CA target distribution
         """
         target_distribution = ''
-        certificates_section = self._profiled(
-            self.xml_data.get_certificates()
-        )
+        certificates_section = self._profiled(self.xml_data.get_certificates())
         if certificates_section:
-            target_distribution = \
-                certificates_section[0].get_target_distribution()
+            target_distribution = certificates_section[
+                0
+            ].get_target_distribution()
         return target_distribution
 
     def resolve_this_path(self) -> None:
@@ -2643,9 +2622,7 @@ class XMLState:
 
         :param object target_state: XMLState instance
         """
-        target_state.xml_data.set_name(
-            self.xml_data.get_name()
-        )
+        target_state.xml_data.set_name(self.xml_data.get_name())
 
     def copy_drivers_sections(self, target_state: Any) -> None:
         """
@@ -2653,9 +2630,7 @@ class XMLState:
 
         :param object target_state: XMLState instance
         """
-        drivers_sections = self._profiled(
-            self.xml_data.get_drivers()
-        )
+        drivers_sections = self._profiled(self.xml_data.get_drivers())
         if drivers_sections:
             for drivers_section in drivers_sections:
                 target_state.xml_data.add_drivers(drivers_section)
@@ -2668,9 +2643,7 @@ class XMLState:
         """
         systemdisk_section = self.get_build_type_system_disk_section()
         if systemdisk_section:
-            target_state.build_type.set_systemdisk(
-                [systemdisk_section]
-            )
+            target_state.build_type.set_systemdisk([systemdisk_section])
 
     def copy_strip_sections(self, target_state: Any) -> None:
         """
@@ -2678,9 +2651,7 @@ class XMLState:
 
         :param object target_state: XMLState instance
         """
-        strip_sections = self._profiled(
-            self.xml_data.get_strip()
-        )
+        strip_sections = self._profiled(self.xml_data.get_strip())
         if strip_sections:
             for strip_section in strip_sections:
                 target_state.xml_data.add_strip(strip_section)
@@ -2693,9 +2664,7 @@ class XMLState:
         """
         machine_section = self.get_build_type_machine_section()
         if machine_section:
-            target_state.build_type.set_machine(
-                [machine_section]
-            )
+            target_state.build_type.set_machine([machine_section])
 
     def copy_bootloader_section(self, target_state: Any) -> None:
         """
@@ -2705,9 +2674,7 @@ class XMLState:
         """
         bootloader_section = self.get_build_type_bootloader_section()
         if bootloader_section:
-            target_state.build_type.set_bootloader(
-                [bootloader_section]
-            )
+            target_state.build_type.set_bootloader([bootloader_section])
 
     def copy_oemconfig_section(self, target_state: Any) -> None:
         """
@@ -2717,9 +2684,7 @@ class XMLState:
         """
         oemconfig_section = self.get_build_type_oemconfig_section()
         if oemconfig_section:
-            target_state.build_type.set_oemconfig(
-                [oemconfig_section]
-            )
+            target_state.build_type.set_oemconfig([oemconfig_section])
 
     def copy_repository_sections(
         self, target_state: Any, wipe: bool = False
@@ -2730,9 +2695,7 @@ class XMLState:
         :param object target_state: XMLState instance
         :param bool wipe: delete all repos in target prior to copy
         """
-        repository_sections = self._profiled(
-            self.xml_data.get_repository()
-        )
+        repository_sections = self._profiled(self.xml_data.get_repository())
         if repository_sections:
             if wipe:
                 target_state.xml_data.set_repository([])
@@ -2779,9 +2742,7 @@ class XMLState:
         :param object target_state: XMLState instance
         """
         for attribute in attribute_names:
-            get_type_method = getattr(
-                self.build_type, 'get_' + attribute
-            )
+            get_type_method = getattr(self.build_type, 'get_' + attribute)
             attribute_value = get_type_method()
             if attribute_value:
                 set_type_method = getattr(
@@ -2798,18 +2759,16 @@ class XMLState:
 
         :param object target_state: XMLState instance
         """
-        target_packages_sections = \
+        target_packages_sections = (
             target_state.get_bootstrap_packages_sections()
+        )
         if target_packages_sections:
-            target_packages_section = \
-                target_packages_sections[0]
+            target_packages_section = target_packages_sections[0]
             package_names_added = []
             packages_sections = self.get_packages_sections(
                 ['image', 'bootstrap', self.get_build_type_name()]
             )
-            package_list = self.get_package_sections(
-                packages_sections
-            )
+            package_list = self.get_package_sections(packages_sections)
             if package_list:
                 for package in package_list:
                     if package.package_section.get_bootinclude():
@@ -2824,9 +2783,7 @@ class XMLState:
             delete_packages_sections = target_state.get_packages_sections(
                 ['delete']
             )
-            package_list = self.get_package_sections(
-                delete_packages_sections
-            )
+            package_list = self.get_package_sections(delete_packages_sections)
             if package_list:
                 for package in package_list:
                     package_name = package.package_section.get_name()
@@ -2842,11 +2799,13 @@ class XMLState:
 
         :param object target_state: XMLState instance
         """
-        target_bootstrap_packages_sections = \
+        target_bootstrap_packages_sections = (
             target_state.get_bootstrap_packages_sections()
+        )
         if target_bootstrap_packages_sections:
-            target_bootstrap_packages_section = \
+            target_bootstrap_packages_section = (
                 target_bootstrap_packages_sections[0]
+            )
             packages_sections = self.get_packages_sections(
                 ['image', 'bootstrap', self.get_build_type_name()]
             )
@@ -2856,9 +2815,7 @@ class XMLState:
                     for archive in archive_list:
                         if archive.get_bootinclude():
                             target_bootstrap_packages_section.add_archive(
-                                xml_parse.archive(
-                                    name=archive.get_name()
-                                )
+                                xml_parse.archive(name=archive.get_name())
                             )
 
     def copy_bootdelete_packages(self, target_state: Any) -> None:
@@ -2879,14 +2836,11 @@ class XMLState:
                 target_delete_packages_sections[0]
             )
 
-        target_delete_packages_section = \
-            target_delete_packages_sections[0]
+        target_delete_packages_section = target_delete_packages_sections[0]
         packages_sections = self.get_packages_sections(
             ['image', 'bootstrap', self.get_build_type_name()]
         )
-        package_list = self.get_package_sections(
-            packages_sections
-        )
+        package_list = self.get_package_sections(packages_sections)
         if package_list:
             for package in package_list:
                 if package.package_section.get_bootdelete():
@@ -2920,8 +2874,8 @@ class XMLState:
         )
         if not boot_attribute_expression:
             raise KiwiDistributionNameError(
-                'Boot attribute "%s" does not match expected format %s' %
-                (boot_attribute, boot_attribute_format)
+                'Boot attribute "%s" does not match expected format %s'
+                % (boot_attribute, boot_attribute_format)
             )
         return boot_attribute_expression.group(1).lower()
 
@@ -2998,7 +2952,9 @@ class XMLState:
         :rtype: list
         """
         option_list = []
-        create_options = self.build_type.get_overlayroot_readonly_createoptions()
+        create_options = (
+            self.build_type.get_overlayroot_readonly_createoptions()
+        )
         if create_options:
             option_list = create_options.split()
 
@@ -3077,9 +3033,7 @@ class XMLState:
         derived_images = self.build_type.get_derived_from()
         if derived_images:
             for derived_image in derived_images.split(','):
-                image_uris.append(
-                    Uri(derived_image, repo_type='container')
-                )
+                image_uris.append(Uri(derived_image, repo_type='container'))
         return image_uris
 
     def set_derived_from_image_uri(self, uri: str) -> None:
@@ -3133,7 +3087,7 @@ class XMLState:
 
     @staticmethod
     def get_archives_target_dirs(
-        packages_sections_names: Optional[List[xml_parse.packages]]
+        packages_sections_names: Optional[List[xml_parse.packages]],
     ) -> Dict:
         """
         Dict of archive names and target dirs for packages section(s), if any
@@ -3144,7 +3098,9 @@ class XMLState:
         if packages_sections_names:
             for package_section_name in packages_sections_names:
                 for archive in package_section_name.get_archive():
-                    result[archive.get_name().strip()] = archive.get_target_dir()
+                    result[archive.get_name().strip()] = (
+                        archive.get_target_dir()
+                    )
 
         return result
 
@@ -3248,9 +3204,7 @@ class XMLState:
         if container_config_section:
             entrypoint = container_config_section.get_entrypoint()
             if entrypoint and entrypoint[0].get_execute():
-                container_entry['entry_command'] = [
-                    entrypoint[0].get_execute()
-                ]
+                container_entry['entry_command'] = [entrypoint[0].get_execute()]
                 argument_list = entrypoint[0].get_argument()
                 if argument_list:
                     for argument in argument_list:
@@ -3321,8 +3275,9 @@ class XMLState:
             if environment and environment[0].get_env():
                 container_env['environment'] = {}
                 for env in environment[0].get_env():
-                    container_env['environment'][env.get_name()] = \
-                        env.get_value()
+                    container_env['environment'][
+                        env.get_name()
+                    ] = env.get_value()
         return container_env
 
     def _match_docker_labels(self):
@@ -3333,8 +3288,9 @@ class XMLState:
             if labels and labels[0].get_label():
                 container_labels['labels'] = {}
                 for label in labels[0].get_label():
-                    container_labels['labels'][label.get_name()] = \
-                        label.get_value()
+                    container_labels['labels'][
+                        label.get_name()
+                    ] = label.get_value()
         return container_labels
 
     def _match_docker_history(self):
@@ -3345,22 +3301,28 @@ class XMLState:
             if history:
                 container_history['history'] = {}
                 if history[0].get_created_by():
-                    container_history['history']['created_by'] = \
-                        history[0].get_created_by()
+                    container_history['history']['created_by'] = history[
+                        0
+                    ].get_created_by()
                 if history[0].get_author():
-                    container_history['history']['author'] = \
-                        history[0].get_author()
+                    container_history['history']['author'] = history[
+                        0
+                    ].get_author()
                 if history[0].get_launcher():
-                    container_history['history']['launcher'] = \
-                        history[0].get_launcher()
+                    container_history['history']['launcher'] = history[
+                        0
+                    ].get_launcher()
                 if history[0].get_application_id():
-                    container_history['history']['application_id'] = \
-                        history[0].get_application_id()
+                    container_history['history']['application_id'] = history[
+                        0
+                    ].get_application_id()
                 if history[0].get_package_version():
-                    container_history['history']['package_version'] = \
-                        history[0].get_package_version()
-                container_history['history']['comment'] = \
-                    history[0].get_valueOf_()
+                    container_history['history']['package_version'] = history[
+                        0
+                    ].get_package_version()
+                container_history['history']['comment'] = history[
+                    0
+                ].get_valueOf_()
         return container_history
 
     def _solve_profile_dependencies(
@@ -3379,8 +3341,9 @@ class XMLState:
                 if self.requires_matches_host_architecture(required):
                     if required.get_profile() not in current_profiles:
                         profiles_to_add += self._solve_profile_dependencies(
-                            required.get_profile(), available_profiles,
-                            current_profiles + profiles_to_add
+                            required.get_profile(),
+                            available_profiles,
+                            current_profiles + profiles_to_add,
                         )
         return profiles_to_add
 

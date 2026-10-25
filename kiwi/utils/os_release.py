@@ -27,6 +27,7 @@ class OsRelease:
     """
     **Read os-release information**
     """
+
     def __init__(self, root_dir: str):
         self.data = {}
         os_release = root_dir + '/etc/os-release'
@@ -50,8 +51,9 @@ class OsRelease:
     @staticmethod
     def _rip(csvfile: TextIOWrapper) -> Iterable[str]:
         for row in csvfile:
-            if not OsRelease._is_comment(row) \
-               and not OsRelease._is_whitespace(row):
+            if not OsRelease._is_comment(row) and not OsRelease._is_whitespace(
+                row
+            ):
                 yield row
 
     def get(self, key: str) -> str:

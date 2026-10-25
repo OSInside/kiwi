@@ -9,8 +9,9 @@ from kiwi.exceptions import KiwiBoxConfigError
 class TestBoxesConfig:
     @patch('kiwi.boxbuild.defaults.BoxBuildDefaults.get_box_config_file')
     def setup(self, mock_get_box_config_file):
-        mock_get_box_config_file.return_value = \
+        mock_get_box_config_file.return_value = (
             '../data/boxbuild/kiwi_boxed_plugin.yml'
+        )
         self.plugin_config = BoxesConfig()
 
     @patch('kiwi.boxbuild.defaults.BoxBuildDefaults.get_box_config_file')
@@ -19,8 +20,9 @@ class TestBoxesConfig:
 
     @patch('kiwi.boxbuild.defaults.BoxBuildDefaults.get_box_config_file')
     def test_invalid_config(self, mock_get_box_config_file):
-        mock_get_box_config_file.return_value = \
+        mock_get_box_config_file.return_value = (
             '../data/boxbuild/kiwi_boxed_plugin_invalid.yml'
+        )
         with raises(KiwiBoxConfigError):
             BoxesConfig()
 
@@ -35,19 +37,17 @@ class TestBoxesConfig:
                     {
                         'name': 'x86_64',
                         'cmdline': ['root=/dev/vda1', 'rd.plymouth=0'],
-                        'source':
-                            'obs://Virtualization:Appliances:SelfContained:'
-                            'suse/images',
-                        'packages_file':
-                            'SUSE-Box.x86_64-1.42.1-System-BuildBox.report',
+                        'source': 'obs://Virtualization:Appliances:SelfContained:'
+                        'suse/images',
+                        'packages_file': 'SUSE-Box.x86_64-1.42.1-System-BuildBox.report',
                         'boxfiles': [
                             'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz',
-                            'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2'
+                            'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2',
                         ],
                         'container': 'some',
-                        'use_initrd': True
+                        'use_initrd': True,
                     }
-                ]
+                ],
             },
             {
                 'name': 'universal',
@@ -58,41 +58,42 @@ class TestBoxesConfig:
                     {
                         'name': 'x86_64',
                         'cmdline': [
-                            'root=/dev/vda3', 'rd.plymouth=0', 'selinux=0'
+                            'root=/dev/vda3',
+                            'rd.plymouth=0',
+                            'selinux=0',
                         ],
-                        'source':
-                            'obs://Virtualization:Appliances:SelfContained:'
-                            'universal/images',
-                        'packages_file':
-                            'Universal-Box.x86_64-1.1.2-System-BuildBox.report',
+                        'source': 'obs://Virtualization:Appliances:SelfContained:'
+                        'universal/images',
+                        'packages_file': 'Universal-Box.x86_64-1.1.2-System-BuildBox.report',
                         'boxfiles': [
                             'Universal-Box.x86_64-1.1.2-Kernel-BuildBox.tar.xz',
-                            'Universal-Box.x86_64-1.1.2-System-BuildBox.qcow2'
+                            'Universal-Box.x86_64-1.1.2-System-BuildBox.qcow2',
                         ],
                         'container': 'some',
-                        'use_initrd': True
+                        'use_initrd': True,
                     },
                     {
                         'name': 'aarch64',
                         'cmdline': [
-                            'root=/dev/vda2', 'rd.plymouth=0', 'selinux=0'
+                            'root=/dev/vda2',
+                            'rd.plymouth=0',
+                            'selinux=0',
                         ],
-                        'source':
-                            'obs://Virtualization:Appliances:SelfContained:'
-                            'universal/images',
+                        'source': 'obs://Virtualization:Appliances:SelfContained:'
+                        'universal/images',
                         'packages_file': 'Universal-Box.'
-                            'aarch64-1.1.2-System-BuildBox.report',
+                        'aarch64-1.1.2-System-BuildBox.report',
                         'boxfiles': [
                             'Universal-Box.aarch64-1.1.2-'
                             'Kernel-BuildBox.tar.xz',
                             'Universal-Box.aarch64-1.1.2-'
-                            'System-BuildBox.qcow2'
+                            'System-BuildBox.qcow2',
                         ],
                         'container': 'some',
-                        'use_initrd': True
-                    }
-                ]
-            }
+                        'use_initrd': True,
+                    },
+                ],
+            },
         ]
 
     def test_dump_config(self):

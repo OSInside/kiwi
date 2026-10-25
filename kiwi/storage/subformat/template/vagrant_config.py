@@ -95,9 +95,7 @@ class VagrantConfigTemplate:
         template = self.header
         if custom_settings:
             template += self.indent
-            template += self.indent.join(
-                custom_settings.splitlines(True)
-            )
+            template += self.indent.join(custom_settings.splitlines(True))
             template += os.linesep
         template += self.end
         return template

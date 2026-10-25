@@ -24,10 +24,7 @@ from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import (
-    KiwiFileNotFound,
-    KiwiCompressionFormatUnknown
-)
+from kiwi.exceptions import KiwiFileNotFound, KiwiCompressionFormatUnknown
 
 log = logging.getLogger('kiwi')
 
@@ -44,6 +41,7 @@ class Compress:
     :param str uncompressed_filename:
         Uncompressed file name path
     """
+
     def __init__(
         self, source_filename: str, keep_source_on_compress: bool = False
     ) -> None:
@@ -53,9 +51,7 @@ class Compress:
             )
         self.keep_source = keep_source_on_compress
         self.source_filename = source_filename
-        self.supported_zipper = [
-            'xz', 'gzip'
-        ]
+        self.supported_zipper = ['xz', 'gzip']
         self.compressed_filename: Optional[str] = None
         self.uncompressed_filename: Optional[str] = None
 
@@ -70,9 +66,7 @@ class Compress:
         assert options
         if self.keep_source:
             options.append('--keep')
-        Command.run(
-            ['xz', '-f'] + options + [self.source_filename]
-        )
+        Command.run(['xz', '-f'] + options + [self.source_filename])
         self.compressed_filename = self.source_filename + '.xz'
         return self.compressed_filename
 
@@ -80,14 +74,10 @@ class Compress:
         """
         Create gzip(max compression) compressed file
         """
-        options = [
-            '-9'
-        ]
+        options = ['-9']
         if self.keep_source:
             options.append('--keep')
-        Command.run(
-            ['gzip', '-f'] + options + [self.source_filename]
-        )
+        Command.run(['gzip', '-f'] + options + [self.source_filename])
         self.compressed_filename = self.source_filename + '.gz'
         return self.compressed_filename
 
@@ -112,8 +102,12 @@ class Compress:
         else:
             self.temp_file = Temporary().new_file()
             bash_command = [
-                zipper, '-c', '-d', self.source_filename,
-                '>', self.temp_file.name
+                zipper,
+                '-c',
+                '-d',
+                self.source_filename,
+                '>',
+                self.temp_file.name,
             ]
             Command.run(['bash', '-c', ' '.join(bash_command)])
             self.uncompressed_filename = self.temp_file.name

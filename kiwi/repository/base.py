@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 from kiwi.system.root_bind import RootBind
 from kiwi.command import Command
@@ -35,9 +33,7 @@ class RepositoryBase:
         and build system root
     """
 
-    def __init__(
-        self, root_bind: RootBind, custom_args: List = []
-    ) -> None:
+    def __init__(self, root_bind: RootBind, custom_args: List = []) -> None:
         self.root_bind = root_bind
         self.root_dir = root_bind.root_dir
         self.shared_location = root_bind.shared_location
@@ -74,10 +70,21 @@ class RepositoryBase:
         raise NotImplementedError
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str, prio: int, dist: str,
-        components: str, user: str, secret: str, credentials_file: str,
-        repo_gpgcheck: bool, pkg_gpgcheck: bool, sourcetype: str,
-        customization_script: str = None, architectures: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str,
+        prio: int,
+        dist: str,
+        components: str,
+        user: str,
+        secret: str,
+        credentials_file: str,
+        repo_gpgcheck: bool,
+        pkg_gpgcheck: bool,
+        sourcetype: str,
+        customization_script: str = None,
+        architectures: str = None,
     ) -> None:
         """
         Add repository
@@ -183,9 +190,7 @@ class RepositoryBase:
         :param str script_path: unused
         :param str repo_file: unused
         """
-        Command.run(
-            ['bash', '--norc', script_path, repo_file]
-        )
+        Command.run(['bash', '--norc', script_path, repo_file])
 
     def cleanup(self) -> None:
         """

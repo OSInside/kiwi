@@ -1,11 +1,7 @@
 import logging
 from collections import namedtuple
-from unittest.mock import (
-    patch, Mock, MagicMock, mock_open, call
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock, MagicMock, mock_open, call
+from pytest import raises, fixture
 import kiwi
 
 from kiwi.builder.kis import KisBuilder
@@ -26,23 +22,19 @@ class TestKisBuilder:
         mock_RuntimeConfig,
         mock_get_platform_name,
         mock_boot,
-        mock_filesystem
+        mock_filesystem,
     ):
         mock_get_platform_name.return_value = 'x86_64'
         self.setup = Mock()
         self.runtime_config = Mock()
-        self.runtime_config.get_max_size_constraint = Mock(
-            return_value=None
-        )
+        self.runtime_config.get_max_size_constraint = Mock(return_value=None)
         self.shasum = Mock()
         self.shasum.suffix = '.sha256'
         self.runtime_config.get_checksum_handler = Mock(
             return_value=self.shasum
         )
         mock_RuntimeConfig.return_value = self.runtime_config
-        kiwi.builder.kis.SystemSetup = Mock(
-            return_value=self.setup
-        )
+        kiwi.builder.kis.SystemSetup = Mock(return_value=self.setup)
         self.boot_image_task = MagicMock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd_file_name'
@@ -53,25 +45,15 @@ class TestKisBuilder:
         mock_filesystem.return_value = self.filesystem
         self.xml_state = Mock()
         self.xml_state.profiles = None
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
-        self.xml_state.get_initrd_system = Mock(
-            return_value='dracut'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='some-image'
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
+        self.xml_state.get_initrd_system = Mock(return_value='dracut')
+        self.xml_state.xml_data.get_name = Mock(return_value='some-image')
         self.xml_state.build_type = Mock()
         self.xml_state.build_type.get_kernelcmdline = Mock(
             return_value='console=hvc0'
         )
-        kernel_type = namedtuple(
-            'kernel', ['filename', 'version']
-        )
-        xen_type = namedtuple(
-            'xen', ['filename', 'name']
-        )
+        kernel_type = namedtuple('kernel', ['filename', 'version'])
+        xen_type = namedtuple('xen', ['filename', 'name'])
         self.kernel = Mock()
         self.kernel.get_kernel = Mock(
             return_value=kernel_type(filename='some-kernel', version='42')
@@ -79,12 +61,12 @@ class TestKisBuilder:
         self.kernel.get_xen_hypervisor = Mock(
             return_value=xen_type(filename='hypervisor', name='xen.gz')
         )
-        kiwi.builder.kis.Kernel = Mock(
-            return_value=self.kernel
-        )
+        kiwi.builder.kis.Kernel = Mock(return_value=self.kernel)
         self.kis = KisBuilder(
-            self.xml_state, 'target_dir', 'root_dir',
-            custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
+            self.xml_state,
+            'target_dir',
+            'root_dir',
+            custom_args={'signing_keys': ['key_file_a', 'key_file_b']},
         )
         self.kis.image_name = 'target_dir/myimage'
         self.kis.compressed = True
@@ -97,7 +79,9 @@ class TestKisBuilder:
     @patch('kiwi.builder.kis.FileSystemBuilder')
     @patch('kiwi.builder.kis.BootImage')
     @patch('kiwi.builder.kis.RuntimeConfig')
-    def test_setup_warn_no_initrd_support(self, mock_RuntimeConfig, mock_boot, mock_filesystem):
+    def test_setup_warn_no_initrd_support(
+        self, mock_RuntimeConfig, mock_boot, mock_filesystem
+    ):
         self.runtime_config = Mock()
         self.shasum = Mock()
         self.shasum.suffix = '.sha256'
@@ -106,20 +90,14 @@ class TestKisBuilder:
         )
         mock_RuntimeConfig.return_value = self.runtime_config
         boot_image_task = MagicMock()
-        boot_image_task.has_initrd_support = Mock(
-            return_value=False
-        )
+        boot_image_task.has_initrd_support = Mock(return_value=False)
         mock_boot.new.return_value = boot_image_task
         with self._caplog.at_level(logging.WARNING):
             KisBuilder(self.xml_state, 'target_dir', 'root_dir')
 
     @patch('os.rename')
-    def test_create_no_archive(
-        self, mock_rename
-    ):
-        self.boot_image_task.required = Mock(
-            return_value=True
-        )
+    def test_create_no_archive(self, mock_rename):
+        self.boot_image_task.required = Mock(return_value=True)
         self.kis.archive = False
         self.kis.compressed = False
 
@@ -135,26 +113,20 @@ class TestKisBuilder:
         )
 
         self.filesystem.create.assert_called_once_with()
-        mock_rename.assert_called_once_with(
-            'myimage.fs', 'target_dir/myimage'
-        )
+        mock_rename.assert_called_once_with('myimage.fs', 'target_dir/myimage')
         assert self.runtime_config.get_checksum_handler.call_args_list == [
             call('target_dir/myimage'),
             call(
                 source_filename='target_dir/myimage',
-                target_filename='target_dir/myimage.sha256'
+                target_filename='target_dir/myimage.sha256',
             ),
-            call('target_dir/myimage-42.kernel')
+            call('target_dir/myimage-42.kernel'),
         ]
         self.shasum.digest.assert_called_once_with()
         self.boot_image_task.prepare.assert_called_once_with()
-        self.setup.export_modprobe_setup.assert_called_once_with(
-            'initrd_dir'
-        )
+        self.setup.export_modprobe_setup.assert_called_once_with('initrd_dir')
         self.boot_image_task.create_initrd.assert_called_once_with()
-        self.setup.export_package_list.assert_called_once_with(
-            'target_dir'
-        )
+        self.setup.export_package_list.assert_called_once_with('target_dir')
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
@@ -162,17 +134,13 @@ class TestKisBuilder:
     @patch('kiwi.builder.kis.Compress')
     @patch('kiwi.builder.kis.ArchiveTar')
     @patch('os.rename')
-    def test_create(
-        self, mock_rename, mock_tar, mock_compress
-    ):
+    def test_create(self, mock_rename, mock_tar, mock_compress):
         tar = Mock()
         mock_tar.return_value = tar
         compress = Mock()
         mock_compress.return_value = compress
         compress.xz.return_value = 'compressed-file-name'
-        self.boot_image_task.required = Mock(
-            return_value=True
-        )
+        self.boot_image_task.required = Mock(return_value=True)
         self.kis.archive = True
         self.kis.compressed = True
 
@@ -188,27 +156,21 @@ class TestKisBuilder:
         )
 
         self.filesystem.create.assert_called_once_with()
-        mock_rename.assert_called_once_with(
-            'myimage.fs', 'target_dir/myimage'
-        )
+        mock_rename.assert_called_once_with('myimage.fs', 'target_dir/myimage')
         compress.xz.assert_called_once_with(None)
         assert self.runtime_config.get_checksum_handler.call_args_list == [
             call('compressed-file-name'),
             call(
                 source_filename='compressed-file-name',
-                target_filename='target_dir/myimage.sha256'
+                target_filename='target_dir/myimage.sha256',
             ),
-            call('target_dir/myimage-42.kernel')
+            call('target_dir/myimage-42.kernel'),
         ]
         self.shasum.digest.assert_called_once_with()
         self.boot_image_task.prepare.assert_called_once_with()
-        self.setup.export_modprobe_setup.assert_called_once_with(
-            'initrd_dir'
-        )
+        self.setup.export_modprobe_setup.assert_called_once_with('initrd_dir')
         self.boot_image_task.create_initrd.assert_called_once_with()
-        self.setup.export_package_list.assert_called_once_with(
-            'target_dir'
-        )
+        self.setup.export_package_list.assert_called_once_with('target_dir')
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
@@ -231,9 +193,7 @@ class TestKisBuilder:
 
     @patch('kiwi.builder.kis.Compress')
     @patch('os.rename')
-    def test_create_no_kernel_found(
-        self, mock_rename, mock_compress
-    ):
+    def test_create_no_kernel_found(self, mock_rename, mock_compress):
         compress = Mock()
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'
@@ -243,9 +203,7 @@ class TestKisBuilder:
 
     @patch('kiwi.builder.kis.Compress')
     @patch('os.rename')
-    def test_create_no_hypervisor_found(
-        self, mock_rename, mock_compress
-    ):
+    def test_create_no_hypervisor_found(self, mock_rename, mock_compress):
         compress = Mock()
         mock_compress.return_value = compress
         compress.compressed_filename = 'compressed-file-name'

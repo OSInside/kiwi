@@ -1,8 +1,6 @@
 import logging
 from pytest import fixture
-from unittest.mock import (
-    patch, mock_open
-)
+from unittest.mock import patch, mock_open
 
 import unittest.mock as mock
 
@@ -23,9 +21,7 @@ class TestPartitionerDasd:
         mock_temp.return_value = self.tempfile
 
         disk_provider = mock.Mock()
-        disk_provider.get_device = mock.Mock(
-            return_value='/dev/loop0'
-        )
+        disk_provider.get_device = mock.Mock(return_value='/dev/loop0')
 
         self.partitioner = PartitionerDasd(disk_provider)
 
@@ -61,9 +57,7 @@ class TestPartitionerDasd:
         with patch('builtins.open', m_open, create=True):
             self.partitioner.create('name', 'all_free', 't.linux')
 
-        m_open.return_value.write.assert_called_once_with(
-            'n\np\n\n\nw\nq\n'
-        )
+        m_open.return_value.write.assert_called_once_with('n\np\n\n\nw\nq\n')
 
     def test_resize_table(self):
         self.partitioner.resize_table()

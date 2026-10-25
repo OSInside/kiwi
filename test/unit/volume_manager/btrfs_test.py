@@ -1,20 +1,13 @@
 import datetime
-from unittest.mock import (
-    patch, call, Mock, mock_open
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, Mock, mock_open
+from pytest import raises, fixture
 
 import pytest
 
 from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 from kiwi.xml_state import volume_type
 
-from kiwi.exceptions import (
-    KiwiVolumeRootIDError,
-    KiwiVolumeManagerSetupError
-)
+from kiwi.exceptions import KiwiVolumeRootIDError, KiwiVolumeManagerSetupError
 
 
 class TestVolumeManagerBtrfs:
@@ -26,36 +19,54 @@ class TestVolumeManagerBtrfs:
     def setup(self, mock_path):
         self.volumes = [
             volume_type(
-                name='@', parent='', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False, label=None,
-                attributes=[], is_root_volume=True
+                name='@',
+                parent='',
+                size='freespace:100',
+                realpath='/',
+                mountpoint=None,
+                fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=True,
             ),
             volume_type(
-                name='etc', parent='', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False, label=None,
-                attributes=['quota=2G'], is_root_volume=False
+                name='etc',
+                parent='',
+                size='freespace:200',
+                realpath='/etc',
+                mountpoint='/etc',
+                fullsize=False,
+                label=None,
+                attributes=['quota=2G'],
+                is_root_volume=False,
             ),
             volume_type(
-                name='myvol', parent='', size='size:500', realpath='/data',
-                mountpoint='LVdata', fullsize=False, label=None,
-                attributes=[], is_root_volume=False
+                name='myvol',
+                parent='',
+                size='size:500',
+                realpath='/data',
+                mountpoint='LVdata',
+                fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=False,
             ),
             volume_type(
-                name='home', parent='', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True, label=None,
-                attributes=[], is_root_volume=False
-            )
+                name='home',
+                parent='',
+                size=None,
+                realpath='/home',
+                mountpoint='/home',
+                fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=False,
+            ),
         ]
         mock_path.return_value = True
-        self.device_map = {
-            'root': Mock()
-        }
-        self.device_map['root'].is_loop = Mock(
-            return_value=True
-        )
-        self.device_map['root'].get_device = Mock(
-            return_value='/dev/storage'
-        )
+        self.device_map = {'root': Mock()}
+        self.device_map['root'].is_loop = Mock(return_value=True)
+        self.device_map['root'].get_device = Mock(return_value='/dev/storage')
         self.volume_manager = VolumeManagerBtrfs(
             self.device_map, 'root_dir', self.volumes
         )
@@ -75,13 +86,21 @@ class TestVolumeManagerBtrfs:
     def test_post_init_root_is_snapper_snapshot_without_root_volume(self):
         self.volume_manager.volumes = [
             volume_type(
-                name='/', parent='', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False, label=None,
-                attributes=[], is_root_volume=True
+                name='/',
+                parent='',
+                size='freespace:100',
+                realpath='/',
+                mountpoint=None,
+                fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=True,
             )
         ]
         self.volume_manager.post_init({'root_is_snapper_snapshot': True})
-        assert self.volume_manager.custom_args['root_is_snapper_snapshot'] is False
+        assert (
+            self.volume_manager.custom_args['root_is_snapper_snapshot'] is False
+        )
 
     def test_fails_to_get_mountpoint_without_mountpoint(self):
         self.volume_manager.mountpoint = ''
@@ -95,8 +114,13 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_no_snapshot(
-        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
-        mock_command, mock_os_exists
+        self,
+        mock_Temporary,
+        mock_mount,
+        mock_mapped_device,
+        mock_fs,
+        mock_command,
+        mock_os_exists,
     ):
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         toplevel_mount = Mock()
@@ -111,13 +135,13 @@ class TestVolumeManagerBtrfs:
 
         assert mock_mount.call_args_list == [
             call(device='/dev/storage', mountpoint='tmpdir'),
-            call(device='tmpdir/@', mountpoint='tmpdir/@')
+            call(device='tmpdir/@', mountpoint='tmpdir/@'),
         ]
         toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
             call(['btrfs', 'subvolume', 'list', 'tmpdir']),
-            call(['btrfs', 'subvolume', 'set-default', '256', 'tmpdir'])
+            call(['btrfs', 'subvolume', 'set-default', '256', 'tmpdir']),
         ]
 
     @patch('os.path.exists')
@@ -128,8 +152,14 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_with_snapshot(
-        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
-        mock_snapshot_mngr, mock_command, mock_os_exists
+        self,
+        mock_Temporary,
+        mock_mount,
+        mock_mapped_device,
+        mock_fs,
+        mock_snapshot_mngr,
+        mock_command,
+        mock_os_exists,
     ):
         snapper = Mock()
         snapper.create_first_snapshot = Mock(return_value=[mock_mount])
@@ -150,15 +180,15 @@ class TestVolumeManagerBtrfs:
             call(device='/dev/storage', mountpoint='tmpdir'),
             call(
                 device='tmpdir/@/.snapshots/1/snapshot',
-                mountpoint='tmpdir/@/.snapshots/1/snapshot'
-            )
+                mountpoint='tmpdir/@/.snapshots/1/snapshot',
+            ),
         ]
         toplevel_mount.mount.assert_called_once_with([])
         snapper.create_first_snapshot.assert_called_once_with()
         snapper.get_default_snapshot_name.assert_called_once_with()
         assert mock_command.call_args_list == [
             call(['btrfs', 'quota', 'enable', 'tmpdir']),
-            call(['btrfs', 'subvolume', 'create', 'tmpdir/@'])
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
         ]
 
     @patch('os.path.exists')
@@ -168,8 +198,13 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_volume_id_not_detected(
-        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
-        mock_command, mock_os_exists
+        self,
+        mock_Temporary,
+        mock_mount,
+        mock_mapped_device,
+        mock_fs,
+        mock_command,
+        mock_os_exists,
     ):
         command_call = Mock()
         command_call.output = 'id-string-invalid'
@@ -183,7 +218,9 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.Command.run')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.btrfs.Path.create')
-    @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
+    @patch(
+        'kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume'
+    )
     def test_create_volumes_no_root_volume(
         self, mock_attrs, mock_path, mock_mount, mock_command, mock_os_exists
     ):
@@ -196,22 +233,34 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.root_volume_name = '/'
         self.volume_manager.volumes = [
             volume_type(
-                name='/', parent='', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False, label=None,
-                attributes=[], is_root_volume=True
+                name='/',
+                parent='',
+                size='freespace:100',
+                realpath='/',
+                mountpoint=None,
+                fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=True,
             ),
             volume_type(
-                name='home', parent='/', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True, label=None,
-                attributes=[], is_root_volume=False
-            )
+                name='home',
+                parent='/',
+                size=None,
+                realpath='/home',
+                mountpoint='/home',
+                fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=False,
+            ),
         ]
 
         self.volume_manager.create_volumes('btrfs')
 
         assert mock_path.call_args_list == [
             call('root_dir/home'),
-            call('tmpdir')
+            call('tmpdir'),
         ]
         mock_command.assert_called_once_with(
             ['btrfs', 'subvolume', 'create', 'tmpdir/home']
@@ -221,16 +270,18 @@ class TestVolumeManagerBtrfs:
             attributes={
                 'parent': '/',
                 'subvol_path': 'home',
-                'subvol_name': 'home'
+                'subvol_name': 'home',
             },
-            mountpoint='tmpdir/home'
+            mountpoint='tmpdir/home',
         )
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.btrfs.Path.create')
-    @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
+    @patch(
+        'kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume'
+    )
     def test_create_volumes(
         self, mock_attrs, mock_path, mock_mount, mock_command, mock_os_exists
     ):
@@ -244,29 +295,47 @@ class TestVolumeManagerBtrfs:
 
         assert mock_attrs.call_args_list == [
             call(
-                'tmpdir/@', volume_type(
-                    name='myvol', parent='', size='size:500', realpath='/data',
-                    mountpoint='LVdata', fullsize=False, label=None,
+                'tmpdir/@',
+                volume_type(
+                    name='myvol',
+                    parent='',
+                    size='size:500',
+                    realpath='/data',
+                    mountpoint='LVdata',
+                    fullsize=False,
+                    label=None,
                     attributes=[],
-                    is_root_volume=False
-                )
+                    is_root_volume=False,
+                ),
             ),
             call(
-                'tmpdir/@', volume_type(
-                    name='etc', parent='', size='freespace:200', realpath='/etc',
-                    mountpoint='/etc', fullsize=False, label=None,
+                'tmpdir/@',
+                volume_type(
+                    name='etc',
+                    parent='',
+                    size='freespace:200',
+                    realpath='/etc',
+                    mountpoint='/etc',
+                    fullsize=False,
+                    label=None,
                     attributes=['quota=2G'],
-                    is_root_volume=False
-                )
+                    is_root_volume=False,
+                ),
             ),
             call(
-                'tmpdir/@', volume_type(
-                    name='home', parent='', size=None, realpath='/home',
-                    mountpoint='/home', fullsize=True, label=None,
+                'tmpdir/@',
+                volume_type(
+                    name='home',
+                    parent='',
+                    size=None,
+                    realpath='/home',
+                    mountpoint='/home',
+                    fullsize=True,
+                    label=None,
                     attributes=[],
-                    is_root_volume=False
-                )
-            )
+                    is_root_volume=False,
+                ),
+            ),
         ]
         assert mock_path.call_args_list == [
             call('root_dir/etc'),
@@ -274,46 +343,38 @@ class TestVolumeManagerBtrfs:
             call('root_dir/home'),
             call('tmpdir/@'),
             call('tmpdir/@'),
-            call('tmpdir/@')
+            call('tmpdir/@'),
         ]
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/data']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/etc']),
             call(['btrfs', 'quota', 'enable', '--simple', 'tmpdir/@/etc']),
             call(['btrfs', 'qgroup', 'limit', '2G', 'tmpdir/@/etc']),
-            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/home'])
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/home']),
         ]
         assert mock_mount.call_args_list == [
             call(
                 device='/dev/storage',
                 mountpoint='tmpdir/@/.snapshots/1/snapshot/data',
-                attributes={
-                    'subvol_path': '@/data',
-                    'subvol_name': '@/data'
-                }
+                attributes={'subvol_path': '@/data', 'subvol_name': '@/data'},
             ),
             call(
                 device='/dev/storage',
                 mountpoint='tmpdir/@/.snapshots/1/snapshot/etc',
-                attributes={
-                    'subvol_path': '@/etc',
-                    'subvol_name': '@/etc'
-                }
+                attributes={'subvol_path': '@/etc', 'subvol_name': '@/etc'},
             ),
             call(
                 device='/dev/storage',
                 mountpoint='tmpdir/@/.snapshots/1/snapshot/home',
-                attributes={
-                    'subvol_path': '@/home',
-                    'subvol_name': '@/home'
-                }
-            )
+                attributes={'subvol_path': '@/home', 'subvol_name': '@/home'},
+            ),
         ]
 
     def test_get_volumes(self):
         volume_mount = Mock()
-        volume_mount.mountpoint = \
+        volume_mount.mountpoint = (
             '/var/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/boot/grub2'
+        )
         volume_mount.device = 'device'
         volume_mount.get_attributes.return_value = {
             'subvol_path': '@/boot/grub2'
@@ -323,7 +384,7 @@ class TestVolumeManagerBtrfs:
         assert self.volume_manager.get_volumes() == {
             '/boot/grub2': {
                 'volume_options': 'subvol=@/boot/grub2',
-                'volume_device': 'device'
+                'volume_device': 'device',
             }
         }
 
@@ -333,12 +394,13 @@ class TestVolumeManagerBtrfs:
         blkid_result.output = 'id'
         mock_command.return_value = blkid_result
         volume_mount = Mock()
-        volume_mount.mountpoint = \
+        volume_mount.mountpoint = (
             '/var/tmp/kiwi_volumes.XXX/@/.snapshots/1/snapshot/var/tmp'
+        )
         volume_mount.device = 'device'
         volume_mount.get_attributes.return_value = {
             'subvol_path': '@/var/tmp',
-            'parent': 'subvol_takes_precedence'
+            'parent': 'subvol_takes_precedence',
         }
         self.volume_manager.subvol_mount_list = [volume_mount]
         self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
@@ -355,7 +417,7 @@ class TestVolumeManagerBtrfs:
                 fullsize=False,
                 label=None,
                 attributes=['enable-for-filesystem-check'],
-                is_root_volume=False
+                is_root_volume=False,
             )
         )
         assert self.volume_manager.get_fstab() == [
@@ -366,17 +428,14 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.Path.create')
     def test_mount_volumes(self, mock_path, mock_os_exists):
         self.volume_manager.toplevel_mount = Mock()
-        self.volume_manager.toplevel_mount.is_mounted = Mock(
-            return_value=False
-        )
+        self.volume_manager.toplevel_mount.is_mounted = Mock(return_value=False)
         mock_os_exists.return_value = False
         self.volume_manager.snapshots_root_mount = Mock()
         volume_mount = Mock()
-        volume_mount.mountpoint = \
+        volume_mount.mountpoint = (
             '/var/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
-        volume_mount.get_attributes.return_value = {
-            'subvol_path': '@/var/tmp'
-        }
+        )
+        volume_mount.get_attributes.return_value = {'subvol_path': '@/var/tmp'}
         self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         self.volume_manager.subvol_mount_list = [volume_mount]
 
@@ -385,20 +444,14 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.snapshots_root_mount.bind_mount.assert_called_once_with()
         self.volume_manager.toplevel_mount.mount.assert_called_once_with([])
         mock_path.assert_called_once_with(volume_mount.mountpoint)
-        volume_mount.mount.assert_called_once_with(
-            options=['subvol=@/var/tmp']
-        )
+        volume_mount.mount.assert_called_once_with(options=['subvol=@/var/tmp'])
 
     def test_umount_volumes(self):
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.root_volume_mount = Mock()
         volume_mount = Mock()
-        volume_mount.is_mounted = Mock(
-            return_value=True
-        )
-        self.volume_manager.toplevel_mount.is_mounted = Mock(
-            return_value=True
-        )
+        volume_mount.is_mounted = Mock(return_value=True)
+        self.volume_manager.toplevel_mount.is_mounted = Mock(return_value=True)
         self.volume_manager.snapshots_root_mount = Mock()
         self.volume_manager.snapshots_root_mount.is_mounted = Mock(
             return_value=True
@@ -436,9 +489,13 @@ class TestVolumeManagerBtrfs:
         sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
             options=[
-                '--archive', '--hard-links', '--xattrs',
-                '--acls', '--one-file-system', '--inplace'
-            ]
+                '--archive',
+                '--hard-links',
+                '--xattrs',
+                '--acls',
+                '--one-file-system',
+                '--inplace',
+            ],
         )
 
     @patch('kiwi.volume_manager.btrfs.DataSync')
@@ -461,15 +518,17 @@ class TestVolumeManagerBtrfs:
         with patch('builtins.open', m_open, create=True):
             self.volume_manager.sync_data(['exclude_me'])
 
-        mock_sync.assert_called_once_with(
-            'root_dir', 'tmpdir/@'
-        )
+        mock_sync.assert_called_once_with('root_dir', 'tmpdir/@')
         sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
             options=[
-                '--archive', '--hard-links', '--xattrs', '--acls',
-                '--one-file-system', '--inplace'
-            ]
+                '--archive',
+                '--hard-links',
+                '--xattrs',
+                '--acls',
+                '--one-file-system',
+                '--inplace',
+            ],
         )
 
     @patch('kiwi.volume_manager.btrfs.Command.run')
@@ -480,8 +539,12 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.set_property_readonly_root()
         mock_command.assert_called_once_with(
             [
-                'btrfs', 'property',
-                'set', 'tmpdir/@/.snapshots/1/snapshot', 'ro', 'true'
+                'btrfs',
+                'property',
+                'set',
+                'tmpdir/@/.snapshots/1/snapshot',
+                'ro',
+                'true',
             ]
         )
 

@@ -21,9 +21,7 @@ import time
 import logging
 import platform
 from threading import Thread
-from typing import (
-    List, Optional
-)
+from typing import List, Optional
 
 # project
 from kiwi.path import Path
@@ -37,7 +35,7 @@ from kiwi.exceptions import (
     KiwiBoxQEMUBinaryNotFound,
     KiwiBoxSSHPortInvalid,
     KiwiBoxSSHKeyNotFound,
-    KiwiBoxBuildError
+    KiwiBoxBuildError,
 )
 
 log = logging.getLogger('kiwi')
@@ -62,12 +60,20 @@ class BoxBuild:
     :param str ssh_port: host port number to use to forward the guest's SSH port
     :param bool accel: use KVM hardware acceleration True|False
     """
+
     def __init__(
-        self, boxname: str, ram: Optional[str] = None,
-        console: Optional[str] = None, smp: Optional[str] = None,
-        arch: str = '', machine: Optional[str] = None, cpu: str = 'host',
-        sharing_backend: str = '9p', ssh_key: str = 'id_rsa',
-        ssh_port: str = '', accel: bool = True
+        self,
+        boxname: str,
+        ram: Optional[str] = None,
+        console: Optional[str] = None,
+        smp: Optional[str] = None,
+        arch: str = '',
+        machine: Optional[str] = None,
+        cpu: str = 'host',
+        sharing_backend: str = '9p',
+        ssh_key: str = 'id_rsa',
+        ssh_port: str = '',
+        accel: bool = True,
     ) -> None:
         self.ram = ram
         self.console = console
@@ -83,10 +89,13 @@ class BoxBuild:
         self.accel = accel
 
     def run(
-        self, kiwi_build_command: List[str], update_check: bool = True,
-        snapshot: bool = True, keep_open: bool = False,
+        self,
+        kiwi_build_command: List[str],
+        update_check: bool = True,
+        snapshot: bool = True,
+        keep_open: bool = False,
         kiwi_version: Optional[str] = None,
-        custom_shared_path: Optional[str] = None
+        custom_shared_path: Optional[str] = None,
     ) -> None:
         """
         Start the build process in a box VM using KVM
@@ -109,22 +118,16 @@ class BoxBuild:
         :param str custom_shared_path: make this path available in the box
         """
         self.kiwi_build_command = kiwi_build_command
-        desc = self._pop_arg_param(
-            '--description'
-        )
-        target_dir = self._pop_arg_param(
-            '--target-dir'
-        )
+        desc = self._pop_arg_param('--description')
+        target_dir = self._pop_arg_param('--target-dir')
         BoxBuildDefaults.create_build_target_dir(target_dir)
         try:
             vm_setup = self.box.fetch(update_check, snapshot)
         except Exception as issue:
-            raise KiwiBoxDownloadError(
-                f'Failed to fetch box file(s): {issue}'
-            )
+            raise KiwiBoxDownloadError(f'Failed to fetch box file(s): {issue}')
         vm_append = [
             vm_setup.append,
-            'kiwi=\\"{0}\\"'.format(' '.join(self.kiwi_build_command))
+            'kiwi=\\"{0}\\"'.format(' '.join(self.kiwi_build_command)),
         ]
         if self.console:
             vm_append[0] = vm_append[0].replace(
@@ -152,14 +155,10 @@ class BoxBuild:
                 vm_append.append(f'ssh_key_type=_{key_type}_')
             user = pwd.getpwuid(os.geteuid()).pw_name
             vm_append.append(
-                'host_kiwidescription=_{0}_'.format(
-                    f'{user}@localhost:{desc}'
-                )
+                'host_kiwidescription=_{0}_'.format(f'{user}@localhost:{desc}')
             )
             vm_append.append(
-                'host_kiwibundle=_{0}_'.format(
-                    f'{user}@localhost:{target_dir}'
-                )
+                'host_kiwibundle=_{0}_'.format(f'{user}@localhost:{target_dir}')
             )
             if custom_shared_path:
                 vm_append.append(
@@ -167,9 +166,7 @@ class BoxBuild:
                         f'{user}@localhost:{custom_shared_path}'
                     )
                 )
-        vm_append.append(
-            'sharing_backend=_{0}_'.format(self.sharing_backend)
-        )
+        vm_append.append('sharing_backend=_{0}_'.format(self.sharing_backend))
         vm_machine = []
         if self.machine:
             vm_machine.append('-machine')
@@ -195,41 +192,46 @@ class BoxBuild:
             raise KiwiBoxQEMUBinaryNotFound(
                 f'No QEMU binary for {self.arch} found'
             )
-        vm_run = [
-            qemu_binary,
-            '-m', vm_memory
-        ] + vm_machine + [
-        ] + BoxBuildDefaults.get_qemu_generic_setup() + [
-            '-kernel', vm_setup.kernel,
-            '-append', '"{0}"'.format(' '.join(vm_append))
-        ] + BoxBuildDefaults.get_qemu_storage_setup(
-            vm_setup.system, snapshot
-        ) + \
-            BoxBuildDefaults.get_qemu_network_setup() + \
-            BoxBuildDefaults.get_qemu_console_setup() + \
-            BoxBuildDefaults.get_qemu_shared_path_setup(
-                0, desc, 'kiwidescription', self.sharing_backend) + \
-            BoxBuildDefaults.get_qemu_shared_path_setup(
-                1, target_dir, 'kiwibundle', self.sharing_backend)
+        vm_run = (
+            [qemu_binary, '-m', vm_memory]
+            + vm_machine
+            + []
+            + BoxBuildDefaults.get_qemu_generic_setup()
+            + [
+                '-kernel',
+                vm_setup.kernel,
+                '-append',
+                '"{0}"'.format(' '.join(vm_append)),
+            ]
+            + BoxBuildDefaults.get_qemu_storage_setup(vm_setup.system, snapshot)
+            + BoxBuildDefaults.get_qemu_network_setup()
+            + BoxBuildDefaults.get_qemu_console_setup()
+            + BoxBuildDefaults.get_qemu_shared_path_setup(
+                0, desc, 'kiwidescription', self.sharing_backend
+            )
+            + BoxBuildDefaults.get_qemu_shared_path_setup(
+                1, target_dir, 'kiwibundle', self.sharing_backend
+            )
+        )
         if custom_shared_path:
             vm_run += BoxBuildDefaults.get_qemu_shared_path_setup(
                 2, custom_shared_path, 'custompath', self.sharing_backend
             )
         if self.sharing_backend == 'virtiofs':
             vm_run += [
-                '-object', '{0},id=mem,size={1},mem-path={2},share=on'.format(
+                '-object',
+                '{0},id=mem,size={1},mem-path={2},share=on'.format(
                     'memory-backend-file', vm_memory, '/dev/shm'
                 ),
-                '-numa', 'node,memdev=mem'
+                '-numa',
+                'node,memdev=mem',
             ]
         if vm_setup.initrd:
             vm_run += ['-initrd', vm_setup.initrd]
         if vm_setup.smp:
             vm_run += ['-smp', format(self.smp or vm_setup.smp)]
         os.environ['TMPDIR'] = BoxBuildDefaults.get_local_box_cache_dir()
-        log.debug(
-            'Set TMPDIR: {0}'.format(os.environ['TMPDIR'])
-        )
+        log.debug('Set TMPDIR: {0}'.format(os.environ['TMPDIR']))
         if self.sharing_backend == 'sshfs':
             log.debug('Initiating port forwarding')
             # delete eventual existing host key for localhost on
@@ -240,11 +242,13 @@ class BoxBuild:
             # port forwarding which is required though.
             Command.run(
                 [
-                    'ssh-keygen', '-R',
+                    'ssh-keygen',
+                    '-R',
                     '[localhost]:{0}'.format(
                         runtime.BoxBuildDefaults.box_ssh_port_forwarded_to_host
-                    )
-                ], raise_on_error=False
+                    ),
+                ],
+                raise_on_error=False,
             )
             # remote forward the host ssh port(22) into the box
             # at port HOST_SSH_PORT_FORWARDED_TO_BOX using the kvm forwarded
@@ -252,16 +256,11 @@ class BoxBuild:
             # completes successfully when the box has started up and is
             # ready to operate through ssh
             ssh_forward_thread = Thread(
-                target=self._forward_host_ssh_to_guest,
-                args=()
+                target=self._forward_host_ssh_to_guest, args=()
             )
             ssh_forward_thread.start()
-        log.debug(
-            'Calling Qemu: {0}'.format(vm_run)
-        )
-        os.system(
-            ' '.join(vm_run)
-        )
+        log.debug('Calling Qemu: {0}'.format(vm_run))
+        os.system(' '.join(vm_run))
         for virtiofsd_process in runtime.VIRTIOFSD_PROCESS_LIST:
             virtiofsd_process.terminate()
 
@@ -281,9 +280,7 @@ class BoxBuild:
                 f'Box build failed. Find build log at: {build_log_file!r}'
             )
 
-        log.info(
-            f'Box build done. Find build log at: {build_log_file!r}'
-        )
+        log.info(f'Box build done. Find build log at: {build_log_file!r}')
 
     def _pop_arg_param(self, arg: str) -> str:
         arg_index = self.kiwi_build_command.index(arg)
@@ -307,8 +304,10 @@ class BoxBuild:
             try:
                 Command.run(
                     [
-                        'ssh', '-NT',
-                        '-o', 'StrictHostKeyChecking=no',
+                        'ssh',
+                        '-NT',
+                        '-o',
+                        'StrictHostKeyChecking=no',
                         'root@localhost',
                         '-p',
                         format(
@@ -317,7 +316,7 @@ class BoxBuild:
                         '-R',
                         '{0}:localhost:22'.format(
                             runtime.HOST_SSH_PORT_FORWARDED_TO_BOX
-                        )
+                        ),
                     ]
                 )
             except Exception as issue:

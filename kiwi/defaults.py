@@ -25,41 +25,25 @@ from importlib.machinery import ModuleSpec
 from collections import namedtuple
 import platform
 import yaml
-from typing import (
-    List, NamedTuple, Optional, Dict
-)
+from typing import List, NamedTuple, Optional, Dict
 
 # project
 from kiwi.path import Path
-from kiwi.version import (
-    __githash__,
-    __version__
-)
+from kiwi.version import __githash__, __version__
 
 from kiwi.exceptions import KiwiBootLoaderGrubDataError
 
 shim_loader_type = NamedTuple(
-    'shim_loader_type', [
-        ('filename', str),
-        ('binaryname', str)
-    ]
+    'shim_loader_type', [('filename', str), ('binaryname', str)]
 )
 
 grub_loader_type = NamedTuple(
-    'grub_loader_type', [
-        ('filename', str),
-        ('binaryname', str),
-        ('targetname', str)
-    ]
+    'grub_loader_type',
+    [('filename', str), ('binaryname', str), ('targetname', str)],
 )
 
 unit_type = NamedTuple(
-    'unit_type', [
-        ('byte', str),
-        ('kb', str),
-        ('mb', str),
-        ('gb', str)
-    ]
+    'unit_type', [('byte', str), ('kb', str), ('mb', str), ('gb', str)]
 )
 
 
@@ -87,9 +71,13 @@ IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
 MODULE_SPEC: Optional[ModuleSpec] = find_spec('kiwi')
-RUNTIME_CHECKER_METADATA = '{}/runtime_checker_metadata.yml'.format(
-    os.path.dirname(MODULE_SPEC.origin or 'unknown')
-) if MODULE_SPEC else 'unknown'
+RUNTIME_CHECKER_METADATA = (
+    '{}/runtime_checker_metadata.yml'.format(
+        os.path.dirname(MODULE_SPEC.origin or 'unknown')
+    )
+    if MODULE_SPEC
+    else 'unknown'
+)
 
 TEMP_DIR = '/var/tmp'
 LOCAL_CONTAINERS = '/var/tmp/kiwi_containers'
@@ -112,20 +100,20 @@ HOST_DNF_CONFIG = '/etc/dnf/dnf.conf'
 CA_UPDATE_MAP = {
     'suse': {
         'tool': 'update-ca-certificates',
-        'destination_path': '/etc/pki/trust/anchors'
+        'destination_path': '/etc/pki/trust/anchors',
     },
     'redhat': {
         'tool': 'update-ca-trust',
-        'destination_path': '/etc/pki/ca-trust/source/anchors/'
+        'destination_path': '/etc/pki/ca-trust/source/anchors/',
     },
     'debian': {
         'tool': 'update-ca-certificates',
-        'destination_path': '/usr/local/share/ca-certificates/'
+        'destination_path': '/usr/local/share/ca-certificates/',
     },
     'archlinux': {
         'tool': 'update-ca-trust',
-        'destination_path': '/etc/ca-certificates/trust-source/anchors/'
-    }
+        'destination_path': '/etc/ca-certificates/trust-source/anchors/',
+    },
 }
 
 log = logging.getLogger('kiwi')
@@ -153,13 +141,13 @@ class Defaults:
             # minimum inode number for inode based filesystems
             'kiwi_min_inodes': 20000,
             # kiwi git revision
-            'kiwi_revision': __githash__
+            'kiwi_revision': __githash__,
         }
         self.profile_key_list = [
             'kiwi_align',
             'kiwi_startsector',
             'kiwi_sectorsize',
-            'kiwi_revision'
+            'kiwi_revision',
         ]
 
     @staticmethod
@@ -190,9 +178,7 @@ class Defaults:
 
         :rtype: list
         """
-        return [
-            '--threads=0'
-        ]
+        return ['--threads=0']
 
     @staticmethod
     def get_platform_name():
@@ -233,9 +219,7 @@ class Defaults:
 
         :rtype: bool
         """
-        x86_arch_names = [
-            'x86_64', 'i686', 'i586', 'ix86'
-        ]
+        x86_arch_names = ['x86_64', 'i686', 'i586', 'ix86']
         if arch in x86_arch_names:
             return True
         return False
@@ -251,9 +235,7 @@ class Defaults:
 
         :rtype: bool
         """
-        ppc64_arch_names = [
-            'ppc64', 'ppc64le'
-        ]
+        ppc64_arch_names = ['ppc64', 'ppc64le']
         if arch in ppc64_arch_names:
             return True
         return False
@@ -270,9 +252,7 @@ class Defaults:
 
         :rtype: bool
         """
-        return os.path.exists(
-            os.sep + Defaults.get_buildservice_env_name()
-        )
+        return os.path.exists(os.sep + Defaults.get_buildservice_env_name())
 
     @staticmethod
     def get_buildservice_env_name():
@@ -378,9 +358,9 @@ class Defaults:
 
         :rtype: str
         """
-        return os.path.abspath(os.path.normpath(
-            SHARED_CACHE_DIR
-        )).lstrip(os.sep)
+        return os.path.abspath(os.path.normpath(SHARED_CACHE_DIR)).lstrip(
+            os.sep
+        )
 
     @staticmethod
     def get_temp_location():
@@ -394,9 +374,7 @@ class Defaults:
 
         :rtype: str
         """
-        return os.path.abspath(
-            os.path.normpath(TEMP_DIR)
-        )
+        return os.path.abspath(os.path.normpath(TEMP_DIR))
 
     @staticmethod
     def get_sync_options():
@@ -408,8 +386,12 @@ class Defaults:
         :rtype: list
         """
         return [
-            '--archive', '--hard-links', '--xattrs', '--acls',
-            '--one-file-system', '--inplace'
+            '--archive',
+            '--hard-links',
+            '--xattrs',
+            '--acls',
+            '--one-file-system',
+            '--inplace',
         ]
 
     @staticmethod
@@ -456,7 +438,7 @@ class Defaults:
             'etc/resolv.conf.sha',
             'etc/sysconfig/proxy.kiwi',
             'etc/sysconfig/proxy.sha',
-            'usr/lib/sysimage/rpm'
+            'usr/lib/sysimage/rpm',
         ]
 
     @staticmethod
@@ -470,14 +452,12 @@ class Defaults:
 
         :rtype: list
         """
-        exclude_list = [
-            'image', '.kconfig'
-        ]
+        exclude_list = ['image', '.kconfig']
         if no_tmpdirs:
             exclude_list += ['run/*', 'tmp/*']
         exclude_list += [
             Defaults.get_buildservice_env_name(),
-            Defaults.get_shared_cache_location()
+            Defaults.get_shared_cache_location(),
         ]
         return exclude_list
 
@@ -509,9 +489,7 @@ class Defaults:
 
         :rtype: list
         """
-        exclude_file = os.sep.join(
-            [root_dir, 'image', exclude_filename]
-        )
+        exclude_file = os.sep.join([root_dir, 'image', exclude_filename])
         exclude_list = []
         if os.path.isfile(exclude_file):
             with open(exclude_file) as exclude:
@@ -519,9 +497,7 @@ class Defaults:
                 exclude_data = exclude_dict.get('exclude')
                 if exclude_data and isinstance(exclude_data, list):
                     for exclude_file in exclude_data:
-                        exclude_list.append(
-                            exclude_file.lstrip(os.sep)
-                        )
+                        exclude_list.append(exclude_file.lstrip(os.sep))
                 else:
                     log.warning(
                         f'invalid yaml structure in {exclude_file}, ignored'
@@ -543,7 +519,9 @@ class Defaults:
         return Defaults._parse_exclude_file(root_dir, 'exclude_files.yaml')
 
     @staticmethod
-    def get_exclude_list_from_custom_exclude_files_for_efifatimage(root_dir: str) -> List:
+    def get_exclude_list_from_custom_exclude_files_for_efifatimage(
+        root_dir: str,
+    ) -> List:
         """
         Gets the list of excluded items for the ESP's EFI folder from
         the optional metadata file image/exclude_files_efifatimage.yaml
@@ -556,7 +534,9 @@ class Defaults:
 
         :rtype: list
         """
-        return Defaults._parse_exclude_file(root_dir, 'exclude_files_efifatimage.yaml')
+        return Defaults._parse_exclude_file(
+            root_dir, 'exclude_files_efifatimage.yaml'
+        )
 
     @staticmethod
     def get_exclude_list_for_non_physical_devices():
@@ -570,9 +550,7 @@ class Defaults:
 
         :rtype: list
         """
-        exclude_list = [
-            'proc', 'sys', 'dev'
-        ]
+        exclude_list = ['proc', 'sys', 'dev']
         return exclude_list
 
     @staticmethod
@@ -590,14 +568,7 @@ class Defaults:
         :rtype: list
         """
         return ' '.join(
-            [
-                'ide=nodma',
-                'apm=off',
-                'noresume',
-                'edd=off',
-                'nomodeset',
-                '3'
-            ]
+            ['ide=nodma', 'apm=off', 'noresume', 'edd=off', 'nomodeset', '3']
         )
 
     @staticmethod
@@ -634,7 +605,7 @@ class Defaults:
         """
         snapper_templates = [
             'etc/snapper/config-templates/default',
-            'usr/share/snapper/config-templates/default'
+            'usr/share/snapper/config-templates/default',
         ]
         snapper_default_conf = ''
         for snapper_template in snapper_templates:
@@ -658,10 +629,10 @@ class Defaults:
     @staticmethod
     def get_grub_custom_arguments(root_dir: str) -> Dict[str, str]:
         return {
-            'grub_directory_name':
-                Defaults.get_grub_boot_directory_name(root_dir),
-            'grub_load_command':
-                'configfile'
+            'grub_directory_name': Defaults.get_grub_boot_directory_name(
+                root_dir
+            ),
+            'grub_load_command': 'configfile',
         }
 
     @staticmethod
@@ -731,7 +702,7 @@ class Defaults:
             'cryptodisk',
             'test',
             'true',
-            'loadenv'
+            'loadenv',
         ]
         if multiboot:
             modules.append('multiboot')
@@ -751,7 +722,7 @@ class Defaults:
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'part_msdos',
-            'efi_gop'
+            'efi_gop',
         ]
         return modules
 
@@ -777,7 +748,7 @@ class Defaults:
                 'vga',
                 'vbe',
                 'chain',
-                'boot'
+                'boot',
             ]
         return modules
 
@@ -793,7 +764,7 @@ class Defaults:
         modules = Defaults.get_grub_basic_modules(multiboot=False) + [
             'part_gpt',
             'part_msdos',
-            'boot'
+            'boot',
         ]
         return modules
 
@@ -809,7 +780,7 @@ class Defaults:
         modules = Defaults.get_grub_basic_modules(multiboot=False) + [
             'part_gpt',
             'part_msdos',
-            'boot'
+            'boot',
         ]
         return modules
 
@@ -840,9 +811,7 @@ class Defaults:
         :rtype: str
         """
         log.debug(f'Searching grub file: {filename}')
-        install_dirs = [
-            'usr/share', 'usr/lib'
-        ]
+        install_dirs = ['usr/share', 'usr/lib']
         lookup_list = []
         for grub_name in ['grub2', 'grub']:
             for install_dir in install_dirs:
@@ -902,53 +871,23 @@ class Defaults:
         )
         shim_file_patterns = [
             shim_pattern_type(
-                '/usr/lib/shim/shim*.efi.signed.latest',
-                'bootx64.efi'
+                '/usr/lib/shim/shim*.efi.signed.latest', 'bootx64.efi'
             ),
+            shim_pattern_type('/usr/lib/shim/shim*.efi.signed', 'bootx64.efi'),
+            shim_pattern_type('/usr/lib/grub/*-efi-signed', 'bootx64.efi'),
+            shim_pattern_type('/usr/share/efi/x86_64/shim.efi', 'bootx64.efi'),
             shim_pattern_type(
-                '/usr/lib/shim/shim*.efi.signed',
-                'bootx64.efi'
+                '/usr/share/efi/aarch64/shim.efi', 'bootaa64.efi'
             ),
+            shim_pattern_type('/usr/lib64/efi/shim.efi', 'bootx64.efi'),
+            shim_pattern_type('/boot/efi/EFI/*/shimx64.efi', 'bootx64.efi'),
+            shim_pattern_type('/boot/efi/EFI/*/shimia32.efi', 'bootia32.efi'),
+            shim_pattern_type('/boot/efi/EFI/*/shimaa64.efi', 'bootaa64.efi'),
             shim_pattern_type(
-                '/usr/lib/grub/*-efi-signed',
-                'bootx64.efi'
+                '/boot/efi/EFI/*/shimriscv64.efi', 'bootriscv64.efi'
             ),
-            shim_pattern_type(
-                '/usr/share/efi/x86_64/shim.efi',
-                'bootx64.efi'
-            ),
-            shim_pattern_type(
-                '/usr/share/efi/aarch64/shim.efi',
-                'bootaa64.efi'
-            ),
-            shim_pattern_type(
-                '/usr/lib64/efi/shim.efi',
-                'bootx64.efi'
-            ),
-            shim_pattern_type(
-                '/boot/efi/EFI/*/shimx64.efi',
-                'bootx64.efi'
-            ),
-            shim_pattern_type(
-                '/boot/efi/EFI/*/shimia32.efi',
-                'bootia32.efi'
-            ),
-            shim_pattern_type(
-                '/boot/efi/EFI/*/shimaa64.efi',
-                'bootaa64.efi'
-            ),
-            shim_pattern_type(
-                '/boot/efi/EFI/*/shimriscv64.efi',
-                'bootriscv64.efi'
-            ),
-            shim_pattern_type(
-                '/boot/efi/EFI/*/shim.efi',
-                'bootx64.efi'
-            ),
-            shim_pattern_type(
-                '/usr/lib/shim/shim*.efi',
-                'bootx64.efi'
-            )
+            shim_pattern_type('/boot/efi/EFI/*/shim.efi', 'bootx64.efi'),
+            shim_pattern_type('/usr/lib/shim/shim*.efi', 'bootx64.efi'),
         ]
         for shim_file_pattern in shim_file_patterns:
             for shim_file in sorted(
@@ -980,7 +919,7 @@ class Defaults:
             '/usr/share/efi/*/MokManager.efi',
             '/usr/lib64/efi/MokManager.efi',
             '/boot/efi/EFI/*/mm*.efi',
-            '/usr/lib/shim/mm*.efi'
+            '/usr/lib/shim/mm*.efi',
         ]
         for mok_manager_file_pattern in mok_manager_file_patterns:
             for mm_file in glob.iglob(root_path + mok_manager_file_pattern):
@@ -998,9 +937,7 @@ class Defaults:
 
         :rtype: str
         """
-        font_dir_patterns = [
-            '/boot/efi/EFI/*/fonts'
-        ]
+        font_dir_patterns = ['/boot/efi/EFI/*/fonts']
         for font_dir_pattern in font_dir_patterns:
             for font_dir in glob.iglob(root_path + font_dir_pattern):
                 return font_dir
@@ -1030,73 +967,69 @@ class Defaults:
                 grub_pattern_type(
                     '/usr/share/grub*/x86_64-efi/grub.efi',
                     'grub.efi',
-                    'bootx64.efi'
+                    'bootx64.efi',
                 ),
                 grub_pattern_type(
                     '/usr/lib/grub*/x86_64-efi/grub.efi',
                     'grub.efi',
-                    'bootx64.efi'
+                    'bootx64.efi',
                 ),
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/grubx64.efi',
-                    'grubx64.efi',
-                    'bootx64.efi'
+                    '/boot/efi/EFI/*/grubx64.efi', 'grubx64.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubia32.efi',
                     'grubia32.efi',
-                    'bootia32.efi'
+                    'bootia32.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
-                    'bootaa64.efi'
+                    'bootaa64.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubriscv64.efi',
                     'grubriscv64.efi',
-                    'bootriscv64.efi'
-                )
+                    'bootriscv64.efi',
+                ),
             ],
             'iso': [
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/gcdx64.efi',
-                    'grubx64.efi',
-                    'bootx64.efi'
+                    '/boot/efi/EFI/*/gcdx64.efi', 'grubx64.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/share/grub*/x86_64-efi/grub.efi',
                     'grub.efi',
-                    'bootx64.efi'
+                    'bootx64.efi',
                 ),
                 grub_pattern_type(
                     '/usr/lib/grub*/x86_64-efi/grub.efi',
                     'grub.efi',
-                    'bootx64.efi'
+                    'bootx64.efi',
                 ),
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/grubx64.efi',
-                    'grubx64.efi',
-                    'bootx64.efi'
+                    '/boot/efi/EFI/*/grubx64.efi', 'grubx64.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubia32.efi',
                     'grubia32.efi',
-                    'bootia32.efi'
+                    'bootia32.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
-                    'bootaa64.efi'
+                    'bootaa64.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubriscv64.efi',
                     'grubriscv64.efi',
-                    'bootriscv64.efi'
-                )
-            ]
+                    'bootriscv64.efi',
+                ),
+            ],
         }
-        for unsigned_grub_file_pattern in unsigned_grub_file_patterns[target_type]:
+        for unsigned_grub_file_pattern in unsigned_grub_file_patterns[
+            target_type
+        ]:
             for unsigned_grub_file in glob.iglob(
                 root_path + unsigned_grub_file_pattern.pattern
             ):
@@ -1104,7 +1037,7 @@ class Defaults:
                     grub_loader_type(
                         unsigned_grub_file,
                         unsigned_grub_file_pattern.binaryname,
-                        unsigned_grub_file_pattern.targetname
+                        unsigned_grub_file_pattern.targetname,
                     )
                 )
                 # one match only expected, per pattern
@@ -1151,12 +1084,12 @@ class Defaults:
         bios_grub_core_patterns = [
             '/usr/share/grub*/{0}/{1}'.format(
                 Defaults.get_grub_platform_module_directory_name(),
-                Defaults.get_grub_platform_image_name()
+                Defaults.get_grub_platform_image_name(),
             ),
             '/usr/lib/grub*/{0}/{1}'.format(
                 Defaults.get_grub_platform_module_directory_name(),
-                Defaults.get_grub_platform_image_name()
-            )
+                Defaults.get_grub_platform_image_name(),
+            ),
         ]
         for bios_grub_core_pattern in bios_grub_core_patterns:
             for bios_grub_core in glob.iglob(
@@ -1209,103 +1142,87 @@ class Defaults:
         signed_grub_file_patterns = {
             'disk': [
                 grub_pattern_type(
-                    '/usr/share/efi/*/grub.efi',
-                    'grub.efi',
-                    'bootx64.efi'
+                    '/usr/share/efi/*/grub.efi', 'grub.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/usr/lib64/efi/grub.efi',
-                    'grub.efi',
-                    'bootx64.efi'
+                    '/usr/lib64/efi/grub.efi', 'grub.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/grubx64.efi',
-                    'grubx64.efi',
-                    'bootx64.efi'
+                    '/boot/efi/EFI/*/grubx64.efi', 'grubx64.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubia32.efi',
                     'grubia32.efi',
-                    'bootia32.efi'
+                    'bootia32.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
-                    'bootaa64.efi'
+                    'bootaa64.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubriscv64.efi',
                     'grubriscv64.efi',
-                    'bootriscv64.efi'
+                    'bootriscv64.efi',
                 ),
                 grub_pattern_type(
-                    '/usr/share/grub*/*-efi/grub.efi',
-                    'grub.efi',
-                    'bootx64.efi'
+                    '/usr/share/grub*/*-efi/grub.efi', 'grub.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
                     'grubx64.efi',
-                    'bootx64.efi'
-                )
+                    'bootx64.efi',
+                ),
             ],
             'iso': [
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/gcdx64.efi',
-                    'grubx64.efi',
-                    'bootx64.efi'
+                    '/boot/efi/EFI/*/gcdx64.efi', 'grubx64.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/gcdaa64.efi',
                     'grubaa64.efi',
-                    'bootaa64.efi'
+                    'bootaa64.efi',
                 ),
                 grub_pattern_type(
-                    '/usr/share/efi/x86_64/grub.efi',
-                    'grub.efi',
-                    'grubx64.efi'
+                    '/usr/share/efi/x86_64/grub.efi', 'grub.efi', 'grubx64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/share/efi/aarch64/grub.efi',
                     'grub.efi',
-                    'grubaa64.efi'
+                    'grubaa64.efi',
                 ),
                 grub_pattern_type(
-                    '/usr/lib64/efi/grub.efi',
-                    'grub.efi',
-                    'bootx64.efi'
+                    '/usr/lib64/efi/grub.efi', 'grub.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/grubx64.efi',
-                    'grubx64.efi',
-                    'bootx64.efi'
+                    '/boot/efi/EFI/*/grubx64.efi', 'grubx64.efi', 'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubia32.efi',
                     'grubia32.efi',
-                    'bootia32.efi'
+                    'bootia32.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
-                    'bootaa64.efi'
+                    'bootaa64.efi',
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/grubriscv64.efi',
                     'grubriscv64.efi',
-                    'bootriscv64.efi'
+                    'bootriscv64.efi',
                 ),
                 grub_pattern_type(
                     '/usr/share/grub*/x86_64-efi/grub.efi',
                     'grub.efi',
-                    'bootx64.efi'
+                    'bootx64.efi',
                 ),
                 grub_pattern_type(
                     '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
                     'grubx64.efi',
-                    'bootx64.efi'
-                )
-            ]
+                    'bootx64.efi',
+                ),
+            ],
         }
         for signed_grub in signed_grub_file_patterns[target_type]:
             for signed_grub_file in glob.iglob(root_path + signed_grub.pattern):
@@ -1313,7 +1230,7 @@ class Defaults:
                     grub_loader_type(
                         signed_grub_file,
                         signed_grub.binaryname,
-                        signed_grub.targetname
+                        signed_grub.targetname,
                     )
                 )
                 # one match only expected, per pattern
@@ -1340,7 +1257,7 @@ class Defaults:
             'EFI/almalinux',
             'EFI/opensuse',
             'EFI/ubuntu',
-            'EFI/debian'
+            'EFI/debian',
         ]
         for efi_vendor_directory in efi_vendor_directories:
             efi_vendor_directory = os.sep.join([efi_path, efi_vendor_directory])
@@ -1370,10 +1287,7 @@ class Defaults:
 
         :rtype: list
         """
-        shim_vendor_patterns = [
-            '/boot/efi/EFI/*/shim*.efi',
-            '/EFI/*/shim*.efi'
-        ]
+        shim_vendor_patterns = ['/boot/efi/EFI/*/shim*.efi', '/EFI/*/shim*.efi']
         vendor_paths = []
         for shim_vendor_pattern in shim_vendor_patterns:
             for shim_file in glob.iglob(root_path + shim_vendor_pattern):
@@ -1509,7 +1423,7 @@ class Defaults:
             'vdi',
             'vagrant.libvirt.box',
             'vagrant.virtualbox.box',
-            'oci'
+            'oci',
         ]
 
     @staticmethod
@@ -1554,7 +1468,7 @@ class Defaults:
             'ppc64le': ['ofw', 'opal'],
             'riscv64': ['efi', 'uefi'],
             's390': [],
-            's390x': []
+            's390x': [],
         }
 
     @staticmethod
@@ -1586,7 +1500,7 @@ class Defaults:
             'armv7hl': 'efi',
             'armv7l': 'efi',
             'armv8l': 'efi',
-            'riscv64': 'efi'
+            'riscv64': 'efi',
         }
         if arch in default_firmware:
             return default_firmware[arch]
@@ -1632,12 +1546,10 @@ class Defaults:
         default_module_directory_names = {
             'x86_64': 'x86_64-efi',
             'i386': 'i386-efi',
-
             # There is no dedicated xen architecture but there are
             # modules provided for xen. Thus we treat it as an
             # architecture
             'x86_64_xen': 'x86_64-xen',
-
             'aarch64': 'arm64-efi',
             'arm64': 'arm64-efi',
             'armv5el': 'arm-efi',
@@ -1646,7 +1558,7 @@ class Defaults:
             'armv7l': 'arm-efi',
             'armv8l': 'arm-efi',
             'loongarch64': 'loongarch64-efi',
-            'riscv64': 'riscv64-efi'
+            'riscv64': 'riscv64-efi',
         }
         if arch in default_module_directory_names:
             return default_module_directory_names[arch]
@@ -1661,9 +1573,11 @@ class Defaults:
 
         :rtype: str
         """
-        return 'powerpc-ieee1275' if Defaults.is_ppc64_arch(
-            Defaults.get_platform_name()
-        ) else 'i386-pc'
+        return (
+            'powerpc-ieee1275'
+            if Defaults.is_ppc64_arch(Defaults.get_platform_name())
+            else 'i386-pc'
+        )
 
     @staticmethod
     def get_efi_image_name(arch):
@@ -1687,7 +1601,7 @@ class Defaults:
             'armv7l': 'bootarm.efi',
             'armv8l': 'bootarm.efi',
             'loongarch64': 'bootloongarch64.efi',
-            'riscv64': 'bootriscv64.efi'
+            'riscv64': 'bootriscv64.efi',
         }
         if arch in default_efi_image_names:
             return default_efi_image_names[arch]
@@ -1701,9 +1615,11 @@ class Defaults:
 
         :rtype: str
         """
-        return 'grub.elf' if Defaults.is_ppc64_arch(
-            Defaults.get_platform_name()
-        ) else 'core.img'
+        return (
+            'grub.elf'
+            if Defaults.is_ppc64_arch(Defaults.get_platform_name())
+            else 'core.img'
+        )
 
     @staticmethod
     def get_default_boot_timeout_seconds():
@@ -1783,8 +1699,15 @@ class Defaults:
         :rtype: list
         """
         return [
-            'ext2', 'ext3', 'ext4', 'btrfs', 'squashfs',
-            'xfs', 'fat16', 'fat32', 'erofs'
+            'ext2',
+            'ext3',
+            'ext4',
+            'btrfs',
+            'squashfs',
+            'xfs',
+            'fat16',
+            'fat32',
+            'erofs',
         ]
 
     @staticmethod
@@ -1837,7 +1760,7 @@ class Defaults:
         """
         live_modules = {
             'overlay': ['kiwi-live'],
-            'dmsquash': ['dmsquash-live', 'livenet']
+            'dmsquash': ['dmsquash-live', 'livenet'],
         }
         if flag_name in live_modules:
             return live_modules[flag_name]
@@ -1865,9 +1788,7 @@ class Defaults:
 
         :rtype: list
         """
-        live_iso_persistent_boot_options = [
-            'rd.live.overlay.persistent'
-        ]
+        live_iso_persistent_boot_options = ['rd.live.overlay.persistent']
         if persistent_filesystem:
             live_iso_persistent_boot_options.append(
                 'rd.live.overlay.cowfs={0}'.format(persistent_filesystem)
@@ -2033,9 +1954,7 @@ class Defaults:
 
         :rtype: str
         """
-        return os.sep.join(
-            ['boot', Defaults.get_platform_name()]
-        )
+        return os.sep.join(['boot', Defaults.get_platform_name()])
 
     @staticmethod
     def get_iso_tool_category():
@@ -2231,68 +2150,42 @@ class Defaults:
         arch = Defaults.get_platform_name()
         part_uuids_archs = {
             'x86_64': {
-                'root':
-                    '4f68bce3e8cd4db196e7fbcaf984b709',
-                'usr':
-                    '8484680c952148c69c11b0720656f69e',
-                'usr-verity':
-                    '77ff5f63e7b64633acf41565b864c0e6'
+                'root': '4f68bce3e8cd4db196e7fbcaf984b709',
+                'usr': '8484680c952148c69c11b0720656f69e',
+                'usr-verity': '77ff5f63e7b64633acf41565b864c0e6',
             },
             'ix86': {
-                'root':
-                    '44479540f29741b29af7d131d5f0458a',
-                'usr':
-                    '75250d768cc6458ebd66bd47cc81a812',
-                'usr-verity':
-                    '8f461b0d14ee4e819aa9049b6fb97abd'
+                'root': '44479540f29741b29af7d131d5f0458a',
+                'usr': '75250d768cc6458ebd66bd47cc81a812',
+                'usr-verity': '8f461b0d14ee4e819aa9049b6fb97abd',
             },
             'aarch64': {
-                'root':
-                    'b921b0451df041c3af444c6f280d3fae',
-                'usr':
-                    'b0e01050ee5f4390949a9101b17104e9',
-                'usr-verity':
-                    '6e11a4e7fbca4dedb9e9e1a512bb664e'
+                'root': 'b921b0451df041c3af444c6f280d3fae',
+                'usr': 'b0e01050ee5f4390949a9101b17104e9',
+                'usr-verity': '6e11a4e7fbca4dedb9e9e1a512bb664e',
             },
             'riscv64': {
-                'root':
-                    '72ec70a6cf7440e6bd494bda08e8f224',
-                'usr':
-                    'beaec34b8442439ba40b984381ed097d',
-                'usr-verity':
-                    '8f1056be9b0547c481d6be53128e5b54'
-            }
+                'root': '72ec70a6cf7440e6bd494bda08e8f224',
+                'usr': 'beaec34b8442439ba40b984381ed097d',
+                'usr-verity': '8f1056be9b0547c481d6be53128e5b54',
+            },
         }
         part_uuids_arch = part_uuids_archs.get(arch) or {}
         return {
-            'root':
-                part_uuids_arch.get('root') or '',
-            'usr':
-                part_uuids_arch.get('usr') or '',
-            'usr-verity':
-                part_uuids_arch.get('usr-verity') or '',
-            'usr-secondary':
-                '75250d768cc6458ebd66bd47cc81a812',
-            'usr-secondary-verity':
-                '8f461b0d14ee4e819aa9049b6fb97abd',
-            'esp':
-                'c12a7328f81f11d2ba4b00a0c93ec93b',
-            'xbootldr':
-                'bc13c2ff59e64262a352b275fd6f7172',
-            'swap':
-                '0657fd6da4ab43c484e50933c84b4f4f',
-            'home':
-                '933ac7e12eb44f13b8440e14e2aef915',
-            'srv':
-                '3b8f842520e04f3b907f1a25a76f98e8',
-            'var':
-                '4d21b016b53445c2a9fb5c16e091fd2d',
-            'tmp':
-                '7ec6f5573bc54acab29316ef5df639d1',
-            'user-home':
-                '773f91ef66d449b5bd83d683bf40ad16',
-            'linux-generic':
-                '0fc63daf848347728e793d69d8477de4'
+            'root': part_uuids_arch.get('root') or '',
+            'usr': part_uuids_arch.get('usr') or '',
+            'usr-verity': part_uuids_arch.get('usr-verity') or '',
+            'usr-secondary': '75250d768cc6458ebd66bd47cc81a812',
+            'usr-secondary-verity': '8f461b0d14ee4e819aa9049b6fb97abd',
+            'esp': 'c12a7328f81f11d2ba4b00a0c93ec93b',
+            'xbootldr': 'bc13c2ff59e64262a352b275fd6f7172',
+            'swap': '0657fd6da4ab43c484e50933c84b4f4f',
+            'home': '933ac7e12eb44f13b8440e14e2aef915',
+            'srv': '3b8f842520e04f3b907f1a25a76f98e8',
+            'var': '4d21b016b53445c2a9fb5c16e091fd2d',
+            'tmp': '7ec6f5573bc54acab29316ef5df639d1',
+            'user-home': '773f91ef66d449b5bd83d683bf40ad16',
+            'linux-generic': '0fc63daf848347728e793d69d8477de4',
         }
 
     @staticmethod

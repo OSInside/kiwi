@@ -15,7 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import IO, Callable, Literal, List, MutableMapping, NamedTuple, Optional, overload
+from typing import (
+    IO,
+    Callable,
+    Literal,
+    List,
+    MutableMapping,
+    NamedTuple,
+    Optional,
+    overload,
+)
 import logging
 import os
 import select
@@ -24,10 +33,7 @@ import subprocess
 # project
 from kiwi.utils.codec import Codec
 
-from kiwi.exceptions import (
-    KiwiCommandError,
-    KiwiCommandNotFound
-)
+from kiwi.exceptions import KiwiCommandError, KiwiCommandNotFound
 
 log = logging.getLogger('kiwi')
 
@@ -58,26 +64,30 @@ class Command:
     @overload
     @staticmethod
     def run(
-        command: List[str], custom_env: Optional[MutableMapping[str, str]] = None,
-        raise_on_error: bool = True, stderr_to_stdout: bool = False,
-        raise_on_command_not_found: Literal[False] = False
-    ) -> CommandT:
-        ...  # pragma: no cover
+        command: List[str],
+        custom_env: Optional[MutableMapping[str, str]] = None,
+        raise_on_error: bool = True,
+        stderr_to_stdout: bool = False,
+        raise_on_command_not_found: Literal[False] = False,
+    ) -> CommandT: ...  # pragma: no cover
 
     @overload
     @staticmethod
     def run(
-        command: List[str], custom_env: Optional[MutableMapping[str, str]] = None,
-        raise_on_error: bool = True, stderr_to_stdout: bool = False,
-        raise_on_command_not_found: bool = True
-    ) -> Optional[CommandT]:
-        ...  # pragma: no cover
+        command: List[str],
+        custom_env: Optional[MutableMapping[str, str]] = None,
+        raise_on_error: bool = True,
+        stderr_to_stdout: bool = False,
+        raise_on_command_not_found: bool = True,
+    ) -> Optional[CommandT]: ...  # pragma: no cover
 
     @staticmethod
     def run(
-        command: List[str], custom_env: Optional[MutableMapping[str, str]] = None,
-        raise_on_error: bool = True, stderr_to_stdout: bool = False,
-        raise_on_command_not_found: bool = True
+        command: List[str],
+        custom_env: Optional[MutableMapping[str, str]] = None,
+        raise_on_error: bool = True,
+        stderr_to_stdout: bool = False,
+        raise_on_command_not_found: bool = True,
     ) -> Optional[CommandT]:
         """
         Execute a program and block the caller. The return value
@@ -109,6 +119,7 @@ class Command:
         :rtype: CommandT
         """
         from .path import Path
+
         environment = custom_env or os.environ
         cmd_abspath: Optional[str]
         if command[0].startswith("/"):
@@ -133,7 +144,7 @@ class Command:
                 [cmd_abspath] + command[1:],
                 stdout=subprocess.PIPE,
                 stderr=stderr,
-                env=environment
+                env=environment,
             )
         except (OSError, subprocess.SubprocessError) as e:
             raise KiwiCommandError(
@@ -159,13 +170,13 @@ class Command:
         return CommandT(
             output=Codec.decode(output),
             error=Codec.decode(error),
-            returncode=process.returncode
+            returncode=process.returncode,
         )
 
     @staticmethod
     def call(
-            command: List[str],
-            custom_env: Optional[MutableMapping[str, str]] = None
+        command: List[str],
+        custom_env: Optional[MutableMapping[str, str]] = None,
     ) -> CommandCallT:
         """
         Execute a program and return an io file handle pair back.
@@ -197,6 +208,7 @@ class Command:
         :rtype: namedtuple
         """
         from .path import Path
+
         log.debug('EXEC: [%s]', ' '.join(command))
         environment = custom_env or os.environ
         if not Path.which(
@@ -210,12 +222,10 @@ class Command:
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=environment
+                env=environment,
             )
         except Exception as e:
-            raise KiwiCommandError(
-                f'{type(e).__name__}: {format(e)}'
-            ) from e
+            raise KiwiCommandError(f'{type(e).__name__}: {format(e)}') from e
 
         # guaranteed to be true as stdout & stderr equal subprocess.PIPE
         assert process.stdout and process.stderr
@@ -228,6 +238,7 @@ class Command:
                 if readable and not exceptional:
                     return True
                 return False
+
             return _select
 
         def error_available() -> Callable[[], bool]:
@@ -238,6 +249,7 @@ class Command:
                 if readable and not exceptional:
                     return True
                 return False
+
             return _select
 
         return CommandCallT(
@@ -245,5 +257,5 @@ class Command:
             output_available=output_available(),
             error=process.stderr,
             error_available=error_available(),
-            process=process
+            process=process,
         )

@@ -14,12 +14,13 @@ class TestPackageManagerZypper:
         repository.root_dir = 'root-dir'
 
         self.command_env = {
-            'HOME': '/home/ms', 'ZYPP_CONF': 'root-dir/my/zypp.conf'
+            'HOME': '/home/ms',
+            'ZYPP_CONF': 'root-dir/my/zypp.conf',
         }
         repository.runtime_config = mock.MagicMock(
             return_value={
                 'zypper_args': ['--reposd-dir', 'root-dir/my/repos'],
-                'command_env': self.command_env
+                'command_env': self.command_env,
             }
         )
         self.manager = PackageManagerZypper(repository)
@@ -29,8 +30,9 @@ class TestPackageManagerZypper:
         )
         self.chroot_command_env = self.manager.command_env
         zypp_conf = self.manager.command_env['ZYPP_CONF']
-        self.chroot_command_env['ZYPP_CONF'] = \
-            Path.move_to_root('root-dir', [zypp_conf])[0]
+        self.chroot_command_env['ZYPP_CONF'] = Path.move_to_root(
+            'root-dir', [zypp_conf]
+        )[0]
 
     def setup_method(self, cls):
         self.setup()
@@ -60,11 +62,19 @@ class TestPackageManagerZypper:
         self.manager.process_install_requests_bootstrap()
         mock_call.assert_called_once_with(
             [
-                'zypper', '--reposd-dir', 'root-dir/my/repos',
-                '--root', 'root-dir',
-                'install', '--download', 'in-advance',
-                '--auto-agree-with-licenses'
-            ] + self.manager.custom_args + ['--', 'vim'], self.command_env
+                'zypper',
+                '--reposd-dir',
+                'root-dir/my/repos',
+                '--root',
+                'root-dir',
+                'install',
+                '--download',
+                'in-advance',
+                '--auto-agree-with-licenses',
+            ]
+            + self.manager.custom_args
+            + ['--', 'vim'],
+            self.command_env,
         )
 
     @patch('kiwi.command.Command.call')
@@ -80,16 +90,25 @@ class TestPackageManagerZypper:
         self.manager.process_install_requests()
         mock_path.assert_called_once_with('root-dir/etc/zypp')
         mock_run.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
-                'al'
-            ] + self.manager.custom_args + ['skipme'], self.chroot_command_env
+            ['chroot', 'root-dir', 'zypper']
+            + self.chroot_zypper_args
+            + ['al']
+            + self.manager.custom_args
+            + ['skipme'],
+            self.chroot_command_env,
         )
         mock_call.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
-                'install', '--download', 'in-advance',
-                '--auto-agree-with-licenses'
-            ] + self.manager.custom_args + ['--', 'vim'],
-            self.chroot_command_env
+            ['chroot', 'root-dir', 'zypper']
+            + self.chroot_zypper_args
+            + [
+                'install',
+                '--download',
+                'in-advance',
+                '--auto-agree-with-licenses',
+            ]
+            + self.manager.custom_args
+            + ['--', 'vim'],
+            self.chroot_command_env,
         )
 
     @patch('kiwi.command.Command.call')
@@ -98,9 +117,12 @@ class TestPackageManagerZypper:
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
-                'remove', '-u', '--force-resolution'
-            ] + self.manager.custom_args + ['vim'], self.chroot_command_env
+            ['chroot', 'root-dir', 'zypper']
+            + self.chroot_zypper_args
+            + ['remove', '-u', '--force-resolution']
+            + self.manager.custom_args
+            + ['vim'],
+            self.chroot_command_env,
         )
 
     @patch('kiwi.command.Command.call')
@@ -110,9 +132,16 @@ class TestPackageManagerZypper:
         self.manager.process_delete_requests(True)
         mock_call.assert_called_once_with(
             [
-                'chroot', 'root-dir', 'rpm', '-e',
-                '--nodeps', '--allmatches', '--noscripts', 'vim'
-            ], self.command_env
+                'chroot',
+                'root-dir',
+                'rpm',
+                '-e',
+                '--nodeps',
+                '--allmatches',
+                '--noscripts',
+                'vim',
+            ],
+            self.command_env,
         )
 
     @patch('kiwi.command.Command.run')
@@ -130,10 +159,16 @@ class TestPackageManagerZypper:
     def test_update(self, mock_call):
         self.manager.update()
         mock_call.assert_called_once_with(
-            ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
-                'update', '--download', 'in-advance',
-                '--auto-agree-with-licenses'
-            ] + self.manager.custom_args, self.chroot_command_env
+            ['chroot', 'root-dir', 'zypper']
+            + self.chroot_zypper_args
+            + [
+                'update',
+                '--download',
+                'in-advance',
+                '--auto-agree-with-licenses',
+            ]
+            + self.manager.custom_args,
+            self.chroot_command_env,
         )
 
     def test_process_only_required(self):
@@ -180,9 +215,7 @@ class TestPackageManagerZypper:
         mock_exists.return_value = True
         mock_rpm.return_value = mock.Mock()
         self.manager.clean_leftovers()
-        mock_rpm.assert_called_once_with(
-            'root-dir', 'macros.kiwi-image-config'
-        )
+        mock_rpm.assert_called_once_with('root-dir', 'macros.kiwi-image-config')
         mock_rpm.return_value.wipe_config.assert_called_once_with()
         mock_exists.assert_called_once_with(
             'root-dir/var/lib/zypp/AnonymousUniqueId'

@@ -31,9 +31,7 @@ from kiwi.runtime_config import RuntimeConfig
 from kiwi.archive.tar import ArchiveTar
 from kiwi.xml_state import XMLState
 
-from kiwi.exceptions import (
-    KiwiKisBootImageError
-)
+from kiwi.exceptions import KiwiKisBootImageError
 
 log = logging.getLogger('kiwi')
 
@@ -49,42 +47,55 @@ class KisBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(
-        self, xml_state: XMLState, target_dir: str,
-        root_dir: str, custom_args: Dict = None
+        self,
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str,
+        custom_args: Dict = None,
     ):
         self.runtime_config = RuntimeConfig()
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
         self.custom_cmdline = xml_state.build_type.get_kernelcmdline()
-        self.filesystem = FileSystemBuilder(
-            xml_state, target_dir, root_dir + '/'
-        ) if xml_state.build_type.get_filesystem() else None
-        self.archive = xml_state.build_type.get_archive() \
-            if xml_state.build_type.get_archive() is not None else True
-        self.system_setup = SystemSetup(
-            xml_state=xml_state, root_dir=root_dir
+        self.filesystem = (
+            FileSystemBuilder(xml_state, target_dir, root_dir + '/')
+            if xml_state.build_type.get_filesystem()
+            else None
         )
+        self.archive = (
+            xml_state.build_type.get_archive()
+            if xml_state.build_type.get_archive() is not None
+            else True
+        )
+        self.system_setup = SystemSetup(xml_state=xml_state, root_dir=root_dir)
         self.initrd_system = xml_state.get_initrd_system()
 
-        self.boot_signing_keys = custom_args['signing_keys'] if custom_args \
-            and 'signing_keys' in custom_args else None
+        self.boot_signing_keys = (
+            custom_args['signing_keys']
+            if custom_args and 'signing_keys' in custom_args
+            else None
+        )
 
-        self.xz_options = custom_args['xz_options'] if custom_args \
-            and 'xz_options' in custom_args else None
+        self.xz_options = (
+            custom_args['xz_options']
+            if custom_args and 'xz_options' in custom_args
+            else None
+        )
 
         self.boot_image_task = BootImage.new(
-            xml_state, target_dir, root_dir,
-            signing_keys=self.boot_signing_keys
+            xml_state, target_dir, root_dir, signing_keys=self.boot_signing_keys
         )
         self.bundle_format = xml_state.get_build_type_bundle_format()
         self.image_name = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 xml_state.xml_data.get_name(),
                 '.' + Defaults.get_platform_name(),
-                '-' + xml_state.get_image_version()
+                '-' + xml_state.get_image_version(),
             ]
         )
         self.image: str = ''
@@ -117,9 +128,7 @@ class KisBuilder:
         if self.filesystem:
             log.info('Creating root filesystem image')
             self.filesystem.create()
-            os.rename(
-                self.filesystem.filename, self.image_name
-            )
+            os.rename(self.filesystem.filename, self.image_name)
             self.image = self.image_name
             if self.compressed:
                 log.info('xz compressing root filesystem image')
@@ -130,8 +139,8 @@ class KisBuilder:
                 source_filename=self.image,
                 target_filename='{}{}'.format(
                     self.image_name,
-                    self.runtime_config.get_checksum_handler(self.image).suffix
-                )
+                    self.runtime_config.get_checksum_handler(self.image).suffix,
+                ),
             )
             log.info(f'Creating root filesystem {shasum.suffix} checksum')
             shasum.digest()
@@ -152,17 +161,17 @@ class KisBuilder:
         if kernel_data:
             self.kernel_filename = ''.join(
                 [
-                    os.path.basename(self.image_name), '-',
-                    kernel_data.version, '.kernel'
+                    os.path.basename(self.image_name),
+                    '-',
+                    kernel_data.version,
+                    '.kernel',
                 ]
             )
-            kernel.copy_kernel(
-                self.target_dir, self.kernel_filename
-            )
+            kernel.copy_kernel(self.target_dir, self.kernel_filename)
         else:
             raise KiwiKisBootImageError(
-                'No kernel in boot image tree %s found' %
-                self.boot_image_task.boot_root_directory
+                'No kernel in boot image tree %s found'
+                % self.boot_image_task.boot_root_directory
             )
 
         # extract hypervisor from boot(initrd) root system
@@ -172,7 +181,8 @@ class KisBuilder:
                 self.hypervisor_filename = ''.join(
                     [
                         os.path.basename(self.image_name),
-                        '-', hypervisor_data.name
+                        '-',
+                        hypervisor_data.name,
                     ]
                 )
                 kernel.copy_xen_hypervisor(
@@ -183,12 +193,12 @@ class KisBuilder:
                     filename=self.target_dir + '/' + self.hypervisor_filename,
                     use_for_bundle=True,
                     compress=False,
-                    shasum=True
+                    shasum=True,
                 )
             else:
                 raise KiwiKisBootImageError(
-                    'No hypervisor in boot image tree %s found' %
-                    self.boot_image_task.boot_root_directory
+                    'No hypervisor in boot image tree %s found'
+                    % self.boot_image_task.boot_root_directory
                 )
 
         # create initrd
@@ -197,8 +207,11 @@ class KisBuilder:
 
         # create append information
         # this information helps to configure the deployment infrastructure
-        if self.filesystem and self.filesystem.root_uuid \
-           and self.initrd_system == 'dracut':
+        if (
+            self.filesystem
+            and self.filesystem.root_uuid
+            and self.initrd_system == 'dracut'
+        ):
             cmdline = 'root=UUID={}'.format(self.filesystem.root_uuid)
             if self.custom_cmdline:
                 cmdline += ' {}'.format(self.custom_cmdline)
@@ -216,9 +229,9 @@ class KisBuilder:
                     self.image_name,
                     self.runtime_config.get_checksum_handler(
                         f'{self.target_dir}/{self.kernel_filename}'
-                    ).suffix
+                    ).suffix,
                 )
-            )
+            ),
         ]
         if self.boot_image_task.initrd_filename:
             kis_tarball_files.append(
@@ -228,8 +241,11 @@ class KisBuilder:
         if self.image:
             kis_tarball_files.append(os.path.basename(self.image))
 
-        if self.filesystem and self.filesystem.root_uuid \
-           and self.initrd_system == 'dracut':
+        if (
+            self.filesystem
+            and self.filesystem.root_uuid
+            and self.initrd_system == 'dracut'
+        ):
             kis_tarball_files.append(os.path.basename(self.append_file))
 
         if self.archive:
@@ -238,7 +254,7 @@ class KisBuilder:
             kis_tarball = ArchiveTar(
                 self.archive_name,
                 create_from_file_list=True,
-                file_list=kis_tarball_files
+                file_list=kis_tarball_files,
             )
 
             if self.compressed:
@@ -249,8 +265,7 @@ class KisBuilder:
                 )
 
             Result.verify_image_size(
-                self.runtime_config.get_max_size_constraint(),
-                self.archive_name
+                self.runtime_config.get_max_size_constraint(), self.archive_name
             )
 
             # store archive file name in result
@@ -261,7 +276,7 @@ class KisBuilder:
                 compress=self.runtime_config.get_bundle_compression(
                     default=False
                 ),
-                shasum=True
+                shasum=True,
             )
         else:
             # Treat all result files individually and add them to the
@@ -269,8 +284,7 @@ class KisBuilder:
             # applies to the rootfs image only
             if self.image:
                 Result.verify_image_size(
-                    self.runtime_config.get_max_size_constraint(),
-                    self.image
+                    self.runtime_config.get_max_size_constraint(), self.image
                 )
             for result_file in kis_tarball_files:
                 compress_file = False
@@ -286,7 +300,7 @@ class KisBuilder:
                     filename=filename,
                     use_for_bundle=True,
                     compress=compress_file,
-                    shasum=False
+                    shasum=False,
                 )
 
         # store image bundle_format in result
@@ -296,21 +310,17 @@ class KisBuilder:
         # create image root metadata
         self.result.add(
             key='image_packages',
-            filename=self.system_setup.export_package_list(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_list(self.target_dir),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_changes',
-            filename=self.system_setup.export_package_changes(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_changes(self.target_dir),
             use_for_bundle=True,
             compress=True,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_verified',
@@ -319,6 +329,6 @@ class KisBuilder:
             ),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         return self.result

@@ -1,11 +1,7 @@
 import io
 from pytest import raises
-from unittest.mock import (
-    call, patch, mock_open
-)
-from unittest.mock import (
-    Mock, MagicMock
-)
+from unittest.mock import call, patch, mock_open
+from unittest.mock import Mock, MagicMock
 
 import kiwi
 
@@ -20,30 +16,24 @@ class TestDiskFormatVagrantBase:
     def setup(self):
         Defaults.set_platform_name('x86_64')
         xml_data = Mock()
-        xml_data.get_name = Mock(
-            return_value='some-disk-image'
-        )
+        xml_data.get_name = Mock(return_value='some-disk-image')
         xml_data.description_dir = './'
         self.xml_state = Mock()
         self.xml_state.xml_data = xml_data
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
         self.vagrantconfig = Mock()
-        self.vagrantconfig.get_embedded_vagrantfile = Mock(
-            return_value=None
-        )
-        self.vagrantconfig.get_virtualsize = Mock(
-            return_value=42
-        )
+        self.vagrantconfig.get_embedded_vagrantfile = Mock(return_value=None)
+        self.vagrantconfig.get_virtualsize = Mock(return_value=42)
         self.runtime_config = Mock()
         self.runtime_config.get_bundle_compression.return_value = False
         kiwi.storage.subformat.base.RuntimeConfig = Mock(
             return_value=self.runtime_config
         )
         self.disk_format = DiskFormatVagrantBase(
-            self.xml_state, 'root_dir', 'target_dir',
-            {'vagrantconfig': self.vagrantconfig}
+            self.xml_state,
+            'root_dir',
+            'target_dir',
+            {'vagrantconfig': self.vagrantconfig},
         )
         assert self.disk_format.image_format == ''
         assert self.disk_format.provider is None
@@ -102,17 +92,22 @@ class TestDiskFormatVagrantBase:
 
             assert mock_file.call_args_list == [
                 call('tmpdir/metadata.json', 'w'),
-                call('tmpdir/Vagrantfile', 'w')
+                call('tmpdir/Vagrantfile', 'w'),
             ]
             assert file_handle.write.call_args_list == [
-                call(metadata_json), call(expected_vagrantfile)
+                call(metadata_json),
+                call(expected_vagrantfile),
             ]
 
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'tmpdir', '-czf',
+                'tar',
+                '-C',
+                'tmpdir',
+                '-czf',
                 'target_dir/some-disk-image.x86_64-1.2.3.vagrant.libvirt.box',
-                'metadata.json', 'Vagrantfile'
+                'metadata.json',
+                'Vagrantfile',
             ]
         )
 
@@ -144,7 +139,7 @@ class TestDiskFormatVagrantBase:
             assert mock_file.call_args_list == [
                 call('tmpdir/metadata.json', 'w'),
                 call('tmpdir/Vagrantfile', 'w'),
-                call('./example_Vagrantfile', 'r')
+                call('./example_Vagrantfile', 'r'),
             ]
             assert file_handle.write.call_args_list[1] == call(
                 expected_vagrantfile
@@ -167,5 +162,5 @@ class TestDiskFormatVagrantBase:
             'some-disk-image.x86_64-1.2.3.vagrant.libvirt.box',
             key='disk_format_image',
             shasum=True,
-            use_for_bundle=True
+            use_for_bundle=True,
         )

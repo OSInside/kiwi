@@ -1,10 +1,6 @@
 import logging
-from unittest.mock import (
-    patch, Mock, mock_open
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock, mock_open
+from pytest import raises, fixture
 
 from kiwi.storage.raid_device import RaidDevice
 
@@ -18,12 +14,8 @@ class TestRaidDevice:
 
     def setup(self):
         storage_device = Mock()
-        storage_device.get_device = Mock(
-            return_value='/dev/some-device'
-        )
-        storage_device.is_loop = Mock(
-            return_value=True
-        )
+        storage_device.get_device = Mock(return_value='/dev/some-device')
+        storage_device.is_loop = Mock(return_value=True)
         self.raid = RaidDevice(storage_device)
 
     def setup_method(self, cls):
@@ -56,9 +48,16 @@ class TestRaidDevice:
         self.raid.create_degraded_raid('mirroring')
         mock_command.assert_called_once_with(
             [
-                'mdadm', '--create', '--run', '/dev/md0',
-                '--level', '1', '--raid-disks', '2',
-                '/dev/some-device', 'missing'
+                'mdadm',
+                '--create',
+                '--run',
+                '/dev/md0',
+                '--level',
+                '1',
+                '--raid-disks',
+                '2',
+                '/dev/some-device',
+                'missing',
             ]
         )
         self.raid.raid_device = None
@@ -74,9 +73,7 @@ class TestRaidDevice:
         with patch('builtins.open', m_open, create=True):
             self.raid.create_raid_config('mdadm.conf')
 
-        mock_command.assert_called_once_with(
-            ['mdadm', '-Db', '/dev/md0']
-        )
+        mock_command.assert_called_once_with(['mdadm', '-Db', '/dev/md0'])
         m_open.return_value.write.assert_called_once_with('data')
         self.raid.raid_device = None
 
@@ -100,6 +97,4 @@ class TestRaidDevice:
         with self._caplog.at_level(logging.ERROR):
             with RaidDevice(Mock()) as raid:
                 raid.raid_device = '/dev/md0'
-        mock_command.assert_called_once_with(
-            ['mdadm', '--stop', '/dev/md0']
-        )
+        mock_command.assert_called_once_with(['mdadm', '--stop', '/dev/md0'])

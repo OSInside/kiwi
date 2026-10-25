@@ -23,6 +23,7 @@ class VmwareSettingsTemplate:
     """
     VMware machine settings template
     """
+
     def __init__(self):
         self.cr = '\n'
 
@@ -110,8 +111,13 @@ class VmwareSettingsTemplate:
         ''').strip() + self.cr
 
     def get_template(
-        self, memory_setup=False, cpu_setup=False, network_setup=False,
-        iso_setup=False, disk_controller='ide', iso_controller='ide'
+        self,
+        memory_setup=False,
+        cpu_setup=False,
+        network_setup=False,
+        iso_setup=False,
+        disk_controller='ide',
+        iso_controller='ide',
     ):
         """
         VMware machine configuration template

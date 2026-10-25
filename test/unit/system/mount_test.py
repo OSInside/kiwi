@@ -1,7 +1,5 @@
 import os
-from unittest.mock import (
-    patch, MagicMock, Mock, call
-)
+from unittest.mock import patch, MagicMock, Mock, call
 from pytest import fixture
 
 from kiwi.defaults import Defaults
@@ -24,7 +22,7 @@ class TestImageSystem:
             'readonly': MappedDevice('/dev/readonly-root-device', Mock()),
             'boot': MappedDevice('/dev/boot-device', Mock()),
             'efi': MappedDevice('/dev/efi-device', Mock()),
-            'var': MappedDevice('/dev/var-device', Mock())
+            'var': MappedDevice('/dev/var-device', Mock()),
         }
         volume_manager = Mock()
         volume_manager.get_mountpoint.return_value = 'volume_manager_root'
@@ -38,7 +36,7 @@ class TestImageSystem:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
-                label='var'
+                label='var',
             )
         }
         self.image_system = ImageSystem(
@@ -60,40 +58,40 @@ class TestImageSystem:
         assert mock_MountManager.call_args_list == [
             call(
                 device='/dev/boot-device',
-                mountpoint=os.path.join(root_mount_mountpoint, 'boot')
+                mountpoint=os.path.join(root_mount_mountpoint, 'boot'),
             ),
             call(
                 device='/dev/efi-device',
-                mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'efi')
+                mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'efi'),
             ),
             call(
                 device='/dev/var-device',
-                mountpoint=os.path.join(root_mount_mountpoint, 'var')
+                mountpoint=os.path.join(root_mount_mountpoint, 'var'),
             ),
             call(
                 device='root_dir/image',
-                mountpoint=os.path.join(root_mount_mountpoint, 'image')
+                mountpoint=os.path.join(root_mount_mountpoint, 'image'),
             ),
             call(
                 device='tmpfs',
-                mountpoint=os.path.join(root_mount_mountpoint, 'tmp')
+                mountpoint=os.path.join(root_mount_mountpoint, 'tmp'),
             ),
             call(
                 device='tmpfs',
-                mountpoint=os.path.join(root_mount_mountpoint, 'var', 'tmp')
+                mountpoint=os.path.join(root_mount_mountpoint, 'var', 'tmp'),
             ),
             call(
                 device='/proc',
-                mountpoint=os.path.join(root_mount_mountpoint, 'proc')
+                mountpoint=os.path.join(root_mount_mountpoint, 'proc'),
             ),
             call(
                 device='/sys',
-                mountpoint=os.path.join(root_mount_mountpoint, 'sys')
+                mountpoint=os.path.join(root_mount_mountpoint, 'sys'),
             ),
             call(
                 device='/dev',
-                mountpoint=os.path.join(root_mount_mountpoint, 'dev')
-            )
+                mountpoint=os.path.join(root_mount_mountpoint, 'dev'),
+            ),
         ]
 
     @patch('kiwi.system.mount.MountManager')
@@ -105,54 +103,57 @@ class TestImageSystem:
             call(device='/dev/readonly-root-device'),
             call(
                 device='/dev/boot-device',
-                mountpoint=os.path.join(root_mount_mountpoint, 'boot')
+                mountpoint=os.path.join(root_mount_mountpoint, 'boot'),
             ),
             call(
                 device='/dev/efi-device',
-                mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'efi')
+                mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'efi'),
             ),
             call(
                 device='/dev/var-device',
-                mountpoint=os.path.join(root_mount_mountpoint, 'var')
+                mountpoint=os.path.join(root_mount_mountpoint, 'var'),
             ),
             call(
                 device='root_dir/image',
-                mountpoint=os.path.join(root_mount_mountpoint, 'image')
+                mountpoint=os.path.join(root_mount_mountpoint, 'image'),
             ),
             call(
                 device='tmpfs',
-                mountpoint=os.path.join(root_mount_mountpoint, 'tmp')
+                mountpoint=os.path.join(root_mount_mountpoint, 'tmp'),
             ),
             call(
                 device='tmpfs',
-                mountpoint=os.path.join(root_mount_mountpoint, 'var', 'tmp')
+                mountpoint=os.path.join(root_mount_mountpoint, 'var', 'tmp'),
             ),
             call(
                 device='/proc',
-                mountpoint=os.path.join(root_mount_mountpoint, 'proc')
+                mountpoint=os.path.join(root_mount_mountpoint, 'proc'),
             ),
             call(
                 device='/sys',
-                mountpoint=os.path.join(root_mount_mountpoint, 'sys')
+                mountpoint=os.path.join(root_mount_mountpoint, 'sys'),
             ),
             call(
                 device='/dev',
-                mountpoint=os.path.join(root_mount_mountpoint, 'dev')
-            )
+                mountpoint=os.path.join(root_mount_mountpoint, 'dev'),
+            ),
         ]
         # readonly root partition is mounted read-only
-        assert mock_MountManager.return_value.mount.call_args_list[0] == \
-            call(options=['ro'])
+        assert mock_MountManager.return_value.mount.call_args_list[0] == call(
+            options=['ro']
+        )
 
     @patch('kiwi.system.mount.MountManager')
     def test_mount_without_readonly_partition(self, mock_MountManager):
         del self.device_map['readonly']
         self.image_system.volume_manager = None
         self.image_system.mount()
-        assert mock_MountManager.call_args_list[0] == \
-            call(device='/dev/root-device')
-        assert mock_MountManager.return_value.mount.call_args_list[0] == \
-            call(options=[])
+        assert mock_MountManager.call_args_list[0] == call(
+            device='/dev/root-device'
+        )
+        assert mock_MountManager.return_value.mount.call_args_list[0] == call(
+            options=[]
+        )
 
     @patch('kiwi.system.mount.MountManager')
     def test_mount_s390(self, mock_MountManager):
@@ -161,7 +162,7 @@ class TestImageSystem:
         root_mount_mountpoint = self.image_system.mountpoint()
         assert mock_MountManager.call_args_list[0] == call(
             device='/dev/boot-device',
-            mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'zipl')
+            mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'zipl'),
         )
 
     def test_umount(self):
@@ -178,9 +179,7 @@ class TestImageSystem:
         mount.is_mounted.return_value = True
         mock_os_path_exists.return_value = True
         mock_MountManager.return_value = mount
-        device_map = {
-            'root': MappedDevice('/dev/root-device', Mock())
-        }
+        device_map = {'root': MappedDevice('/dev/root-device', Mock())}
         with ImageSystem(device_map, 'root_dir') as system:
             system.mount()
         mount.umount.assert_called()

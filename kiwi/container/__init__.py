@@ -16,16 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 from typing import Dict
 
 from kiwi.container.base import ContainerImageBase
-from kiwi.exceptions import (
-    KiwiContainerImageSetupError
-)
+from kiwi.exceptions import KiwiContainerImageSetupError
 
 
 class ContainerImage(metaclass=ABCMeta):
@@ -36,23 +31,21 @@ class ContainerImage(metaclass=ABCMeta):
     :param string root_dir: root directory path name
     :param dict custom_args: custom arguments
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
-    def new(name: str, root_dir: str, custom_args: Dict=None) -> ContainerImageBase:  # noqa: E252
-        name_map = {
-            'docker': 'OCI',
-            'oci': 'OCI',
-            'appx': 'Appx',
-            'wsl': 'Wsl'
-        }
+    def new(
+        name: str, root_dir: str, custom_args: Dict = None
+    ) -> ContainerImageBase:  # noqa: E252
+        name_map = {'docker': 'OCI', 'oci': 'OCI', 'appx': 'Appx', 'wsl': 'Wsl'}
         args_map = {
             'docker': [root_dir, 'docker-archive', custom_args],
             'oci': [root_dir, 'oci-archive', custom_args],
             'appx': [root_dir, custom_args],
-            'wsl': [root_dir, custom_args]
+            'wsl': [root_dir, custom_args],
         }
         try:
             container_image = importlib.import_module(

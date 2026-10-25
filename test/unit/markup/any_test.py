@@ -3,10 +3,7 @@ from pytest import raises
 
 from kiwi.markup.any import MarkupAny
 
-from kiwi.exceptions import (
-    KiwiDescriptionInvalid,
-    KiwiAnyMarkupPluginError
-)
+from kiwi.exceptions import KiwiDescriptionInvalid, KiwiAnyMarkupPluginError
 
 
 class TestMarkupXML:

@@ -24,6 +24,7 @@ class PackageManagerTemplateAptGet:
     """
     apt-get configuration file template
     """
+
     def __init__(self) -> None:
         self.host_header = dedent('''
             # kiwi generated apt-get config file

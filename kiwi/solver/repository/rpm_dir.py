@@ -27,6 +27,7 @@ class SolverRepositoryRpmDir(SolverRepositoryBase):
     """
     **Class for SAT solvable creation for rpm_dir type repositories.**
     """
+
     def _setup_repository_metadata(self):
         """
         Download rpms from the repository and create a SAT
@@ -43,6 +44,4 @@ class SolverRepositoryRpmDir(SolverRepositoryBase):
             self.download_from_repository(
                 package_name, os.sep.join([package_dir, package_name])
             )
-        self._create_solvables(
-            package_dir, 'rpms2solv'
-        )
+        self._create_solvables(package_dir, 'rpms2solv')

@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock, call
-)
+from unittest.mock import patch, Mock, call
 
 import kiwi
 
@@ -12,14 +10,10 @@ class TestDiskFormatQcow2:
     def setup(self):
         Defaults.set_platform_name('x86_64')
         xml_data = Mock()
-        xml_data.get_name = Mock(
-            return_value='some-disk-image'
-        )
+        xml_data.get_name = Mock(return_value='some-disk-image')
         self.xml_state = Mock()
         self.xml_state.xml_data = xml_data
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
         self.runtime_config = Mock()
         self.runtime_config.get_bundle_compression.return_value = False
         kiwi.storage.subformat.base.RuntimeConfig = Mock(
@@ -46,20 +40,29 @@ class TestDiskFormatQcow2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'qemu-img', 'convert', '-f', 'raw',
+                    'qemu-img',
+                    'convert',
+                    '-f',
+                    'raw',
                     'target_dir/some-disk-image.x86_64-1.2.3.raw',
-                    '-O', 'qcow2',
-                    'tmpfile'
+                    '-O',
+                    'qcow2',
+                    'tmpfile',
                 ]
             ),
             call(
                 [
-                    'qemu-img', 'convert', '-c', '-f', 'qcow2',
+                    'qemu-img',
+                    'convert',
+                    '-c',
+                    '-f',
+                    'qcow2',
                     'tmpfile',
-                    '-O', 'qcow2',
-                    'target_dir/some-disk-image.x86_64-1.2.3.qcow2'
+                    '-O',
+                    'qcow2',
+                    'target_dir/some-disk-image.x86_64-1.2.3.qcow2',
                 ]
-            )
+            ),
         ]
 
     def test_store_to_result(self):
@@ -70,5 +73,5 @@ class TestDiskFormatQcow2:
             filename='target_dir/some-disk-image.x86_64-1.2.3.qcow2',
             key='disk_format_image',
             shasum=True,
-            use_for_bundle=True
+            use_for_bundle=True,
         )

@@ -30,9 +30,7 @@ from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.xml_state import XMLState
 
-from kiwi.exceptions import (
-    KiwiFileSystemSetupError
-)
+from kiwi.exceptions import KiwiFileSystemSetupError
 
 log = logging.getLogger('kiwi')
 
@@ -47,9 +45,13 @@ class FileSystemBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * None
     """
+
     def __init__(
-        self, xml_state: XMLState, target_dir: str,
-        root_dir: str, custom_args: Dict = None
+        self,
+        xml_state: XMLState,
+        target_dir: str,
+        root_dir: str,
+        custom_args: Dict = None,
     ):
         self.label = None
         self.root_uuid = ''
@@ -67,32 +69,34 @@ class FileSystemBuilder:
             )
         self.filesystem_custom_parameters = {
             'mount_options': xml_state.get_fs_mount_option_list(),
-            'create_options': xml_state.get_fs_create_option_list()
+            'create_options': xml_state.get_fs_create_option_list(),
         }
         if self.requested_filesystem == 'squashfs':
-            self.filesystem_custom_parameters['compression'] = \
+            self.filesystem_custom_parameters['compression'] = (
                 xml_state.build_type.get_squashfscompression()
+            )
         elif self.requested_filesystem == 'erofs':
-            self.filesystem_custom_parameters['compression'] = \
+            self.filesystem_custom_parameters['compression'] = (
                 xml_state.build_type.get_erofscompression()
+            )
 
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
         self.filename = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 xml_state.xml_data.get_name(),
                 '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
-                '.', self.requested_filesystem
+                '.',
+                self.requested_filesystem,
             ]
         )
         self.blocksize = xml_state.build_type.get_target_blocksize()
         self.filesystem_setup = FileSystemSetup(xml_state, root_dir)
-        self.filesystems_no_device_node = [
-            'squashfs', 'erofs'
-        ]
+        self.filesystems_no_device_node = ['squashfs', 'erofs']
         self.luks = xml_state.get_luks_credentials()
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
@@ -113,9 +117,7 @@ class FileSystemBuilder:
 
         :rtype: instance of :class:`Result`
         """
-        log.info(
-            'Creating %s filesystem', self.requested_filesystem
-        )
+        log.info('Creating %s filesystem', self.requested_filesystem)
         supported_filesystems = Defaults.get_filesystem_image_types()
         if self.requested_filesystem not in supported_filesystems:
             raise KiwiFileSystemSetupError(
@@ -126,8 +128,7 @@ class FileSystemBuilder:
         else:
             self._operate_on_file()
         Result.verify_image_size(
-            self.runtime_config.get_max_size_constraint(),
-            self.filename
+            self.runtime_config.get_max_size_constraint(), self.filename
         )
         if self.bundle_format:
             self.result.add_bundle_format(self.bundle_format)
@@ -139,25 +140,21 @@ class FileSystemBuilder:
             filename=self.filename,
             use_for_bundle=True,
             compress=compression,
-            shasum=True
+            shasum=True,
         )
         self.result.add(
             key='image_packages',
-            filename=self.system_setup.export_package_list(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_list(self.target_dir),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_changes',
-            filename=self.system_setup.export_package_changes(
-                self.target_dir
-            ),
+            filename=self.system_setup.export_package_changes(self.target_dir),
             use_for_bundle=True,
             compress=True,
-            shasum=False
+            shasum=False,
         )
         self.result.add(
             key='image_verified',
@@ -166,7 +163,7 @@ class FileSystemBuilder:
             ),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
         return self.result
 
@@ -174,12 +171,14 @@ class FileSystemBuilder:
         with LoopDevice(
             self.filename,
             self.filesystem_setup.get_size_mbytes(),
-            self.blocksize
+            self.blocksize,
         ) as loop_provider:
             loop_provider.create()
             with FileSystem.new(
-                self.requested_filesystem, loop_provider,
-                self.root_dir + os.sep, self.filesystem_custom_parameters
+                self.requested_filesystem,
+                loop_provider,
+                self.root_dir + os.sep,
+                self.filesystem_custom_parameters,
             ) as filesystem:
                 filesystem.create_on_device(self.label)
                 self.root_uuid = loop_provider.get_uuid(
@@ -191,19 +190,25 @@ class FileSystemBuilder:
                     )
                 )
                 filesystem.sync_data(
-                    Defaults.
-                    get_exclude_list_for_root_data_sync() + Defaults.
-                    get_exclude_list_from_custom_exclude_files(self.root_dir)
+                    Defaults.get_exclude_list_for_root_data_sync()
+                    + Defaults.get_exclude_list_from_custom_exclude_files(
+                        self.root_dir
+                    )
                 )
 
     def _operate_on_file(self) -> None:
         default_provider = DeviceProvider()
         with FileSystem.new(
-            self.requested_filesystem, default_provider,
-            self.root_dir, self.filesystem_custom_parameters
+            self.requested_filesystem,
+            default_provider,
+            self.root_dir,
+            self.filesystem_custom_parameters,
         ) as filesystem:
             filesystem.create_on_file(
-                self.filename, self.label,
-                Defaults.get_exclude_list_for_root_data_sync() + Defaults.
-                get_exclude_list_from_custom_exclude_files(self.root_dir)
+                self.filename,
+                self.label,
+                Defaults.get_exclude_list_for_root_data_sync()
+                + Defaults.get_exclude_list_from_custom_exclude_files(
+                    self.root_dir
+                ),
             )

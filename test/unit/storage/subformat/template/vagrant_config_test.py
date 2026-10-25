@@ -1,6 +1,4 @@
-from kiwi.storage.subformat.template.vagrant_config import (
-    VagrantConfigTemplate
-)
+from kiwi.storage.subformat.template.vagrant_config import VagrantConfigTemplate
 
 from textwrap import dedent
 

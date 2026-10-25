@@ -30,6 +30,7 @@ class Shell:
     """
     **Special character handling for shell evaluated code**
     """
+
     @staticmethod
     def quote(message: str) -> str:
         """
@@ -79,13 +80,18 @@ class Shell:
         """
         Command.run(
             [
-                'bash', '-c',
-                'source ' + ''.join(
+                'bash',
+                '-c',
+                'source '
+                + ''.join(
                     [
                         Defaults.get_common_functions_file(),
-                        '; ', name, ' ', ' '.join(parameters)
+                        '; ',
+                        name,
+                        ' ',
+                        ' '.join(parameters),
                     ]
-                )
+                ),
             ]
         )
 

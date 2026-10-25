@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock, call
-)
+from unittest.mock import patch, Mock, call
 from pytest import raises
 
 from kiwi.boxbuild.box_build import BoxBuild
@@ -12,7 +10,7 @@ from kiwi.exceptions import (
     KiwiBoxQEMUBinaryNotFound,
     KiwiBoxSSHPortInvalid,
     KiwiBoxSSHKeyNotFound,
-    KiwiBoxBuildError
+    KiwiBoxBuildError,
 )
 
 
@@ -30,13 +28,13 @@ class TestBoxBuild:
         self.vm_setup.smp = 4
         self.box.fetch.return_value = self.vm_setup
         mock_BoxDownload.return_value = self.box
-        self.build = BoxBuild(
-            boxname='suse', arch='x86_64'
-        )
+        self.build = BoxBuild(boxname='suse', arch='x86_64')
         self.build_arm = BoxBuild(
-            boxname='universal', arch='aarch64',
-            machine='virt', cpu='cortex-a57',
-            console='ttyAMA0'
+            boxname='universal',
+            arch='aarch64',
+            machine='virt',
+            cpu='cortex-a57',
+            console='ttyAMA0',
         )
 
     @patch('kiwi.boxbuild.box_build.BoxDownload')
@@ -48,15 +46,24 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
     def test_raises_on_kiwi_error(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
     ):
         mock_path_which.return_value = 'qemu-system-x86_64'
         with raises(KiwiBoxBuildError):
             self.build.run(
                 [
-                    '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', '../data/boxbuild/target'
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    '../data/boxbuild/target',
                 ]
             )
 
@@ -65,16 +72,26 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
     def test_raises_on_invalid_ssh_port(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
     ):
         mock_path_which.return_value = 'qemu-system-x86_64'
         self.build.ssh_port = 'bogus'
         with raises(KiwiBoxSSHPortInvalid):
             self.build.run(
                 [
-                    '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--debug',
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ]
             )
 
@@ -83,16 +100,26 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
     def test_raises_on_download_error(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
     ):
         mock_path_which.return_value = 'qemu-system-x86_64'
         self.box.fetch.side_effect = Exception('error')
         with raises(KiwiBoxDownloadError):
             self.build.run(
                 [
-                    '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--debug',
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ]
             )
 
@@ -101,18 +128,28 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
     def test_run_with_9p_sharing(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
     ):
         mock_path_which.return_value = 'qemu-system-x86_64'
         self.build.run(
             [
-                '--debug', '--type', 'oem', 'system', 'build',
-                '--description', 'desc', '--target-dir', 'target'
+                '--debug',
+                '--type',
+                'oem',
+                'system',
+                'build',
+                '--description',
+                'desc',
+                '--target-dir',
+                'target',
             ],
             keep_open=True,
             kiwi_version='9.22.1',
-            custom_shared_path='/var/tmp/repos'
+            custom_shared_path='/var/tmp/repos',
         )
         mock_create_build_target_dir.assert_called_once_with('target')
         mock_os_system.assert_called_once_with(
@@ -151,18 +188,27 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
     def test_run_cross_arch_aarch64_on_x86_64(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
     ):
         mock_path_which.return_value = 'qemu-system-aarch64'
         self.build_arm.run(
             [
-                '--type', 'oem', 'system', 'build',
-                '--description', 'desc', '--target-dir', 'target'
+                '--type',
+                'oem',
+                'system',
+                'build',
+                '--description',
+                'desc',
+                '--target-dir',
+                'target',
             ],
             keep_open=True,
             kiwi_version='9.22.1',
-            custom_shared_path='/var/tmp/repos'
+            custom_shared_path='/var/tmp/repos',
         )
         mock_create_build_target_dir.assert_called_once_with('target')
         mock_os_system.assert_called_once_with(
@@ -202,25 +248,40 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
     def test_run_raises_no_qemu_binary_found(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
     ):
         mock_path_which.return_value = None
         with raises(KiwiBoxQEMUBinaryNotFound):
             self.build.run(
                 [
-                    '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
-                custom_shared_path='/var/tmp/repos'
+                custom_shared_path='/var/tmp/repos',
             )
         with raises(KiwiBoxQEMUBinaryNotFound):
             self.build_arm.run(
                 [
-                    '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ]
             )
 
@@ -230,8 +291,12 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.defaults.Path.which')
     def test_run_with_virtiofs_sharing_raises(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_subprocess_Popen, mock_os_system, mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_subprocess_Popen,
+        mock_os_system,
+        mock_os_environ,
     ):
         path_which_results = [None, 'qemu-system-x86_64']
 
@@ -244,8 +309,14 @@ class TestBoxBuild:
         with raises(KiwiBoxVirtioFsError):
             self.build.run(
                 [
-                    '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ]
             )
 
@@ -254,8 +325,14 @@ class TestBoxBuild:
         with raises(KiwiBoxVirtioFsError):
             self.build.run(
                 [
-                    '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ]
             )
 
@@ -266,9 +343,13 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.defaults.Path.which')
     def test_run_with_virtiofs_sharing(
-        self, mock_path_which, mock_create_build_target_dir,
-        mock_subprocess_Popen, mock_os_path_abspath, mock_os_system,
-        mock_os_environ
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_subprocess_Popen,
+        mock_os_path_abspath,
+        mock_os_system,
+        mock_os_environ,
     ):
         def abs_path(arg):
             return 'abspath/{0}'.format(arg)
@@ -288,12 +369,18 @@ class TestBoxBuild:
         self.build.sharing_backend = 'virtiofs'
         self.build.run(
             [
-                '--type', 'oem', 'system', 'build',
-                '--description', 'desc', '--target-dir', 'target'
+                '--type',
+                'oem',
+                'system',
+                'build',
+                '--description',
+                'desc',
+                '--target-dir',
+                'target',
             ],
             keep_open=True,
             kiwi_version='9.22.1',
-            custom_shared_path='var/tmp/repos'
+            custom_shared_path='var/tmp/repos',
         )
         mock_create_build_target_dir.assert_called_once_with('target')
         mock_os_system.assert_called_once_with(
@@ -334,38 +421,50 @@ class TestBoxBuild:
                 [
                     '/usr/libexec/virtiofsd',
                     '--socket-path=/tmp/vhostqemu_0',
-                    '--shared-dir', 'abspath/desc',
-                    '--sandbox', 'namespace',
-                    '--cache', 'always',
+                    '--shared-dir',
+                    'abspath/desc',
+                    '--sandbox',
+                    'namespace',
+                    '--cache',
+                    'always',
                     '--allow-direct-io',
                     '--posix-acl',
-                    '--xattr'
-                ], close_fds=True
+                    '--xattr',
+                ],
+                close_fds=True,
             ),
             call(
                 [
                     '/usr/libexec/virtiofsd',
                     '--socket-path=/tmp/vhostqemu_1',
-                    '--shared-dir', 'abspath/target',
-                    '--sandbox', 'namespace',
-                    '--cache', 'always',
+                    '--shared-dir',
+                    'abspath/target',
+                    '--sandbox',
+                    'namespace',
+                    '--cache',
+                    'always',
                     '--allow-direct-io',
                     '--posix-acl',
-                    '--xattr'
-                ], close_fds=True
+                    '--xattr',
+                ],
+                close_fds=True,
             ),
             call(
                 [
                     '/usr/libexec/virtiofsd',
                     '--socket-path=/tmp/vhostqemu_2',
-                    '--shared-dir', 'abspath/var/tmp/repos',
-                    '--sandbox', 'namespace',
-                    '--cache', 'always',
+                    '--shared-dir',
+                    'abspath/var/tmp/repos',
+                    '--sandbox',
+                    'namespace',
+                    '--cache',
+                    'always',
                     '--allow-direct-io',
                     '--posix-acl',
-                    '--xattr'
-                ], close_fds=True
-            )
+                    '--xattr',
+                ],
+                close_fds=True,
+            ),
         ]
         for virtiofsd_process in defaults.VIRTIOFSD_PROCESS_LIST:
             virtiofsd_process.terminate.assert_called_once_with()
@@ -378,9 +477,14 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.defaults.Path.which')
     def test_run_with_sshfs_sharing(
-        self, mock_path_which, mock_create_build_target_dir, mock_Command_run,
-        mock_os_system, mock_os_path_isfile, mock_time_sleep,
-        mock_pwd_getpwuid
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_Command_run,
+        mock_os_system,
+        mock_os_path_isfile,
+        mock_time_sleep,
+        mock_pwd_getpwuid,
     ):
         def command_run(args, raise_on_error=True):
             if args[0] == 'ssh':
@@ -401,12 +505,18 @@ class TestBoxBuild:
         with raises(KiwiBoxSSHKeyNotFound):
             self.build.run(
                 [
-                    '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
-                custom_shared_path='var/tmp/repos'
+                custom_shared_path='var/tmp/repos',
             )
 
         mock_create_build_target_dir.reset_mock()
@@ -417,12 +527,18 @@ class TestBoxBuild:
                 file_handle.read.return_value = 'key_type key_value'
                 self.build.run(
                     [
-                        '--type', 'oem', 'system', 'build',
-                        '--description', 'desc', '--target-dir', 'target'
+                        '--type',
+                        'oem',
+                        'system',
+                        'build',
+                        '--description',
+                        'desc',
+                        '--target-dir',
+                        'target',
                     ],
                     keep_open=True,
                     kiwi_version='9.22.1',
-                    custom_shared_path='var/tmp/repos'
+                    custom_shared_path='var/tmp/repos',
                 )
 
         mock_create_build_target_dir.assert_called_once_with('target')
@@ -453,14 +569,18 @@ class TestBoxBuild:
             '-smp 4'
         )
         assert mock_Command_run.call_args_list[0] == call(
-            [
-                'ssh-keygen', '-R', '[localhost]:10022'
-            ], raise_on_error=False
+            ['ssh-keygen', '-R', '[localhost]:10022'], raise_on_error=False
         )
         assert mock_Command_run.call_args_list[1] == call(
             [
-                'ssh', '-NT', '-o', 'StrictHostKeyChecking=no',
-                'root@localhost', '-p', '10022', '-R',
-                '10000:localhost:22'
+                'ssh',
+                '-NT',
+                '-o',
+                'StrictHostKeyChecking=no',
+                'root@localhost',
+                '-p',
+                '10022',
+                '-R',
+                '10000:localhost:22',
             ]
         )

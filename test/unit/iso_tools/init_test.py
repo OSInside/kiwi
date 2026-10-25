@@ -16,9 +16,7 @@ class TestIsoTools:
 
     @patch('kiwi.iso_tools.xorriso.IsoToolsXorrIso')
     @patch('kiwi.iso_tools.RuntimeConfig')
-    def test_iso_tools_xorriso(
-        self, mock_RuntimeConfig, mock_IsoToolsXorrIso
-    ):
+    def test_iso_tools_xorriso(self, mock_RuntimeConfig, mock_IsoToolsXorrIso):
         self.runtime_config.get_iso_tool_category.return_value = 'xorriso'
         mock_RuntimeConfig.return_value = self.runtime_config
         IsoTools.new('root-dir')

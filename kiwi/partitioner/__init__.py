@@ -16,10 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 import logging
 
 # project
@@ -37,20 +34,19 @@ class Partitioner(metaclass=ABCMeta):
     :param int start_sector: sector number
     :param bool extended_layout: support extended layout for msdos table
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        table_type: str, storage_provider: object,
-        start_sector: int = None, extended_layout: bool = False
+        table_type: str,
+        storage_provider: object,
+        start_sector: int = None,
+        extended_layout: bool = False,
     ):
-        name_map = {
-            'msdos': 'MsDos',
-            'gpt': 'Gpt',
-            'dasd': 'Dasd'
-        }
+        name_map = {'msdos': 'MsDos', 'gpt': 'Gpt', 'dasd': 'Dasd'}
         try:
             partitioner = importlib.import_module(
                 'kiwi.partitioner.{0}'.format(table_type)

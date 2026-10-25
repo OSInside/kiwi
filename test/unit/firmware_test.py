@@ -58,9 +58,7 @@ class TestFirmWare:
 
     def test_firmware_unsupported(self):
         xml_state = mock.Mock()
-        xml_state.build_type.get_firmware = mock.Mock(
-            return_value='bogus'
-        )
+        xml_state.build_type.get_firmware = mock.Mock(return_value='bogus')
         with raises(KiwiNotImplementedError):
             FirmWare(xml_state)
 

@@ -1,9 +1,7 @@
 import io
 import logging
 from pytest import fixture
-from unittest.mock import (
-    MagicMock, patch, call
-)
+from unittest.mock import MagicMock, patch, call
 from kiwi.utils.fstab import Fstab
 from kiwi.utils.fstab import fstab_entry_type
 
@@ -23,10 +21,13 @@ class TestFstab(object):
     def test_read(self):
         with self._caplog.at_level(logging.WARNING):
             self.fstab.read('../data/fstab')
-            assert format(
-                'Mountpoint for "LABEL=bar /home xfs defaults 0 0" '
-                'in use by "LABEL=foo /home ext4 defaults 0 0", skipped'
-            ) in self._caplog.text
+            assert (
+                format(
+                    'Mountpoint for "LABEL=bar /home xfs defaults 0 0" '
+                    'in use by "LABEL=foo /home ext4 defaults 0 0", skipped'
+                )
+                in self._caplog.text
+            )
 
     def test_get_devices(self):
         assert self.fstab.get_devices() == [
@@ -38,7 +39,7 @@ class TestFstab(object):
                 device_spec='UUID=bd604632-663b-4d4c-b5b0-8d8686267ea2',
                 options='acl,user_xattr',
                 dump='0',
-                fs_passno='1'
+                fs_passno='1',
             ),
             fstab_entry_type(
                 fstype='swap',
@@ -48,7 +49,7 @@ class TestFstab(object):
                 device_spec='UUID=daa5a8c3-5c72-4343-a1d4-bb74ec4e586e',
                 options='defaults',
                 dump='0',
-                fs_passno='0'
+                fs_passno='0',
             ),
             fstab_entry_type(
                 fstype='vfat',
@@ -57,7 +58,7 @@ class TestFstab(object):
                 device_spec='UUID=FCF7-B051',
                 options='defaults',
                 dump='0',
-                fs_passno='0'
+                fs_passno='0',
             ),
             fstab_entry_type(
                 fstype='xfs',
@@ -66,7 +67,7 @@ class TestFstab(object):
                 device_spec='LABEL=BOOT',
                 options='defaults',
                 dump='0',
-                fs_passno='0'
+                fs_passno='0',
             ),
             fstab_entry_type(
                 fstype='ext4',
@@ -75,7 +76,7 @@ class TestFstab(object):
                 device_spec='LABEL=foo',
                 options='defaults',
                 dump='0',
-                fs_passno='0'
+                fs_passno='0',
             ),
             fstab_entry_type(
                 fstype='ext4',
@@ -84,7 +85,7 @@ class TestFstab(object):
                 device_spec='PARTUUID=3c8bd108-01',
                 options='defaults',
                 dump='0',
-                fs_passno='0'
+                fs_passno='0',
             ),
             fstab_entry_type(
                 fstype='ext4',
@@ -93,8 +94,8 @@ class TestFstab(object):
                 device_spec='/dev/mynode',
                 options='defaults',
                 dump='0',
-                fs_passno='0'
-            )
+                fs_passno='0',
+            ),
         ]
 
     def test_export_and_canonical_order(self):
@@ -102,9 +103,7 @@ class TestFstab(object):
             mock_open.return_value = MagicMock(spec=io.IOBase)
             self.fstab.export('filename')
             file_handle = mock_open.return_value.__enter__.return_value
-            mock_open.assert_called_once_with(
-                'filename', 'w'
-            )
+            mock_open.assert_called_once_with('filename', 'w')
             assert file_handle.write.call_args_list == [
                 call(
                     'UUID=daa5a8c3-5c72-4343-a1d4-bb74ec4e586e swap '
@@ -118,5 +117,5 @@ class TestFstab(object):
                 call('LABEL=BOOT /boot xfs defaults 0 0\n'),
                 call('/dev/mynode /foo ext4 defaults 0 0\n'),
                 call('LABEL=foo /home ext4 defaults 0 0\n'),
-                call('UUID=FCF7-B051 /boot/efi vfat defaults 0 0\n')
+                call('UUID=FCF7-B051 /boot/efi vfat defaults 0 0\n'),
             ]

@@ -1,9 +1,5 @@
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
@@ -20,15 +16,9 @@ class TestBootLoaderSpecBase:
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
     def setup(self, mock_FirmWare):
         Defaults.set_platform_name('x86_64')
-        description = XMLDescription(
-            '../data/example_config.xml'
-        )
-        self.state = XMLState(
-            description.load()
-        )
-        self.bootloader = BootLoaderSpecBase(
-            self.state, 'root_dir'
-        )
+        description = XMLDescription('../data/example_config.xml')
+        self.state = XMLState(description.load())
+        self.bootloader = BootLoaderSpecBase(self.state, 'root_dir')
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
     def setup_method(self, cls, mock_FirmWare):
@@ -38,10 +28,12 @@ class TestBootLoaderSpecBase:
     def test_setup_disk_image_config(self, mock_setup_loader):
         self.bootloader.get_boot_cmdline = Mock(return_value='')
         self.bootloader.setup_disk_image_config(
-            'boot_uuid', 'root_uuid', 'hypervisor',
-            'kernel', 'initrd', boot_options={
-                'root_device': 'rootdev', 'boot_device': 'bootdev'
-            }
+            'boot_uuid',
+            'root_uuid',
+            'hypervisor',
+            'kernel',
+            'initrd',
+            boot_options={'root_device': 'rootdev', 'boot_device': 'bootdev'},
         )
         mock_setup_loader.assert_called_once_with('disk')
 
@@ -125,19 +117,25 @@ class TestBootLoaderSpecBase:
         os_release = Mock()
         os_release.get.return_value = 'opensuse-leap'
         mock_OsRelease.return_value = os_release
-        assert self.bootloader.get_entry_name() == \
-            'opensuse-leap-5.3.18-59.10-default.conf'
+        assert (
+            self.bootloader.get_entry_name()
+            == 'opensuse-leap-5.3.18-59.10-default.conf'
+        )
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
     def test_get_entry_name_os_policy(self, mock_OsRelease, tmp_path):
         self._setup_root_tree(
-            tmp_path, ['5.3.18-59.10-default', '5.3.18-59.9-default'], [
+            tmp_path,
+            ['5.3.18-59.10-default', '5.3.18-59.9-default'],
+            [
                 'bc8499a-5.3.18-59.9-default.conf',
-                'bc8499a-5.3.18-59.10-default.conf'
-            ]
+                'bc8499a-5.3.18-59.10-default.conf',
+            ],
         )
-        assert self.bootloader.get_entry_name() == \
-            'bc8499a-5.3.18-59.10-default.conf'
+        assert (
+            self.bootloader.get_entry_name()
+            == 'bc8499a-5.3.18-59.10-default.conf'
+        )
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
     def test_get_entry_name_os_policy_of_other_kernel(
@@ -146,12 +144,14 @@ class TestBootLoaderSpecBase:
         # only the entry of an earlier kernel exists, its naming
         # policy is applied to the latest kernel
         self._setup_root_tree(
-            tmp_path, ['5.3.18-59.10-default', '5.3.18-59.9-default'], [
-                'bc8499a-5.3.18-59.9-default.conf'
-            ]
+            tmp_path,
+            ['5.3.18-59.10-default', '5.3.18-59.9-default'],
+            ['bc8499a-5.3.18-59.9-default.conf'],
         )
-        assert self.bootloader.get_entry_name() == \
-            'bc8499a-5.3.18-59.10-default.conf'
+        assert (
+            self.bootloader.get_entry_name()
+            == 'bc8499a-5.3.18-59.10-default.conf'
+        )
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
     def test_get_entry_name_os_policy_without_version(

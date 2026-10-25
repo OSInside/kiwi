@@ -64,9 +64,7 @@ class TestOCIBase:
     def test_creation_date(self, mock_datetime):
         strftime = Mock()
         strftime.strftime = Mock(return_value='current_date')
-        mock_datetime.utcnow = Mock(
-            return_value=strftime
-        )
+        mock_datetime.utcnow = Mock(return_value=strftime)
 
         with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': ''}):
             oci = OCIBase()

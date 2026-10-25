@@ -18,9 +18,7 @@
 import os
 import logging
 from kiwi.utils.temporary import Temporary
-from typing import (
-    Optional, List
-)
+from typing import Optional, List
 
 # project
 from kiwi.defaults import Defaults
@@ -45,6 +43,7 @@ class BootImageKiwi(BootImageBase):
     to control the first boot an appliance. The kiwi initrd replaces
     itself after first boot by the result of dracut.
     """
+
     @staticmethod
     def has_initrd_support() -> bool:
         """
@@ -77,9 +76,7 @@ class BootImageKiwi(BootImageBase):
                 prefix='kiwi_boot_root.', path=self.target_dir
             ).new_dir()
             self.boot_root_directory = self.boot_root_directory_temporary.name
-            self.temp_directories.append(
-                self.boot_root_directory
-            )
+            self.temp_directories.append(self.boot_root_directory)
             boot_image_name = self.boot_xml_state.xml_data.get_name()
 
             self.import_system_description_elements()
@@ -88,17 +85,13 @@ class BootImageKiwi(BootImageBase):
             with SystemPrepare(
                 xml_state=self.boot_xml_state,
                 root_dir=self.boot_root_directory,
-                allow_existing=True
+                allow_existing=True,
             ) as system:
                 with system.setup_repositories(
                     signing_keys=self.signing_keys, target_arch=self.target_arch
                 ) as manager:
-                    system.install_bootstrap(
-                        manager
-                    )
-                    system.install_system(
-                        manager
-                    )
+                    system.install_bootstrap(manager)
+                    system.install_system(manager)
 
                     profile = Profile(self.boot_xml_state)
                     profile.add('kiwi_initrdname', boot_image_name)
@@ -113,21 +106,19 @@ class BootImageKiwi(BootImageBase):
                         Defaults.get_profile_file(self.boot_root_directory)
                     )
                     self.setup.import_description()
-                    self.setup.import_overlay_files(
-                        follow_links=True
-                    )
+                    self.setup.import_overlay_files(follow_links=True)
                     self.setup.call_config_script()
 
-                    system.pinch_system(
-                        manager=manager, force=True
-                    )
+                    system.pinch_system(manager=manager, force=True)
 
             self.setup.call_image_script()
             self.setup.create_init_link_from_linuxrc()
 
     def create_initrd(
-        self, mbrid: Optional[SystemIdentifier] = None,
-        basename: Optional[str] = None, install_initrd: bool = False
+        self,
+        mbrid: Optional[SystemIdentifier] = None,
+        basename: Optional[str] = None,
+        install_initrd: bool = False,
     ) -> None:
         """
         Create initrd from prepared boot system tree and compress the result
@@ -150,24 +141,17 @@ class BootImageKiwi(BootImageBase):
                 kiwi_initrd_basename = basename
             else:
                 kiwi_initrd_basename = self.initrd_base_name
-            temp_boot_root = Temporary(
-                prefix='kiwi_boot_root_copy.'
-            ).new_dir()
+            temp_boot_root = Temporary(prefix='kiwi_boot_root_copy.').new_dir()
             temp_boot_root_directory = temp_boot_root.name
             os.chmod(temp_boot_root_directory, 0o755)
             data = DataSync(
-                self.boot_root_directory + '/',
-                temp_boot_root_directory
+                self.boot_root_directory + '/', temp_boot_root_directory
             )
-            data.sync_data(
-                options=Defaults.get_sync_options()
-            )
+            data.sync_data(options=Defaults.get_sync_options())
             boot_directory = temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)
             if mbrid:
-                log.info(
-                    '--> Importing mbrid: %s', mbrid.get_id()
-                )
+                log.info('--> Importing mbrid: %s', mbrid.get_id())
                 Path.create(boot_directory)
                 image_identifier = boot_directory + '/mbrid'
                 mbrid.write(image_identifier)
@@ -180,20 +164,23 @@ class BootImageKiwi(BootImageBase):
             # image is actually booting with this initrd
             exclude_from_archive = [
                 '/' + Defaults.get_shared_cache_location(),
-                '/image', '/usr/lib/grub*'
+                '/image',
+                '/usr/lib/grub*',
             ]
             # the following is a list of directories to exclude which
             # are not needed inside of the initrd
             exclude_from_archive += [
-                '/usr/share/doc', '/usr/share/man', '/home', '/media', '/srv'
+                '/usr/share/doc',
+                '/usr/share/man',
+                '/home',
+                '/media',
+                '/srv',
             ]
             cpio.create(
                 source_dir=temp_boot_root_directory,
-                exclude=exclude_from_archive
+                exclude=exclude_from_archive,
             )
-            log.info(
-                '--> xz compressing archive'
-            )
+            log.info('--> xz compressing archive')
             compress = Compress(
                 os.sep.join([self.target_dir, kiwi_initrd_basename])
             )

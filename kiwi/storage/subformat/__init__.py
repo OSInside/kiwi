@@ -50,12 +50,13 @@ class DiskFormat:
             'ova': 'Ova',
             'vagrant_libvirt': 'VagrantLibVirt',
             'vagrant_virtualbox': 'VagrantVirtualBox',
-            'base': 'Base'
+            'base': 'Base',
         }
         module_namespace: Optional[str] = None
         try:
-            custom_args, module_namespace = DiskFormat.\
-                _custom_args_for_format(name, xml_state)
+            custom_args, module_namespace = DiskFormat._custom_args_for_format(
+                name, xml_state
+            )
             diskformat = importlib.import_module(
                 f'kiwi.storage.subformat.{module_namespace}'
             )
@@ -69,22 +70,20 @@ class DiskFormat:
             )
 
     @staticmethod
-    def _custom_args_for_format(name: str, xml_state: XMLState) -> Tuple[Dict, str]:
+    def _custom_args_for_format(
+        name: str, xml_state: XMLState
+    ) -> Tuple[Dict, str]:
         custom_args = xml_state.get_build_type_format_options()
         module_namespace = name
         if name == 'vhd-fixed':
             disk_tag = xml_state.build_type.get_vhdfixedtag()
             if disk_tag:
-                custom_args.update(
-                    {'--tag': disk_tag}
-                )
+                custom_args.update({'--tag': disk_tag})
             module_namespace = 'vhdfixed'
         elif name == 'gce':
             gce_license_tag = xml_state.build_type.get_gcelicense()
             if gce_license_tag:
-                custom_args.update(
-                    {'--tag': gce_license_tag}
-                )
+                custom_args.update({'--tag': gce_license_tag})
         elif name == 'vmdk' or name == 'ova':
             vmdisk_section = xml_state.get_build_type_vmdisk_section()
             if vmdisk_section:
@@ -101,9 +100,7 @@ class DiskFormat:
         elif name == 'vagrant':
             vagrant_config = xml_state.get_build_type_vagrant_config_section()
             if vagrant_config:
-                custom_args.update(
-                    {'vagrantconfig': vagrant_config}
-                )
+                custom_args.update({'vagrantconfig': vagrant_config})
                 module_namespace = '{0}_{1}'.format(
                     name, vagrant_config.get_provider()
                 )
@@ -115,7 +112,7 @@ class DiskFormat:
             custom_args.update(
                 {
                     'base_format': base_format,
-                    'container_format': container_format
+                    'container_format': container_format,
                 }
             )
         return custom_args, module_namespace

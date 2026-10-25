@@ -1,7 +1,5 @@
 import sys
-from unittest.mock import (
-    Mock, MagicMock
-)
+from unittest.mock import Mock, MagicMock
 import os
 
 import kiwi
@@ -16,8 +14,15 @@ class TestSystemCreateTask:
     def setup(self):
         Defaults.set_platform_name('x86_64')
         sys.argv = [
-            sys.argv[0], '--profile', 'vmxFlavour', 'system', 'create',
-            '--root', '../data/root-dir', '--target-dir', 'some-target'
+            sys.argv[0],
+            '--profile',
+            'vmxFlavour',
+            'system',
+            'create',
+            '--root',
+            '../data/root-dir',
+            '--target-dir',
+            'some-target',
         ]
 
         self.abs_root_dir = os.path.abspath('../data/root-dir')
@@ -26,31 +31,21 @@ class TestSystemCreateTask:
         kiwi.tasks.system_create.Path = Mock()
         kiwi.tasks.system_create.Privileges = Mock()
 
-        kiwi.tasks.system_create.Help = Mock(
-            return_value=Mock()
-        )
+        kiwi.tasks.system_create.Help = Mock(return_value=Mock())
 
         self.runtime_checker = Mock()
-        kiwi.tasks.base.RuntimeChecker = Mock(
-            return_value=self.runtime_checker
-        )
+        kiwi.tasks.base.RuntimeChecker = Mock(return_value=self.runtime_checker)
 
         self.runtime_config = Mock()
         self.runtime_config.get_disabled_runtime_checks.return_value = []
-        kiwi.tasks.base.RuntimeConfig = Mock(
-            return_value=self.runtime_config
-        )
+        kiwi.tasks.base.RuntimeConfig = Mock(return_value=self.runtime_config)
 
         self.setup = Mock()
-        kiwi.tasks.system_create.SystemSetup = Mock(
-            return_value=self.setup
-        )
+        kiwi.tasks.system_create.SystemSetup = Mock(return_value=self.setup)
 
         self.result = Mock()
         self.builder = MagicMock()
-        self.builder.create = Mock(
-            return_value=self.result
-        )
+        self.builder.create = Mock(return_value=self.result)
         kiwi.tasks.system_create.ImageBuilder.new = Mock(
             return_value=self.builder
         )
@@ -78,12 +73,12 @@ class TestSystemCreateTask:
         self._init_command_args()
         self.task.command_args['create'] = True
         self.task.process()
-        self.runtime_checker.\
-            check_target_directory_not_in_shared_cache.\
-            assert_called_once_with(self.abs_root_dir)
-        self.runtime_checker.\
-            check_dracut_module_versions_compatible_to_kiwi.\
-            assert_called_once_with(self.abs_root_dir)
+        self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(
+            self.abs_root_dir
+        )
+        self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi.assert_called_once_with(
+            self.abs_root_dir
+        )
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()
@@ -96,6 +91,4 @@ class TestSystemCreateTask:
         self.task.command_args['help'] = True
         self.task.command_args['create'] = True
         self.task.process()
-        self.task.manual.show.assert_called_once_with(
-            'kiwi::system::create'
-        )
+        self.task.manual.show.assert_called_once_with('kiwi::system::create')

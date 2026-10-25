@@ -31,6 +31,7 @@ class BlockID:
         also be specified as UUID=<uuid>
 
     """
+
     def __init__(self, device):
         uuid_format = re.match(r'^UUID=(.*)', device)
         if uuid_format:
@@ -110,6 +111,6 @@ class BlockID:
         """
         blkid_result = Command.run(
             ['blkid', self.device, '-s', id_type, '-o', 'value'],
-            raise_on_error=False
+            raise_on_error=False,
         )
         return blkid_result.output.strip(os.linesep) if blkid_result else ''

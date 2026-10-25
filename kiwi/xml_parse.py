@@ -27,6 +27,7 @@ import re as re_
 import base64
 import datetime as datetime_
 import warnings as warnings_
+
 try:
     from lxml import etree as etree_
 except ImportError:
@@ -52,6 +53,7 @@ def parsexml_(infile, parser=None, **kwargs):
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
+
 def parsexmlstring_(instring, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
@@ -63,6 +65,7 @@ def parsexmlstring_(instring, parser=None, **kwargs):
             parser = etree_.XMLParser()
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
+
 
 #
 # Namespace prefix definition table (and other attributes, too)
@@ -86,7 +89,9 @@ def parsexmlstring_(instring, parser=None, **kwargs):
 #
 
 try:
-    from generatedsnamespaces import GenerateDSNamespaceDefs as GenerateDSNamespaceDefs_
+    from generatedsnamespaces import (
+        GenerateDSNamespaceDefs as GenerateDSNamespaceDefs_,
+    )
 except ImportError:
     GenerateDSNamespaceDefs_ = {}
 
@@ -100,38 +105,51 @@ except ImportError:
 try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
-    
+
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
+
         class _FixedOffsetTZ(datetime_.tzinfo):
             def __init__(self, offset, name):
                 self.__offset = datetime_.timedelta(minutes=offset)
                 self.__name = name
+
             def utcoffset(self, dt):
                 return self.__offset
+
             def tzname(self, dt):
                 return self.__name
+
             def dst(self, dt):
                 return None
+
         def gds_format_string(self, input_data, input_name=''):
             return input_data
+
         def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
             else:
                 return input_data
+
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data)
+
         def gds_validate_base64(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer(self, input_data, input_name=''):
             return '%d' % input_data
+
         def gds_validate_integer(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_integer_list(
-                self, input_data, node=None, input_name=''):
+            self, input_data, node=None, input_name=''
+        ):
             values = input_data.split()
             for value in values:
                 try:
@@ -139,14 +157,17 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of integers')
             return values
+
         def gds_format_float(self, input_data, input_name=''):
             return ('%.15f' % input_data).rstrip('0')
+
         def gds_validate_float(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_float_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
-        def gds_validate_float_list(
-                self, input_data, node=None, input_name=''):
+
+        def gds_validate_float_list(self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
                 try:
@@ -154,14 +175,19 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of floats')
             return values
+
         def gds_format_double(self, input_data, input_name=''):
             return '%e' % input_data
+
         def gds_validate_double(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_double_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_double_list(
-                self, input_data, node=None, input_name=''):
+            self, input_data, node=None, input_name=''
+        ):
             values = input_data.split()
             for value in values:
                 try:
@@ -169,24 +195,37 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of doubles')
             return values
+
         def gds_format_boolean(self, input_data, input_name=''):
             return ('%s' % input_data).lower()
+
         def gds_validate_boolean(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_boolean_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_boolean_list(
-                self, input_data, node=None, input_name=''):
+            self, input_data, node=None, input_name=''
+        ):
             values = input_data.split()
             for value in values:
-                if value not in ('true', '1', 'false', '0', ):
+                if value not in (
+                    'true',
+                    '1',
+                    'false',
+                    '0',
+                ):
                     raise_parse_error(
                         node,
                         'Requires sequence of booleans '
-                        '("true", "1", "false", "0")')
+                        '("true", "1", "false", "0")',
+                    )
             return values
+
         def gds_validate_datetime(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_datetime(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%04d-%02d-%02dT%02d:%02d:%02d' % (
@@ -223,6 +262,7 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         @classmethod
         def gds_parse_datetime(cls, input_data):
             tz = None
@@ -236,23 +276,28 @@ except ImportError as exp:
                     tzoff = int(tzoff_parts[0]) * 60 + int(tzoff_parts[1])
                     if results.group(1) == '-':
                         tzoff *= -1
-                    tz = GeneratedsSuper._FixedOffsetTZ(
-                        tzoff, results.group(0))
+                    tz = GeneratedsSuper._FixedOffsetTZ(tzoff, results.group(0))
                     input_data = input_data[:-6]
             time_parts = input_data.split('.')
             if len(time_parts) > 1:
                 micro_seconds = int(float('0.' + time_parts[1]) * 1000000)
                 input_data = '%s.%s' % (
-                    time_parts[0], "{}".format(micro_seconds).rjust(6, "0"), )
+                    time_parts[0],
+                    "{}".format(micro_seconds).rjust(6, "0"),
+                )
                 dt = datetime_.datetime.strptime(
-                    input_data, '%Y-%m-%dT%H:%M:%S.%f')
+                    input_data, '%Y-%m-%dT%H:%M:%S.%f'
+                )
             else:
                 dt = datetime_.datetime.strptime(
-                    input_data, '%Y-%m-%dT%H:%M:%S')
+                    input_data, '%Y-%m-%dT%H:%M:%S'
+                )
             dt = dt.replace(tzinfo=tz)
             return dt
+
         def gds_validate_date(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_date(self, input_data, input_name=''):
             _svalue = '%04d-%02d-%02d' % (
                 input_data.year,
@@ -274,11 +319,11 @@ except ImportError as exp:
                                 _svalue += '+'
                             hours = total_seconds // 3600
                             minutes = (total_seconds - (hours * 3600)) // 60
-                            _svalue += '{0:02d}:{1:02d}'.format(
-                                hours, minutes)
+                            _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             except AttributeError:
                 pass
             return _svalue
+
         @classmethod
         def gds_parse_date(cls, input_data):
             tz = None
@@ -292,14 +337,15 @@ except ImportError as exp:
                     tzoff = int(tzoff_parts[0]) * 60 + int(tzoff_parts[1])
                     if results.group(1) == '-':
                         tzoff *= -1
-                    tz = GeneratedsSuper._FixedOffsetTZ(
-                        tzoff, results.group(0))
+                    tz = GeneratedsSuper._FixedOffsetTZ(tzoff, results.group(0))
                     input_data = input_data[:-6]
             dt = datetime_.datetime.strptime(input_data, '%Y-%m-%d')
             dt = dt.replace(tzinfo=tz)
             return dt.date()
+
         def gds_validate_time(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_time(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%02d:%02d:%02d' % (
@@ -330,6 +376,7 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         def gds_validate_simple_patterns(self, patterns, target):
             # pat is a list of lists of strings/patterns.
             # The target value must match at least one of the patterns
@@ -346,6 +393,7 @@ except ImportError as exp:
                     found1 = False
                     break
             return found1
+
         @classmethod
         def gds_parse_time(cls, input_data):
             tz = None
@@ -359,8 +407,7 @@ except ImportError as exp:
                     tzoff = int(tzoff_parts[0]) * 60 + int(tzoff_parts[1])
                     if results.group(1) == '-':
                         tzoff *= -1
-                    tz = GeneratedsSuper._FixedOffsetTZ(
-                        tzoff, results.group(0))
+                    tz = GeneratedsSuper._FixedOffsetTZ(tzoff, results.group(0))
                     input_data = input_data[:-6]
             if len(input_data.split('.')) > 1:
                 dt = datetime_.datetime.strptime(input_data, '%H:%M:%S.%f')
@@ -368,15 +415,19 @@ except ImportError as exp:
                 dt = datetime_.datetime.strptime(input_data, '%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt.time()
+
         def gds_str_lower(self, instring):
             return instring.lower()
+
         def get_path_(self, node):
             path_list = []
             self.get_path_list_(node, path_list)
             path_list.reverse()
             path = '/'.join(path_list)
             return path
+
         Tag_strip_pattern_ = re_.compile(r'\{.*\}')
+
         def get_path_list_(self, node, path_list):
             if node is None:
                 return
@@ -384,6 +435,7 @@ except ImportError as exp:
             if tag:
                 path_list.append(tag)
             self.get_path_list_(node.getparent(), path_list)
+
         def get_class_obj_(self, node, default_class=None):
             class_obj1 = default_class
             if 'xsi' in node.nsmap:
@@ -396,11 +448,14 @@ except ImportError as exp:
                     if class_obj2 is not None:
                         class_obj1 = class_obj2
             return class_obj1
+
         def gds_build_any(self, node, type_name=None):
             return None
+
         @classmethod
         def gds_reverse_node_mapping(cls, mapping):
             return dict(((v, k) for k, v in mapping.iteritems()))
+
         @staticmethod
         def gds_encode(instring):
             if sys.version_info.major == 2:
@@ -411,6 +466,7 @@ except ImportError as exp:
                 return instring.encode(encoding)
             else:
                 return instring
+
         @staticmethod
         def convert_unicode(instring):
             if isinstance(instring, str):
@@ -420,13 +476,15 @@ except ImportError as exp:
             else:
                 result = GeneratedsSuper.gds_encode(str(instring))
             return result
+
         def __eq__(self, other):
             if type(self) != type(other):
                 return False
             return self.__dict__ == other.__dict__
+
         def __ne__(self, other):
             return not self.__eq__(other)
-    
+
     def getSubclassFromModule_(module, class_):
         '''Get the subclass of a class from a specific module.'''
         name = class_.__name__ + 'Sub'
@@ -480,14 +538,14 @@ def quote_xml(inStr):
     "Escape markup chars, but do not modify CDATA sections."
     if not inStr:
         return ''
-    s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
+    s1 = isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr
     s2 = ''
     pos = 0
     matchobjects = CDATA_pattern_.finditer(s1)
     for mo in matchobjects:
-        s3 = s1[pos:mo.start()]
+        s3 = s1[pos : mo.start()]
         s2 += quote_xml_aux(s3)
-        s2 += s1[mo.start():mo.end()]
+        s2 += s1[mo.start() : mo.end()]
         pos = mo.end()
     s3 = s1[pos:]
     s2 += quote_xml_aux(s3)
@@ -502,7 +560,7 @@ def quote_xml_aux(inStr):
 
 
 def quote_attrib(inStr):
-    s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
+    s1 = isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr
     s1 = s1.replace('&', '&amp;')
     s1 = s1.replace('<', '&lt;')
     s1 = s1.replace('>', '&gt;')
@@ -553,7 +611,13 @@ def find_attr_value_(attr_name, node):
         prefix, name = attr_parts
         namespace = node.nsmap.get(prefix)
         if namespace is not None:
-            value = attrs.get('{%s}%s' % (namespace, name, ))
+            value = attrs.get(
+                '{%s}%s'
+                % (
+                    namespace,
+                    name,
+                )
+            )
     return value
 
 
@@ -562,7 +626,11 @@ class GDSParseError(Exception):
 
 
 def raise_parse_error(node, msg):
-    msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline, )
+    msg = '%s (element %s/line %d)' % (
+        msg,
+        node.tag,
+        node.sourceline,
+    )
     raise GDSParseError(msg)
 
 
@@ -582,51 +650,58 @@ class MixedContainer:
     TypeDouble = 6
     TypeBoolean = 7
     TypeBase64 = 8
+
     def __init__(self, category, content_type, name, value):
         self.category = category
         self.content_type = content_type
         self.name = name
         self.value = value
+
     def getCategory(self):
         return self.category
+
     def getContenttype(self, content_type):
         return self.content_type
+
     def getValue(self):
         return self.value
+
     def getName(self):
         return self.name
-    def export(self, outfile, level, name, namespace,
-               pretty_print=True):
+
+    def export(self, outfile, level, name, namespace, pretty_print=True):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
             if self.value.strip():
                 outfile.write(self.value)
         elif self.category == MixedContainer.CategorySimple:
             self.exportSimple(outfile, level, name)
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             self.value.export(
-                outfile, level, namespace, name,
-                pretty_print=pretty_print)
+                outfile, level, namespace, name, pretty_print=pretty_print
+            )
+
     def exportSimple(self, outfile, level, name):
         if self.content_type == MixedContainer.TypeString:
-            outfile.write('<%s>%s</%s>' % (
-                self.name, self.value, self.name))
-        elif self.content_type == MixedContainer.TypeInteger or \
-                self.content_type == MixedContainer.TypeBoolean:
-            outfile.write('<%s>%d</%s>' % (
-                self.name, self.value, self.name))
-        elif self.content_type == MixedContainer.TypeFloat or \
-                self.content_type == MixedContainer.TypeDecimal:
-            outfile.write('<%s>%f</%s>' % (
-                self.name, self.value, self.name))
+            outfile.write('<%s>%s</%s>' % (self.name, self.value, self.name))
+        elif (
+            self.content_type == MixedContainer.TypeInteger
+            or self.content_type == MixedContainer.TypeBoolean
+        ):
+            outfile.write('<%s>%d</%s>' % (self.name, self.value, self.name))
+        elif (
+            self.content_type == MixedContainer.TypeFloat
+            or self.content_type == MixedContainer.TypeDecimal
+        ):
+            outfile.write('<%s>%f</%s>' % (self.name, self.value, self.name))
         elif self.content_type == MixedContainer.TypeDouble:
-            outfile.write('<%s>%g</%s>' % (
-                self.name, self.value, self.name))
+            outfile.write('<%s>%g</%s>' % (self.name, self.value, self.name))
         elif self.content_type == MixedContainer.TypeBase64:
-            outfile.write('<%s>%s</%s>' % (
-                self.name,
-                base64.b64encode(self.value),
-                self.name))
+            outfile.write(
+                '<%s>%s</%s>'
+                % (self.name, base64.b64encode(self.value), self.name)
+            )
+
     def to_etree(self, element):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
@@ -642,61 +717,87 @@ class MixedContainer:
                     else:
                         element.text += self.value
         elif self.category == MixedContainer.CategorySimple:
-            subelement = etree_.SubElement(
-                element, '%s' % self.name)
+            subelement = etree_.SubElement(element, '%s' % self.name)
             subelement.text = self.to_etree_simple()
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             self.value.to_etree(element)
+
     def to_etree_simple(self):
         if self.content_type == MixedContainer.TypeString:
             text = self.value
-        elif (self.content_type == MixedContainer.TypeInteger or
-                self.content_type == MixedContainer.TypeBoolean):
+        elif (
+            self.content_type == MixedContainer.TypeInteger
+            or self.content_type == MixedContainer.TypeBoolean
+        ):
             text = '%d' % self.value
-        elif (self.content_type == MixedContainer.TypeFloat or
-                self.content_type == MixedContainer.TypeDecimal):
+        elif (
+            self.content_type == MixedContainer.TypeFloat
+            or self.content_type == MixedContainer.TypeDecimal
+        ):
             text = '%f' % self.value
         elif self.content_type == MixedContainer.TypeDouble:
             text = '%g' % self.value
         elif self.content_type == MixedContainer.TypeBase64:
             text = '%s' % base64.b64encode(self.value)
         return text
+
     def exportLiteral(self, outfile, level, name):
         if self.category == MixedContainer.CategoryText:
             showIndent(outfile, level)
             outfile.write(
-                'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
-                    self.category, self.content_type,
-                    self.name, self.value))
+                'model_.MixedContainer(%d, %d, "%s", "%s"),\n'
+                % (self.category, self.content_type, self.name, self.value)
+            )
         elif self.category == MixedContainer.CategorySimple:
             showIndent(outfile, level)
             outfile.write(
-                'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
-                    self.category, self.content_type,
-                    self.name, self.value))
-        else:    # category == MixedContainer.CategoryComplex
+                'model_.MixedContainer(%d, %d, "%s", "%s"),\n'
+                % (self.category, self.content_type, self.name, self.value)
+            )
+        else:  # category == MixedContainer.CategoryComplex
             showIndent(outfile, level)
             outfile.write(
-                'model_.MixedContainer(%d, %d, "%s",\n' % (
-                    self.category, self.content_type, self.name,))
+                'model_.MixedContainer(%d, %d, "%s",\n'
+                % (
+                    self.category,
+                    self.content_type,
+                    self.name,
+                )
+            )
             self.value.exportLiteral(outfile, level + 1)
             showIndent(outfile, level)
             outfile.write(')\n')
 
 
 class MemberSpec_(object):
-    def __init__(self, name='', data_type='', container=0,
-            optional=0, child_attrs=None, choice=None):
+    def __init__(
+        self,
+        name='',
+        data_type='',
+        container=0,
+        optional=0,
+        child_attrs=None,
+        choice=None,
+    ):
         self.name = name
         self.data_type = data_type
         self.container = container
         self.child_attrs = child_attrs
         self.choice = choice
         self.optional = optional
-    def set_name(self, name): self.name = name
-    def get_name(self): return self.name
-    def set_data_type(self, data_type): self.data_type = data_type
-    def get_data_type_chain(self): return self.data_type
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
+
+    def set_data_type(self, data_type):
+        self.data_type = data_type
+
+    def get_data_type_chain(self):
+        return self.data_type
+
     def get_data_type(self):
         if isinstance(self.data_type, list):
             if len(self.data_type) > 0:
@@ -705,14 +806,30 @@ class MemberSpec_(object):
                 return 'xs:string'
         else:
             return self.data_type
-    def set_container(self, container): self.container = container
-    def get_container(self): return self.container
-    def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
-    def get_child_attrs(self): return self.child_attrs
-    def set_choice(self, choice): self.choice = choice
-    def get_choice(self): return self.choice
-    def set_optional(self, optional): self.optional = optional
-    def get_optional(self): return self.optional
+
+    def set_container(self, container):
+        self.container = container
+
+    def get_container(self):
+        return self.container
+
+    def set_child_attrs(self, child_attrs):
+        self.child_attrs = child_attrs
+
+    def get_child_attrs(self):
+        return self.child_attrs
+
+    def set_choice(self, choice):
+        self.choice = choice
+
+    def get_choice(self):
+        return self.choice
+
+    def set_optional(self, optional):
+        self.optional = optional
+
+    def get_optional(self):
+        return self.optional
 
 
 def _cast(typ, value):
@@ -720,48 +837,63 @@ def _cast(typ, value):
         return value
     return typ(value)
 
+
 #
 # Data representation classes.
 #
 
 
 class k_packagemanager_content(object):
-    APK='apk'
-    APT='apt'
-    ZYPPER='zypper'
-    DNF_4='dnf4'
-    DNF_5='dnf5'
-    MICRODNF='microdnf'
-    PACMAN='pacman'
+    APK = 'apk'
+    APT = 'apt'
+    ZYPPER = 'zypper'
+    DNF_4 = 'dnf4'
+    DNF_5 = 'dnf5'
+    MICRODNF = 'microdnf'
+    PACMAN = 'pacman'
 
 
 class k_source(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, source=None):
         self.original_tagname_ = None
         self.source = source
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, k_source)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, k_source)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if k_source.subclass:
             return k_source.subclass(*args_, **kwargs_)
         else:
             return k_source(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_source(self): return self.source
-    def set_source(self, source): self.source = source
+
+    def get_source(self):
+        return self.source
+
+    def set_source(self, source):
+        self.source = source
+
     def hasContent_(self):
-        if (
-            self.source is not None
-        ):
+        if self.source is not None:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='k.source', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='k.source',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('k.source')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -772,25 +904,68 @@ class k_source(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='k.source')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='k.source',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='k.source', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='k.source',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='k.source'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='k.source',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='k.source', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='k.source',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.source is not None:
-            self.source.export(outfile, level, namespaceprefix_, name_='source', pretty_print=pretty_print)
+            self.source.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='source',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -798,22 +973,48 @@ class k_source(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'source':
             obj_ = source.factory()
             obj_.build(child_)
             self.source = obj_
             obj_.original_tagname_ = 'source'
+
+
 # end class k_source
 
 
 class image(GeneratedsSuper):
     """The root element of the configuration file"""
+
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, certificates=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, containers=None, packages=None, extension=None):
+
+    def __init__(
+        self,
+        name=None,
+        displayname=None,
+        id=None,
+        schemaversion=None,
+        noNamespaceSchemaLocation=None,
+        schemaLocation=None,
+        include=None,
+        certificates=None,
+        description=None,
+        preferences=None,
+        profiles=None,
+        users=None,
+        drivers=None,
+        strip=None,
+        repository=None,
+        containers=None,
+        packages=None,
+        extension=None,
+    ):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -869,115 +1070,279 @@ class image(GeneratedsSuper):
             self.extension = []
         else:
             self.extension = extension
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, image)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, image)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if image.subclass:
             return image.subclass(*args_, **kwargs_)
         else:
             return image(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_include(self): return self.include
-    def set_include(self, include): self.include = include
-    def add_include(self, value): self.include.append(value)
-    def insert_include_at(self, index, value): self.include.insert(index, value)
-    def replace_include_at(self, index, value): self.include[index] = value
-    def get_certificates(self): return self.certificates
-    def set_certificates(self, certificates): self.certificates = certificates
-    def add_certificates(self, value): self.certificates.append(value)
-    def insert_certificates_at(self, index, value): self.certificates.insert(index, value)
-    def replace_certificates_at(self, index, value): self.certificates[index] = value
-    def get_description(self): return self.description
-    def set_description(self, description): self.description = description
-    def add_description(self, value): self.description.append(value)
-    def insert_description_at(self, index, value): self.description.insert(index, value)
-    def replace_description_at(self, index, value): self.description[index] = value
-    def get_preferences(self): return self.preferences
-    def set_preferences(self, preferences): self.preferences = preferences
-    def add_preferences(self, value): self.preferences.append(value)
-    def insert_preferences_at(self, index, value): self.preferences.insert(index, value)
-    def replace_preferences_at(self, index, value): self.preferences[index] = value
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def add_profiles(self, value): self.profiles.append(value)
-    def insert_profiles_at(self, index, value): self.profiles.insert(index, value)
-    def replace_profiles_at(self, index, value): self.profiles[index] = value
-    def get_users(self): return self.users
-    def set_users(self, users): self.users = users
-    def add_users(self, value): self.users.append(value)
-    def insert_users_at(self, index, value): self.users.insert(index, value)
-    def replace_users_at(self, index, value): self.users[index] = value
-    def get_drivers(self): return self.drivers
-    def set_drivers(self, drivers): self.drivers = drivers
-    def add_drivers(self, value): self.drivers.append(value)
-    def insert_drivers_at(self, index, value): self.drivers.insert(index, value)
-    def replace_drivers_at(self, index, value): self.drivers[index] = value
-    def get_strip(self): return self.strip
-    def set_strip(self, strip): self.strip = strip
-    def add_strip(self, value): self.strip.append(value)
-    def insert_strip_at(self, index, value): self.strip.insert(index, value)
-    def replace_strip_at(self, index, value): self.strip[index] = value
-    def get_repository(self): return self.repository
-    def set_repository(self, repository): self.repository = repository
-    def add_repository(self, value): self.repository.append(value)
-    def insert_repository_at(self, index, value): self.repository.insert(index, value)
-    def replace_repository_at(self, index, value): self.repository[index] = value
-    def get_containers(self): return self.containers
-    def set_containers(self, containers): self.containers = containers
-    def add_containers(self, value): self.containers.append(value)
-    def insert_containers_at(self, index, value): self.containers.insert(index, value)
-    def replace_containers_at(self, index, value): self.containers[index] = value
-    def get_packages(self): return self.packages
-    def set_packages(self, packages): self.packages = packages
-    def add_packages(self, value): self.packages.append(value)
-    def insert_packages_at(self, index, value): self.packages.insert(index, value)
-    def replace_packages_at(self, index, value): self.packages[index] = value
-    def get_extension(self): return self.extension
-    def set_extension(self, extension): self.extension = extension
-    def add_extension(self, value): self.extension.append(value)
-    def insert_extension_at(self, index, value): self.extension.insert(index, value)
-    def replace_extension_at(self, index, value): self.extension[index] = value
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_displayname(self): return self.displayname
-    def set_displayname(self, displayname): self.displayname = displayname
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
-    def get_schemaversion(self): return self.schemaversion
-    def set_schemaversion(self, schemaversion): self.schemaversion = schemaversion
-    def get_noNamespaceSchemaLocation(self): return self.noNamespaceSchemaLocation
-    def set_noNamespaceSchemaLocation(self, noNamespaceSchemaLocation): self.noNamespaceSchemaLocation = noNamespaceSchemaLocation
-    def get_schemaLocation(self): return self.schemaLocation
-    def set_schemaLocation(self, schemaLocation): self.schemaLocation = schemaLocation
+
+    def get_include(self):
+        return self.include
+
+    def set_include(self, include):
+        self.include = include
+
+    def add_include(self, value):
+        self.include.append(value)
+
+    def insert_include_at(self, index, value):
+        self.include.insert(index, value)
+
+    def replace_include_at(self, index, value):
+        self.include[index] = value
+
+    def get_certificates(self):
+        return self.certificates
+
+    def set_certificates(self, certificates):
+        self.certificates = certificates
+
+    def add_certificates(self, value):
+        self.certificates.append(value)
+
+    def insert_certificates_at(self, index, value):
+        self.certificates.insert(index, value)
+
+    def replace_certificates_at(self, index, value):
+        self.certificates[index] = value
+
+    def get_description(self):
+        return self.description
+
+    def set_description(self, description):
+        self.description = description
+
+    def add_description(self, value):
+        self.description.append(value)
+
+    def insert_description_at(self, index, value):
+        self.description.insert(index, value)
+
+    def replace_description_at(self, index, value):
+        self.description[index] = value
+
+    def get_preferences(self):
+        return self.preferences
+
+    def set_preferences(self, preferences):
+        self.preferences = preferences
+
+    def add_preferences(self, value):
+        self.preferences.append(value)
+
+    def insert_preferences_at(self, index, value):
+        self.preferences.insert(index, value)
+
+    def replace_preferences_at(self, index, value):
+        self.preferences[index] = value
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
+    def add_profiles(self, value):
+        self.profiles.append(value)
+
+    def insert_profiles_at(self, index, value):
+        self.profiles.insert(index, value)
+
+    def replace_profiles_at(self, index, value):
+        self.profiles[index] = value
+
+    def get_users(self):
+        return self.users
+
+    def set_users(self, users):
+        self.users = users
+
+    def add_users(self, value):
+        self.users.append(value)
+
+    def insert_users_at(self, index, value):
+        self.users.insert(index, value)
+
+    def replace_users_at(self, index, value):
+        self.users[index] = value
+
+    def get_drivers(self):
+        return self.drivers
+
+    def set_drivers(self, drivers):
+        self.drivers = drivers
+
+    def add_drivers(self, value):
+        self.drivers.append(value)
+
+    def insert_drivers_at(self, index, value):
+        self.drivers.insert(index, value)
+
+    def replace_drivers_at(self, index, value):
+        self.drivers[index] = value
+
+    def get_strip(self):
+        return self.strip
+
+    def set_strip(self, strip):
+        self.strip = strip
+
+    def add_strip(self, value):
+        self.strip.append(value)
+
+    def insert_strip_at(self, index, value):
+        self.strip.insert(index, value)
+
+    def replace_strip_at(self, index, value):
+        self.strip[index] = value
+
+    def get_repository(self):
+        return self.repository
+
+    def set_repository(self, repository):
+        self.repository = repository
+
+    def add_repository(self, value):
+        self.repository.append(value)
+
+    def insert_repository_at(self, index, value):
+        self.repository.insert(index, value)
+
+    def replace_repository_at(self, index, value):
+        self.repository[index] = value
+
+    def get_containers(self):
+        return self.containers
+
+    def set_containers(self, containers):
+        self.containers = containers
+
+    def add_containers(self, value):
+        self.containers.append(value)
+
+    def insert_containers_at(self, index, value):
+        self.containers.insert(index, value)
+
+    def replace_containers_at(self, index, value):
+        self.containers[index] = value
+
+    def get_packages(self):
+        return self.packages
+
+    def set_packages(self, packages):
+        self.packages = packages
+
+    def add_packages(self, value):
+        self.packages.append(value)
+
+    def insert_packages_at(self, index, value):
+        self.packages.insert(index, value)
+
+    def replace_packages_at(self, index, value):
+        self.packages[index] = value
+
+    def get_extension(self):
+        return self.extension
+
+    def set_extension(self, extension):
+        self.extension = extension
+
+    def add_extension(self, value):
+        self.extension.append(value)
+
+    def insert_extension_at(self, index, value):
+        self.extension.insert(index, value)
+
+    def replace_extension_at(self, index, value):
+        self.extension[index] = value
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_displayname(self):
+        return self.displayname
+
+    def set_displayname(self, displayname):
+        self.displayname = displayname
+
+    def get_id(self):
+        return self.id
+
+    def set_id(self, id):
+        self.id = id
+
+    def get_schemaversion(self):
+        return self.schemaversion
+
+    def set_schemaversion(self, schemaversion):
+        self.schemaversion = schemaversion
+
+    def get_noNamespaceSchemaLocation(self):
+        return self.noNamespaceSchemaLocation
+
+    def set_noNamespaceSchemaLocation(self, noNamespaceSchemaLocation):
+        self.noNamespaceSchemaLocation = noNamespaceSchemaLocation
+
+    def get_schemaLocation(self):
+        return self.schemaLocation
+
+    def set_schemaLocation(self, schemaLocation):
+        self.schemaLocation = schemaLocation
+
     def validate_safe_posix_name(self, value):
         # Validate type safe-posix-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_safe_posix_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_name_patterns_, ))
+                self.validate_safe_posix_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_safe_posix_name_patterns_,
+                    )
+                )
+
     validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
+
     def hasContent_(self):
         if (
-            self.include or
-            self.certificates or
-            self.description or
-            self.preferences or
-            self.profiles or
-            self.users or
-            self.drivers or
-            self.strip or
-            self.repository or
-            self.containers or
-            self.packages or
-            self.extension
+            self.include
+            or self.certificates
+            or self.description
+            or self.preferences
+            or self.profiles
+            or self.users
+            or self.drivers
+            or self.strip
+            or self.repository
+            or self.containers
+            or self.packages
+            or self.extension
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='image', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='image',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('image')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -988,64 +1353,230 @@ class image(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='image')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='image'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='image', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='image',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='image'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='image',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (quote_attrib(self.name), ))
-        if self.displayname is not None and 'displayname' not in already_processed:
+            outfile.write(' name=%s' % (quote_attrib(self.name),))
+        if (
+            self.displayname is not None
+            and 'displayname' not in already_processed
+        ):
             already_processed.add('displayname')
-            outfile.write(' displayname=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.displayname), input_name='displayname')), ))
+            outfile.write(
+                ' displayname=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.displayname),
+                            input_name='displayname',
+                        )
+                    ),
+                )
+            )
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
-        if self.schemaversion is not None and 'schemaversion' not in already_processed:
+            outfile.write(
+                ' id=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.id), input_name='id'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.schemaversion is not None
+            and 'schemaversion' not in already_processed
+        ):
             already_processed.add('schemaversion')
-            outfile.write(' schemaversion=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.schemaversion), input_name='schemaversion')), ))
-        if self.noNamespaceSchemaLocation is not None and 'noNamespaceSchemaLocation' not in already_processed:
+            outfile.write(
+                ' schemaversion=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.schemaversion),
+                            input_name='schemaversion',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.noNamespaceSchemaLocation is not None
+            and 'noNamespaceSchemaLocation' not in already_processed
+        ):
             already_processed.add('noNamespaceSchemaLocation')
-            outfile.write(' noNamespaceSchemaLocation=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.noNamespaceSchemaLocation), input_name='noNamespaceSchemaLocation')), ))
-        if self.schemaLocation is not None and 'schemaLocation' not in already_processed:
+            outfile.write(
+                ' noNamespaceSchemaLocation=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.noNamespaceSchemaLocation),
+                            input_name='noNamespaceSchemaLocation',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.schemaLocation is not None
+            and 'schemaLocation' not in already_processed
+        ):
             already_processed.add('schemaLocation')
-            outfile.write(' schemaLocation=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.schemaLocation), input_name='schemaLocation')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='image', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' schemaLocation=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.schemaLocation),
+                            input_name='schemaLocation',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='image',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for include_ in self.include:
-            include_.export(outfile, level, namespaceprefix_, name_='include', pretty_print=pretty_print)
+            include_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='include',
+                pretty_print=pretty_print,
+            )
         for certificates_ in self.certificates:
-            certificates_.export(outfile, level, namespaceprefix_, name_='certificates', pretty_print=pretty_print)
+            certificates_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='certificates',
+                pretty_print=pretty_print,
+            )
         for description_ in self.description:
-            description_.export(outfile, level, namespaceprefix_, name_='description', pretty_print=pretty_print)
+            description_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='description',
+                pretty_print=pretty_print,
+            )
         for preferences_ in self.preferences:
-            preferences_.export(outfile, level, namespaceprefix_, name_='preferences', pretty_print=pretty_print)
+            preferences_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='preferences',
+                pretty_print=pretty_print,
+            )
         for profiles_ in self.profiles:
-            profiles_.export(outfile, level, namespaceprefix_, name_='profiles', pretty_print=pretty_print)
+            profiles_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='profiles',
+                pretty_print=pretty_print,
+            )
         for users_ in self.users:
-            users_.export(outfile, level, namespaceprefix_, name_='users', pretty_print=pretty_print)
+            users_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='users',
+                pretty_print=pretty_print,
+            )
         for drivers_ in self.drivers:
-            drivers_.export(outfile, level, namespaceprefix_, name_='drivers', pretty_print=pretty_print)
+            drivers_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='drivers',
+                pretty_print=pretty_print,
+            )
         for strip_ in self.strip:
-            strip_.export(outfile, level, namespaceprefix_, name_='strip', pretty_print=pretty_print)
+            strip_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='strip',
+                pretty_print=pretty_print,
+            )
         for repository_ in self.repository:
-            repository_.export(outfile, level, namespaceprefix_, name_='repository', pretty_print=pretty_print)
+            repository_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='repository',
+                pretty_print=pretty_print,
+            )
         for containers_ in self.containers:
-            containers_.export(outfile, level, namespaceprefix_, name_='containers', pretty_print=pretty_print)
+            containers_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='containers',
+                pretty_print=pretty_print,
+            )
         for packages_ in self.packages:
-            packages_.export(outfile, level, namespaceprefix_, name_='packages', pretty_print=pretty_print)
+            packages_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='packages',
+                pretty_print=pretty_print,
+            )
         for extension_ in self.extension:
-            extension_.export(outfile, level, namespaceprefix_, name_='extension', pretty_print=pretty_print)
+            extension_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='extension',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1053,13 +1584,16 @@ class image(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
             self.name = ' '.join(self.name.split())
-            self.validate_safe_posix_name(self.name)    # validate type safe-posix-name
+            self.validate_safe_posix_name(
+                self.name
+            )  # validate type safe-posix-name
         value = find_attr_value_('displayname', node)
         if value is not None and 'displayname' not in already_processed:
             already_processed.add('displayname')
@@ -1074,13 +1608,17 @@ class image(GeneratedsSuper):
             self.schemaversion = value
             self.schemaversion = ' '.join(self.schemaversion.split())
         value = find_attr_value_('noNamespaceSchemaLocation', node)
-        if value is not None and 'noNamespaceSchemaLocation' not in already_processed:
+        if (
+            value is not None
+            and 'noNamespaceSchemaLocation' not in already_processed
+        ):
             already_processed.add('noNamespaceSchemaLocation')
             self.noNamespaceSchemaLocation = value
         value = find_attr_value_('schemaLocation', node)
         if value is not None and 'schemaLocation' not in already_processed:
             already_processed.add('schemaLocation')
             self.schemaLocation = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'include':
             obj_ = include.factory()
@@ -1142,42 +1680,63 @@ class image(GeneratedsSuper):
             obj_.build(child_)
             self.extension.append(obj_)
             obj_.original_tagname_ = 'extension'
+
+
 # end class image
 
 
 class extension(GeneratedsSuper):
     """Define custom XML extensions"""
+
     subclass = None
     superclass = None
+
     def __init__(self, anytypeobjs_=None):
         self.original_tagname_ = None
         if anytypeobjs_ is None:
             self.anytypeobjs_ = []
         else:
             self.anytypeobjs_ = anytypeobjs_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, extension)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, extension)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if extension.subclass:
             return extension.subclass(*args_, **kwargs_)
         else:
             return extension(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_anytypeobjs_(self): return self.anytypeobjs_
-    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
-    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
-    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+
+    def get_anytypeobjs_(self):
+        return self.anytypeobjs_
+
+    def set_anytypeobjs_(self, anytypeobjs_):
+        self.anytypeobjs_ = anytypeobjs_
+
+    def add_anytypeobjs_(self, value):
+        self.anytypeobjs_.append(value)
+
+    def insert_anytypeobjs_(self, index, value):
+        self._anytypeobjs_[index] = value
+
     def hasContent_(self):
-        if (
-            self.anytypeobjs_
-        ):
+        if self.anytypeobjs_:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='extension', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='extension',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('extension')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1188,25 +1747,64 @@ class extension(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='extension')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='extension',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='extension', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='extension',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='extension'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='extension',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='extension', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='extension',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for obj_ in self.anytypeobjs_:
-            obj_.export(outfile, level, namespaceprefix_, pretty_print=pretty_print)
+            obj_.export(
+                outfile, level, namespaceprefix_, pretty_print=pretty_print
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1214,49 +1812,76 @@ class extension(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         obj_ = self.gds_build_any(child_, 'extension')
         if obj_ is not None:
             self.add_anytypeobjs_(obj_)
+
+
 # end class extension
 
 
 class archive(GeneratedsSuper):
     """Name of an image archive file (tarball)"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, bootinclude=None, target_dir=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.bootinclude = _cast(bool, bootinclude)
         self.target_dir = _cast(None, target_dir)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, archive)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, archive)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if archive.subclass:
             return archive.subclass(*args_, **kwargs_)
         else:
             return archive(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_bootinclude(self): return self.bootinclude
-    def set_bootinclude(self, bootinclude): self.bootinclude = bootinclude
-    def get_target_dir(self): return self.target_dir
-    def set_target_dir(self, target_dir): self.target_dir = target_dir
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_bootinclude(self):
+        return self.bootinclude
+
+    def set_bootinclude(self, bootinclude):
+        self.bootinclude = bootinclude
+
+    def get_target_dir(self):
+        return self.target_dir
+
+    def set_target_dir(self, target_dir):
+        self.target_dir = target_dir
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='archive', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='archive',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('archive')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1267,27 +1892,90 @@ class archive(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='archive')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='archive'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='archive', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='archive',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='archive'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='archive',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-        if self.bootinclude is not None and 'bootinclude' not in already_processed:
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.bootinclude is not None
+            and 'bootinclude' not in already_processed
+        ):
             already_processed.add('bootinclude')
-            outfile.write(' bootinclude="%s"' % self.gds_format_boolean(self.bootinclude, input_name='bootinclude'))
-        if self.target_dir is not None and 'target_dir' not in already_processed:
+            outfile.write(
+                ' bootinclude="%s"'
+                % self.gds_format_boolean(
+                    self.bootinclude, input_name='bootinclude'
+                )
+            )
+        if (
+            self.target_dir is not None
+            and 'target_dir' not in already_processed
+        ):
             already_processed.add('target_dir')
-            outfile.write(' target_dir=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.target_dir), input_name='target_dir')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='archive', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' target_dir=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.target_dir),
+                            input_name='target_dir',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='archive',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1295,6 +1983,7 @@ class archive(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1313,58 +2002,103 @@ class archive(GeneratedsSuper):
         if value is not None and 'target_dir' not in already_processed:
             already_processed.add('target_dir')
             self.target_dir = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class archive
 
 
 class file(GeneratedsSuper):
     """A Pointer to a File"""
+
     subclass = None
     superclass = None
-    def __init__(self, name=None, target=None, owner=None, permissions=None, arch=None):
+
+    def __init__(
+        self, name=None, target=None, owner=None, permissions=None, arch=None
+    ):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.target = _cast(None, target)
         self.owner = _cast(None, owner)
         self.permissions = _cast(None, permissions)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, file)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, file)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if file.subclass:
             return file.subclass(*args_, **kwargs_)
         else:
             return file(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_target(self): return self.target
-    def set_target(self, target): self.target = target
-    def get_owner(self): return self.owner
-    def set_owner(self, owner): self.owner = owner
-    def get_permissions(self): return self.permissions
-    def set_permissions(self, permissions): self.permissions = permissions
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_target(self):
+        return self.target
+
+    def set_target(self, target):
+        self.target = target
+
+    def get_owner(self):
+        return self.owner
+
+    def set_owner(self, owner):
+        self.owner = owner
+
+    def get_permissions(self):
+        return self.permissions
+
+    def set_permissions(self, permissions):
+        self.permissions = permissions
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='file', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='file',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('file')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1375,33 +2109,106 @@ class file(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='file')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='file'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='file', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='file',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='file'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='file',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.target is not None and 'target' not in already_processed:
             already_processed.add('target')
-            outfile.write(' target=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.target), input_name='target')), ))
+            outfile.write(
+                ' target=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.target), input_name='target'
+                        )
+                    ),
+                )
+            )
         if self.owner is not None and 'owner' not in already_processed:
             already_processed.add('owner')
-            outfile.write(' owner=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.owner), input_name='owner')), ))
-        if self.permissions is not None and 'permissions' not in already_processed:
+            outfile.write(
+                ' owner=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.owner), input_name='owner'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.permissions is not None
+            and 'permissions' not in already_processed
+        ):
             already_processed.add('permissions')
-            outfile.write(' permissions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.permissions), input_name='permissions')), ))
+            outfile.write(
+                ' permissions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.permissions),
+                            input_name='permissions',
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='file', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='file',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1409,6 +2216,7 @@ class file(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1431,50 +2239,81 @@ class file(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class file
 
 
 class ignore(GeneratedsSuper):
     """Ignores a Package"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, ignore)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, ignore)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if ignore.subclass:
             return ignore.subclass(*args_, **kwargs_)
         else:
             return ignore(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='ignore', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='ignore',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ignore')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1485,24 +2324,66 @@ class ignore(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ignore')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='ignore'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='ignore', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='ignore',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ignore'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='ignore',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='ignore', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='ignore',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1510,6 +2391,7 @@ class ignore(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1520,50 +2402,83 @@ class ignore(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class ignore
 
 
 class namedCollection(GeneratedsSuper):
     """Name of a Pattern for SUSE or a Group for RH"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, namedCollection)
+                CurrentSubclassModule_, namedCollection
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if namedCollection.subclass:
             return namedCollection.subclass(*args_, **kwargs_)
         else:
             return namedCollection(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='namedCollection', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='namedCollection',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('namedCollection')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1574,24 +2489,70 @@ class namedCollection(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='namedCollection')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='namedCollection',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='namedCollection', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='namedCollection',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='namedCollection'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='namedCollection',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='namedCollection', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='namedCollection',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1599,6 +2560,7 @@ class namedCollection(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1609,62 +2571,111 @@ class namedCollection(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class namedCollection
 
 
 class collectionModule(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, name=None, enable=None, stream=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.enable = _cast(bool, enable)
         self.stream = _cast(None, stream)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, collectionModule)
+                CurrentSubclassModule_, collectionModule
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if collectionModule.subclass:
             return collectionModule.subclass(*args_, **kwargs_)
         else:
             return collectionModule(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_enable(self): return self.enable
-    def set_enable(self, enable): self.enable = enable
-    def get_stream(self): return self.stream
-    def set_stream(self, stream): self.stream = stream
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_enable(self):
+        return self.enable
+
+    def set_enable(self, enable):
+        self.enable = enable
+
+    def get_stream(self):
+        return self.stream
+
+    def set_stream(self, stream):
+        self.stream = stream
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_safe_posix_name(self, value):
         # Validate type safe-posix-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_safe_posix_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_name_patterns_, ))
+                self.validate_safe_posix_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_safe_posix_name_patterns_,
+                    )
+                )
+
     validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='collectionModule', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='collectionModule',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('collectionModule')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1675,30 +2686,70 @@ class collectionModule(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='collectionModule')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='collectionModule',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='collectionModule', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='collectionModule',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='collectionModule'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='collectionModule',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (quote_attrib(self.name), ))
+            outfile.write(' name=%s' % (quote_attrib(self.name),))
         if self.enable is not None and 'enable' not in already_processed:
             already_processed.add('enable')
-            outfile.write(' enable="%s"' % self.gds_format_boolean(self.enable, input_name='enable'))
+            outfile.write(
+                ' enable="%s"'
+                % self.gds_format_boolean(self.enable, input_name='enable')
+            )
         if self.stream is not None and 'stream' not in already_processed:
             already_processed.add('stream')
-            outfile.write(' stream=%s' % (quote_attrib(self.stream), ))
+            outfile.write(' stream=%s' % (quote_attrib(self.stream),))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='collectionModule', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='collectionModule',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1706,13 +2757,16 @@ class collectionModule(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
             self.name = ' '.join(self.name.split())
-            self.validate_safe_posix_name(self.name)    # validate type safe-posix-name
+            self.validate_safe_posix_name(
+                self.name
+            )  # validate type safe-posix-name
         value = find_attr_value_('enable', node)
         if value is not None and 'enable' not in already_processed:
             already_processed.add('enable')
@@ -1727,56 +2781,89 @@ class collectionModule(GeneratedsSuper):
             already_processed.add('stream')
             self.stream = value
             self.stream = ' '.join(self.stream.split())
-            self.validate_safe_posix_name(self.stream)    # validate type safe-posix-name
+            self.validate_safe_posix_name(
+                self.stream
+            )  # validate type safe-posix-name
         value = find_attr_value_('arch', node)
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class collectionModule
 
 
 class product(GeneratedsSuper):
     """Name of a Product From openSUSE"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, product)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, product)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if product.subclass:
             return product.subclass(*args_, **kwargs_)
         else:
             return product(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='product', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='product',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('product')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1787,24 +2874,66 @@ class product(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='product')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='product'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='product', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='product',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='product'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='product',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='product', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='product',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1812,6 +2941,7 @@ class product(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1822,43 +2952,65 @@ class product(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class product
 
 
 class option(GeneratedsSuper):
     """A commandline option specification"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, value=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.value = _cast(None, value)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, option)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, option)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if option.subclass:
             return option.subclass(*args_, **kwargs_)
         else:
             return option(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_value(self): return self.value
-    def set_value(self, value): self.value = value
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='option', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='option',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('option')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1869,24 +3021,75 @@ class option(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='option')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='option'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='option', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='option',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='option'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='option',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='option', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' value=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.value), input_name='value'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='option',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1894,6 +3097,7 @@ class option(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1903,42 +3107,66 @@ class option(GeneratedsSuper):
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             self.value = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class option
 
 
 class shimoption(GeneratedsSuper):
     """A shim setup option specification"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, value=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.value = _cast(None, value)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, shimoption)
+                CurrentSubclassModule_, shimoption
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if shimoption.subclass:
             return shimoption.subclass(*args_, **kwargs_)
         else:
             return shimoption(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_value(self): return self.value
-    def set_value(self, value): self.value = value
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='shimoption', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='shimoption',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('shimoption')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1949,24 +3177,79 @@ class shimoption(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='shimoption')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='shimoption',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='shimoption', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='shimoption',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='shimoption'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='shimoption',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='shimoption', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' value=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.value), input_name='value'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='shimoption',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1974,6 +3257,7 @@ class shimoption(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -1983,42 +3267,66 @@ class shimoption(GeneratedsSuper):
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             self.value = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class shimoption
 
 
 class installoption(GeneratedsSuper):
     """A install command option specification"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, value=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.value = _cast(None, value)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, installoption)
+                CurrentSubclassModule_, installoption
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if installoption.subclass:
             return installoption.subclass(*args_, **kwargs_)
         else:
             return installoption(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_value(self): return self.value
-    def set_value(self, value): self.value = value
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='installoption', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='installoption',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('installoption')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2029,24 +3337,79 @@ class installoption(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='installoption')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='installoption',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='installoption', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='installoption',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='installoption'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='installoption',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='installoption', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' value=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.value), input_name='value'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='installoption',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2054,6 +3417,7 @@ class installoption(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -2063,42 +3427,66 @@ class installoption(GeneratedsSuper):
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             self.value = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class installoption
 
 
 class configoption(GeneratedsSuper):
     """A config command option specification"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, value=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.value = _cast(None, value)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, configoption)
+                CurrentSubclassModule_, configoption
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if configoption.subclass:
             return configoption.subclass(*args_, **kwargs_)
         else:
             return configoption(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_value(self): return self.value
-    def set_value(self, value): self.value = value
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='configoption', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='configoption',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('configoption')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2109,24 +3497,79 @@ class configoption(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='configoption')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='configoption',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='configoption', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='configoption',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='configoption'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='configoption',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='configoption', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' value=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.value), input_name='value'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='configoption',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2134,6 +3577,7 @@ class configoption(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -2143,55 +3587,94 @@ class configoption(GeneratedsSuper):
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             self.value = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class configoption
 
 
 class package(GeneratedsSuper):
     """Name of an image Package"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, arch=None, bootdelete=None, bootinclude=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.arch = _cast(None, arch)
         self.bootdelete = _cast(bool, bootdelete)
         self.bootinclude = _cast(bool, bootinclude)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, package)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, package)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if package.subclass:
             return package.subclass(*args_, **kwargs_)
         else:
             return package(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
-    def get_bootdelete(self): return self.bootdelete
-    def set_bootdelete(self, bootdelete): self.bootdelete = bootdelete
-    def get_bootinclude(self): return self.bootinclude
-    def set_bootinclude(self, bootinclude): self.bootinclude = bootinclude
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
+    def get_bootdelete(self):
+        return self.bootdelete
+
+    def set_bootdelete(self, bootdelete):
+        self.bootdelete = bootdelete
+
+    def get_bootinclude(self):
+        return self.bootinclude
+
+    def set_bootinclude(self, bootinclude):
+        self.bootinclude = bootinclude
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='package', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='package',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('package')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2202,30 +3685,88 @@ class package(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='package')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='package'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='package', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='package',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='package'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='package',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-        if self.bootdelete is not None and 'bootdelete' not in already_processed:
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+        if (
+            self.bootdelete is not None
+            and 'bootdelete' not in already_processed
+        ):
             already_processed.add('bootdelete')
-            outfile.write(' bootdelete="%s"' % self.gds_format_boolean(self.bootdelete, input_name='bootdelete'))
-        if self.bootinclude is not None and 'bootinclude' not in already_processed:
+            outfile.write(
+                ' bootdelete="%s"'
+                % self.gds_format_boolean(
+                    self.bootdelete, input_name='bootdelete'
+                )
+            )
+        if (
+            self.bootinclude is not None
+            and 'bootinclude' not in already_processed
+        ):
             already_processed.add('bootinclude')
-            outfile.write(' bootinclude="%s"' % self.gds_format_boolean(self.bootinclude, input_name='bootinclude'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='package', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' bootinclude="%s"'
+                % self.gds_format_boolean(
+                    self.bootinclude, input_name='bootinclude'
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='package',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2233,6 +3774,7 @@ class package(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -2243,7 +3785,7 @@ class package(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
         value = find_attr_value_('bootdelete', node)
         if value is not None and 'bootdelete' not in already_processed:
             already_processed.add('bootdelete')
@@ -2262,8 +3804,11 @@ class package(GeneratedsSuper):
                 self.bootinclude = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class package
 
 
@@ -2271,9 +3816,18 @@ class profile(GeneratedsSuper):
     """Profiles creates a namespace on an image description and thus can be
     used to have one description with different profiles for example
     KDE and GNOME including different packages."""
+
     subclass = None
     superclass = None
-    def __init__(self, name=None, description=None, import_=None, arch=None, requires=None):
+
+    def __init__(
+        self,
+        name=None,
+        description=None,
+        import_=None,
+        arch=None,
+        requires=None,
+    ):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.description = _cast(None, description)
@@ -2283,45 +3837,89 @@ class profile(GeneratedsSuper):
             self.requires = []
         else:
             self.requires = requires
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, profile)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, profile)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if profile.subclass:
             return profile.subclass(*args_, **kwargs_)
         else:
             return profile(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_requires(self): return self.requires
-    def set_requires(self, requires): self.requires = requires
-    def add_requires(self, value): self.requires.append(value)
-    def insert_requires_at(self, index, value): self.requires.insert(index, value)
-    def replace_requires_at(self, index, value): self.requires[index] = value
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_description(self): return self.description
-    def set_description(self, description): self.description = description
-    def get_import(self): return self.import_
-    def set_import(self, import_): self.import_ = import_
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_requires(self):
+        return self.requires
+
+    def set_requires(self, requires):
+        self.requires = requires
+
+    def add_requires(self, value):
+        self.requires.append(value)
+
+    def insert_requires_at(self, index, value):
+        self.requires.insert(index, value)
+
+    def replace_requires_at(self, index, value):
+        self.requires[index] = value
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_description(self):
+        return self.description
+
+    def set_description(self, description):
+        self.description = description
+
+    def get_import(self):
+        return self.import_
+
+    def set_import(self, import_):
+        self.import_ = import_
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
+
     validate_arch_name_patterns_ = [['^.*$']]
+
     def hasContent_(self):
-        if (
-            self.requires
-        ):
+        if self.requires:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='profile', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='profile',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profile')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2332,36 +3930,100 @@ class profile(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profile')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='profile'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='profile', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='profile',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profile'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='profile',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-        if self.description is not None and 'description' not in already_processed:
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.description is not None
+            and 'description' not in already_processed
+        ):
             already_processed.add('description')
-            outfile.write(' description=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.description), input_name='description')), ))
+            outfile.write(
+                ' description=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.description),
+                            input_name='description',
+                        )
+                    ),
+                )
+            )
         if self.import_ is not None and 'import_' not in already_processed:
             already_processed.add('import_')
-            outfile.write(' import="%s"' % self.gds_format_boolean(self.import_, input_name='import'))
+            outfile.write(
+                ' import="%s"'
+                % self.gds_format_boolean(self.import_, input_name='import')
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='profile', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='profile',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for requires_ in self.requires:
-            requires_.export(outfile, level, namespaceprefix_, name_='requires', pretty_print=pretty_print)
+            requires_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='requires',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2369,6 +4031,7 @@ class profile(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -2392,55 +4055,86 @@ class profile(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'requires':
             obj_ = requires.factory()
             obj_.build(child_)
             self.requires.append(obj_)
             obj_.original_tagname_ = 'requires'
+
+
 # end class profile
 
 
 class requires(GeneratedsSuper):
     """Requires is used to set profiles dependencies, with it a profile
     definition can be composed by other existing profiles."""
+
     subclass = None
     superclass = None
+
     def __init__(self, profile=None, arch=None):
         self.original_tagname_ = None
         self.profile = _cast(None, profile)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, requires)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, requires)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if requires.subclass:
             return requires.subclass(*args_, **kwargs_)
         else:
             return requires(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_profile(self): return self.profile
-    def set_profile(self, profile): self.profile = profile
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_profile(self):
+        return self.profile
+
+    def set_profile(self, profile):
+        self.profile = profile
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='requires', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='requires',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('requires')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2451,24 +4145,70 @@ class requires(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='requires')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='requires',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='requires', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='requires',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='requires'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='requires',
+    ):
         if self.profile is not None and 'profile' not in already_processed:
             already_processed.add('profile')
-            outfile.write(' profile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profile), input_name='profile')), ))
+            outfile.write(
+                ' profile=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profile), input_name='profile'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='requires', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='requires',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2476,6 +4216,7 @@ class requires(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('profile', node)
         if value is not None and 'profile' not in already_processed:
@@ -2486,16 +4227,27 @@ class requires(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class requires
 
 
 class containers(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, arch=None, source=None, backend=None, container=None):
+
+    def __init__(
+        self,
+        profiles=None,
+        arch=None,
+        source=None,
+        backend=None,
+        container=None,
+    ):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         self.arch = _cast(None, arch)
@@ -2505,45 +4257,91 @@ class containers(GeneratedsSuper):
             self.container = []
         else:
             self.container = container
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, containers)
+                CurrentSubclassModule_, containers
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if containers.subclass:
             return containers.subclass(*args_, **kwargs_)
         else:
             return containers(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_container(self): return self.container
-    def set_container(self, container): self.container = container
-    def add_container(self, value): self.container.append(value)
-    def insert_container_at(self, index, value): self.container.insert(index, value)
-    def replace_container_at(self, index, value): self.container[index] = value
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
-    def get_source(self): return self.source
-    def set_source(self, source): self.source = source
-    def get_backend(self): return self.backend
-    def set_backend(self, backend): self.backend = backend
+
+    def get_container(self):
+        return self.container
+
+    def set_container(self, container):
+        self.container = container
+
+    def add_container(self, value):
+        self.container.append(value)
+
+    def insert_container_at(self, index, value):
+        self.container.insert(index, value)
+
+    def replace_container_at(self, index, value):
+        self.container[index] = value
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
+    def get_source(self):
+        return self.source
+
+    def set_source(self, source):
+        self.source = source
+
+    def get_backend(self):
+        return self.backend
+
+    def set_backend(self, backend):
+        self.backend = backend
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
+
     validate_arch_name_patterns_ = [['^.*$']]
+
     def hasContent_(self):
-        if (
-            self.container
-        ):
+        if self.container:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='containers', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='containers',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('containers')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2554,36 +4352,106 @@ class containers(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='containers')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='containers',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='containers', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='containers',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='containers'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='containers',
+    ):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
         if self.source is not None and 'source' not in already_processed:
             already_processed.add('source')
-            outfile.write(' source=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.source), input_name='source')), ))
+            outfile.write(
+                ' source=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.source), input_name='source'
+                        )
+                    ),
+                )
+            )
         if self.backend is not None and 'backend' not in already_processed:
             already_processed.add('backend')
-            outfile.write(' backend=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.backend), input_name='backend')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='containers', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' backend=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.backend), input_name='backend'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='containers',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for container_ in self.container:
-            container_.export(outfile, level, namespaceprefix_, name_='container', pretty_print=pretty_print)
+            container_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='container',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2591,6 +4459,7 @@ class containers(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
@@ -2601,7 +4470,7 @@ class containers(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
         value = find_attr_value_('source', node)
         if value is not None and 'source' not in already_processed:
             already_processed.add('source')
@@ -2611,61 +4480,105 @@ class containers(GeneratedsSuper):
             already_processed.add('backend')
             self.backend = value
             self.backend = ' '.join(self.backend.split())
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'container':
             obj_ = container.factory()
             obj_.build(child_)
             self.container.append(obj_)
             obj_.original_tagname_ = 'container'
+
+
 # end class containers
 
 
 class container(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, name=None, arch=None, path=None, tag=None, fetch_only=None):
+
+    def __init__(
+        self, name=None, arch=None, path=None, tag=None, fetch_only=None
+    ):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.arch = _cast(None, arch)
         self.path = _cast(None, path)
         self.tag = _cast(None, tag)
         self.fetch_only = _cast(bool, fetch_only)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, container)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, container)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if container.subclass:
             return container.subclass(*args_, **kwargs_)
         else:
             return container(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
-    def get_path(self): return self.path
-    def set_path(self, path): self.path = path
-    def get_tag(self): return self.tag
-    def set_tag(self, tag): self.tag = tag
-    def get_fetch_only(self): return self.fetch_only
-    def set_fetch_only(self, fetch_only): self.fetch_only = fetch_only
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
+    def get_path(self):
+        return self.path
+
+    def set_path(self, path):
+        self.path = path
+
+    def get_tag(self):
+        return self.tag
+
+    def set_tag(self, tag):
+        self.tag = tag
+
+    def get_fetch_only(self):
+        return self.fetch_only
+
+    def set_fetch_only(self, fetch_only):
+        self.fetch_only = fetch_only
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='container', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='container',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('container')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2676,33 +4589,105 @@ class container(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='container')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='container',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='container', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='container',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='container'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='container',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
         if self.path is not None and 'path' not in already_processed:
             already_processed.add('path')
-            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
+            outfile.write(
+                ' path=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.path), input_name='path'
+                        )
+                    ),
+                )
+            )
         if self.tag is not None and 'tag' not in already_processed:
             already_processed.add('tag')
-            outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
-        if self.fetch_only is not None and 'fetch_only' not in already_processed:
+            outfile.write(
+                ' tag=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.tag), input_name='tag'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.fetch_only is not None
+            and 'fetch_only' not in already_processed
+        ):
             already_processed.add('fetch_only')
-            outfile.write(' fetch_only="%s"' % self.gds_format_boolean(self.fetch_only, input_name='fetch_only'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='container', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' fetch_only="%s"'
+                % self.gds_format_boolean(
+                    self.fetch_only, input_name='fetch_only'
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='container',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2710,6 +4695,7 @@ class container(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -2720,7 +4706,7 @@ class container(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
         value = find_attr_value_('path', node)
         if value is not None and 'path' not in already_processed:
             already_processed.add('path')
@@ -2738,15 +4724,21 @@ class container(GeneratedsSuper):
                 self.fetch_only = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class container
 
 
 class certificates(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, target_distribution=None, certificate=None):
+
+    def __init__(
+        self, profiles=None, target_distribution=None, certificate=None
+    ):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         self.target_distribution = _cast(None, target_distribution)
@@ -2754,34 +4746,63 @@ class certificates(GeneratedsSuper):
             self.certificate = []
         else:
             self.certificate = certificate
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, certificates)
+                CurrentSubclassModule_, certificates
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if certificates.subclass:
             return certificates.subclass(*args_, **kwargs_)
         else:
             return certificates(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_certificate(self): return self.certificate
-    def set_certificate(self, certificate): self.certificate = certificate
-    def add_certificate(self, value): self.certificate.append(value)
-    def insert_certificate_at(self, index, value): self.certificate.insert(index, value)
-    def replace_certificate_at(self, index, value): self.certificate[index] = value
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def get_target_distribution(self): return self.target_distribution
-    def set_target_distribution(self, target_distribution): self.target_distribution = target_distribution
+
+    def get_certificate(self):
+        return self.certificate
+
+    def set_certificate(self, certificate):
+        self.certificate = certificate
+
+    def add_certificate(self, value):
+        self.certificate.append(value)
+
+    def insert_certificate_at(self, index, value):
+        self.certificate.insert(index, value)
+
+    def replace_certificate_at(self, index, value):
+        self.certificate[index] = value
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
+    def get_target_distribution(self):
+        return self.target_distribution
+
+    def set_target_distribution(self, target_distribution):
+        self.target_distribution = target_distribution
+
     def hasContent_(self):
-        if (
-            self.certificate
-        ):
+        if self.certificate:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='certificates', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='certificates',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('certificates')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2792,30 +4813,95 @@ class certificates(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='certificates')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='certificates',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='certificates', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='certificates',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='certificates'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='certificates',
+    ):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-        if self.target_distribution is not None and 'target_distribution' not in already_processed:
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.target_distribution is not None
+            and 'target_distribution' not in already_processed
+        ):
             already_processed.add('target_distribution')
-            outfile.write(' target_distribution=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.target_distribution), input_name='target_distribution')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='certificates', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' target_distribution=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.target_distribution),
+                            input_name='target_distribution',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='certificates',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for certificate_ in self.certificate:
-            certificate_.export(outfile, level, namespaceprefix_, name_='certificate', pretty_print=pretty_print)
+            certificate_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='certificate',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2823,6 +4909,7 @@ class certificates(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
@@ -2832,43 +4919,64 @@ class certificates(GeneratedsSuper):
         if value is not None and 'target_distribution' not in already_processed:
             already_processed.add('target_distribution')
             self.target_distribution = value
-            self.target_distribution = ' '.join(self.target_distribution.split())
+            self.target_distribution = ' '.join(
+                self.target_distribution.split()
+            )
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'certificate':
             obj_ = certificate.factory()
             obj_.build(child_)
             self.certificate.append(obj_)
             obj_.original_tagname_ = 'certificate'
+
+
 # end class certificates
 
 
 class certificate(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, name=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, certificate)
+                CurrentSubclassModule_, certificate
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if certificate.subclass:
             return certificate.subclass(*args_, **kwargs_)
         else:
             return certificate(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='certificate', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='certificate',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('certificate')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2879,21 +4987,67 @@ class certificate(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='certificate')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='certificate',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='certificate', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='certificate',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='certificate'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='certificate',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='certificate', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='certificate',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2901,23 +5055,50 @@ class certificate(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class certificate
 
 
 class repository(k_source):
     """The Name of the Repository"""
+
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, arch=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, customize=None, package_gpgcheck=None, priority=None, password=None, username=None, architectures=None):
+
+    def __init__(
+        self,
+        source=None,
+        type_=None,
+        profiles=None,
+        arch=None,
+        alias=None,
+        sourcetype=None,
+        components=None,
+        distribution=None,
+        imageinclude=None,
+        imageonly=None,
+        repository_gpgcheck=None,
+        customize=None,
+        package_gpgcheck=None,
+        priority=None,
+        password=None,
+        username=None,
+        architectures=None,
+    ):
         self.original_tagname_ = None
-        super(repository, self).__init__(source, )
+        super(repository, self).__init__(
+            source,
+        )
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
         self.arch = _cast(None, arch)
@@ -2934,71 +5115,164 @@ class repository(k_source):
         self.password = _cast(None, password)
         self.username = _cast(None, username)
         self.architectures = _cast(None, architectures)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, repository)
+                CurrentSubclassModule_, repository
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if repository.subclass:
             return repository.subclass(*args_, **kwargs_)
         else:
             return repository(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_type(self): return self.type_
-    def set_type(self, type_): self.type_ = type_
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
-    def get_alias(self): return self.alias
-    def set_alias(self, alias): self.alias = alias
-    def get_sourcetype(self): return self.sourcetype
-    def set_sourcetype(self, sourcetype): self.sourcetype = sourcetype
-    def get_components(self): return self.components
-    def set_components(self, components): self.components = components
-    def get_distribution(self): return self.distribution
-    def set_distribution(self, distribution): self.distribution = distribution
-    def get_imageinclude(self): return self.imageinclude
-    def set_imageinclude(self, imageinclude): self.imageinclude = imageinclude
-    def get_imageonly(self): return self.imageonly
-    def set_imageonly(self, imageonly): self.imageonly = imageonly
-    def get_repository_gpgcheck(self): return self.repository_gpgcheck
-    def set_repository_gpgcheck(self, repository_gpgcheck): self.repository_gpgcheck = repository_gpgcheck
-    def get_customize(self): return self.customize
-    def set_customize(self, customize): self.customize = customize
-    def get_package_gpgcheck(self): return self.package_gpgcheck
-    def set_package_gpgcheck(self, package_gpgcheck): self.package_gpgcheck = package_gpgcheck
-    def get_priority(self): return self.priority
-    def set_priority(self, priority): self.priority = priority
-    def get_password(self): return self.password
-    def set_password(self, password): self.password = password
-    def get_username(self): return self.username
-    def set_username(self, username): self.username = username
-    def get_architectures(self): return self.architectures
-    def set_architectures(self, architectures): self.architectures = architectures
+
+    def get_type(self):
+        return self.type_
+
+    def set_type(self, type_):
+        self.type_ = type_
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
+    def get_alias(self):
+        return self.alias
+
+    def set_alias(self, alias):
+        self.alias = alias
+
+    def get_sourcetype(self):
+        return self.sourcetype
+
+    def set_sourcetype(self, sourcetype):
+        self.sourcetype = sourcetype
+
+    def get_components(self):
+        return self.components
+
+    def set_components(self, components):
+        self.components = components
+
+    def get_distribution(self):
+        return self.distribution
+
+    def set_distribution(self, distribution):
+        self.distribution = distribution
+
+    def get_imageinclude(self):
+        return self.imageinclude
+
+    def set_imageinclude(self, imageinclude):
+        self.imageinclude = imageinclude
+
+    def get_imageonly(self):
+        return self.imageonly
+
+    def set_imageonly(self, imageonly):
+        self.imageonly = imageonly
+
+    def get_repository_gpgcheck(self):
+        return self.repository_gpgcheck
+
+    def set_repository_gpgcheck(self, repository_gpgcheck):
+        self.repository_gpgcheck = repository_gpgcheck
+
+    def get_customize(self):
+        return self.customize
+
+    def set_customize(self, customize):
+        self.customize = customize
+
+    def get_package_gpgcheck(self):
+        return self.package_gpgcheck
+
+    def set_package_gpgcheck(self, package_gpgcheck):
+        self.package_gpgcheck = package_gpgcheck
+
+    def get_priority(self):
+        return self.priority
+
+    def set_priority(self, priority):
+        self.priority = priority
+
+    def get_password(self):
+        return self.password
+
+    def set_password(self, password):
+        self.password = password
+
+    def get_username(self):
+        return self.username
+
+    def set_username(self, username):
+        self.username = username
+
+    def get_architectures(self):
+        return self.architectures
+
+    def set_architectures(self, architectures):
+        self.architectures = architectures
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
+
     validate_arch_name_patterns_ = [['^.*$']]
+
     def validate_safe_posix_name(self, value):
         # Validate type safe-posix-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_safe_posix_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_name_patterns_, ))
+                self.validate_safe_posix_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_safe_posix_name_patterns_,
+                    )
+                )
+
     validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
+
     def hasContent_(self):
-        if (
-            super(repository, self).hasContent_()
-        ):
+        if super(repository, self).hasContent_():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='repository', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='repository',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('repository')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3009,68 +5283,239 @@ class repository(k_source):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='repository')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='repository',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='repository', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='repository',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='repository'):
-        super(repository, self).exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='repository')
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='repository',
+    ):
+        super(repository, self).exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='repository',
+        )
         if self.type_ is not None and 'type_' not in already_processed:
             already_processed.add('type_')
-            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
+            outfile.write(
+                ' type=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.type_), input_name='type'
+                        )
+                    ),
+                )
+            )
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
         if self.alias is not None and 'alias' not in already_processed:
             already_processed.add('alias')
-            outfile.write(' alias=%s' % (quote_attrib(self.alias), ))
-        if self.sourcetype is not None and 'sourcetype' not in already_processed:
+            outfile.write(' alias=%s' % (quote_attrib(self.alias),))
+        if (
+            self.sourcetype is not None
+            and 'sourcetype' not in already_processed
+        ):
             already_processed.add('sourcetype')
-            outfile.write(' sourcetype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.sourcetype), input_name='sourcetype')), ))
-        if self.components is not None and 'components' not in already_processed:
+            outfile.write(
+                ' sourcetype=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.sourcetype),
+                            input_name='sourcetype',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.components is not None
+            and 'components' not in already_processed
+        ):
             already_processed.add('components')
-            outfile.write(' components=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.components), input_name='components')), ))
-        if self.distribution is not None and 'distribution' not in already_processed:
+            outfile.write(
+                ' components=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.components),
+                            input_name='components',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.distribution is not None
+            and 'distribution' not in already_processed
+        ):
             already_processed.add('distribution')
-            outfile.write(' distribution=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.distribution), input_name='distribution')), ))
-        if self.imageinclude is not None and 'imageinclude' not in already_processed:
+            outfile.write(
+                ' distribution=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.distribution),
+                            input_name='distribution',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.imageinclude is not None
+            and 'imageinclude' not in already_processed
+        ):
             already_processed.add('imageinclude')
-            outfile.write(' imageinclude="%s"' % self.gds_format_boolean(self.imageinclude, input_name='imageinclude'))
+            outfile.write(
+                ' imageinclude="%s"'
+                % self.gds_format_boolean(
+                    self.imageinclude, input_name='imageinclude'
+                )
+            )
         if self.imageonly is not None and 'imageonly' not in already_processed:
             already_processed.add('imageonly')
-            outfile.write(' imageonly="%s"' % self.gds_format_boolean(self.imageonly, input_name='imageonly'))
-        if self.repository_gpgcheck is not None and 'repository_gpgcheck' not in already_processed:
+            outfile.write(
+                ' imageonly="%s"'
+                % self.gds_format_boolean(
+                    self.imageonly, input_name='imageonly'
+                )
+            )
+        if (
+            self.repository_gpgcheck is not None
+            and 'repository_gpgcheck' not in already_processed
+        ):
             already_processed.add('repository_gpgcheck')
-            outfile.write(' repository_gpgcheck="%s"' % self.gds_format_boolean(self.repository_gpgcheck, input_name='repository_gpgcheck'))
+            outfile.write(
+                ' repository_gpgcheck="%s"'
+                % self.gds_format_boolean(
+                    self.repository_gpgcheck, input_name='repository_gpgcheck'
+                )
+            )
         if self.customize is not None and 'customize' not in already_processed:
             already_processed.add('customize')
-            outfile.write(' customize=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.customize), input_name='customize')), ))
-        if self.package_gpgcheck is not None and 'package_gpgcheck' not in already_processed:
+            outfile.write(
+                ' customize=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.customize), input_name='customize'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.package_gpgcheck is not None
+            and 'package_gpgcheck' not in already_processed
+        ):
             already_processed.add('package_gpgcheck')
-            outfile.write(' package_gpgcheck="%s"' % self.gds_format_boolean(self.package_gpgcheck, input_name='package_gpgcheck'))
+            outfile.write(
+                ' package_gpgcheck="%s"'
+                % self.gds_format_boolean(
+                    self.package_gpgcheck, input_name='package_gpgcheck'
+                )
+            )
         if self.priority is not None and 'priority' not in already_processed:
             already_processed.add('priority')
-            outfile.write(' priority="%s"' % self.gds_format_integer(self.priority, input_name='priority'))
+            outfile.write(
+                ' priority="%s"'
+                % self.gds_format_integer(self.priority, input_name='priority')
+            )
         if self.password is not None and 'password' not in already_processed:
             already_processed.add('password')
-            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
+            outfile.write(
+                ' password=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.password), input_name='password'
+                        )
+                    ),
+                )
+            )
         if self.username is not None and 'username' not in already_processed:
             already_processed.add('username')
-            outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
-        if self.architectures is not None and 'architectures' not in already_processed:
+            outfile.write(
+                ' username=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.username), input_name='username'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.architectures is not None
+            and 'architectures' not in already_processed
+        ):
             already_processed.add('architectures')
-            outfile.write(' architectures=%s' % (quote_attrib(self.architectures), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='repository', fromsubclass_=False, pretty_print=True):
-        super(repository, self).exportChildren(outfile, level, namespaceprefix_, name_, True, pretty_print=pretty_print)
+            outfile.write(
+                ' architectures=%s' % (quote_attrib(self.architectures),)
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='repository',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
+        super(repository, self).exportChildren(
+            outfile,
+            level,
+            namespaceprefix_,
+            name_,
+            True,
+            pretty_print=pretty_print,
+        )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3078,6 +5523,7 @@ class repository(k_source):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('type', node)
         if value is not None and 'type' not in already_processed:
@@ -3093,13 +5539,15 @@ class repository(k_source):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
         value = find_attr_value_('alias', node)
         if value is not None and 'alias' not in already_processed:
             already_processed.add('alias')
             self.alias = value
             self.alias = ' '.join(self.alias.split())
-            self.validate_safe_posix_name(self.alias)    # validate type safe-posix-name
+            self.validate_safe_posix_name(
+                self.alias
+            )  # validate type safe-posix-name
         value = find_attr_value_('sourcetype', node)
         if value is not None and 'sourcetype' not in already_processed:
             already_processed.add('sourcetype')
@@ -3173,50 +5621,81 @@ class repository(k_source):
             already_processed.add('architectures')
             self.architectures = value
             self.architectures = ' '.join(self.architectures.split())
-            self.validate_arch_name(self.architectures)    # validate type arch-name
+            self.validate_arch_name(
+                self.architectures
+            )  # validate type arch-name
         super(repository, self).buildAttributes(node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         super(repository, self).buildChildren(child_, node, nodeName_, True)
         pass
+
+
 # end class repository
 
 
 class signing(GeneratedsSuper):
     """The signing element holds information about repo/package signing
     keys"""
+
     subclass = None
     superclass = None
+
     def __init__(self, key=None):
         self.original_tagname_ = None
         self.key = _cast(None, key)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, signing)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, signing)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if signing.subclass:
             return signing.subclass(*args_, **kwargs_)
         else:
             return signing(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_key(self): return self.key
-    def set_key(self, key): self.key = key
+
+    def get_key(self):
+        return self.key
+
+    def set_key(self, key):
+        self.key = key
+
     def validate_simple_uri_type(self, value):
         # Validate type simple-uri-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_simple_uri_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_simple_uri_type_patterns_, ))
-    validate_simple_uri_type_patterns_ = [['^(file:|this:|https:|http:|ftp:).*$']]
-    def hasContent_(self):
-        if (
+                self.validate_simple_uri_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_simple_uri_type_patterns_,
+                    )
+                )
 
-        ):
+    validate_simple_uri_type_patterns_ = [
+        ['^(file:|this:|https:|http:|ftp:).*$']
+    ]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='signing', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='signing',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('signing')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3227,21 +5706,54 @@ class signing(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='signing')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='signing'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='signing', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='signing',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='signing'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='signing',
+    ):
         if self.key is not None and 'key' not in already_processed:
             already_processed.add('key')
-            outfile.write(' key=%s' % (quote_attrib(self.key), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='signing', fromsubclass_=False, pretty_print=True):
+            outfile.write(' key=%s' % (quote_attrib(self.key),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='signing',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3249,23 +5761,31 @@ class signing(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('key', node)
         if value is not None and 'key' not in already_processed:
             already_processed.add('key')
             self.key = value
             self.key = ' '.join(self.key.split())
-            self.validate_simple_uri_type(self.key)    # validate type simple-uri-type
+            self.validate_simple_uri_type(
+                self.key
+            )  # validate type simple-uri-type
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class signing
 
 
 class source(GeneratedsSuper):
     """A Pointer to a data source. This can be a remote location as well as
     a path specification"""
+
     subclass = None
     superclass = None
+
     def __init__(self, path=None, signing=None):
         self.original_tagname_ = None
         self.path = _cast(None, path)
@@ -3273,32 +5793,55 @@ class source(GeneratedsSuper):
             self.signing = []
         else:
             self.signing = signing
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, source)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, source)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if source.subclass:
             return source.subclass(*args_, **kwargs_)
         else:
             return source(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_signing(self): return self.signing
-    def set_signing(self, signing): self.signing = signing
-    def add_signing(self, value): self.signing.append(value)
-    def insert_signing_at(self, index, value): self.signing.insert(index, value)
-    def replace_signing_at(self, index, value): self.signing[index] = value
-    def get_path(self): return self.path
-    def set_path(self, path): self.path = path
+
+    def get_signing(self):
+        return self.signing
+
+    def set_signing(self, signing):
+        self.signing = signing
+
+    def add_signing(self, value):
+        self.signing.append(value)
+
+    def insert_signing_at(self, index, value):
+        self.signing.insert(index, value)
+
+    def replace_signing_at(self, index, value):
+        self.signing[index] = value
+
+    def get_path(self):
+        return self.path
+
+    def set_path(self, path):
+        self.path = path
+
     def hasContent_(self):
-        if (
-            self.signing
-        ):
+        if self.signing:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='source', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='source',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('source')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3309,27 +5852,75 @@ class source(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='source')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='source'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='source', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='source',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='source'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='source',
+    ):
         if self.path is not None and 'path' not in already_processed:
             already_processed.add('path')
-            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='source', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' path=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.path), input_name='path'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='source',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for signing_ in self.signing:
-            signing_.export(outfile, level, namespaceprefix_, name_='signing', pretty_print=pretty_print)
+            signing_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='signing',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3337,17 +5928,21 @@ class source(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('path', node)
         if value is not None and 'path' not in already_processed:
             already_processed.add('path')
             self.path = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'signing':
             obj_ = signing.factory()
             obj_.build(child_)
             self.signing.append(obj_)
             obj_.original_tagname_ = 'signing'
+
+
 # end class source
 
 
@@ -3355,41 +5950,70 @@ class size(GeneratedsSuper):
     """Specifies the Size of an Image in (M)egabyte or (G)igabyte If the
     attribute additive is set the value will be added to the
     required size of the image"""
+
     subclass = None
     superclass = None
-    def __init__(self, unit=None, unpartitioned=None, additive=None, valueOf_=None):
+
+    def __init__(
+        self, unit=None, unpartitioned=None, additive=None, valueOf_=None
+    ):
         self.original_tagname_ = None
         self.unit = _cast(None, unit)
         self.unpartitioned = _cast(int, unpartitioned)
         self.additive = _cast(bool, additive)
         self.valueOf_ = valueOf_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, size)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, size)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if size.subclass:
             return size.subclass(*args_, **kwargs_)
         else:
             return size(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_unit(self): return self.unit
-    def set_unit(self, unit): self.unit = unit
-    def get_unpartitioned(self): return self.unpartitioned
-    def set_unpartitioned(self, unpartitioned): self.unpartitioned = unpartitioned
-    def get_additive(self): return self.additive
-    def set_additive(self, additive): self.additive = additive
-    def get_valueOf_(self): return self.valueOf_
-    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+
+    def get_unit(self):
+        return self.unit
+
+    def set_unit(self, unit):
+        self.unit = unit
+
+    def get_unpartitioned(self):
+        return self.unpartitioned
+
+    def set_unpartitioned(self, unpartitioned):
+        self.unpartitioned = unpartitioned
+
+    def get_additive(self):
+        return self.additive
+
+    def set_additive(self, additive):
+        self.additive = additive
+
+    def get_valueOf_(self):
+        return self.valueOf_
+
+    def set_valueOf_(self, valueOf_):
+        self.valueOf_ = valueOf_
+
     def hasContent_(self):
-        if (
-            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
-        ):
+        if 1 if type(self.valueOf_) in [int, float] else self.valueOf_:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='size', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='size',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('size')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3400,28 +6024,81 @@ class size(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='size')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='size'
+        )
         if self.hasContent_():
             outfile.write('>')
             outfile.write(self.convert_unicode(self.valueOf_))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='size', pretty_print=pretty_print)
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='size',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='size'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='size',
+    ):
         if self.unit is not None and 'unit' not in already_processed:
             already_processed.add('unit')
-            outfile.write(' unit=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.unit), input_name='unit')), ))
-        if self.unpartitioned is not None and 'unpartitioned' not in already_processed:
+            outfile.write(
+                ' unit=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.unit), input_name='unit'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.unpartitioned is not None
+            and 'unpartitioned' not in already_processed
+        ):
             already_processed.add('unpartitioned')
-            outfile.write(' unpartitioned="%s"' % self.gds_format_integer(self.unpartitioned, input_name='unpartitioned'))
+            outfile.write(
+                ' unpartitioned="%s"'
+                % self.gds_format_integer(
+                    self.unpartitioned, input_name='unpartitioned'
+                )
+            )
         if self.additive is not None and 'additive' not in already_processed:
             already_processed.add('additive')
-            outfile.write(' additive="%s"' % self.gds_format_boolean(self.additive, input_name='additive'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='size', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' additive="%s"'
+                % self.gds_format_boolean(self.additive, input_name='additive')
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='size',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3430,6 +6107,7 @@ class size(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('unit', node)
         if value is not None and 'unit' not in already_processed:
@@ -3454,15 +6132,20 @@ class size(GeneratedsSuper):
                 self.additive = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class size
 
 
 class systemdisk(GeneratedsSuper):
     """Specify volumes and size attributes"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, preferlvm=None, volume=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
@@ -3471,34 +6154,63 @@ class systemdisk(GeneratedsSuper):
             self.volume = []
         else:
             self.volume = volume
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, systemdisk)
+                CurrentSubclassModule_, systemdisk
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if systemdisk.subclass:
             return systemdisk.subclass(*args_, **kwargs_)
         else:
             return systemdisk(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_volume(self): return self.volume
-    def set_volume(self, volume): self.volume = volume
-    def add_volume(self, value): self.volume.append(value)
-    def insert_volume_at(self, index, value): self.volume.insert(index, value)
-    def replace_volume_at(self, index, value): self.volume[index] = value
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_preferlvm(self): return self.preferlvm
-    def set_preferlvm(self, preferlvm): self.preferlvm = preferlvm
+
+    def get_volume(self):
+        return self.volume
+
+    def set_volume(self, volume):
+        self.volume = volume
+
+    def add_volume(self, value):
+        self.volume.append(value)
+
+    def insert_volume_at(self, index, value):
+        self.volume.insert(index, value)
+
+    def replace_volume_at(self, index, value):
+        self.volume[index] = value
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_preferlvm(self):
+        return self.preferlvm
+
+    def set_preferlvm(self, preferlvm):
+        self.preferlvm = preferlvm
+
     def hasContent_(self):
-        if (
-            self.volume
-        ):
+        if self.volume:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='systemdisk', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='systemdisk',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('systemdisk')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3509,30 +6221,87 @@ class systemdisk(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='systemdisk')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='systemdisk',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='systemdisk', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='systemdisk',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='systemdisk'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='systemdisk',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.preferlvm is not None and 'preferlvm' not in already_processed:
             already_processed.add('preferlvm')
-            outfile.write(' preferlvm="%s"' % self.gds_format_boolean(self.preferlvm, input_name='preferlvm'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='systemdisk', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' preferlvm="%s"'
+                % self.gds_format_boolean(
+                    self.preferlvm, input_name='preferlvm'
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='systemdisk',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for volume_ in self.volume:
-            volume_.export(outfile, level, namespaceprefix_, name_='volume', pretty_print=pretty_print)
+            volume_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='volume',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3540,6 +6309,7 @@ class systemdisk(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -3554,20 +6324,135 @@ class systemdisk(GeneratedsSuper):
                 self.preferlvm = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'volume':
             obj_ = volume.factory()
             obj_.build(child_)
             self.volume.append(obj_)
             obj_.original_tagname_ = 'volume'
+
+
 # end class systemdisk
 
 
 class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
+
     subclass = None
     superclass = None
-    def __init__(self, archive=None, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efimountoptions=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, apply_dps_codes=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, overlayroot_readonly_createoptions=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+
+    def __init__(
+        self,
+        archive=None,
+        eficsmpart_id=None,
+        efipart_id=None,
+        rootpart_id=None,
+        bootpart_id=None,
+        boot=None,
+        bootfilesystem=None,
+        firmware=None,
+        bootkernel=None,
+        bootpartition=None,
+        bootpartsize=None,
+        efipartsize=None,
+        efimountoptions=None,
+        efifatimagesize=None,
+        eficsm=None,
+        efiparttable=None,
+        dosparttable_extended_layout=None,
+        bootprofile=None,
+        btrfs_quota_groups=None,
+        btrfs_root_is_snapper_snapshot=None,
+        btrfs_root_is_subvolume=None,
+        btrfs_set_default_volume=None,
+        btrfs_root_is_readonly_snapshot=None,
+        compressed=None,
+        devicepersistency=None,
+        editbootconfig=None,
+        editbootinstall=None,
+        filesystem=None,
+        flags=None,
+        enclave_format=None,
+        format=None,
+        formatoptions=None,
+        fsmountoptions=None,
+        fscreateoptions=None,
+        squashfscompression=None,
+        erofscompression=None,
+        gcelicense=None,
+        hybridpersistent=None,
+        hybridpersistent_filesystem=None,
+        gpt_hybrid_mbr=None,
+        force_mbr=None,
+        apply_dps_codes=None,
+        initrd_system=None,
+        image=None,
+        metadata_path=None,
+        installboot=None,
+        install_continue_on_timeout=None,
+        installprovidefailsafe=None,
+        installiso=None,
+        installstick=None,
+        installpxe=None,
+        mediacheck=None,
+        kernelcmdline=None,
+        luks=None,
+        luks_version=None,
+        luksOS=None,
+        luks_randomize=None,
+        luks_pbkdf=None,
+        mdraid=None,
+        overlayroot=None,
+        overlayroot_write_partition=None,
+        overlayroot_readonly_filesystem=None,
+        overlayroot_readonly_partsize=None,
+        overlayroot_readonly_createoptions=None,
+        verity_blocks=None,
+        embed_verity_metadata=None,
+        standalone_integrity=None,
+        embed_integrity_metadata=None,
+        integrity_legacy_hmac=None,
+        integrity_metadata_key_description=None,
+        integrity_keyfile=None,
+        primary=None,
+        ramonly=None,
+        rootfs_label=None,
+        spare_part=None,
+        spare_part_mountpoint=None,
+        spare_part_fs=None,
+        spare_part_fs_attributes=None,
+        spare_part_is_last=None,
+        target_blocksize=None,
+        target_removable=None,
+        selinux_policy=None,
+        vhdfixedtag=None,
+        volid=None,
+        application_id=None,
+        wwid_wait_timeout=None,
+        derived_from=None,
+        delta_root=None,
+        provide_system_files=None,
+        require_system_files=None,
+        ensure_empty_tmpdirs=None,
+        xen_server=None,
+        publisher=None,
+        disk_start_sector=None,
+        root_clone=None,
+        boot_clone=None,
+        bundle_format=None,
+        bootloader=None,
+        containerconfig=None,
+        machine=None,
+        oemconfig=None,
+        size=None,
+        systemdisk=None,
+        partitions=None,
+        vagrantconfig=None,
+        installmedia=None,
+        initrd=None,
+        luksformat=None,
+    ):
         self.original_tagname_ = None
         self.archive = _cast(bool, archive)
         self.eficsmpart_id = _cast(None, eficsmpart_id)
@@ -3585,13 +6470,19 @@ class type_(GeneratedsSuper):
         self.efifatimagesize = _cast(int, efifatimagesize)
         self.eficsm = _cast(bool, eficsm)
         self.efiparttable = _cast(None, efiparttable)
-        self.dosparttable_extended_layout = _cast(bool, dosparttable_extended_layout)
+        self.dosparttable_extended_layout = _cast(
+            bool, dosparttable_extended_layout
+        )
         self.bootprofile = _cast(None, bootprofile)
         self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
-        self.btrfs_root_is_snapper_snapshot = _cast(bool, btrfs_root_is_snapper_snapshot)
+        self.btrfs_root_is_snapper_snapshot = _cast(
+            bool, btrfs_root_is_snapper_snapshot
+        )
         self.btrfs_root_is_subvolume = _cast(bool, btrfs_root_is_subvolume)
         self.btrfs_set_default_volume = _cast(bool, btrfs_set_default_volume)
-        self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
+        self.btrfs_root_is_readonly_snapshot = _cast(
+            bool, btrfs_root_is_readonly_snapshot
+        )
         self.compressed = _cast(bool, compressed)
         self.devicepersistency = _cast(None, devicepersistency)
         self.editbootconfig = _cast(None, editbootconfig)
@@ -3607,7 +6498,9 @@ class type_(GeneratedsSuper):
         self.erofscompression = _cast(None, erofscompression)
         self.gcelicense = _cast(None, gcelicense)
         self.hybridpersistent = _cast(bool, hybridpersistent)
-        self.hybridpersistent_filesystem = _cast(None, hybridpersistent_filesystem)
+        self.hybridpersistent_filesystem = _cast(
+            None, hybridpersistent_filesystem
+        )
         self.gpt_hybrid_mbr = _cast(bool, gpt_hybrid_mbr)
         self.force_mbr = _cast(bool, force_mbr)
         self.apply_dps_codes = _cast(bool, apply_dps_codes)
@@ -3615,7 +6508,9 @@ class type_(GeneratedsSuper):
         self.image = _cast(None, image)
         self.metadata_path = _cast(None, metadata_path)
         self.installboot = _cast(None, installboot)
-        self.install_continue_on_timeout = _cast(bool, install_continue_on_timeout)
+        self.install_continue_on_timeout = _cast(
+            bool, install_continue_on_timeout
+        )
         self.installprovidefailsafe = _cast(bool, installprovidefailsafe)
         self.installiso = _cast(bool, installiso)
         self.installstick = _cast(bool, installstick)
@@ -3629,16 +6524,26 @@ class type_(GeneratedsSuper):
         self.luks_pbkdf = _cast(None, luks_pbkdf)
         self.mdraid = _cast(None, mdraid)
         self.overlayroot = _cast(bool, overlayroot)
-        self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
-        self.overlayroot_readonly_filesystem = _cast(None, overlayroot_readonly_filesystem)
-        self.overlayroot_readonly_partsize = _cast(int, overlayroot_readonly_partsize)
-        self.overlayroot_readonly_createoptions = _cast(None, overlayroot_readonly_createoptions)
+        self.overlayroot_write_partition = _cast(
+            bool, overlayroot_write_partition
+        )
+        self.overlayroot_readonly_filesystem = _cast(
+            None, overlayroot_readonly_filesystem
+        )
+        self.overlayroot_readonly_partsize = _cast(
+            int, overlayroot_readonly_partsize
+        )
+        self.overlayroot_readonly_createoptions = _cast(
+            None, overlayroot_readonly_createoptions
+        )
         self.verity_blocks = _cast(None, verity_blocks)
         self.embed_verity_metadata = _cast(bool, embed_verity_metadata)
         self.standalone_integrity = _cast(bool, standalone_integrity)
         self.embed_integrity_metadata = _cast(bool, embed_integrity_metadata)
         self.integrity_legacy_hmac = _cast(bool, integrity_legacy_hmac)
-        self.integrity_metadata_key_description = _cast(None, integrity_metadata_key_description)
+        self.integrity_metadata_key_description = _cast(
+            None, integrity_metadata_key_description
+        )
         self.integrity_keyfile = _cast(None, integrity_keyfile)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
@@ -3710,333 +6615,927 @@ class type_(GeneratedsSuper):
             self.luksformat = []
         else:
             self.luksformat = luksformat
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, type_)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, type_)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if type_.subclass:
             return type_.subclass(*args_, **kwargs_)
         else:
             return type_(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_bootloader(self): return self.bootloader
-    def set_bootloader(self, bootloader): self.bootloader = bootloader
-    def add_bootloader(self, value): self.bootloader.append(value)
-    def insert_bootloader_at(self, index, value): self.bootloader.insert(index, value)
-    def replace_bootloader_at(self, index, value): self.bootloader[index] = value
-    def get_containerconfig(self): return self.containerconfig
-    def set_containerconfig(self, containerconfig): self.containerconfig = containerconfig
-    def add_containerconfig(self, value): self.containerconfig.append(value)
-    def insert_containerconfig_at(self, index, value): self.containerconfig.insert(index, value)
-    def replace_containerconfig_at(self, index, value): self.containerconfig[index] = value
-    def get_machine(self): return self.machine
-    def set_machine(self, machine): self.machine = machine
-    def add_machine(self, value): self.machine.append(value)
-    def insert_machine_at(self, index, value): self.machine.insert(index, value)
-    def replace_machine_at(self, index, value): self.machine[index] = value
-    def get_oemconfig(self): return self.oemconfig
-    def set_oemconfig(self, oemconfig): self.oemconfig = oemconfig
-    def add_oemconfig(self, value): self.oemconfig.append(value)
-    def insert_oemconfig_at(self, index, value): self.oemconfig.insert(index, value)
-    def replace_oemconfig_at(self, index, value): self.oemconfig[index] = value
-    def get_size(self): return self.size
-    def set_size(self, size): self.size = size
-    def add_size(self, value): self.size.append(value)
-    def insert_size_at(self, index, value): self.size.insert(index, value)
-    def replace_size_at(self, index, value): self.size[index] = value
-    def get_systemdisk(self): return self.systemdisk
-    def set_systemdisk(self, systemdisk): self.systemdisk = systemdisk
-    def add_systemdisk(self, value): self.systemdisk.append(value)
-    def insert_systemdisk_at(self, index, value): self.systemdisk.insert(index, value)
-    def replace_systemdisk_at(self, index, value): self.systemdisk[index] = value
-    def get_partitions(self): return self.partitions
-    def set_partitions(self, partitions): self.partitions = partitions
-    def add_partitions(self, value): self.partitions.append(value)
-    def insert_partitions_at(self, index, value): self.partitions.insert(index, value)
-    def replace_partitions_at(self, index, value): self.partitions[index] = value
-    def get_vagrantconfig(self): return self.vagrantconfig
-    def set_vagrantconfig(self, vagrantconfig): self.vagrantconfig = vagrantconfig
-    def add_vagrantconfig(self, value): self.vagrantconfig.append(value)
-    def insert_vagrantconfig_at(self, index, value): self.vagrantconfig.insert(index, value)
-    def replace_vagrantconfig_at(self, index, value): self.vagrantconfig[index] = value
-    def get_installmedia(self): return self.installmedia
-    def set_installmedia(self, installmedia): self.installmedia = installmedia
-    def add_installmedia(self, value): self.installmedia.append(value)
-    def insert_installmedia_at(self, index, value): self.installmedia.insert(index, value)
-    def replace_installmedia_at(self, index, value): self.installmedia[index] = value
-    def get_initrd(self): return self.initrd
-    def set_initrd(self, initrd): self.initrd = initrd
-    def add_initrd(self, value): self.initrd.append(value)
-    def insert_initrd_at(self, index, value): self.initrd.insert(index, value)
-    def replace_initrd_at(self, index, value): self.initrd[index] = value
-    def get_luksformat(self): return self.luksformat
-    def set_luksformat(self, luksformat): self.luksformat = luksformat
-    def add_luksformat(self, value): self.luksformat.append(value)
-    def insert_luksformat_at(self, index, value): self.luksformat.insert(index, value)
-    def replace_luksformat_at(self, index, value): self.luksformat[index] = value
-    def get_archive(self): return self.archive
-    def set_archive(self, archive): self.archive = archive
-    def get_eficsmpart_id(self): return self.eficsmpart_id
-    def set_eficsmpart_id(self, eficsmpart_id): self.eficsmpart_id = eficsmpart_id
-    def get_efipart_id(self): return self.efipart_id
-    def set_efipart_id(self, efipart_id): self.efipart_id = efipart_id
-    def get_rootpart_id(self): return self.rootpart_id
-    def set_rootpart_id(self, rootpart_id): self.rootpart_id = rootpart_id
-    def get_bootpart_id(self): return self.bootpart_id
-    def set_bootpart_id(self, bootpart_id): self.bootpart_id = bootpart_id
-    def get_boot(self): return self.boot
-    def set_boot(self, boot): self.boot = boot
-    def get_bootfilesystem(self): return self.bootfilesystem
-    def set_bootfilesystem(self, bootfilesystem): self.bootfilesystem = bootfilesystem
-    def get_firmware(self): return self.firmware
-    def set_firmware(self, firmware): self.firmware = firmware
-    def get_bootkernel(self): return self.bootkernel
-    def set_bootkernel(self, bootkernel): self.bootkernel = bootkernel
-    def get_bootpartition(self): return self.bootpartition
-    def set_bootpartition(self, bootpartition): self.bootpartition = bootpartition
-    def get_bootpartsize(self): return self.bootpartsize
-    def set_bootpartsize(self, bootpartsize): self.bootpartsize = bootpartsize
-    def get_efipartsize(self): return self.efipartsize
-    def set_efipartsize(self, efipartsize): self.efipartsize = efipartsize
-    def get_efimountoptions(self): return self.efimountoptions
-    def set_efimountoptions(self, efimountoptions): self.efimountoptions = efimountoptions
-    def get_efifatimagesize(self): return self.efifatimagesize
-    def set_efifatimagesize(self, efifatimagesize): self.efifatimagesize = efifatimagesize
-    def get_eficsm(self): return self.eficsm
-    def set_eficsm(self, eficsm): self.eficsm = eficsm
-    def get_efiparttable(self): return self.efiparttable
-    def set_efiparttable(self, efiparttable): self.efiparttable = efiparttable
-    def get_dosparttable_extended_layout(self): return self.dosparttable_extended_layout
-    def set_dosparttable_extended_layout(self, dosparttable_extended_layout): self.dosparttable_extended_layout = dosparttable_extended_layout
-    def get_bootprofile(self): return self.bootprofile
-    def set_bootprofile(self, bootprofile): self.bootprofile = bootprofile
-    def get_btrfs_quota_groups(self): return self.btrfs_quota_groups
-    def set_btrfs_quota_groups(self, btrfs_quota_groups): self.btrfs_quota_groups = btrfs_quota_groups
-    def get_btrfs_root_is_snapper_snapshot(self): return self.btrfs_root_is_snapper_snapshot
-    def set_btrfs_root_is_snapper_snapshot(self, btrfs_root_is_snapper_snapshot): self.btrfs_root_is_snapper_snapshot = btrfs_root_is_snapper_snapshot
-    def get_btrfs_root_is_subvolume(self): return self.btrfs_root_is_subvolume
-    def set_btrfs_root_is_subvolume(self, btrfs_root_is_subvolume): self.btrfs_root_is_subvolume = btrfs_root_is_subvolume
-    def get_btrfs_set_default_volume(self): return self.btrfs_set_default_volume
-    def set_btrfs_set_default_volume(self, btrfs_set_default_volume): self.btrfs_set_default_volume = btrfs_set_default_volume
-    def get_btrfs_root_is_readonly_snapshot(self): return self.btrfs_root_is_readonly_snapshot
-    def set_btrfs_root_is_readonly_snapshot(self, btrfs_root_is_readonly_snapshot): self.btrfs_root_is_readonly_snapshot = btrfs_root_is_readonly_snapshot
-    def get_compressed(self): return self.compressed
-    def set_compressed(self, compressed): self.compressed = compressed
-    def get_devicepersistency(self): return self.devicepersistency
-    def set_devicepersistency(self, devicepersistency): self.devicepersistency = devicepersistency
-    def get_editbootconfig(self): return self.editbootconfig
-    def set_editbootconfig(self, editbootconfig): self.editbootconfig = editbootconfig
-    def get_editbootinstall(self): return self.editbootinstall
-    def set_editbootinstall(self, editbootinstall): self.editbootinstall = editbootinstall
-    def get_filesystem(self): return self.filesystem
-    def set_filesystem(self, filesystem): self.filesystem = filesystem
-    def get_flags(self): return self.flags
-    def set_flags(self, flags): self.flags = flags
-    def get_enclave_format(self): return self.enclave_format
-    def set_enclave_format(self, enclave_format): self.enclave_format = enclave_format
-    def get_format(self): return self.format
-    def set_format(self, format): self.format = format
-    def get_formatoptions(self): return self.formatoptions
-    def set_formatoptions(self, formatoptions): self.formatoptions = formatoptions
-    def get_fsmountoptions(self): return self.fsmountoptions
-    def set_fsmountoptions(self, fsmountoptions): self.fsmountoptions = fsmountoptions
-    def get_fscreateoptions(self): return self.fscreateoptions
-    def set_fscreateoptions(self, fscreateoptions): self.fscreateoptions = fscreateoptions
-    def get_squashfscompression(self): return self.squashfscompression
-    def set_squashfscompression(self, squashfscompression): self.squashfscompression = squashfscompression
-    def get_erofscompression(self): return self.erofscompression
-    def set_erofscompression(self, erofscompression): self.erofscompression = erofscompression
-    def get_gcelicense(self): return self.gcelicense
-    def set_gcelicense(self, gcelicense): self.gcelicense = gcelicense
-    def get_hybridpersistent(self): return self.hybridpersistent
-    def set_hybridpersistent(self, hybridpersistent): self.hybridpersistent = hybridpersistent
-    def get_hybridpersistent_filesystem(self): return self.hybridpersistent_filesystem
-    def set_hybridpersistent_filesystem(self, hybridpersistent_filesystem): self.hybridpersistent_filesystem = hybridpersistent_filesystem
-    def get_gpt_hybrid_mbr(self): return self.gpt_hybrid_mbr
-    def set_gpt_hybrid_mbr(self, gpt_hybrid_mbr): self.gpt_hybrid_mbr = gpt_hybrid_mbr
-    def get_force_mbr(self): return self.force_mbr
-    def set_force_mbr(self, force_mbr): self.force_mbr = force_mbr
-    def get_apply_dps_codes(self): return self.apply_dps_codes
-    def set_apply_dps_codes(self, apply_dps_codes): self.apply_dps_codes = apply_dps_codes
-    def get_initrd_system(self): return self.initrd_system
-    def set_initrd_system(self, initrd_system): self.initrd_system = initrd_system
-    def get_image(self): return self.image
-    def set_image(self, image): self.image = image
-    def get_metadata_path(self): return self.metadata_path
-    def set_metadata_path(self, metadata_path): self.metadata_path = metadata_path
-    def get_installboot(self): return self.installboot
-    def set_installboot(self, installboot): self.installboot = installboot
-    def get_install_continue_on_timeout(self): return self.install_continue_on_timeout
-    def set_install_continue_on_timeout(self, install_continue_on_timeout): self.install_continue_on_timeout = install_continue_on_timeout
-    def get_installprovidefailsafe(self): return self.installprovidefailsafe
-    def set_installprovidefailsafe(self, installprovidefailsafe): self.installprovidefailsafe = installprovidefailsafe
-    def get_installiso(self): return self.installiso
-    def set_installiso(self, installiso): self.installiso = installiso
-    def get_installstick(self): return self.installstick
-    def set_installstick(self, installstick): self.installstick = installstick
-    def get_installpxe(self): return self.installpxe
-    def set_installpxe(self, installpxe): self.installpxe = installpxe
-    def get_mediacheck(self): return self.mediacheck
-    def set_mediacheck(self, mediacheck): self.mediacheck = mediacheck
-    def get_kernelcmdline(self): return self.kernelcmdline
-    def set_kernelcmdline(self, kernelcmdline): self.kernelcmdline = kernelcmdline
-    def get_luks(self): return self.luks
-    def set_luks(self, luks): self.luks = luks
-    def get_luks_version(self): return self.luks_version
-    def set_luks_version(self, luks_version): self.luks_version = luks_version
-    def get_luksOS(self): return self.luksOS
-    def set_luksOS(self, luksOS): self.luksOS = luksOS
-    def get_luks_randomize(self): return self.luks_randomize
-    def set_luks_randomize(self, luks_randomize): self.luks_randomize = luks_randomize
-    def get_luks_pbkdf(self): return self.luks_pbkdf
-    def set_luks_pbkdf(self, luks_pbkdf): self.luks_pbkdf = luks_pbkdf
-    def get_mdraid(self): return self.mdraid
-    def set_mdraid(self, mdraid): self.mdraid = mdraid
-    def get_overlayroot(self): return self.overlayroot
-    def set_overlayroot(self, overlayroot): self.overlayroot = overlayroot
-    def get_overlayroot_write_partition(self): return self.overlayroot_write_partition
-    def set_overlayroot_write_partition(self, overlayroot_write_partition): self.overlayroot_write_partition = overlayroot_write_partition
-    def get_overlayroot_readonly_filesystem(self): return self.overlayroot_readonly_filesystem
-    def set_overlayroot_readonly_filesystem(self, overlayroot_readonly_filesystem): self.overlayroot_readonly_filesystem = overlayroot_readonly_filesystem
-    def get_overlayroot_readonly_partsize(self): return self.overlayroot_readonly_partsize
-    def set_overlayroot_readonly_partsize(self, overlayroot_readonly_partsize): self.overlayroot_readonly_partsize = overlayroot_readonly_partsize
-    def get_overlayroot_readonly_createoptions(self): return self.overlayroot_readonly_createoptions
-    def set_overlayroot_readonly_createoptions(self, overlayroot_readonly_createoptions): self.overlayroot_readonly_createoptions = overlayroot_readonly_createoptions
-    def get_verity_blocks(self): return self.verity_blocks
-    def set_verity_blocks(self, verity_blocks): self.verity_blocks = verity_blocks
-    def get_embed_verity_metadata(self): return self.embed_verity_metadata
-    def set_embed_verity_metadata(self, embed_verity_metadata): self.embed_verity_metadata = embed_verity_metadata
-    def get_standalone_integrity(self): return self.standalone_integrity
-    def set_standalone_integrity(self, standalone_integrity): self.standalone_integrity = standalone_integrity
-    def get_embed_integrity_metadata(self): return self.embed_integrity_metadata
-    def set_embed_integrity_metadata(self, embed_integrity_metadata): self.embed_integrity_metadata = embed_integrity_metadata
-    def get_integrity_legacy_hmac(self): return self.integrity_legacy_hmac
-    def set_integrity_legacy_hmac(self, integrity_legacy_hmac): self.integrity_legacy_hmac = integrity_legacy_hmac
-    def get_integrity_metadata_key_description(self): return self.integrity_metadata_key_description
-    def set_integrity_metadata_key_description(self, integrity_metadata_key_description): self.integrity_metadata_key_description = integrity_metadata_key_description
-    def get_integrity_keyfile(self): return self.integrity_keyfile
-    def set_integrity_keyfile(self, integrity_keyfile): self.integrity_keyfile = integrity_keyfile
-    def get_primary(self): return self.primary
-    def set_primary(self, primary): self.primary = primary
-    def get_ramonly(self): return self.ramonly
-    def set_ramonly(self, ramonly): self.ramonly = ramonly
-    def get_rootfs_label(self): return self.rootfs_label
-    def set_rootfs_label(self, rootfs_label): self.rootfs_label = rootfs_label
-    def get_spare_part(self): return self.spare_part
-    def set_spare_part(self, spare_part): self.spare_part = spare_part
-    def get_spare_part_mountpoint(self): return self.spare_part_mountpoint
-    def set_spare_part_mountpoint(self, spare_part_mountpoint): self.spare_part_mountpoint = spare_part_mountpoint
-    def get_spare_part_fs(self): return self.spare_part_fs
-    def set_spare_part_fs(self, spare_part_fs): self.spare_part_fs = spare_part_fs
-    def get_spare_part_fs_attributes(self): return self.spare_part_fs_attributes
-    def set_spare_part_fs_attributes(self, spare_part_fs_attributes): self.spare_part_fs_attributes = spare_part_fs_attributes
-    def get_spare_part_is_last(self): return self.spare_part_is_last
-    def set_spare_part_is_last(self, spare_part_is_last): self.spare_part_is_last = spare_part_is_last
-    def get_target_blocksize(self): return self.target_blocksize
-    def set_target_blocksize(self, target_blocksize): self.target_blocksize = target_blocksize
-    def get_target_removable(self): return self.target_removable
-    def set_target_removable(self, target_removable): self.target_removable = target_removable
-    def get_selinux_policy(self): return self.selinux_policy
-    def set_selinux_policy(self, selinux_policy): self.selinux_policy = selinux_policy
-    def get_vhdfixedtag(self): return self.vhdfixedtag
-    def set_vhdfixedtag(self, vhdfixedtag): self.vhdfixedtag = vhdfixedtag
-    def get_volid(self): return self.volid
-    def set_volid(self, volid): self.volid = volid
-    def get_application_id(self): return self.application_id
-    def set_application_id(self, application_id): self.application_id = application_id
-    def get_wwid_wait_timeout(self): return self.wwid_wait_timeout
-    def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
-    def get_derived_from(self): return self.derived_from
-    def set_derived_from(self, derived_from): self.derived_from = derived_from
-    def get_delta_root(self): return self.delta_root
-    def set_delta_root(self, delta_root): self.delta_root = delta_root
-    def get_provide_system_files(self): return self.provide_system_files
-    def set_provide_system_files(self, provide_system_files): self.provide_system_files = provide_system_files
-    def get_require_system_files(self): return self.require_system_files
-    def set_require_system_files(self, require_system_files): self.require_system_files = require_system_files
-    def get_ensure_empty_tmpdirs(self): return self.ensure_empty_tmpdirs
-    def set_ensure_empty_tmpdirs(self, ensure_empty_tmpdirs): self.ensure_empty_tmpdirs = ensure_empty_tmpdirs
-    def get_xen_server(self): return self.xen_server
-    def set_xen_server(self, xen_server): self.xen_server = xen_server
-    def get_publisher(self): return self.publisher
-    def set_publisher(self, publisher): self.publisher = publisher
-    def get_disk_start_sector(self): return self.disk_start_sector
-    def set_disk_start_sector(self, disk_start_sector): self.disk_start_sector = disk_start_sector
-    def get_root_clone(self): return self.root_clone
-    def set_root_clone(self, root_clone): self.root_clone = root_clone
-    def get_boot_clone(self): return self.boot_clone
-    def set_boot_clone(self, boot_clone): self.boot_clone = boot_clone
-    def get_bundle_format(self): return self.bundle_format
-    def set_bundle_format(self, bundle_format): self.bundle_format = bundle_format
+
+    def get_bootloader(self):
+        return self.bootloader
+
+    def set_bootloader(self, bootloader):
+        self.bootloader = bootloader
+
+    def add_bootloader(self, value):
+        self.bootloader.append(value)
+
+    def insert_bootloader_at(self, index, value):
+        self.bootloader.insert(index, value)
+
+    def replace_bootloader_at(self, index, value):
+        self.bootloader[index] = value
+
+    def get_containerconfig(self):
+        return self.containerconfig
+
+    def set_containerconfig(self, containerconfig):
+        self.containerconfig = containerconfig
+
+    def add_containerconfig(self, value):
+        self.containerconfig.append(value)
+
+    def insert_containerconfig_at(self, index, value):
+        self.containerconfig.insert(index, value)
+
+    def replace_containerconfig_at(self, index, value):
+        self.containerconfig[index] = value
+
+    def get_machine(self):
+        return self.machine
+
+    def set_machine(self, machine):
+        self.machine = machine
+
+    def add_machine(self, value):
+        self.machine.append(value)
+
+    def insert_machine_at(self, index, value):
+        self.machine.insert(index, value)
+
+    def replace_machine_at(self, index, value):
+        self.machine[index] = value
+
+    def get_oemconfig(self):
+        return self.oemconfig
+
+    def set_oemconfig(self, oemconfig):
+        self.oemconfig = oemconfig
+
+    def add_oemconfig(self, value):
+        self.oemconfig.append(value)
+
+    def insert_oemconfig_at(self, index, value):
+        self.oemconfig.insert(index, value)
+
+    def replace_oemconfig_at(self, index, value):
+        self.oemconfig[index] = value
+
+    def get_size(self):
+        return self.size
+
+    def set_size(self, size):
+        self.size = size
+
+    def add_size(self, value):
+        self.size.append(value)
+
+    def insert_size_at(self, index, value):
+        self.size.insert(index, value)
+
+    def replace_size_at(self, index, value):
+        self.size[index] = value
+
+    def get_systemdisk(self):
+        return self.systemdisk
+
+    def set_systemdisk(self, systemdisk):
+        self.systemdisk = systemdisk
+
+    def add_systemdisk(self, value):
+        self.systemdisk.append(value)
+
+    def insert_systemdisk_at(self, index, value):
+        self.systemdisk.insert(index, value)
+
+    def replace_systemdisk_at(self, index, value):
+        self.systemdisk[index] = value
+
+    def get_partitions(self):
+        return self.partitions
+
+    def set_partitions(self, partitions):
+        self.partitions = partitions
+
+    def add_partitions(self, value):
+        self.partitions.append(value)
+
+    def insert_partitions_at(self, index, value):
+        self.partitions.insert(index, value)
+
+    def replace_partitions_at(self, index, value):
+        self.partitions[index] = value
+
+    def get_vagrantconfig(self):
+        return self.vagrantconfig
+
+    def set_vagrantconfig(self, vagrantconfig):
+        self.vagrantconfig = vagrantconfig
+
+    def add_vagrantconfig(self, value):
+        self.vagrantconfig.append(value)
+
+    def insert_vagrantconfig_at(self, index, value):
+        self.vagrantconfig.insert(index, value)
+
+    def replace_vagrantconfig_at(self, index, value):
+        self.vagrantconfig[index] = value
+
+    def get_installmedia(self):
+        return self.installmedia
+
+    def set_installmedia(self, installmedia):
+        self.installmedia = installmedia
+
+    def add_installmedia(self, value):
+        self.installmedia.append(value)
+
+    def insert_installmedia_at(self, index, value):
+        self.installmedia.insert(index, value)
+
+    def replace_installmedia_at(self, index, value):
+        self.installmedia[index] = value
+
+    def get_initrd(self):
+        return self.initrd
+
+    def set_initrd(self, initrd):
+        self.initrd = initrd
+
+    def add_initrd(self, value):
+        self.initrd.append(value)
+
+    def insert_initrd_at(self, index, value):
+        self.initrd.insert(index, value)
+
+    def replace_initrd_at(self, index, value):
+        self.initrd[index] = value
+
+    def get_luksformat(self):
+        return self.luksformat
+
+    def set_luksformat(self, luksformat):
+        self.luksformat = luksformat
+
+    def add_luksformat(self, value):
+        self.luksformat.append(value)
+
+    def insert_luksformat_at(self, index, value):
+        self.luksformat.insert(index, value)
+
+    def replace_luksformat_at(self, index, value):
+        self.luksformat[index] = value
+
+    def get_archive(self):
+        return self.archive
+
+    def set_archive(self, archive):
+        self.archive = archive
+
+    def get_eficsmpart_id(self):
+        return self.eficsmpart_id
+
+    def set_eficsmpart_id(self, eficsmpart_id):
+        self.eficsmpart_id = eficsmpart_id
+
+    def get_efipart_id(self):
+        return self.efipart_id
+
+    def set_efipart_id(self, efipart_id):
+        self.efipart_id = efipart_id
+
+    def get_rootpart_id(self):
+        return self.rootpart_id
+
+    def set_rootpart_id(self, rootpart_id):
+        self.rootpart_id = rootpart_id
+
+    def get_bootpart_id(self):
+        return self.bootpart_id
+
+    def set_bootpart_id(self, bootpart_id):
+        self.bootpart_id = bootpart_id
+
+    def get_boot(self):
+        return self.boot
+
+    def set_boot(self, boot):
+        self.boot = boot
+
+    def get_bootfilesystem(self):
+        return self.bootfilesystem
+
+    def set_bootfilesystem(self, bootfilesystem):
+        self.bootfilesystem = bootfilesystem
+
+    def get_firmware(self):
+        return self.firmware
+
+    def set_firmware(self, firmware):
+        self.firmware = firmware
+
+    def get_bootkernel(self):
+        return self.bootkernel
+
+    def set_bootkernel(self, bootkernel):
+        self.bootkernel = bootkernel
+
+    def get_bootpartition(self):
+        return self.bootpartition
+
+    def set_bootpartition(self, bootpartition):
+        self.bootpartition = bootpartition
+
+    def get_bootpartsize(self):
+        return self.bootpartsize
+
+    def set_bootpartsize(self, bootpartsize):
+        self.bootpartsize = bootpartsize
+
+    def get_efipartsize(self):
+        return self.efipartsize
+
+    def set_efipartsize(self, efipartsize):
+        self.efipartsize = efipartsize
+
+    def get_efimountoptions(self):
+        return self.efimountoptions
+
+    def set_efimountoptions(self, efimountoptions):
+        self.efimountoptions = efimountoptions
+
+    def get_efifatimagesize(self):
+        return self.efifatimagesize
+
+    def set_efifatimagesize(self, efifatimagesize):
+        self.efifatimagesize = efifatimagesize
+
+    def get_eficsm(self):
+        return self.eficsm
+
+    def set_eficsm(self, eficsm):
+        self.eficsm = eficsm
+
+    def get_efiparttable(self):
+        return self.efiparttable
+
+    def set_efiparttable(self, efiparttable):
+        self.efiparttable = efiparttable
+
+    def get_dosparttable_extended_layout(self):
+        return self.dosparttable_extended_layout
+
+    def set_dosparttable_extended_layout(self, dosparttable_extended_layout):
+        self.dosparttable_extended_layout = dosparttable_extended_layout
+
+    def get_bootprofile(self):
+        return self.bootprofile
+
+    def set_bootprofile(self, bootprofile):
+        self.bootprofile = bootprofile
+
+    def get_btrfs_quota_groups(self):
+        return self.btrfs_quota_groups
+
+    def set_btrfs_quota_groups(self, btrfs_quota_groups):
+        self.btrfs_quota_groups = btrfs_quota_groups
+
+    def get_btrfs_root_is_snapper_snapshot(self):
+        return self.btrfs_root_is_snapper_snapshot
+
+    def set_btrfs_root_is_snapper_snapshot(
+        self, btrfs_root_is_snapper_snapshot
+    ):
+        self.btrfs_root_is_snapper_snapshot = btrfs_root_is_snapper_snapshot
+
+    def get_btrfs_root_is_subvolume(self):
+        return self.btrfs_root_is_subvolume
+
+    def set_btrfs_root_is_subvolume(self, btrfs_root_is_subvolume):
+        self.btrfs_root_is_subvolume = btrfs_root_is_subvolume
+
+    def get_btrfs_set_default_volume(self):
+        return self.btrfs_set_default_volume
+
+    def set_btrfs_set_default_volume(self, btrfs_set_default_volume):
+        self.btrfs_set_default_volume = btrfs_set_default_volume
+
+    def get_btrfs_root_is_readonly_snapshot(self):
+        return self.btrfs_root_is_readonly_snapshot
+
+    def set_btrfs_root_is_readonly_snapshot(
+        self, btrfs_root_is_readonly_snapshot
+    ):
+        self.btrfs_root_is_readonly_snapshot = btrfs_root_is_readonly_snapshot
+
+    def get_compressed(self):
+        return self.compressed
+
+    def set_compressed(self, compressed):
+        self.compressed = compressed
+
+    def get_devicepersistency(self):
+        return self.devicepersistency
+
+    def set_devicepersistency(self, devicepersistency):
+        self.devicepersistency = devicepersistency
+
+    def get_editbootconfig(self):
+        return self.editbootconfig
+
+    def set_editbootconfig(self, editbootconfig):
+        self.editbootconfig = editbootconfig
+
+    def get_editbootinstall(self):
+        return self.editbootinstall
+
+    def set_editbootinstall(self, editbootinstall):
+        self.editbootinstall = editbootinstall
+
+    def get_filesystem(self):
+        return self.filesystem
+
+    def set_filesystem(self, filesystem):
+        self.filesystem = filesystem
+
+    def get_flags(self):
+        return self.flags
+
+    def set_flags(self, flags):
+        self.flags = flags
+
+    def get_enclave_format(self):
+        return self.enclave_format
+
+    def set_enclave_format(self, enclave_format):
+        self.enclave_format = enclave_format
+
+    def get_format(self):
+        return self.format
+
+    def set_format(self, format):
+        self.format = format
+
+    def get_formatoptions(self):
+        return self.formatoptions
+
+    def set_formatoptions(self, formatoptions):
+        self.formatoptions = formatoptions
+
+    def get_fsmountoptions(self):
+        return self.fsmountoptions
+
+    def set_fsmountoptions(self, fsmountoptions):
+        self.fsmountoptions = fsmountoptions
+
+    def get_fscreateoptions(self):
+        return self.fscreateoptions
+
+    def set_fscreateoptions(self, fscreateoptions):
+        self.fscreateoptions = fscreateoptions
+
+    def get_squashfscompression(self):
+        return self.squashfscompression
+
+    def set_squashfscompression(self, squashfscompression):
+        self.squashfscompression = squashfscompression
+
+    def get_erofscompression(self):
+        return self.erofscompression
+
+    def set_erofscompression(self, erofscompression):
+        self.erofscompression = erofscompression
+
+    def get_gcelicense(self):
+        return self.gcelicense
+
+    def set_gcelicense(self, gcelicense):
+        self.gcelicense = gcelicense
+
+    def get_hybridpersistent(self):
+        return self.hybridpersistent
+
+    def set_hybridpersistent(self, hybridpersistent):
+        self.hybridpersistent = hybridpersistent
+
+    def get_hybridpersistent_filesystem(self):
+        return self.hybridpersistent_filesystem
+
+    def set_hybridpersistent_filesystem(self, hybridpersistent_filesystem):
+        self.hybridpersistent_filesystem = hybridpersistent_filesystem
+
+    def get_gpt_hybrid_mbr(self):
+        return self.gpt_hybrid_mbr
+
+    def set_gpt_hybrid_mbr(self, gpt_hybrid_mbr):
+        self.gpt_hybrid_mbr = gpt_hybrid_mbr
+
+    def get_force_mbr(self):
+        return self.force_mbr
+
+    def set_force_mbr(self, force_mbr):
+        self.force_mbr = force_mbr
+
+    def get_apply_dps_codes(self):
+        return self.apply_dps_codes
+
+    def set_apply_dps_codes(self, apply_dps_codes):
+        self.apply_dps_codes = apply_dps_codes
+
+    def get_initrd_system(self):
+        return self.initrd_system
+
+    def set_initrd_system(self, initrd_system):
+        self.initrd_system = initrd_system
+
+    def get_image(self):
+        return self.image
+
+    def set_image(self, image):
+        self.image = image
+
+    def get_metadata_path(self):
+        return self.metadata_path
+
+    def set_metadata_path(self, metadata_path):
+        self.metadata_path = metadata_path
+
+    def get_installboot(self):
+        return self.installboot
+
+    def set_installboot(self, installboot):
+        self.installboot = installboot
+
+    def get_install_continue_on_timeout(self):
+        return self.install_continue_on_timeout
+
+    def set_install_continue_on_timeout(self, install_continue_on_timeout):
+        self.install_continue_on_timeout = install_continue_on_timeout
+
+    def get_installprovidefailsafe(self):
+        return self.installprovidefailsafe
+
+    def set_installprovidefailsafe(self, installprovidefailsafe):
+        self.installprovidefailsafe = installprovidefailsafe
+
+    def get_installiso(self):
+        return self.installiso
+
+    def set_installiso(self, installiso):
+        self.installiso = installiso
+
+    def get_installstick(self):
+        return self.installstick
+
+    def set_installstick(self, installstick):
+        self.installstick = installstick
+
+    def get_installpxe(self):
+        return self.installpxe
+
+    def set_installpxe(self, installpxe):
+        self.installpxe = installpxe
+
+    def get_mediacheck(self):
+        return self.mediacheck
+
+    def set_mediacheck(self, mediacheck):
+        self.mediacheck = mediacheck
+
+    def get_kernelcmdline(self):
+        return self.kernelcmdline
+
+    def set_kernelcmdline(self, kernelcmdline):
+        self.kernelcmdline = kernelcmdline
+
+    def get_luks(self):
+        return self.luks
+
+    def set_luks(self, luks):
+        self.luks = luks
+
+    def get_luks_version(self):
+        return self.luks_version
+
+    def set_luks_version(self, luks_version):
+        self.luks_version = luks_version
+
+    def get_luksOS(self):
+        return self.luksOS
+
+    def set_luksOS(self, luksOS):
+        self.luksOS = luksOS
+
+    def get_luks_randomize(self):
+        return self.luks_randomize
+
+    def set_luks_randomize(self, luks_randomize):
+        self.luks_randomize = luks_randomize
+
+    def get_luks_pbkdf(self):
+        return self.luks_pbkdf
+
+    def set_luks_pbkdf(self, luks_pbkdf):
+        self.luks_pbkdf = luks_pbkdf
+
+    def get_mdraid(self):
+        return self.mdraid
+
+    def set_mdraid(self, mdraid):
+        self.mdraid = mdraid
+
+    def get_overlayroot(self):
+        return self.overlayroot
+
+    def set_overlayroot(self, overlayroot):
+        self.overlayroot = overlayroot
+
+    def get_overlayroot_write_partition(self):
+        return self.overlayroot_write_partition
+
+    def set_overlayroot_write_partition(self, overlayroot_write_partition):
+        self.overlayroot_write_partition = overlayroot_write_partition
+
+    def get_overlayroot_readonly_filesystem(self):
+        return self.overlayroot_readonly_filesystem
+
+    def set_overlayroot_readonly_filesystem(
+        self, overlayroot_readonly_filesystem
+    ):
+        self.overlayroot_readonly_filesystem = overlayroot_readonly_filesystem
+
+    def get_overlayroot_readonly_partsize(self):
+        return self.overlayroot_readonly_partsize
+
+    def set_overlayroot_readonly_partsize(self, overlayroot_readonly_partsize):
+        self.overlayroot_readonly_partsize = overlayroot_readonly_partsize
+
+    def get_overlayroot_readonly_createoptions(self):
+        return self.overlayroot_readonly_createoptions
+
+    def set_overlayroot_readonly_createoptions(
+        self, overlayroot_readonly_createoptions
+    ):
+        self.overlayroot_readonly_createoptions = (
+            overlayroot_readonly_createoptions
+        )
+
+    def get_verity_blocks(self):
+        return self.verity_blocks
+
+    def set_verity_blocks(self, verity_blocks):
+        self.verity_blocks = verity_blocks
+
+    def get_embed_verity_metadata(self):
+        return self.embed_verity_metadata
+
+    def set_embed_verity_metadata(self, embed_verity_metadata):
+        self.embed_verity_metadata = embed_verity_metadata
+
+    def get_standalone_integrity(self):
+        return self.standalone_integrity
+
+    def set_standalone_integrity(self, standalone_integrity):
+        self.standalone_integrity = standalone_integrity
+
+    def get_embed_integrity_metadata(self):
+        return self.embed_integrity_metadata
+
+    def set_embed_integrity_metadata(self, embed_integrity_metadata):
+        self.embed_integrity_metadata = embed_integrity_metadata
+
+    def get_integrity_legacy_hmac(self):
+        return self.integrity_legacy_hmac
+
+    def set_integrity_legacy_hmac(self, integrity_legacy_hmac):
+        self.integrity_legacy_hmac = integrity_legacy_hmac
+
+    def get_integrity_metadata_key_description(self):
+        return self.integrity_metadata_key_description
+
+    def set_integrity_metadata_key_description(
+        self, integrity_metadata_key_description
+    ):
+        self.integrity_metadata_key_description = (
+            integrity_metadata_key_description
+        )
+
+    def get_integrity_keyfile(self):
+        return self.integrity_keyfile
+
+    def set_integrity_keyfile(self, integrity_keyfile):
+        self.integrity_keyfile = integrity_keyfile
+
+    def get_primary(self):
+        return self.primary
+
+    def set_primary(self, primary):
+        self.primary = primary
+
+    def get_ramonly(self):
+        return self.ramonly
+
+    def set_ramonly(self, ramonly):
+        self.ramonly = ramonly
+
+    def get_rootfs_label(self):
+        return self.rootfs_label
+
+    def set_rootfs_label(self, rootfs_label):
+        self.rootfs_label = rootfs_label
+
+    def get_spare_part(self):
+        return self.spare_part
+
+    def set_spare_part(self, spare_part):
+        self.spare_part = spare_part
+
+    def get_spare_part_mountpoint(self):
+        return self.spare_part_mountpoint
+
+    def set_spare_part_mountpoint(self, spare_part_mountpoint):
+        self.spare_part_mountpoint = spare_part_mountpoint
+
+    def get_spare_part_fs(self):
+        return self.spare_part_fs
+
+    def set_spare_part_fs(self, spare_part_fs):
+        self.spare_part_fs = spare_part_fs
+
+    def get_spare_part_fs_attributes(self):
+        return self.spare_part_fs_attributes
+
+    def set_spare_part_fs_attributes(self, spare_part_fs_attributes):
+        self.spare_part_fs_attributes = spare_part_fs_attributes
+
+    def get_spare_part_is_last(self):
+        return self.spare_part_is_last
+
+    def set_spare_part_is_last(self, spare_part_is_last):
+        self.spare_part_is_last = spare_part_is_last
+
+    def get_target_blocksize(self):
+        return self.target_blocksize
+
+    def set_target_blocksize(self, target_blocksize):
+        self.target_blocksize = target_blocksize
+
+    def get_target_removable(self):
+        return self.target_removable
+
+    def set_target_removable(self, target_removable):
+        self.target_removable = target_removable
+
+    def get_selinux_policy(self):
+        return self.selinux_policy
+
+    def set_selinux_policy(self, selinux_policy):
+        self.selinux_policy = selinux_policy
+
+    def get_vhdfixedtag(self):
+        return self.vhdfixedtag
+
+    def set_vhdfixedtag(self, vhdfixedtag):
+        self.vhdfixedtag = vhdfixedtag
+
+    def get_volid(self):
+        return self.volid
+
+    def set_volid(self, volid):
+        self.volid = volid
+
+    def get_application_id(self):
+        return self.application_id
+
+    def set_application_id(self, application_id):
+        self.application_id = application_id
+
+    def get_wwid_wait_timeout(self):
+        return self.wwid_wait_timeout
+
+    def set_wwid_wait_timeout(self, wwid_wait_timeout):
+        self.wwid_wait_timeout = wwid_wait_timeout
+
+    def get_derived_from(self):
+        return self.derived_from
+
+    def set_derived_from(self, derived_from):
+        self.derived_from = derived_from
+
+    def get_delta_root(self):
+        return self.delta_root
+
+    def set_delta_root(self, delta_root):
+        self.delta_root = delta_root
+
+    def get_provide_system_files(self):
+        return self.provide_system_files
+
+    def set_provide_system_files(self, provide_system_files):
+        self.provide_system_files = provide_system_files
+
+    def get_require_system_files(self):
+        return self.require_system_files
+
+    def set_require_system_files(self, require_system_files):
+        self.require_system_files = require_system_files
+
+    def get_ensure_empty_tmpdirs(self):
+        return self.ensure_empty_tmpdirs
+
+    def set_ensure_empty_tmpdirs(self, ensure_empty_tmpdirs):
+        self.ensure_empty_tmpdirs = ensure_empty_tmpdirs
+
+    def get_xen_server(self):
+        return self.xen_server
+
+    def set_xen_server(self, xen_server):
+        self.xen_server = xen_server
+
+    def get_publisher(self):
+        return self.publisher
+
+    def set_publisher(self, publisher):
+        self.publisher = publisher
+
+    def get_disk_start_sector(self):
+        return self.disk_start_sector
+
+    def set_disk_start_sector(self, disk_start_sector):
+        self.disk_start_sector = disk_start_sector
+
+    def get_root_clone(self):
+        return self.root_clone
+
+    def set_root_clone(self, root_clone):
+        self.root_clone = root_clone
+
+    def get_boot_clone(self):
+        return self.boot_clone
+
+    def set_boot_clone(self, boot_clone):
+        self.boot_clone = boot_clone
+
+    def get_bundle_format(self):
+        return self.bundle_format
+
+    def set_bundle_format(self, bundle_format):
+        self.bundle_format = bundle_format
+
     def validate_number_type(self, value):
         # Validate type number-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_number_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
+                self.validate_number_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_number_type_patterns_,
+                    )
+                )
+
     validate_number_type_patterns_ = [['^\\d+$']]
+
     def validate_blocks_type(self, value):
         # Validate type blocks-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_blocks_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_blocks_type_patterns_, ))
+                self.validate_blocks_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_blocks_type_patterns_,
+                    )
+                )
+
     validate_blocks_type_patterns_ = [['^(\\d*|all)$']]
+
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_partition_size_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
+                self.validate_partition_size_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_partition_size_type_patterns_,
+                    )
+                )
+
     validate_partition_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G)$']]
+
     def validate_fs_attributes(self, value):
         # Validate type fs_attributes, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_fs_attributes_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_fs_attributes_patterns_, ))
-    validate_fs_attributes_patterns_ = [['^(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*$']]
+                self.validate_fs_attributes_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_fs_attributes_patterns_,
+                    )
+                )
+
+    validate_fs_attributes_patterns_ = [
+        [
+            '^(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*$'
+        ]
+    ]
+
     def validate_vhd_tag_type(self, value):
         # Validate type vhd-tag-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_vhd_tag_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_vhd_tag_type_patterns_, ))
-    validate_vhd_tag_type_patterns_ = [['^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$']]
+                self.validate_vhd_tag_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_vhd_tag_type_patterns_,
+                    )
+                )
+
+    validate_vhd_tag_type_patterns_ = [
+        ['^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$']
+    ]
+
     def validate_safe_posix_short_name(self, value):
         # Validate type safe-posix-short-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_safe_posix_short_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
+                self.validate_safe_posix_short_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_safe_posix_short_name_patterns_,
+                    )
+                )
+
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
+
     def validate_ecma_119_achar_128_text(self, value):
         # Validate type ecma-119-achar-128-text, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_ecma_119_achar_128_text_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_ecma_119_achar_128_text_patterns_, ))
-    validate_ecma_119_achar_128_text_patterns_ = [['^[a-zA-Z0-9!-/:-?_ ]{1,128}$']]
+                self.validate_ecma_119_achar_128_text_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_ecma_119_achar_128_text_patterns_,
+                    )
+                )
+
+    validate_ecma_119_achar_128_text_patterns_ = [
+        ['^[a-zA-Z0-9!-/:-?_ ]{1,128}$']
+    ]
+
     def hasContent_(self):
         if (
-            self.bootloader or
-            self.containerconfig or
-            self.machine or
-            self.oemconfig or
-            self.size or
-            self.systemdisk or
-            self.partitions or
-            self.vagrantconfig or
-            self.installmedia or
-            self.initrd or
-            self.luksformat
+            self.bootloader
+            or self.containerconfig
+            or self.machine
+            or self.oemconfig
+            or self.size
+            or self.systemdisk
+            or self.partitions
+            or self.vagrantconfig
+            or self.installmedia
+            or self.initrd
+            or self.luksformat
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='type', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='type',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('type')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4047,335 +7546,1314 @@ class type_(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='type')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='type'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='type', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='type',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='type'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='type',
+    ):
         if self.archive is not None and 'archive' not in already_processed:
             already_processed.add('archive')
-            outfile.write(' archive="%s"' % self.gds_format_boolean(self.archive, input_name='archive'))
-        if self.eficsmpart_id is not None and 'eficsmpart_id' not in already_processed:
+            outfile.write(
+                ' archive="%s"'
+                % self.gds_format_boolean(self.archive, input_name='archive')
+            )
+        if (
+            self.eficsmpart_id is not None
+            and 'eficsmpart_id' not in already_processed
+        ):
             already_processed.add('eficsmpart_id')
-            outfile.write(' eficsmpart_id=%s' % (quote_attrib(self.eficsmpart_id), ))
-        if self.efipart_id is not None and 'efipart_id' not in already_processed:
+            outfile.write(
+                ' eficsmpart_id=%s' % (quote_attrib(self.eficsmpart_id),)
+            )
+        if (
+            self.efipart_id is not None
+            and 'efipart_id' not in already_processed
+        ):
             already_processed.add('efipart_id')
-            outfile.write(' efipart_id=%s' % (quote_attrib(self.efipart_id), ))
-        if self.rootpart_id is not None and 'rootpart_id' not in already_processed:
+            outfile.write(' efipart_id=%s' % (quote_attrib(self.efipart_id),))
+        if (
+            self.rootpart_id is not None
+            and 'rootpart_id' not in already_processed
+        ):
             already_processed.add('rootpart_id')
-            outfile.write(' rootpart_id=%s' % (quote_attrib(self.rootpart_id), ))
-        if self.bootpart_id is not None and 'bootpart_id' not in already_processed:
+            outfile.write(' rootpart_id=%s' % (quote_attrib(self.rootpart_id),))
+        if (
+            self.bootpart_id is not None
+            and 'bootpart_id' not in already_processed
+        ):
             already_processed.add('bootpart_id')
-            outfile.write(' bootpart_id=%s' % (quote_attrib(self.bootpart_id), ))
+            outfile.write(' bootpart_id=%s' % (quote_attrib(self.bootpart_id),))
         if self.boot is not None and 'boot' not in already_processed:
             already_processed.add('boot')
-            outfile.write(' boot=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.boot), input_name='boot')), ))
-        if self.bootfilesystem is not None and 'bootfilesystem' not in already_processed:
+            outfile.write(
+                ' boot=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.boot), input_name='boot'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.bootfilesystem is not None
+            and 'bootfilesystem' not in already_processed
+        ):
             already_processed.add('bootfilesystem')
-            outfile.write(' bootfilesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootfilesystem), input_name='bootfilesystem')), ))
+            outfile.write(
+                ' bootfilesystem=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.bootfilesystem),
+                            input_name='bootfilesystem',
+                        )
+                    ),
+                )
+            )
         if self.firmware is not None and 'firmware' not in already_processed:
             already_processed.add('firmware')
-            outfile.write(' firmware=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.firmware), input_name='firmware')), ))
-        if self.bootkernel is not None and 'bootkernel' not in already_processed:
+            outfile.write(
+                ' firmware=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.firmware), input_name='firmware'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.bootkernel is not None
+            and 'bootkernel' not in already_processed
+        ):
             already_processed.add('bootkernel')
-            outfile.write(' bootkernel=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootkernel), input_name='bootkernel')), ))
-        if self.bootpartition is not None and 'bootpartition' not in already_processed:
+            outfile.write(
+                ' bootkernel=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.bootkernel),
+                            input_name='bootkernel',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.bootpartition is not None
+            and 'bootpartition' not in already_processed
+        ):
             already_processed.add('bootpartition')
-            outfile.write(' bootpartition="%s"' % self.gds_format_boolean(self.bootpartition, input_name='bootpartition'))
-        if self.bootpartsize is not None and 'bootpartsize' not in already_processed:
+            outfile.write(
+                ' bootpartition="%s"'
+                % self.gds_format_boolean(
+                    self.bootpartition, input_name='bootpartition'
+                )
+            )
+        if (
+            self.bootpartsize is not None
+            and 'bootpartsize' not in already_processed
+        ):
             already_processed.add('bootpartsize')
-            outfile.write(' bootpartsize="%s"' % self.gds_format_integer(self.bootpartsize, input_name='bootpartsize'))
-        if self.efipartsize is not None and 'efipartsize' not in already_processed:
+            outfile.write(
+                ' bootpartsize="%s"'
+                % self.gds_format_integer(
+                    self.bootpartsize, input_name='bootpartsize'
+                )
+            )
+        if (
+            self.efipartsize is not None
+            and 'efipartsize' not in already_processed
+        ):
             already_processed.add('efipartsize')
-            outfile.write(' efipartsize="%s"' % self.gds_format_integer(self.efipartsize, input_name='efipartsize'))
-        if self.efimountoptions is not None and 'efimountoptions' not in already_processed:
+            outfile.write(
+                ' efipartsize="%s"'
+                % self.gds_format_integer(
+                    self.efipartsize, input_name='efipartsize'
+                )
+            )
+        if (
+            self.efimountoptions is not None
+            and 'efimountoptions' not in already_processed
+        ):
             already_processed.add('efimountoptions')
-            outfile.write(' efimountoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.efimountoptions), input_name='efimountoptions')), ))
-        if self.efifatimagesize is not None and 'efifatimagesize' not in already_processed:
+            outfile.write(
+                ' efimountoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.efimountoptions),
+                            input_name='efimountoptions',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.efifatimagesize is not None
+            and 'efifatimagesize' not in already_processed
+        ):
             already_processed.add('efifatimagesize')
-            outfile.write(' efifatimagesize="%s"' % self.gds_format_integer(self.efifatimagesize, input_name='efifatimagesize'))
+            outfile.write(
+                ' efifatimagesize="%s"'
+                % self.gds_format_integer(
+                    self.efifatimagesize, input_name='efifatimagesize'
+                )
+            )
         if self.eficsm is not None and 'eficsm' not in already_processed:
             already_processed.add('eficsm')
-            outfile.write(' eficsm="%s"' % self.gds_format_boolean(self.eficsm, input_name='eficsm'))
-        if self.efiparttable is not None and 'efiparttable' not in already_processed:
+            outfile.write(
+                ' eficsm="%s"'
+                % self.gds_format_boolean(self.eficsm, input_name='eficsm')
+            )
+        if (
+            self.efiparttable is not None
+            and 'efiparttable' not in already_processed
+        ):
             already_processed.add('efiparttable')
-            outfile.write(' efiparttable=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.efiparttable), input_name='efiparttable')), ))
-        if self.dosparttable_extended_layout is not None and 'dosparttable_extended_layout' not in already_processed:
+            outfile.write(
+                ' efiparttable=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.efiparttable),
+                            input_name='efiparttable',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.dosparttable_extended_layout is not None
+            and 'dosparttable_extended_layout' not in already_processed
+        ):
             already_processed.add('dosparttable_extended_layout')
-            outfile.write(' dosparttable_extended_layout="%s"' % self.gds_format_boolean(self.dosparttable_extended_layout, input_name='dosparttable_extended_layout'))
-        if self.bootprofile is not None and 'bootprofile' not in already_processed:
+            outfile.write(
+                ' dosparttable_extended_layout="%s"'
+                % self.gds_format_boolean(
+                    self.dosparttable_extended_layout,
+                    input_name='dosparttable_extended_layout',
+                )
+            )
+        if (
+            self.bootprofile is not None
+            and 'bootprofile' not in already_processed
+        ):
             already_processed.add('bootprofile')
-            outfile.write(' bootprofile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootprofile), input_name='bootprofile')), ))
-        if self.btrfs_quota_groups is not None and 'btrfs_quota_groups' not in already_processed:
+            outfile.write(
+                ' bootprofile=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.bootprofile),
+                            input_name='bootprofile',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.btrfs_quota_groups is not None
+            and 'btrfs_quota_groups' not in already_processed
+        ):
             already_processed.add('btrfs_quota_groups')
-            outfile.write(' btrfs_quota_groups="%s"' % self.gds_format_boolean(self.btrfs_quota_groups, input_name='btrfs_quota_groups'))
-        if self.btrfs_root_is_snapper_snapshot is not None and 'btrfs_root_is_snapper_snapshot' not in already_processed:
+            outfile.write(
+                ' btrfs_quota_groups="%s"'
+                % self.gds_format_boolean(
+                    self.btrfs_quota_groups, input_name='btrfs_quota_groups'
+                )
+            )
+        if (
+            self.btrfs_root_is_snapper_snapshot is not None
+            and 'btrfs_root_is_snapper_snapshot' not in already_processed
+        ):
             already_processed.add('btrfs_root_is_snapper_snapshot')
-            outfile.write(' btrfs_root_is_snapper_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapper_snapshot, input_name='btrfs_root_is_snapper_snapshot'))
-        if self.btrfs_root_is_subvolume is not None and 'btrfs_root_is_subvolume' not in already_processed:
+            outfile.write(
+                ' btrfs_root_is_snapper_snapshot="%s"'
+                % self.gds_format_boolean(
+                    self.btrfs_root_is_snapper_snapshot,
+                    input_name='btrfs_root_is_snapper_snapshot',
+                )
+            )
+        if (
+            self.btrfs_root_is_subvolume is not None
+            and 'btrfs_root_is_subvolume' not in already_processed
+        ):
             already_processed.add('btrfs_root_is_subvolume')
-            outfile.write(' btrfs_root_is_subvolume="%s"' % self.gds_format_boolean(self.btrfs_root_is_subvolume, input_name='btrfs_root_is_subvolume'))
-        if self.btrfs_set_default_volume is not None and 'btrfs_set_default_volume' not in already_processed:
+            outfile.write(
+                ' btrfs_root_is_subvolume="%s"'
+                % self.gds_format_boolean(
+                    self.btrfs_root_is_subvolume,
+                    input_name='btrfs_root_is_subvolume',
+                )
+            )
+        if (
+            self.btrfs_set_default_volume is not None
+            and 'btrfs_set_default_volume' not in already_processed
+        ):
             already_processed.add('btrfs_set_default_volume')
-            outfile.write(' btrfs_set_default_volume="%s"' % self.gds_format_boolean(self.btrfs_set_default_volume, input_name='btrfs_set_default_volume'))
-        if self.btrfs_root_is_readonly_snapshot is not None and 'btrfs_root_is_readonly_snapshot' not in already_processed:
+            outfile.write(
+                ' btrfs_set_default_volume="%s"'
+                % self.gds_format_boolean(
+                    self.btrfs_set_default_volume,
+                    input_name='btrfs_set_default_volume',
+                )
+            )
+        if (
+            self.btrfs_root_is_readonly_snapshot is not None
+            and 'btrfs_root_is_readonly_snapshot' not in already_processed
+        ):
             already_processed.add('btrfs_root_is_readonly_snapshot')
-            outfile.write(' btrfs_root_is_readonly_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_readonly_snapshot, input_name='btrfs_root_is_readonly_snapshot'))
-        if self.compressed is not None and 'compressed' not in already_processed:
+            outfile.write(
+                ' btrfs_root_is_readonly_snapshot="%s"'
+                % self.gds_format_boolean(
+                    self.btrfs_root_is_readonly_snapshot,
+                    input_name='btrfs_root_is_readonly_snapshot',
+                )
+            )
+        if (
+            self.compressed is not None
+            and 'compressed' not in already_processed
+        ):
             already_processed.add('compressed')
-            outfile.write(' compressed="%s"' % self.gds_format_boolean(self.compressed, input_name='compressed'))
-        if self.devicepersistency is not None and 'devicepersistency' not in already_processed:
+            outfile.write(
+                ' compressed="%s"'
+                % self.gds_format_boolean(
+                    self.compressed, input_name='compressed'
+                )
+            )
+        if (
+            self.devicepersistency is not None
+            and 'devicepersistency' not in already_processed
+        ):
             already_processed.add('devicepersistency')
-            outfile.write(' devicepersistency=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.devicepersistency), input_name='devicepersistency')), ))
-        if self.editbootconfig is not None and 'editbootconfig' not in already_processed:
+            outfile.write(
+                ' devicepersistency=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.devicepersistency),
+                            input_name='devicepersistency',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.editbootconfig is not None
+            and 'editbootconfig' not in already_processed
+        ):
             already_processed.add('editbootconfig')
-            outfile.write(' editbootconfig=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.editbootconfig), input_name='editbootconfig')), ))
-        if self.editbootinstall is not None and 'editbootinstall' not in already_processed:
+            outfile.write(
+                ' editbootconfig=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.editbootconfig),
+                            input_name='editbootconfig',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.editbootinstall is not None
+            and 'editbootinstall' not in already_processed
+        ):
             already_processed.add('editbootinstall')
-            outfile.write(' editbootinstall=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.editbootinstall), input_name='editbootinstall')), ))
-        if self.filesystem is not None and 'filesystem' not in already_processed:
+            outfile.write(
+                ' editbootinstall=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.editbootinstall),
+                            input_name='editbootinstall',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.filesystem is not None
+            and 'filesystem' not in already_processed
+        ):
             already_processed.add('filesystem')
-            outfile.write(' filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.filesystem), input_name='filesystem')), ))
+            outfile.write(
+                ' filesystem=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.filesystem),
+                            input_name='filesystem',
+                        )
+                    ),
+                )
+            )
         if self.flags is not None and 'flags' not in already_processed:
             already_processed.add('flags')
-            outfile.write(' flags=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.flags), input_name='flags')), ))
-        if self.enclave_format is not None and 'enclave_format' not in already_processed:
+            outfile.write(
+                ' flags=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.flags), input_name='flags'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.enclave_format is not None
+            and 'enclave_format' not in already_processed
+        ):
             already_processed.add('enclave_format')
-            outfile.write(' enclave_format=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.enclave_format), input_name='enclave_format')), ))
+            outfile.write(
+                ' enclave_format=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.enclave_format),
+                            input_name='enclave_format',
+                        )
+                    ),
+                )
+            )
         if self.format is not None and 'format' not in already_processed:
             already_processed.add('format')
-            outfile.write(' format=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.format), input_name='format')), ))
-        if self.formatoptions is not None and 'formatoptions' not in already_processed:
+            outfile.write(
+                ' format=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.format), input_name='format'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.formatoptions is not None
+            and 'formatoptions' not in already_processed
+        ):
             already_processed.add('formatoptions')
-            outfile.write(' formatoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.formatoptions), input_name='formatoptions')), ))
-        if self.fsmountoptions is not None and 'fsmountoptions' not in already_processed:
+            outfile.write(
+                ' formatoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.formatoptions),
+                            input_name='formatoptions',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.fsmountoptions is not None
+            and 'fsmountoptions' not in already_processed
+        ):
             already_processed.add('fsmountoptions')
-            outfile.write(' fsmountoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fsmountoptions), input_name='fsmountoptions')), ))
-        if self.fscreateoptions is not None and 'fscreateoptions' not in already_processed:
+            outfile.write(
+                ' fsmountoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.fsmountoptions),
+                            input_name='fsmountoptions',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.fscreateoptions is not None
+            and 'fscreateoptions' not in already_processed
+        ):
             already_processed.add('fscreateoptions')
-            outfile.write(' fscreateoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fscreateoptions), input_name='fscreateoptions')), ))
-        if self.squashfscompression is not None and 'squashfscompression' not in already_processed:
+            outfile.write(
+                ' fscreateoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.fscreateoptions),
+                            input_name='fscreateoptions',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.squashfscompression is not None
+            and 'squashfscompression' not in already_processed
+        ):
             already_processed.add('squashfscompression')
-            outfile.write(' squashfscompression=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.squashfscompression), input_name='squashfscompression')), ))
-        if self.erofscompression is not None and 'erofscompression' not in already_processed:
+            outfile.write(
+                ' squashfscompression=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.squashfscompression),
+                            input_name='squashfscompression',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.erofscompression is not None
+            and 'erofscompression' not in already_processed
+        ):
             already_processed.add('erofscompression')
-            outfile.write(' erofscompression=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.erofscompression), input_name='erofscompression')), ))
-        if self.gcelicense is not None and 'gcelicense' not in already_processed:
+            outfile.write(
+                ' erofscompression=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.erofscompression),
+                            input_name='erofscompression',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.gcelicense is not None
+            and 'gcelicense' not in already_processed
+        ):
             already_processed.add('gcelicense')
-            outfile.write(' gcelicense=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.gcelicense), input_name='gcelicense')), ))
-        if self.hybridpersistent is not None and 'hybridpersistent' not in already_processed:
+            outfile.write(
+                ' gcelicense=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.gcelicense),
+                            input_name='gcelicense',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.hybridpersistent is not None
+            and 'hybridpersistent' not in already_processed
+        ):
             already_processed.add('hybridpersistent')
-            outfile.write(' hybridpersistent="%s"' % self.gds_format_boolean(self.hybridpersistent, input_name='hybridpersistent'))
-        if self.hybridpersistent_filesystem is not None and 'hybridpersistent_filesystem' not in already_processed:
+            outfile.write(
+                ' hybridpersistent="%s"'
+                % self.gds_format_boolean(
+                    self.hybridpersistent, input_name='hybridpersistent'
+                )
+            )
+        if (
+            self.hybridpersistent_filesystem is not None
+            and 'hybridpersistent_filesystem' not in already_processed
+        ):
             already_processed.add('hybridpersistent_filesystem')
-            outfile.write(' hybridpersistent_filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.hybridpersistent_filesystem), input_name='hybridpersistent_filesystem')), ))
-        if self.gpt_hybrid_mbr is not None and 'gpt_hybrid_mbr' not in already_processed:
+            outfile.write(
+                ' hybridpersistent_filesystem=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.hybridpersistent_filesystem),
+                            input_name='hybridpersistent_filesystem',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.gpt_hybrid_mbr is not None
+            and 'gpt_hybrid_mbr' not in already_processed
+        ):
             already_processed.add('gpt_hybrid_mbr')
-            outfile.write(' gpt_hybrid_mbr="%s"' % self.gds_format_boolean(self.gpt_hybrid_mbr, input_name='gpt_hybrid_mbr'))
+            outfile.write(
+                ' gpt_hybrid_mbr="%s"'
+                % self.gds_format_boolean(
+                    self.gpt_hybrid_mbr, input_name='gpt_hybrid_mbr'
+                )
+            )
         if self.force_mbr is not None and 'force_mbr' not in already_processed:
             already_processed.add('force_mbr')
-            outfile.write(' force_mbr="%s"' % self.gds_format_boolean(self.force_mbr, input_name='force_mbr'))
-        if self.apply_dps_codes is not None and 'apply_dps_codes' not in already_processed:
+            outfile.write(
+                ' force_mbr="%s"'
+                % self.gds_format_boolean(
+                    self.force_mbr, input_name='force_mbr'
+                )
+            )
+        if (
+            self.apply_dps_codes is not None
+            and 'apply_dps_codes' not in already_processed
+        ):
             already_processed.add('apply_dps_codes')
-            outfile.write(' apply_dps_codes="%s"' % self.gds_format_boolean(self.apply_dps_codes, input_name='apply_dps_codes'))
-        if self.initrd_system is not None and 'initrd_system' not in already_processed:
+            outfile.write(
+                ' apply_dps_codes="%s"'
+                % self.gds_format_boolean(
+                    self.apply_dps_codes, input_name='apply_dps_codes'
+                )
+            )
+        if (
+            self.initrd_system is not None
+            and 'initrd_system' not in already_processed
+        ):
             already_processed.add('initrd_system')
-            outfile.write(' initrd_system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.initrd_system), input_name='initrd_system')), ))
+            outfile.write(
+                ' initrd_system=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.initrd_system),
+                            input_name='initrd_system',
+                        )
+                    ),
+                )
+            )
         if self.image is not None and 'image' not in already_processed:
             already_processed.add('image')
-            outfile.write(' image=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.image), input_name='image')), ))
-        if self.metadata_path is not None and 'metadata_path' not in already_processed:
+            outfile.write(
+                ' image=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.image), input_name='image'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.metadata_path is not None
+            and 'metadata_path' not in already_processed
+        ):
             already_processed.add('metadata_path')
-            outfile.write(' metadata_path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.metadata_path), input_name='metadata_path')), ))
-        if self.installboot is not None and 'installboot' not in already_processed:
+            outfile.write(
+                ' metadata_path=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.metadata_path),
+                            input_name='metadata_path',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.installboot is not None
+            and 'installboot' not in already_processed
+        ):
             already_processed.add('installboot')
-            outfile.write(' installboot=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.installboot), input_name='installboot')), ))
-        if self.install_continue_on_timeout is not None and 'install_continue_on_timeout' not in already_processed:
+            outfile.write(
+                ' installboot=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.installboot),
+                            input_name='installboot',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.install_continue_on_timeout is not None
+            and 'install_continue_on_timeout' not in already_processed
+        ):
             already_processed.add('install_continue_on_timeout')
-            outfile.write(' install_continue_on_timeout="%s"' % self.gds_format_boolean(self.install_continue_on_timeout, input_name='install_continue_on_timeout'))
-        if self.installprovidefailsafe is not None and 'installprovidefailsafe' not in already_processed:
+            outfile.write(
+                ' install_continue_on_timeout="%s"'
+                % self.gds_format_boolean(
+                    self.install_continue_on_timeout,
+                    input_name='install_continue_on_timeout',
+                )
+            )
+        if (
+            self.installprovidefailsafe is not None
+            and 'installprovidefailsafe' not in already_processed
+        ):
             already_processed.add('installprovidefailsafe')
-            outfile.write(' installprovidefailsafe="%s"' % self.gds_format_boolean(self.installprovidefailsafe, input_name='installprovidefailsafe'))
-        if self.installiso is not None and 'installiso' not in already_processed:
+            outfile.write(
+                ' installprovidefailsafe="%s"'
+                % self.gds_format_boolean(
+                    self.installprovidefailsafe,
+                    input_name='installprovidefailsafe',
+                )
+            )
+        if (
+            self.installiso is not None
+            and 'installiso' not in already_processed
+        ):
             already_processed.add('installiso')
-            outfile.write(' installiso="%s"' % self.gds_format_boolean(self.installiso, input_name='installiso'))
-        if self.installstick is not None and 'installstick' not in already_processed:
+            outfile.write(
+                ' installiso="%s"'
+                % self.gds_format_boolean(
+                    self.installiso, input_name='installiso'
+                )
+            )
+        if (
+            self.installstick is not None
+            and 'installstick' not in already_processed
+        ):
             already_processed.add('installstick')
-            outfile.write(' installstick="%s"' % self.gds_format_boolean(self.installstick, input_name='installstick'))
-        if self.installpxe is not None and 'installpxe' not in already_processed:
+            outfile.write(
+                ' installstick="%s"'
+                % self.gds_format_boolean(
+                    self.installstick, input_name='installstick'
+                )
+            )
+        if (
+            self.installpxe is not None
+            and 'installpxe' not in already_processed
+        ):
             already_processed.add('installpxe')
-            outfile.write(' installpxe="%s"' % self.gds_format_boolean(self.installpxe, input_name='installpxe'))
-        if self.mediacheck is not None and 'mediacheck' not in already_processed:
+            outfile.write(
+                ' installpxe="%s"'
+                % self.gds_format_boolean(
+                    self.installpxe, input_name='installpxe'
+                )
+            )
+        if (
+            self.mediacheck is not None
+            and 'mediacheck' not in already_processed
+        ):
             already_processed.add('mediacheck')
-            outfile.write(' mediacheck="%s"' % self.gds_format_boolean(self.mediacheck, input_name='mediacheck'))
-        if self.kernelcmdline is not None and 'kernelcmdline' not in already_processed:
+            outfile.write(
+                ' mediacheck="%s"'
+                % self.gds_format_boolean(
+                    self.mediacheck, input_name='mediacheck'
+                )
+            )
+        if (
+            self.kernelcmdline is not None
+            and 'kernelcmdline' not in already_processed
+        ):
             already_processed.add('kernelcmdline')
-            outfile.write(' kernelcmdline=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.kernelcmdline), input_name='kernelcmdline')), ))
+            outfile.write(
+                ' kernelcmdline=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.kernelcmdline),
+                            input_name='kernelcmdline',
+                        )
+                    ),
+                )
+            )
         if self.luks is not None and 'luks' not in already_processed:
             already_processed.add('luks')
-            outfile.write(' luks=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks), input_name='luks')), ))
-        if self.luks_version is not None and 'luks_version' not in already_processed:
+            outfile.write(
+                ' luks=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.luks), input_name='luks'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.luks_version is not None
+            and 'luks_version' not in already_processed
+        ):
             already_processed.add('luks_version')
-            outfile.write(' luks_version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks_version), input_name='luks_version')), ))
+            outfile.write(
+                ' luks_version=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.luks_version),
+                            input_name='luks_version',
+                        )
+                    ),
+                )
+            )
         if self.luksOS is not None and 'luksOS' not in already_processed:
             already_processed.add('luksOS')
-            outfile.write(' luksOS=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luksOS), input_name='luksOS')), ))
-        if self.luks_randomize is not None and 'luks_randomize' not in already_processed:
+            outfile.write(
+                ' luksOS=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.luksOS), input_name='luksOS'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.luks_randomize is not None
+            and 'luks_randomize' not in already_processed
+        ):
             already_processed.add('luks_randomize')
-            outfile.write(' luks_randomize="%s"' % self.gds_format_boolean(self.luks_randomize, input_name='luks_randomize'))
-        if self.luks_pbkdf is not None and 'luks_pbkdf' not in already_processed:
+            outfile.write(
+                ' luks_randomize="%s"'
+                % self.gds_format_boolean(
+                    self.luks_randomize, input_name='luks_randomize'
+                )
+            )
+        if (
+            self.luks_pbkdf is not None
+            and 'luks_pbkdf' not in already_processed
+        ):
             already_processed.add('luks_pbkdf')
-            outfile.write(' luks_pbkdf=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks_pbkdf), input_name='luks_pbkdf')), ))
+            outfile.write(
+                ' luks_pbkdf=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.luks_pbkdf),
+                            input_name='luks_pbkdf',
+                        )
+                    ),
+                )
+            )
         if self.mdraid is not None and 'mdraid' not in already_processed:
             already_processed.add('mdraid')
-            outfile.write(' mdraid=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mdraid), input_name='mdraid')), ))
-        if self.overlayroot is not None and 'overlayroot' not in already_processed:
+            outfile.write(
+                ' mdraid=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.mdraid), input_name='mdraid'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.overlayroot is not None
+            and 'overlayroot' not in already_processed
+        ):
             already_processed.add('overlayroot')
-            outfile.write(' overlayroot="%s"' % self.gds_format_boolean(self.overlayroot, input_name='overlayroot'))
-        if self.overlayroot_write_partition is not None and 'overlayroot_write_partition' not in already_processed:
+            outfile.write(
+                ' overlayroot="%s"'
+                % self.gds_format_boolean(
+                    self.overlayroot, input_name='overlayroot'
+                )
+            )
+        if (
+            self.overlayroot_write_partition is not None
+            and 'overlayroot_write_partition' not in already_processed
+        ):
             already_processed.add('overlayroot_write_partition')
-            outfile.write(' overlayroot_write_partition="%s"' % self.gds_format_boolean(self.overlayroot_write_partition, input_name='overlayroot_write_partition'))
-        if self.overlayroot_readonly_filesystem is not None and 'overlayroot_readonly_filesystem' not in already_processed:
+            outfile.write(
+                ' overlayroot_write_partition="%s"'
+                % self.gds_format_boolean(
+                    self.overlayroot_write_partition,
+                    input_name='overlayroot_write_partition',
+                )
+            )
+        if (
+            self.overlayroot_readonly_filesystem is not None
+            and 'overlayroot_readonly_filesystem' not in already_processed
+        ):
             already_processed.add('overlayroot_readonly_filesystem')
-            outfile.write(' overlayroot_readonly_filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.overlayroot_readonly_filesystem), input_name='overlayroot_readonly_filesystem')), ))
-        if self.overlayroot_readonly_partsize is not None and 'overlayroot_readonly_partsize' not in already_processed:
+            outfile.write(
+                ' overlayroot_readonly_filesystem=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.overlayroot_readonly_filesystem),
+                            input_name='overlayroot_readonly_filesystem',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.overlayroot_readonly_partsize is not None
+            and 'overlayroot_readonly_partsize' not in already_processed
+        ):
             already_processed.add('overlayroot_readonly_partsize')
-            outfile.write(' overlayroot_readonly_partsize="%s"' % self.gds_format_integer(self.overlayroot_readonly_partsize, input_name='overlayroot_readonly_partsize'))
-        if self.overlayroot_readonly_createoptions is not None and 'overlayroot_readonly_createoptions' not in already_processed:
+            outfile.write(
+                ' overlayroot_readonly_partsize="%s"'
+                % self.gds_format_integer(
+                    self.overlayroot_readonly_partsize,
+                    input_name='overlayroot_readonly_partsize',
+                )
+            )
+        if (
+            self.overlayroot_readonly_createoptions is not None
+            and 'overlayroot_readonly_createoptions' not in already_processed
+        ):
             already_processed.add('overlayroot_readonly_createoptions')
-            outfile.write(' overlayroot_readonly_createoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.overlayroot_readonly_createoptions), input_name='overlayroot_readonly_createoptions')), ))
-        if self.verity_blocks is not None and 'verity_blocks' not in already_processed:
+            outfile.write(
+                ' overlayroot_readonly_createoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(
+                                self.overlayroot_readonly_createoptions
+                            ),
+                            input_name='overlayroot_readonly_createoptions',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.verity_blocks is not None
+            and 'verity_blocks' not in already_processed
+        ):
             already_processed.add('verity_blocks')
-            outfile.write(' verity_blocks=%s' % (quote_attrib(self.verity_blocks), ))
-        if self.embed_verity_metadata is not None and 'embed_verity_metadata' not in already_processed:
+            outfile.write(
+                ' verity_blocks=%s' % (quote_attrib(self.verity_blocks),)
+            )
+        if (
+            self.embed_verity_metadata is not None
+            and 'embed_verity_metadata' not in already_processed
+        ):
             already_processed.add('embed_verity_metadata')
-            outfile.write(' embed_verity_metadata="%s"' % self.gds_format_boolean(self.embed_verity_metadata, input_name='embed_verity_metadata'))
-        if self.standalone_integrity is not None and 'standalone_integrity' not in already_processed:
+            outfile.write(
+                ' embed_verity_metadata="%s"'
+                % self.gds_format_boolean(
+                    self.embed_verity_metadata,
+                    input_name='embed_verity_metadata',
+                )
+            )
+        if (
+            self.standalone_integrity is not None
+            and 'standalone_integrity' not in already_processed
+        ):
             already_processed.add('standalone_integrity')
-            outfile.write(' standalone_integrity="%s"' % self.gds_format_boolean(self.standalone_integrity, input_name='standalone_integrity'))
-        if self.embed_integrity_metadata is not None and 'embed_integrity_metadata' not in already_processed:
+            outfile.write(
+                ' standalone_integrity="%s"'
+                % self.gds_format_boolean(
+                    self.standalone_integrity, input_name='standalone_integrity'
+                )
+            )
+        if (
+            self.embed_integrity_metadata is not None
+            and 'embed_integrity_metadata' not in already_processed
+        ):
             already_processed.add('embed_integrity_metadata')
-            outfile.write(' embed_integrity_metadata="%s"' % self.gds_format_boolean(self.embed_integrity_metadata, input_name='embed_integrity_metadata'))
-        if self.integrity_legacy_hmac is not None and 'integrity_legacy_hmac' not in already_processed:
+            outfile.write(
+                ' embed_integrity_metadata="%s"'
+                % self.gds_format_boolean(
+                    self.embed_integrity_metadata,
+                    input_name='embed_integrity_metadata',
+                )
+            )
+        if (
+            self.integrity_legacy_hmac is not None
+            and 'integrity_legacy_hmac' not in already_processed
+        ):
             already_processed.add('integrity_legacy_hmac')
-            outfile.write(' integrity_legacy_hmac="%s"' % self.gds_format_boolean(self.integrity_legacy_hmac, input_name='integrity_legacy_hmac'))
-        if self.integrity_metadata_key_description is not None and 'integrity_metadata_key_description' not in already_processed:
+            outfile.write(
+                ' integrity_legacy_hmac="%s"'
+                % self.gds_format_boolean(
+                    self.integrity_legacy_hmac,
+                    input_name='integrity_legacy_hmac',
+                )
+            )
+        if (
+            self.integrity_metadata_key_description is not None
+            and 'integrity_metadata_key_description' not in already_processed
+        ):
             already_processed.add('integrity_metadata_key_description')
-            outfile.write(' integrity_metadata_key_description=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.integrity_metadata_key_description), input_name='integrity_metadata_key_description')), ))
-        if self.integrity_keyfile is not None and 'integrity_keyfile' not in already_processed:
+            outfile.write(
+                ' integrity_metadata_key_description=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(
+                                self.integrity_metadata_key_description
+                            ),
+                            input_name='integrity_metadata_key_description',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.integrity_keyfile is not None
+            and 'integrity_keyfile' not in already_processed
+        ):
             already_processed.add('integrity_keyfile')
-            outfile.write(' integrity_keyfile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.integrity_keyfile), input_name='integrity_keyfile')), ))
+            outfile.write(
+                ' integrity_keyfile=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.integrity_keyfile),
+                            input_name='integrity_keyfile',
+                        )
+                    ),
+                )
+            )
         if self.primary is not None and 'primary' not in already_processed:
             already_processed.add('primary')
-            outfile.write(' primary="%s"' % self.gds_format_boolean(self.primary, input_name='primary'))
+            outfile.write(
+                ' primary="%s"'
+                % self.gds_format_boolean(self.primary, input_name='primary')
+            )
         if self.ramonly is not None and 'ramonly' not in already_processed:
             already_processed.add('ramonly')
-            outfile.write(' ramonly="%s"' % self.gds_format_boolean(self.ramonly, input_name='ramonly'))
-        if self.rootfs_label is not None and 'rootfs_label' not in already_processed:
+            outfile.write(
+                ' ramonly="%s"'
+                % self.gds_format_boolean(self.ramonly, input_name='ramonly')
+            )
+        if (
+            self.rootfs_label is not None
+            and 'rootfs_label' not in already_processed
+        ):
             already_processed.add('rootfs_label')
-            outfile.write(' rootfs_label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.rootfs_label), input_name='rootfs_label')), ))
-        if self.spare_part is not None and 'spare_part' not in already_processed:
+            outfile.write(
+                ' rootfs_label=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.rootfs_label),
+                            input_name='rootfs_label',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.spare_part is not None
+            and 'spare_part' not in already_processed
+        ):
             already_processed.add('spare_part')
-            outfile.write(' spare_part=%s' % (quote_attrib(self.spare_part), ))
-        if self.spare_part_mountpoint is not None and 'spare_part_mountpoint' not in already_processed:
+            outfile.write(' spare_part=%s' % (quote_attrib(self.spare_part),))
+        if (
+            self.spare_part_mountpoint is not None
+            and 'spare_part_mountpoint' not in already_processed
+        ):
             already_processed.add('spare_part_mountpoint')
-            outfile.write(' spare_part_mountpoint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.spare_part_mountpoint), input_name='spare_part_mountpoint')), ))
-        if self.spare_part_fs is not None and 'spare_part_fs' not in already_processed:
+            outfile.write(
+                ' spare_part_mountpoint=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.spare_part_mountpoint),
+                            input_name='spare_part_mountpoint',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.spare_part_fs is not None
+            and 'spare_part_fs' not in already_processed
+        ):
             already_processed.add('spare_part_fs')
-            outfile.write(' spare_part_fs=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.spare_part_fs), input_name='spare_part_fs')), ))
-        if self.spare_part_fs_attributes is not None and 'spare_part_fs_attributes' not in already_processed:
+            outfile.write(
+                ' spare_part_fs=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.spare_part_fs),
+                            input_name='spare_part_fs',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.spare_part_fs_attributes is not None
+            and 'spare_part_fs_attributes' not in already_processed
+        ):
             already_processed.add('spare_part_fs_attributes')
-            outfile.write(' spare_part_fs_attributes=%s' % (quote_attrib(self.spare_part_fs_attributes), ))
-        if self.spare_part_is_last is not None and 'spare_part_is_last' not in already_processed:
+            outfile.write(
+                ' spare_part_fs_attributes=%s'
+                % (quote_attrib(self.spare_part_fs_attributes),)
+            )
+        if (
+            self.spare_part_is_last is not None
+            and 'spare_part_is_last' not in already_processed
+        ):
             already_processed.add('spare_part_is_last')
-            outfile.write(' spare_part_is_last="%s"' % self.gds_format_boolean(self.spare_part_is_last, input_name='spare_part_is_last'))
-        if self.target_blocksize is not None and 'target_blocksize' not in already_processed:
+            outfile.write(
+                ' spare_part_is_last="%s"'
+                % self.gds_format_boolean(
+                    self.spare_part_is_last, input_name='spare_part_is_last'
+                )
+            )
+        if (
+            self.target_blocksize is not None
+            and 'target_blocksize' not in already_processed
+        ):
             already_processed.add('target_blocksize')
-            outfile.write(' target_blocksize="%s"' % self.gds_format_integer(self.target_blocksize, input_name='target_blocksize'))
-        if self.target_removable is not None and 'target_removable' not in already_processed:
+            outfile.write(
+                ' target_blocksize="%s"'
+                % self.gds_format_integer(
+                    self.target_blocksize, input_name='target_blocksize'
+                )
+            )
+        if (
+            self.target_removable is not None
+            and 'target_removable' not in already_processed
+        ):
             already_processed.add('target_removable')
-            outfile.write(' target_removable="%s"' % self.gds_format_boolean(self.target_removable, input_name='target_removable'))
-        if self.selinux_policy is not None and 'selinux_policy' not in already_processed:
+            outfile.write(
+                ' target_removable="%s"'
+                % self.gds_format_boolean(
+                    self.target_removable, input_name='target_removable'
+                )
+            )
+        if (
+            self.selinux_policy is not None
+            and 'selinux_policy' not in already_processed
+        ):
             already_processed.add('selinux_policy')
-            outfile.write(' selinux_policy=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selinux_policy), input_name='selinux_policy')), ))
-        if self.vhdfixedtag is not None and 'vhdfixedtag' not in already_processed:
+            outfile.write(
+                ' selinux_policy=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.selinux_policy),
+                            input_name='selinux_policy',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.vhdfixedtag is not None
+            and 'vhdfixedtag' not in already_processed
+        ):
             already_processed.add('vhdfixedtag')
-            outfile.write(' vhdfixedtag=%s' % (quote_attrib(self.vhdfixedtag), ))
+            outfile.write(' vhdfixedtag=%s' % (quote_attrib(self.vhdfixedtag),))
         if self.volid is not None and 'volid' not in already_processed:
             already_processed.add('volid')
-            outfile.write(' volid=%s' % (quote_attrib(self.volid), ))
-        if self.application_id is not None and 'application_id' not in already_processed:
+            outfile.write(' volid=%s' % (quote_attrib(self.volid),))
+        if (
+            self.application_id is not None
+            and 'application_id' not in already_processed
+        ):
             already_processed.add('application_id')
-            outfile.write(' application_id=%s' % (quote_attrib(self.application_id), ))
-        if self.wwid_wait_timeout is not None and 'wwid_wait_timeout' not in already_processed:
+            outfile.write(
+                ' application_id=%s' % (quote_attrib(self.application_id),)
+            )
+        if (
+            self.wwid_wait_timeout is not None
+            and 'wwid_wait_timeout' not in already_processed
+        ):
             already_processed.add('wwid_wait_timeout')
-            outfile.write(' wwid_wait_timeout="%s"' % self.gds_format_integer(self.wwid_wait_timeout, input_name='wwid_wait_timeout'))
-        if self.derived_from is not None and 'derived_from' not in already_processed:
+            outfile.write(
+                ' wwid_wait_timeout="%s"'
+                % self.gds_format_integer(
+                    self.wwid_wait_timeout, input_name='wwid_wait_timeout'
+                )
+            )
+        if (
+            self.derived_from is not None
+            and 'derived_from' not in already_processed
+        ):
             already_processed.add('derived_from')
-            outfile.write(' derived_from=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.derived_from), input_name='derived_from')), ))
-        if self.delta_root is not None and 'delta_root' not in already_processed:
+            outfile.write(
+                ' derived_from=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.derived_from),
+                            input_name='derived_from',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.delta_root is not None
+            and 'delta_root' not in already_processed
+        ):
             already_processed.add('delta_root')
-            outfile.write(' delta_root="%s"' % self.gds_format_boolean(self.delta_root, input_name='delta_root'))
-        if self.provide_system_files is not None and 'provide_system_files' not in already_processed:
+            outfile.write(
+                ' delta_root="%s"'
+                % self.gds_format_boolean(
+                    self.delta_root, input_name='delta_root'
+                )
+            )
+        if (
+            self.provide_system_files is not None
+            and 'provide_system_files' not in already_processed
+        ):
             already_processed.add('provide_system_files')
-            outfile.write(' provide_system_files="%s"' % self.gds_format_boolean(self.provide_system_files, input_name='provide_system_files'))
-        if self.require_system_files is not None and 'require_system_files' not in already_processed:
+            outfile.write(
+                ' provide_system_files="%s"'
+                % self.gds_format_boolean(
+                    self.provide_system_files, input_name='provide_system_files'
+                )
+            )
+        if (
+            self.require_system_files is not None
+            and 'require_system_files' not in already_processed
+        ):
             already_processed.add('require_system_files')
-            outfile.write(' require_system_files="%s"' % self.gds_format_boolean(self.require_system_files, input_name='require_system_files'))
-        if self.ensure_empty_tmpdirs is not None and 'ensure_empty_tmpdirs' not in already_processed:
+            outfile.write(
+                ' require_system_files="%s"'
+                % self.gds_format_boolean(
+                    self.require_system_files, input_name='require_system_files'
+                )
+            )
+        if (
+            self.ensure_empty_tmpdirs is not None
+            and 'ensure_empty_tmpdirs' not in already_processed
+        ):
             already_processed.add('ensure_empty_tmpdirs')
-            outfile.write(' ensure_empty_tmpdirs="%s"' % self.gds_format_boolean(self.ensure_empty_tmpdirs, input_name='ensure_empty_tmpdirs'))
-        if self.xen_server is not None and 'xen_server' not in already_processed:
+            outfile.write(
+                ' ensure_empty_tmpdirs="%s"'
+                % self.gds_format_boolean(
+                    self.ensure_empty_tmpdirs, input_name='ensure_empty_tmpdirs'
+                )
+            )
+        if (
+            self.xen_server is not None
+            and 'xen_server' not in already_processed
+        ):
             already_processed.add('xen_server')
-            outfile.write(' xen_server="%s"' % self.gds_format_boolean(self.xen_server, input_name='xen_server'))
+            outfile.write(
+                ' xen_server="%s"'
+                % self.gds_format_boolean(
+                    self.xen_server, input_name='xen_server'
+                )
+            )
         if self.publisher is not None and 'publisher' not in already_processed:
             already_processed.add('publisher')
-            outfile.write(' publisher=%s' % (quote_attrib(self.publisher), ))
-        if self.disk_start_sector is not None and 'disk_start_sector' not in already_processed:
+            outfile.write(' publisher=%s' % (quote_attrib(self.publisher),))
+        if (
+            self.disk_start_sector is not None
+            and 'disk_start_sector' not in already_processed
+        ):
             already_processed.add('disk_start_sector')
-            outfile.write(' disk_start_sector="%s"' % self.gds_format_integer(self.disk_start_sector, input_name='disk_start_sector'))
-        if self.root_clone is not None and 'root_clone' not in already_processed:
+            outfile.write(
+                ' disk_start_sector="%s"'
+                % self.gds_format_integer(
+                    self.disk_start_sector, input_name='disk_start_sector'
+                )
+            )
+        if (
+            self.root_clone is not None
+            and 'root_clone' not in already_processed
+        ):
             already_processed.add('root_clone')
-            outfile.write(' root_clone=%s' % (quote_attrib(self.root_clone), ))
-        if self.boot_clone is not None and 'boot_clone' not in already_processed:
+            outfile.write(' root_clone=%s' % (quote_attrib(self.root_clone),))
+        if (
+            self.boot_clone is not None
+            and 'boot_clone' not in already_processed
+        ):
             already_processed.add('boot_clone')
-            outfile.write(' boot_clone=%s' % (quote_attrib(self.boot_clone), ))
-        if self.bundle_format is not None and 'bundle_format' not in already_processed:
+            outfile.write(' boot_clone=%s' % (quote_attrib(self.boot_clone),))
+        if (
+            self.bundle_format is not None
+            and 'bundle_format' not in already_processed
+        ):
             already_processed.add('bundle_format')
-            outfile.write(' bundle_format=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bundle_format), input_name='bundle_format')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='type', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' bundle_format=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.bundle_format),
+                            input_name='bundle_format',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='type',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for bootloader_ in self.bootloader:
-            bootloader_.export(outfile, level, namespaceprefix_, name_='bootloader', pretty_print=pretty_print)
+            bootloader_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='bootloader',
+                pretty_print=pretty_print,
+            )
         for containerconfig_ in self.containerconfig:
-            containerconfig_.export(outfile, level, namespaceprefix_, name_='containerconfig', pretty_print=pretty_print)
+            containerconfig_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='containerconfig',
+                pretty_print=pretty_print,
+            )
         for machine_ in self.machine:
-            machine_.export(outfile, level, namespaceprefix_, name_='machine', pretty_print=pretty_print)
+            machine_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='machine',
+                pretty_print=pretty_print,
+            )
         for oemconfig_ in self.oemconfig:
-            oemconfig_.export(outfile, level, namespaceprefix_, name_='oemconfig', pretty_print=pretty_print)
+            oemconfig_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='oemconfig',
+                pretty_print=pretty_print,
+            )
         for size_ in self.size:
-            size_.export(outfile, level, namespaceprefix_, name_='size', pretty_print=pretty_print)
+            size_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='size',
+                pretty_print=pretty_print,
+            )
         for systemdisk_ in self.systemdisk:
-            systemdisk_.export(outfile, level, namespaceprefix_, name_='systemdisk', pretty_print=pretty_print)
+            systemdisk_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='systemdisk',
+                pretty_print=pretty_print,
+            )
         for partitions_ in self.partitions:
-            partitions_.export(outfile, level, namespaceprefix_, name_='partitions', pretty_print=pretty_print)
+            partitions_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='partitions',
+                pretty_print=pretty_print,
+            )
         for vagrantconfig_ in self.vagrantconfig:
-            vagrantconfig_.export(outfile, level, namespaceprefix_, name_='vagrantconfig', pretty_print=pretty_print)
+            vagrantconfig_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='vagrantconfig',
+                pretty_print=pretty_print,
+            )
         for installmedia_ in self.installmedia:
-            installmedia_.export(outfile, level, namespaceprefix_, name_='installmedia', pretty_print=pretty_print)
+            installmedia_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='installmedia',
+                pretty_print=pretty_print,
+            )
         for initrd_ in self.initrd:
-            initrd_.export(outfile, level, namespaceprefix_, name_='initrd', pretty_print=pretty_print)
+            initrd_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='initrd',
+                pretty_print=pretty_print,
+            )
         for luksformat_ in self.luksformat:
-            luksformat_.export(outfile, level, namespaceprefix_, name_='luksformat', pretty_print=pretty_print)
+            luksformat_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='luksformat',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4383,6 +8861,7 @@ class type_(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('archive', node)
         if value is not None and 'archive' not in already_processed:
@@ -4398,25 +8877,33 @@ class type_(GeneratedsSuper):
             already_processed.add('eficsmpart_id')
             self.eficsmpart_id = value
             self.eficsmpart_id = ' '.join(self.eficsmpart_id.split())
-            self.validate_number_type(self.eficsmpart_id)    # validate type number-type
+            self.validate_number_type(
+                self.eficsmpart_id
+            )  # validate type number-type
         value = find_attr_value_('efipart_id', node)
         if value is not None and 'efipart_id' not in already_processed:
             already_processed.add('efipart_id')
             self.efipart_id = value
             self.efipart_id = ' '.join(self.efipart_id.split())
-            self.validate_number_type(self.efipart_id)    # validate type number-type
+            self.validate_number_type(
+                self.efipart_id
+            )  # validate type number-type
         value = find_attr_value_('rootpart_id', node)
         if value is not None and 'rootpart_id' not in already_processed:
             already_processed.add('rootpart_id')
             self.rootpart_id = value
             self.rootpart_id = ' '.join(self.rootpart_id.split())
-            self.validate_number_type(self.rootpart_id)    # validate type number-type
+            self.validate_number_type(
+                self.rootpart_id
+            )  # validate type number-type
         value = find_attr_value_('bootpart_id', node)
         if value is not None and 'bootpart_id' not in already_processed:
             already_processed.add('bootpart_id')
             self.bootpart_id = value
             self.bootpart_id = ' '.join(self.bootpart_id.split())
-            self.validate_number_type(self.bootpart_id)    # validate type number-type
+            self.validate_number_type(
+                self.bootpart_id
+            )  # validate type number-type
         value = find_attr_value_('boot', node)
         if value is not None and 'boot' not in already_processed:
             already_processed.add('boot')
@@ -4490,7 +8977,10 @@ class type_(GeneratedsSuper):
             self.efiparttable = value
             self.efiparttable = ' '.join(self.efiparttable.split())
         value = find_attr_value_('dosparttable_extended_layout', node)
-        if value is not None and 'dosparttable_extended_layout' not in already_processed:
+        if (
+            value is not None
+            and 'dosparttable_extended_layout' not in already_processed
+        ):
             already_processed.add('dosparttable_extended_layout')
             if value in ('true', '1'):
                 self.dosparttable_extended_layout = True
@@ -4512,7 +9002,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_root_is_snapper_snapshot', node)
-        if value is not None and 'btrfs_root_is_snapper_snapshot' not in already_processed:
+        if (
+            value is not None
+            and 'btrfs_root_is_snapper_snapshot' not in already_processed
+        ):
             already_processed.add('btrfs_root_is_snapper_snapshot')
             if value in ('true', '1'):
                 self.btrfs_root_is_snapper_snapshot = True
@@ -4521,7 +9014,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_root_is_subvolume', node)
-        if value is not None and 'btrfs_root_is_subvolume' not in already_processed:
+        if (
+            value is not None
+            and 'btrfs_root_is_subvolume' not in already_processed
+        ):
             already_processed.add('btrfs_root_is_subvolume')
             if value in ('true', '1'):
                 self.btrfs_root_is_subvolume = True
@@ -4530,7 +9026,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_set_default_volume', node)
-        if value is not None and 'btrfs_set_default_volume' not in already_processed:
+        if (
+            value is not None
+            and 'btrfs_set_default_volume' not in already_processed
+        ):
             already_processed.add('btrfs_set_default_volume')
             if value in ('true', '1'):
                 self.btrfs_set_default_volume = True
@@ -4539,7 +9038,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_root_is_readonly_snapshot', node)
-        if value is not None and 'btrfs_root_is_readonly_snapshot' not in already_processed:
+        if (
+            value is not None
+            and 'btrfs_root_is_readonly_snapshot' not in already_processed
+        ):
             already_processed.add('btrfs_root_is_readonly_snapshot')
             if value in ('true', '1'):
                 self.btrfs_root_is_readonly_snapshot = True
@@ -4605,7 +9107,9 @@ class type_(GeneratedsSuper):
         if value is not None and 'squashfscompression' not in already_processed:
             already_processed.add('squashfscompression')
             self.squashfscompression = value
-            self.squashfscompression = ' '.join(self.squashfscompression.split())
+            self.squashfscompression = ' '.join(
+                self.squashfscompression.split()
+            )
         value = find_attr_value_('erofscompression', node)
         if value is not None and 'erofscompression' not in already_processed:
             already_processed.add('erofscompression')
@@ -4624,10 +9128,15 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('hybridpersistent_filesystem', node)
-        if value is not None and 'hybridpersistent_filesystem' not in already_processed:
+        if (
+            value is not None
+            and 'hybridpersistent_filesystem' not in already_processed
+        ):
             already_processed.add('hybridpersistent_filesystem')
             self.hybridpersistent_filesystem = value
-            self.hybridpersistent_filesystem = ' '.join(self.hybridpersistent_filesystem.split())
+            self.hybridpersistent_filesystem = ' '.join(
+                self.hybridpersistent_filesystem.split()
+            )
         value = find_attr_value_('gpt_hybrid_mbr', node)
         if value is not None and 'gpt_hybrid_mbr' not in already_processed:
             already_processed.add('gpt_hybrid_mbr')
@@ -4675,7 +9184,10 @@ class type_(GeneratedsSuper):
             self.installboot = value
             self.installboot = ' '.join(self.installboot.split())
         value = find_attr_value_('install_continue_on_timeout', node)
-        if value is not None and 'install_continue_on_timeout' not in already_processed:
+        if (
+            value is not None
+            and 'install_continue_on_timeout' not in already_processed
+        ):
             already_processed.add('install_continue_on_timeout')
             if value in ('true', '1'):
                 self.install_continue_on_timeout = True
@@ -4684,7 +9196,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('installprovidefailsafe', node)
-        if value is not None and 'installprovidefailsafe' not in already_processed:
+        if (
+            value is not None
+            and 'installprovidefailsafe' not in already_processed
+        ):
             already_processed.add('installprovidefailsafe')
             if value in ('true', '1'):
                 self.installprovidefailsafe = True
@@ -4775,7 +9290,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('overlayroot_write_partition', node)
-        if value is not None and 'overlayroot_write_partition' not in already_processed:
+        if (
+            value is not None
+            and 'overlayroot_write_partition' not in already_processed
+        ):
             already_processed.add('overlayroot_write_partition')
             if value in ('true', '1'):
                 self.overlayroot_write_partition = True
@@ -4784,12 +9302,20 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('overlayroot_readonly_filesystem', node)
-        if value is not None and 'overlayroot_readonly_filesystem' not in already_processed:
+        if (
+            value is not None
+            and 'overlayroot_readonly_filesystem' not in already_processed
+        ):
             already_processed.add('overlayroot_readonly_filesystem')
             self.overlayroot_readonly_filesystem = value
-            self.overlayroot_readonly_filesystem = ' '.join(self.overlayroot_readonly_filesystem.split())
+            self.overlayroot_readonly_filesystem = ' '.join(
+                self.overlayroot_readonly_filesystem.split()
+            )
         value = find_attr_value_('overlayroot_readonly_partsize', node)
-        if value is not None and 'overlayroot_readonly_partsize' not in already_processed:
+        if (
+            value is not None
+            and 'overlayroot_readonly_partsize' not in already_processed
+        ):
             already_processed.add('overlayroot_readonly_partsize')
             try:
                 self.overlayroot_readonly_partsize = int(value)
@@ -4798,7 +9324,10 @@ class type_(GeneratedsSuper):
             if self.overlayroot_readonly_partsize < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
         value = find_attr_value_('overlayroot_readonly_createoptions', node)
-        if value is not None and 'overlayroot_readonly_createoptions' not in already_processed:
+        if (
+            value is not None
+            and 'overlayroot_readonly_createoptions' not in already_processed
+        ):
             already_processed.add('overlayroot_readonly_createoptions')
             self.overlayroot_readonly_createoptions = value
         value = find_attr_value_('verity_blocks', node)
@@ -4806,9 +9335,14 @@ class type_(GeneratedsSuper):
             already_processed.add('verity_blocks')
             self.verity_blocks = value
             self.verity_blocks = ' '.join(self.verity_blocks.split())
-            self.validate_blocks_type(self.verity_blocks)    # validate type blocks-type
+            self.validate_blocks_type(
+                self.verity_blocks
+            )  # validate type blocks-type
         value = find_attr_value_('embed_verity_metadata', node)
-        if value is not None and 'embed_verity_metadata' not in already_processed:
+        if (
+            value is not None
+            and 'embed_verity_metadata' not in already_processed
+        ):
             already_processed.add('embed_verity_metadata')
             if value in ('true', '1'):
                 self.embed_verity_metadata = True
@@ -4817,7 +9351,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('standalone_integrity', node)
-        if value is not None and 'standalone_integrity' not in already_processed:
+        if (
+            value is not None
+            and 'standalone_integrity' not in already_processed
+        ):
             already_processed.add('standalone_integrity')
             if value in ('true', '1'):
                 self.standalone_integrity = True
@@ -4826,7 +9363,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('embed_integrity_metadata', node)
-        if value is not None and 'embed_integrity_metadata' not in already_processed:
+        if (
+            value is not None
+            and 'embed_integrity_metadata' not in already_processed
+        ):
             already_processed.add('embed_integrity_metadata')
             if value in ('true', '1'):
                 self.embed_integrity_metadata = True
@@ -4835,7 +9375,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('integrity_legacy_hmac', node)
-        if value is not None and 'integrity_legacy_hmac' not in already_processed:
+        if (
+            value is not None
+            and 'integrity_legacy_hmac' not in already_processed
+        ):
             already_processed.add('integrity_legacy_hmac')
             if value in ('true', '1'):
                 self.integrity_legacy_hmac = True
@@ -4844,7 +9387,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('integrity_metadata_key_description', node)
-        if value is not None and 'integrity_metadata_key_description' not in already_processed:
+        if (
+            value is not None
+            and 'integrity_metadata_key_description' not in already_processed
+        ):
             already_processed.add('integrity_metadata_key_description')
             self.integrity_metadata_key_description = value
         value = find_attr_value_('integrity_keyfile', node)
@@ -4878,9 +9424,14 @@ class type_(GeneratedsSuper):
             already_processed.add('spare_part')
             self.spare_part = value
             self.spare_part = ' '.join(self.spare_part.split())
-            self.validate_partition_size_type(self.spare_part)    # validate type partition-size-type
+            self.validate_partition_size_type(
+                self.spare_part
+            )  # validate type partition-size-type
         value = find_attr_value_('spare_part_mountpoint', node)
-        if value is not None and 'spare_part_mountpoint' not in already_processed:
+        if (
+            value is not None
+            and 'spare_part_mountpoint' not in already_processed
+        ):
             already_processed.add('spare_part_mountpoint')
             self.spare_part_mountpoint = value
         value = find_attr_value_('spare_part_fs', node)
@@ -4889,11 +9440,18 @@ class type_(GeneratedsSuper):
             self.spare_part_fs = value
             self.spare_part_fs = ' '.join(self.spare_part_fs.split())
         value = find_attr_value_('spare_part_fs_attributes', node)
-        if value is not None and 'spare_part_fs_attributes' not in already_processed:
+        if (
+            value is not None
+            and 'spare_part_fs_attributes' not in already_processed
+        ):
             already_processed.add('spare_part_fs_attributes')
             self.spare_part_fs_attributes = value
-            self.spare_part_fs_attributes = ' '.join(self.spare_part_fs_attributes.split())
-            self.validate_fs_attributes(self.spare_part_fs_attributes)    # validate type fs_attributes
+            self.spare_part_fs_attributes = ' '.join(
+                self.spare_part_fs_attributes.split()
+            )
+            self.validate_fs_attributes(
+                self.spare_part_fs_attributes
+            )  # validate type fs_attributes
         value = find_attr_value_('spare_part_is_last', node)
         if value is not None and 'spare_part_is_last' not in already_processed:
             already_processed.add('spare_part_is_last')
@@ -4931,19 +9489,25 @@ class type_(GeneratedsSuper):
             already_processed.add('vhdfixedtag')
             self.vhdfixedtag = value
             self.vhdfixedtag = ' '.join(self.vhdfixedtag.split())
-            self.validate_vhd_tag_type(self.vhdfixedtag)    # validate type vhd-tag-type
+            self.validate_vhd_tag_type(
+                self.vhdfixedtag
+            )  # validate type vhd-tag-type
         value = find_attr_value_('volid', node)
         if value is not None and 'volid' not in already_processed:
             already_processed.add('volid')
             self.volid = value
             self.volid = ' '.join(self.volid.split())
-            self.validate_safe_posix_short_name(self.volid)    # validate type safe-posix-short-name
+            self.validate_safe_posix_short_name(
+                self.volid
+            )  # validate type safe-posix-short-name
         value = find_attr_value_('application_id', node)
         if value is not None and 'application_id' not in already_processed:
             already_processed.add('application_id')
             self.application_id = value
             self.application_id = ' '.join(self.application_id.split())
-            self.validate_ecma_119_achar_128_text(self.application_id)    # validate type ecma-119-achar-128-text
+            self.validate_ecma_119_achar_128_text(
+                self.application_id
+            )  # validate type ecma-119-achar-128-text
         value = find_attr_value_('wwid_wait_timeout', node)
         if value is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
@@ -4967,7 +9531,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('provide_system_files', node)
-        if value is not None and 'provide_system_files' not in already_processed:
+        if (
+            value is not None
+            and 'provide_system_files' not in already_processed
+        ):
             already_processed.add('provide_system_files')
             if value in ('true', '1'):
                 self.provide_system_files = True
@@ -4976,7 +9543,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('require_system_files', node)
-        if value is not None and 'require_system_files' not in already_processed:
+        if (
+            value is not None
+            and 'require_system_files' not in already_processed
+        ):
             already_processed.add('require_system_files')
             if value in ('true', '1'):
                 self.require_system_files = True
@@ -4985,7 +9555,10 @@ class type_(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('ensure_empty_tmpdirs', node)
-        if value is not None and 'ensure_empty_tmpdirs' not in already_processed:
+        if (
+            value is not None
+            and 'ensure_empty_tmpdirs' not in already_processed
+        ):
             already_processed.add('ensure_empty_tmpdirs')
             if value in ('true', '1'):
                 self.ensure_empty_tmpdirs = True
@@ -5007,7 +9580,9 @@ class type_(GeneratedsSuper):
             already_processed.add('publisher')
             self.publisher = value
             self.publisher = ' '.join(self.publisher.split())
-            self.validate_ecma_119_achar_128_text(self.publisher)    # validate type ecma-119-achar-128-text
+            self.validate_ecma_119_achar_128_text(
+                self.publisher
+            )  # validate type ecma-119-achar-128-text
         value = find_attr_value_('disk_start_sector', node)
         if value is not None and 'disk_start_sector' not in already_processed:
             already_processed.add('disk_start_sector')
@@ -5020,17 +9595,22 @@ class type_(GeneratedsSuper):
             already_processed.add('root_clone')
             self.root_clone = value
             self.root_clone = ' '.join(self.root_clone.split())
-            self.validate_number_type(self.root_clone)    # validate type number-type
+            self.validate_number_type(
+                self.root_clone
+            )  # validate type number-type
         value = find_attr_value_('boot_clone', node)
         if value is not None and 'boot_clone' not in already_processed:
             already_processed.add('boot_clone')
             self.boot_clone = value
             self.boot_clone = ' '.join(self.boot_clone.split())
-            self.validate_number_type(self.boot_clone)    # validate type number-type
+            self.validate_number_type(
+                self.boot_clone
+            )  # validate type number-type
         value = find_attr_value_('bundle_format', node)
         if value is not None and 'bundle_format' not in already_processed:
             already_processed.add('bundle_format')
             self.bundle_format = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'bootloader':
             obj_ = bootloader.factory()
@@ -5087,14 +9667,28 @@ class type_(GeneratedsSuper):
             obj_.build(child_)
             self.luksformat.append(obj_)
             obj_.original_tagname_ = 'luksformat'
+
+
 # end class type_
 
 
 class user(GeneratedsSuper):
     """A User with Name, Password, Path to Its Home And Shell"""
+
     subclass = None
     superclass = None
-    def __init__(self, groups=None, home=None, id=None, name=None, password=None, pwdformat=None, realname=None, shell=None):
+
+    def __init__(
+        self,
+        groups=None,
+        home=None,
+        id=None,
+        name=None,
+        password=None,
+        pwdformat=None,
+        realname=None,
+        shell=None,
+    ):
         self.original_tagname_ = None
         self.groups = _cast(None, groups)
         self.home = _cast(None, home)
@@ -5104,48 +9698,100 @@ class user(GeneratedsSuper):
         self.pwdformat = _cast(None, pwdformat)
         self.realname = _cast(None, realname)
         self.shell = _cast(None, shell)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, user)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, user)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if user.subclass:
             return user.subclass(*args_, **kwargs_)
         else:
             return user(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_groups(self): return self.groups
-    def set_groups(self, groups): self.groups = groups
-    def get_home(self): return self.home
-    def set_home(self, home): self.home = home
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_password(self): return self.password
-    def set_password(self, password): self.password = password
-    def get_pwdformat(self): return self.pwdformat
-    def set_pwdformat(self, pwdformat): self.pwdformat = pwdformat
-    def get_realname(self): return self.realname
-    def set_realname(self, realname): self.realname = realname
-    def get_shell(self): return self.shell
-    def set_shell(self, shell): self.shell = shell
+
+    def get_groups(self):
+        return self.groups
+
+    def set_groups(self, groups):
+        self.groups = groups
+
+    def get_home(self):
+        return self.home
+
+    def set_home(self, home):
+        self.home = home
+
+    def get_id(self):
+        return self.id
+
+    def set_id(self, id):
+        self.id = id
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_password(self):
+        return self.password
+
+    def set_password(self, password):
+        self.password = password
+
+    def get_pwdformat(self):
+        return self.pwdformat
+
+    def set_pwdformat(self, pwdformat):
+        self.pwdformat = pwdformat
+
+    def get_realname(self):
+        return self.realname
+
+    def set_realname(self, realname):
+        self.realname = realname
+
+    def get_shell(self):
+        return self.shell
+
+    def set_shell(self, shell):
+        self.shell = shell
+
     def validate_groups_list(self, value):
         # Validate type groups-list, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_groups_list_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_groups_list_patterns_, ))
-    validate_groups_list_patterns_ = [['^[a-zA-Z0-9_\\-\\.:]+(,[a-zA-Z0-9_\\-\\.:]+)*$']]
-    def hasContent_(self):
-        if (
+                self.validate_groups_list_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_groups_list_patterns_,
+                    )
+                )
 
-        ):
+    validate_groups_list_patterns_ = [
+        ['^[a-zA-Z0-9_\\-\\.:]+(,[a-zA-Z0-9_\\-\\.:]+)*$']
+    ]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='user', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='user',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('user')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5156,42 +9802,131 @@ class user(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='user')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='user'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='user', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='user',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='user'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='user',
+    ):
         if self.groups is not None and 'groups' not in already_processed:
             already_processed.add('groups')
-            outfile.write(' groups=%s' % (quote_attrib(self.groups), ))
+            outfile.write(' groups=%s' % (quote_attrib(self.groups),))
         if self.home is not None and 'home' not in already_processed:
             already_processed.add('home')
-            outfile.write(' home=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.home), input_name='home')), ))
+            outfile.write(
+                ' home=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.home), input_name='home'
+                        )
+                    ),
+                )
+            )
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id="%s"' % self.gds_format_integer(self.id, input_name='id'))
+            outfile.write(
+                ' id="%s"' % self.gds_format_integer(self.id, input_name='id')
+            )
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.password is not None and 'password' not in already_processed:
             already_processed.add('password')
-            outfile.write(' password=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.password), input_name='password')), ))
+            outfile.write(
+                ' password=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.password), input_name='password'
+                        )
+                    ),
+                )
+            )
         if self.pwdformat is not None and 'pwdformat' not in already_processed:
             already_processed.add('pwdformat')
-            outfile.write(' pwdformat=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.pwdformat), input_name='pwdformat')), ))
+            outfile.write(
+                ' pwdformat=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.pwdformat), input_name='pwdformat'
+                        )
+                    ),
+                )
+            )
         if self.realname is not None and 'realname' not in already_processed:
             already_processed.add('realname')
-            outfile.write(' realname=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.realname), input_name='realname')), ))
+            outfile.write(
+                ' realname=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.realname), input_name='realname'
+                        )
+                    ),
+                )
+            )
         if self.shell is not None and 'shell' not in already_processed:
             already_processed.add('shell')
-            outfile.write(' shell=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.shell), input_name='shell')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='user', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' shell=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.shell), input_name='shell'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='user',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5199,13 +9934,14 @@ class user(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('groups', node)
         if value is not None and 'groups' not in already_processed:
             already_processed.add('groups')
             self.groups = value
             self.groups = ' '.join(self.groups.split())
-            self.validate_groups_list(self.groups)    # validate type groups-list
+            self.validate_groups_list(self.groups)  # validate type groups-list
         value = find_attr_value_('home', node)
         if value is not None and 'home' not in already_processed:
             already_processed.add('home')
@@ -5240,51 +9976,92 @@ class user(GeneratedsSuper):
         if value is not None and 'shell' not in already_processed:
             already_processed.add('shell')
             self.shell = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class user
 
 
 class vmdisk(GeneratedsSuper):
     """The VM disk definition."""
+
     subclass = None
     superclass = None
-    def __init__(self, disktype=None, controller=None, id=None, device=None, diskmode=None):
+
+    def __init__(
+        self,
+        disktype=None,
+        controller=None,
+        id=None,
+        device=None,
+        diskmode=None,
+    ):
         self.original_tagname_ = None
         self.disktype = _cast(None, disktype)
         self.controller = _cast(None, controller)
         self.id = _cast(int, id)
         self.device = _cast(None, device)
         self.diskmode = _cast(None, diskmode)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, vmdisk)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, vmdisk)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if vmdisk.subclass:
             return vmdisk.subclass(*args_, **kwargs_)
         else:
             return vmdisk(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_disktype(self): return self.disktype
-    def set_disktype(self, disktype): self.disktype = disktype
-    def get_controller(self): return self.controller
-    def set_controller(self, controller): self.controller = controller
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
-    def get_device(self): return self.device
-    def set_device(self, device): self.device = device
-    def get_diskmode(self): return self.diskmode
-    def set_diskmode(self, diskmode): self.diskmode = diskmode
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_disktype(self):
+        return self.disktype
+
+    def set_disktype(self, disktype):
+        self.disktype = disktype
+
+    def get_controller(self):
+        return self.controller
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    def get_id(self):
+        return self.id
+
+    def set_id(self, id):
+        self.id = id
+
+    def get_device(self):
+        return self.device
+
+    def set_device(self, device):
+        self.device = device
+
+    def get_diskmode(self):
+        return self.diskmode
+
+    def set_diskmode(self, diskmode):
+        self.diskmode = diskmode
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='vmdisk', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vmdisk',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('vmdisk')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5295,33 +10072,108 @@ class vmdisk(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='vmdisk')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='vmdisk'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='vmdisk', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='vmdisk',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='vmdisk'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='vmdisk',
+    ):
         if self.disktype is not None and 'disktype' not in already_processed:
             already_processed.add('disktype')
-            outfile.write(' disktype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.disktype), input_name='disktype')), ))
-        if self.controller is not None and 'controller' not in already_processed:
+            outfile.write(
+                ' disktype=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.disktype), input_name='disktype'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.controller is not None
+            and 'controller' not in already_processed
+        ):
             already_processed.add('controller')
-            outfile.write(' controller=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.controller), input_name='controller')), ))
+            outfile.write(
+                ' controller=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.controller),
+                            input_name='controller',
+                        )
+                    ),
+                )
+            )
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id="%s"' % self.gds_format_integer(self.id, input_name='id'))
+            outfile.write(
+                ' id="%s"' % self.gds_format_integer(self.id, input_name='id')
+            )
         if self.device is not None and 'device' not in already_processed:
             already_processed.add('device')
-            outfile.write(' device=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.device), input_name='device')), ))
+            outfile.write(
+                ' device=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.device), input_name='device'
+                        )
+                    ),
+                )
+            )
         if self.diskmode is not None and 'diskmode' not in already_processed:
             already_processed.add('diskmode')
-            outfile.write(' diskmode=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.diskmode), input_name='diskmode')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='vmdisk', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' diskmode=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.diskmode), input_name='diskmode'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vmdisk',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5329,6 +10181,7 @@ class vmdisk(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('disktype', node)
         if value is not None and 'disktype' not in already_processed:
@@ -5357,43 +10210,65 @@ class vmdisk(GeneratedsSuper):
             already_processed.add('diskmode')
             self.diskmode = value
             self.diskmode = ' '.join(self.diskmode.split())
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class vmdisk
 
 
 class vmdvd(GeneratedsSuper):
     """The VM CD/DVD drive definition. You can setup either a scsi CD or an
     ide CD drive"""
+
     subclass = None
     superclass = None
+
     def __init__(self, controller=None, id=None):
         self.original_tagname_ = None
         self.controller = _cast(None, controller)
         self.id = _cast(int, id)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, vmdvd)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, vmdvd)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if vmdvd.subclass:
             return vmdvd.subclass(*args_, **kwargs_)
         else:
             return vmdvd(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_controller(self): return self.controller
-    def set_controller(self, controller): self.controller = controller
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_controller(self):
+        return self.controller
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    def get_id(self):
+        return self.id
+
+    def set_id(self, id):
+        self.id = id
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='vmdvd', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vmdvd',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('vmdvd')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5404,24 +10279,72 @@ class vmdvd(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='vmdvd')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='vmdvd'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='vmdvd', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='vmdvd',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='vmdvd'):
-        if self.controller is not None and 'controller' not in already_processed:
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='vmdvd',
+    ):
+        if (
+            self.controller is not None
+            and 'controller' not in already_processed
+        ):
             already_processed.add('controller')
-            outfile.write(' controller=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.controller), input_name='controller')), ))
+            outfile.write(
+                ' controller=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.controller),
+                            input_name='controller',
+                        )
+                    ),
+                )
+            )
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id="%s"' % self.gds_format_integer(self.id, input_name='id'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='vmdvd', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' id="%s"' % self.gds_format_integer(self.id, input_name='id')
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vmdvd',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5429,6 +10352,7 @@ class vmdvd(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('controller', node)
         if value is not None and 'controller' not in already_processed:
@@ -5444,55 +10368,96 @@ class vmdvd(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.id < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class vmdvd
 
 
 class vmnic(GeneratedsSuper):
     """The VM network interface definition"""
+
     subclass = None
     superclass = None
+
     def __init__(self, driver=None, interface=None, mode=None, mac=None):
         self.original_tagname_ = None
         self.driver = _cast(None, driver)
         self.interface = _cast(None, interface)
         self.mode = _cast(None, mode)
         self.mac = _cast(None, mac)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, vmnic)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, vmnic)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if vmnic.subclass:
             return vmnic.subclass(*args_, **kwargs_)
         else:
             return vmnic(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_driver(self): return self.driver
-    def set_driver(self, driver): self.driver = driver
-    def get_interface(self): return self.interface
-    def set_interface(self, interface): self.interface = interface
-    def get_mode(self): return self.mode
-    def set_mode(self, mode): self.mode = mode
-    def get_mac(self): return self.mac
-    def set_mac(self, mac): self.mac = mac
+
+    def get_driver(self):
+        return self.driver
+
+    def set_driver(self, driver):
+        self.driver = driver
+
+    def get_interface(self):
+        return self.interface
+
+    def set_interface(self, interface):
+        self.interface = interface
+
+    def get_mode(self):
+        return self.mode
+
+    def set_mode(self, mode):
+        self.mode = mode
+
+    def get_mac(self):
+        return self.mac
+
+    def set_mac(self, mac):
+        self.mac = mac
+
     def validate_mac_address_type(self, value):
         # Validate type mac-address-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_mac_address_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_mac_address_type_patterns_, ))
-    validate_mac_address_type_patterns_ = [['^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$']]
-    def hasContent_(self):
-        if (
+                self.validate_mac_address_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_mac_address_type_patterns_,
+                    )
+                )
 
-        ):
+    validate_mac_address_type_patterns_ = [
+        ['^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$']
+    ]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='vmnic', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vmnic',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('vmnic')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5503,30 +10468,90 @@ class vmnic(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='vmnic')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='vmnic'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='vmnic', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='vmnic',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='vmnic'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='vmnic',
+    ):
         if self.driver is not None and 'driver' not in already_processed:
             already_processed.add('driver')
-            outfile.write(' driver=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.driver), input_name='driver')), ))
+            outfile.write(
+                ' driver=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.driver), input_name='driver'
+                        )
+                    ),
+                )
+            )
         if self.interface is not None and 'interface' not in already_processed:
             already_processed.add('interface')
-            outfile.write(' interface=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.interface), input_name='interface')), ))
+            outfile.write(
+                ' interface=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.interface), input_name='interface'
+                        )
+                    ),
+                )
+            )
         if self.mode is not None and 'mode' not in already_processed:
             already_processed.add('mode')
-            outfile.write(' mode=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mode), input_name='mode')), ))
+            outfile.write(
+                ' mode=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.mode), input_name='mode'
+                        )
+                    ),
+                )
+            )
         if self.mac is not None and 'mac' not in already_processed:
             already_processed.add('mac')
-            outfile.write(' mac=%s' % (quote_attrib(self.mac), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='vmnic', fromsubclass_=False, pretty_print=True):
+            outfile.write(' mac=%s' % (quote_attrib(self.mac),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vmnic',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5534,6 +10559,7 @@ class vmnic(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('driver', node)
         if value is not None and 'driver' not in already_processed:
@@ -5552,17 +10578,35 @@ class vmnic(GeneratedsSuper):
             already_processed.add('mac')
             self.mac = value
             self.mac = ' '.join(self.mac.split())
-            self.validate_mac_address_type(self.mac)    # validate type mac-address-type
+            self.validate_mac_address_type(
+                self.mac
+            )  # validate type mac-address-type
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class vmnic
 
 
 class partition(GeneratedsSuper):
     """Specify custom partition in the partition table"""
+
     subclass = None
     superclass = None
-    def __init__(self, part_id=None, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None, label=None, clone=None):
+
+    def __init__(
+        self,
+        part_id=None,
+        name=None,
+        size=None,
+        partition_name=None,
+        partition_type=None,
+        mountpoint=None,
+        filesystem=None,
+        label=None,
+        clone=None,
+    ):
         self.original_tagname_ = None
         self.part_id = _cast(None, part_id)
         self.name = _cast(None, name)
@@ -5573,64 +10617,136 @@ class partition(GeneratedsSuper):
         self.filesystem = _cast(None, filesystem)
         self.label = _cast(None, label)
         self.clone = _cast(None, clone)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, partition)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, partition)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if partition.subclass:
             return partition.subclass(*args_, **kwargs_)
         else:
             return partition(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_part_id(self): return self.part_id
-    def set_part_id(self, part_id): self.part_id = part_id
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_size(self): return self.size
-    def set_size(self, size): self.size = size
-    def get_partition_name(self): return self.partition_name
-    def set_partition_name(self, partition_name): self.partition_name = partition_name
-    def get_partition_type(self): return self.partition_type
-    def set_partition_type(self, partition_type): self.partition_type = partition_type
-    def get_mountpoint(self): return self.mountpoint
-    def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
-    def get_filesystem(self): return self.filesystem
-    def set_filesystem(self, filesystem): self.filesystem = filesystem
-    def get_label(self): return self.label
-    def set_label(self, label): self.label = label
-    def get_clone(self): return self.clone
-    def set_clone(self, clone): self.clone = clone
+
+    def get_part_id(self):
+        return self.part_id
+
+    def set_part_id(self, part_id):
+        self.part_id = part_id
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_size(self):
+        return self.size
+
+    def set_size(self, size):
+        self.size = size
+
+    def get_partition_name(self):
+        return self.partition_name
+
+    def set_partition_name(self, partition_name):
+        self.partition_name = partition_name
+
+    def get_partition_type(self):
+        return self.partition_type
+
+    def set_partition_type(self, partition_type):
+        self.partition_type = partition_type
+
+    def get_mountpoint(self):
+        return self.mountpoint
+
+    def set_mountpoint(self, mountpoint):
+        self.mountpoint = mountpoint
+
+    def get_filesystem(self):
+        return self.filesystem
+
+    def set_filesystem(self, filesystem):
+        self.filesystem = filesystem
+
+    def get_label(self):
+        return self.label
+
+    def set_label(self, label):
+        self.label = label
+
+    def get_clone(self):
+        return self.clone
+
+    def set_clone(self, clone):
+        self.clone = clone
+
     def validate_number_type(self, value):
         # Validate type number-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_number_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
+                self.validate_number_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_number_type_patterns_,
+                    )
+                )
+
     validate_number_type_patterns_ = [['^\\d+$']]
+
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_partition_size_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
+                self.validate_partition_size_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_partition_size_type_patterns_,
+                    )
+                )
+
     validate_partition_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G)$']]
+
     def validate_safe_posix_short_name(self, value):
         # Validate type safe-posix-short-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_safe_posix_short_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
-    validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
-    def hasContent_(self):
-        if (
+                self.validate_safe_posix_short_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_safe_posix_short_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='partition', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='partition',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('partition')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5641,45 +10757,144 @@ class partition(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='partition')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='partition',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='partition', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='partition',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='partition'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='partition',
+    ):
         if self.part_id is not None and 'part_id' not in already_processed:
             already_processed.add('part_id')
-            outfile.write(' part_id=%s' % (quote_attrib(self.part_id), ))
+            outfile.write(' part_id=%s' % (quote_attrib(self.part_id),))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.size is not None and 'size' not in already_processed:
             already_processed.add('size')
-            outfile.write(' size=%s' % (quote_attrib(self.size), ))
-        if self.partition_name is not None and 'partition_name' not in already_processed:
+            outfile.write(' size=%s' % (quote_attrib(self.size),))
+        if (
+            self.partition_name is not None
+            and 'partition_name' not in already_processed
+        ):
             already_processed.add('partition_name')
-            outfile.write(' partition_name=%s' % (quote_attrib(self.partition_name), ))
-        if self.partition_type is not None and 'partition_type' not in already_processed:
+            outfile.write(
+                ' partition_name=%s' % (quote_attrib(self.partition_name),)
+            )
+        if (
+            self.partition_type is not None
+            and 'partition_type' not in already_processed
+        ):
             already_processed.add('partition_type')
-            outfile.write(' partition_type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.partition_type), input_name='partition_type')), ))
-        if self.mountpoint is not None and 'mountpoint' not in already_processed:
+            outfile.write(
+                ' partition_type=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.partition_type),
+                            input_name='partition_type',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.mountpoint is not None
+            and 'mountpoint' not in already_processed
+        ):
             already_processed.add('mountpoint')
-            outfile.write(' mountpoint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mountpoint), input_name='mountpoint')), ))
-        if self.filesystem is not None and 'filesystem' not in already_processed:
+            outfile.write(
+                ' mountpoint=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.mountpoint),
+                            input_name='mountpoint',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.filesystem is not None
+            and 'filesystem' not in already_processed
+        ):
             already_processed.add('filesystem')
-            outfile.write(' filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.filesystem), input_name='filesystem')), ))
+            outfile.write(
+                ' filesystem=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.filesystem),
+                            input_name='filesystem',
+                        )
+                    ),
+                )
+            )
         if self.label is not None and 'label' not in already_processed:
             already_processed.add('label')
-            outfile.write(' label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.label), input_name='label')), ))
+            outfile.write(
+                ' label=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.label), input_name='label'
+                        )
+                    ),
+                )
+            )
         if self.clone is not None and 'clone' not in already_processed:
             already_processed.add('clone')
-            outfile.write(' clone=%s' % (quote_attrib(self.clone), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='partition', fromsubclass_=False, pretty_print=True):
+            outfile.write(' clone=%s' % (quote_attrib(self.clone),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='partition',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5687,13 +10902,14 @@ class partition(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('part_id', node)
         if value is not None and 'part_id' not in already_processed:
             already_processed.add('part_id')
             self.part_id = value
             self.part_id = ' '.join(self.part_id.split())
-            self.validate_number_type(self.part_id)    # validate type number-type
+            self.validate_number_type(self.part_id)  # validate type number-type
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
@@ -5703,13 +10919,17 @@ class partition(GeneratedsSuper):
             already_processed.add('size')
             self.size = value
             self.size = ' '.join(self.size.split())
-            self.validate_partition_size_type(self.size)    # validate type partition-size-type
+            self.validate_partition_size_type(
+                self.size
+            )  # validate type partition-size-type
         value = find_attr_value_('partition_name', node)
         if value is not None and 'partition_name' not in already_processed:
             already_processed.add('partition_name')
             self.partition_name = value
             self.partition_name = ' '.join(self.partition_name.split())
-            self.validate_safe_posix_short_name(self.partition_name)    # validate type safe-posix-short-name
+            self.validate_safe_posix_short_name(
+                self.partition_name
+            )  # validate type safe-posix-short-name
         value = find_attr_value_('partition_type', node)
         if value is not None and 'partition_type' not in already_processed:
             already_processed.add('partition_type')
@@ -5733,17 +10953,34 @@ class partition(GeneratedsSuper):
             already_processed.add('clone')
             self.clone = value
             self.clone = ' '.join(self.clone.split())
-            self.validate_number_type(self.clone)    # validate type number-type
+            self.validate_number_type(self.clone)  # validate type number-type
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class partition
 
 
 class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
+
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, quota=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None, arch=None):
+
+    def __init__(
+        self,
+        copy_on_write=None,
+        quota=None,
+        filesystem_check=None,
+        freespace=None,
+        mountpoint=None,
+        label=None,
+        name=None,
+        parent=None,
+        size=None,
+        arch=None,
+    ):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
         self.quota = _cast(None, quota)
@@ -5755,66 +10992,142 @@ class volume(GeneratedsSuper):
         self.parent = _cast(None, parent)
         self.size = _cast(None, size)
         self.arch = _cast(None, arch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, volume)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, volume)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if volume.subclass:
             return volume.subclass(*args_, **kwargs_)
         else:
             return volume(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_copy_on_write(self): return self.copy_on_write
-    def set_copy_on_write(self, copy_on_write): self.copy_on_write = copy_on_write
-    def get_quota(self): return self.quota
-    def set_quota(self, quota): self.quota = quota
-    def get_filesystem_check(self): return self.filesystem_check
-    def set_filesystem_check(self, filesystem_check): self.filesystem_check = filesystem_check
-    def get_freespace(self): return self.freespace
-    def set_freespace(self, freespace): self.freespace = freespace
-    def get_mountpoint(self): return self.mountpoint
-    def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
-    def get_label(self): return self.label
-    def set_label(self, label): self.label = label
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_parent(self): return self.parent
-    def set_parent(self, parent): self.parent = parent
-    def get_size(self): return self.size
-    def set_size(self, size): self.size = size
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_copy_on_write(self):
+        return self.copy_on_write
+
+    def set_copy_on_write(self, copy_on_write):
+        self.copy_on_write = copy_on_write
+
+    def get_quota(self):
+        return self.quota
+
+    def set_quota(self, quota):
+        self.quota = quota
+
+    def get_filesystem_check(self):
+        return self.filesystem_check
+
+    def set_filesystem_check(self, filesystem_check):
+        self.filesystem_check = filesystem_check
+
+    def get_freespace(self):
+        return self.freespace
+
+    def set_freespace(self, freespace):
+        self.freespace = freespace
+
+    def get_mountpoint(self):
+        return self.mountpoint
+
+    def set_mountpoint(self, mountpoint):
+        self.mountpoint = mountpoint
+
+    def get_label(self):
+        return self.label
+
+    def set_label(self, label):
+        self.label = label
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_parent(self):
+        return self.parent
+
+    def set_parent(self, parent):
+        self.parent = parent
+
+    def get_size(self):
+        return self.size
+
+    def set_size(self, size):
+        self.size = size
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_partition_size_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
+                self.validate_partition_size_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_partition_size_type_patterns_,
+                    )
+                )
+
     validate_partition_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G)$']]
+
     def validate_volume_size_type(self, value):
         # Validate type volume-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_volume_size_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_volume_size_type_patterns_, ))
+                self.validate_volume_size_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_volume_size_type_patterns_,
+                    )
+                )
+
     validate_volume_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G|all)$']]
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
-    validate_arch_name_patterns_ = [['^.*$']]
-    def hasContent_(self):
-        if (
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
 
-        ):
+    validate_arch_name_patterns_ = [['^.*$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='volume', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='volume',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('volume')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5825,48 +11138,137 @@ class volume(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='volume')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='volume'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='volume', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='volume',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='volume'):
-        if self.copy_on_write is not None and 'copy_on_write' not in already_processed:
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='volume',
+    ):
+        if (
+            self.copy_on_write is not None
+            and 'copy_on_write' not in already_processed
+        ):
             already_processed.add('copy_on_write')
-            outfile.write(' copy_on_write="%s"' % self.gds_format_boolean(self.copy_on_write, input_name='copy_on_write'))
+            outfile.write(
+                ' copy_on_write="%s"'
+                % self.gds_format_boolean(
+                    self.copy_on_write, input_name='copy_on_write'
+                )
+            )
         if self.quota is not None and 'quota' not in already_processed:
             already_processed.add('quota')
-            outfile.write(' quota=%s' % (quote_attrib(self.quota), ))
-        if self.filesystem_check is not None and 'filesystem_check' not in already_processed:
+            outfile.write(' quota=%s' % (quote_attrib(self.quota),))
+        if (
+            self.filesystem_check is not None
+            and 'filesystem_check' not in already_processed
+        ):
             already_processed.add('filesystem_check')
-            outfile.write(' filesystem_check="%s"' % self.gds_format_boolean(self.filesystem_check, input_name='filesystem_check'))
+            outfile.write(
+                ' filesystem_check="%s"'
+                % self.gds_format_boolean(
+                    self.filesystem_check, input_name='filesystem_check'
+                )
+            )
         if self.freespace is not None and 'freespace' not in already_processed:
             already_processed.add('freespace')
-            outfile.write(' freespace=%s' % (quote_attrib(self.freespace), ))
-        if self.mountpoint is not None and 'mountpoint' not in already_processed:
+            outfile.write(' freespace=%s' % (quote_attrib(self.freespace),))
+        if (
+            self.mountpoint is not None
+            and 'mountpoint' not in already_processed
+        ):
             already_processed.add('mountpoint')
-            outfile.write(' mountpoint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mountpoint), input_name='mountpoint')), ))
+            outfile.write(
+                ' mountpoint=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.mountpoint),
+                            input_name='mountpoint',
+                        )
+                    ),
+                )
+            )
         if self.label is not None and 'label' not in already_processed:
             already_processed.add('label')
-            outfile.write(' label=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.label), input_name='label')), ))
+            outfile.write(
+                ' label=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.label), input_name='label'
+                        )
+                    ),
+                )
+            )
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.parent is not None and 'parent' not in already_processed:
             already_processed.add('parent')
-            outfile.write(' parent=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parent), input_name='parent')), ))
+            outfile.write(
+                ' parent=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.parent), input_name='parent'
+                        )
+                    ),
+                )
+            )
         if self.size is not None and 'size' not in already_processed:
             already_processed.add('size')
-            outfile.write(' size=%s' % (quote_attrib(self.size), ))
+            outfile.write(' size=%s' % (quote_attrib(self.size),))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='volume', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='volume',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5874,6 +11276,7 @@ class volume(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('copy_on_write', node)
         if value is not None and 'copy_on_write' not in already_processed:
@@ -5889,7 +11292,9 @@ class volume(GeneratedsSuper):
             already_processed.add('quota')
             self.quota = value
             self.quota = ' '.join(self.quota.split())
-            self.validate_partition_size_type(self.quota)    # validate type partition-size-type
+            self.validate_partition_size_type(
+                self.quota
+            )  # validate type partition-size-type
         value = find_attr_value_('filesystem_check', node)
         if value is not None and 'filesystem_check' not in already_processed:
             already_processed.add('filesystem_check')
@@ -5904,7 +11309,9 @@ class volume(GeneratedsSuper):
             already_processed.add('freespace')
             self.freespace = value
             self.freespace = ' '.join(self.freespace.split())
-            self.validate_volume_size_type(self.freespace)    # validate type volume-size-type
+            self.validate_volume_size_type(
+                self.freespace
+            )  # validate type volume-size-type
         value = find_attr_value_('mountpoint', node)
         if value is not None and 'mountpoint' not in already_processed:
             already_processed.add('mountpoint')
@@ -5926,45 +11333,64 @@ class volume(GeneratedsSuper):
             already_processed.add('size')
             self.size = value
             self.size = ' '.join(self.size.split())
-            self.validate_volume_size_type(self.size)    # validate type volume-size-type
+            self.validate_volume_size_type(
+                self.size
+            )  # validate type volume-size-type
         value = find_attr_value_('arch', node)
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class volume
 
 
 class include(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, from_=None):
         self.original_tagname_ = None
         self.from_ = _cast(None, from_)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, include)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, include)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if include.subclass:
             return include.subclass(*args_, **kwargs_)
         else:
             return include(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_from(self): return self.from_
-    def set_from(self, from_): self.from_ = from_
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_from(self):
+        return self.from_
+
+    def set_from(self, from_):
+        self.from_ = from_
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='include', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='include',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('include')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5975,21 +11401,63 @@ class include(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='include')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='include'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='include', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='include',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='include'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='include',
+    ):
         if self.from_ is not None and 'from_' not in already_processed:
             already_processed.add('from_')
-            outfile.write(' from=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.from_), input_name='from')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='include', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' from=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.from_), input_name='from'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='include',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5997,21 +11465,34 @@ class include(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('from', node)
         if value is not None and 'from' not in already_processed:
             already_processed.add('from')
             self.from_ = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class include
 
 
 class description(GeneratedsSuper):
     """A Short Description"""
+
     subclass = None
     superclass = None
-    def __init__(self, type_=None, author=None, contact=None, specification=None, license=None):
+
+    def __init__(
+        self,
+        type_=None,
+        author=None,
+        contact=None,
+        specification=None,
+        license=None,
+    ):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
         if author is None:
@@ -6030,50 +11511,102 @@ class description(GeneratedsSuper):
             self.license = []
         else:
             self.license = license
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, description)
+                CurrentSubclassModule_, description
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if description.subclass:
             return description.subclass(*args_, **kwargs_)
         else:
             return description(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_author(self): return self.author
-    def set_author(self, author): self.author = author
-    def add_author(self, value): self.author.append(value)
-    def insert_author_at(self, index, value): self.author.insert(index, value)
-    def replace_author_at(self, index, value): self.author[index] = value
-    def get_contact(self): return self.contact
-    def set_contact(self, contact): self.contact = contact
-    def add_contact(self, value): self.contact.append(value)
-    def insert_contact_at(self, index, value): self.contact.insert(index, value)
-    def replace_contact_at(self, index, value): self.contact[index] = value
-    def get_specification(self): return self.specification
-    def set_specification(self, specification): self.specification = specification
-    def add_specification(self, value): self.specification.append(value)
-    def insert_specification_at(self, index, value): self.specification.insert(index, value)
-    def replace_specification_at(self, index, value): self.specification[index] = value
-    def get_license(self): return self.license
-    def set_license(self, license): self.license = license
-    def add_license(self, value): self.license.append(value)
-    def insert_license_at(self, index, value): self.license.insert(index, value)
-    def replace_license_at(self, index, value): self.license[index] = value
-    def get_type(self): return self.type_
-    def set_type(self, type_): self.type_ = type_
+
+    def get_author(self):
+        return self.author
+
+    def set_author(self, author):
+        self.author = author
+
+    def add_author(self, value):
+        self.author.append(value)
+
+    def insert_author_at(self, index, value):
+        self.author.insert(index, value)
+
+    def replace_author_at(self, index, value):
+        self.author[index] = value
+
+    def get_contact(self):
+        return self.contact
+
+    def set_contact(self, contact):
+        self.contact = contact
+
+    def add_contact(self, value):
+        self.contact.append(value)
+
+    def insert_contact_at(self, index, value):
+        self.contact.insert(index, value)
+
+    def replace_contact_at(self, index, value):
+        self.contact[index] = value
+
+    def get_specification(self):
+        return self.specification
+
+    def set_specification(self, specification):
+        self.specification = specification
+
+    def add_specification(self, value):
+        self.specification.append(value)
+
+    def insert_specification_at(self, index, value):
+        self.specification.insert(index, value)
+
+    def replace_specification_at(self, index, value):
+        self.specification[index] = value
+
+    def get_license(self):
+        return self.license
+
+    def set_license(self, license):
+        self.license = license
+
+    def add_license(self, value):
+        self.license.append(value)
+
+    def insert_license_at(self, index, value):
+        self.license.insert(index, value)
+
+    def replace_license_at(self, index, value):
+        self.license[index] = value
+
+    def get_type(self):
+        return self.type_
+
+    def set_type(self, type_):
+        self.type_ = type_
+
     def hasContent_(self):
-        if (
-            self.author or
-            self.contact or
-            self.specification or
-            self.license
-        ):
+        if self.author or self.contact or self.specification or self.license:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='description', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='description',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('description')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6084,37 +11617,124 @@ class description(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='description')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='description',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='description', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='description',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='description'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='description',
+    ):
         if self.type_ is not None and 'type_' not in already_processed:
             already_processed.add('type_')
-            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='description', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' type=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.type_), input_name='type'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='description',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for author_ in self.author:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<author>%s</author>%s' % (self.gds_encode(self.gds_format_string(quote_xml(author_), input_name='author')), eol_))
+            outfile.write(
+                '<author>%s</author>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(author_), input_name='author'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for contact_ in self.contact:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<contact>%s</contact>%s' % (self.gds_encode(self.gds_format_string(quote_xml(contact_), input_name='contact')), eol_))
+            outfile.write(
+                '<contact>%s</contact>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(contact_), input_name='contact'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for specification_ in self.specification:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<specification>%s</specification>%s' % (self.gds_encode(self.gds_format_string(quote_xml(specification_), input_name='specification')), eol_))
+            outfile.write(
+                '<specification>%s</specification>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(specification_),
+                            input_name='specification',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for license_ in self.license:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<license>%s</license>%s' % (self.gds_encode(self.gds_format_string(quote_xml(license_), input_name='license')), eol_))
+            outfile.write(
+                '<license>%s</license>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(license_), input_name='license'
+                        )
+                    ),
+                    eol_,
+                )
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6122,12 +11742,14 @@ class description(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('type', node)
         if value is not None and 'type' not in already_processed:
             already_processed.add('type')
             self.type_ = value
             self.type_ = ' '.join(self.type_.split())
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'author':
             author_ = child_.text
@@ -6139,19 +11761,25 @@ class description(GeneratedsSuper):
             self.contact.append(contact_)
         elif nodeName_ == 'specification':
             specification_ = child_.text
-            specification_ = self.gds_validate_string(specification_, node, 'specification')
+            specification_ = self.gds_validate_string(
+                specification_, node, 'specification'
+            )
             self.specification.append(specification_)
         elif nodeName_ == 'license':
             license_ = child_.text
             license_ = self.gds_validate_string(license_, node, 'license')
             self.license.append(license_)
+
+
 # end class description
 
 
 class drivers(GeneratedsSuper):
     """A Collection of Driver Files"""
+
     subclass = None
     superclass = None
+
     def __init__(self, profiles=None, file=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
@@ -6159,32 +11787,55 @@ class drivers(GeneratedsSuper):
             self.file = []
         else:
             self.file = file
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, drivers)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, drivers)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if drivers.subclass:
             return drivers.subclass(*args_, **kwargs_)
         else:
             return drivers(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_file(self): return self.file
-    def set_file(self, file): self.file = file
-    def add_file(self, value): self.file.append(value)
-    def insert_file_at(self, index, value): self.file.insert(index, value)
-    def replace_file_at(self, index, value): self.file[index] = value
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
+
+    def get_file(self):
+        return self.file
+
+    def set_file(self, file):
+        self.file = file
+
+    def add_file(self, value):
+        self.file.append(value)
+
+    def insert_file_at(self, index, value):
+        self.file.insert(index, value)
+
+    def replace_file_at(self, index, value):
+        self.file[index] = value
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
     def hasContent_(self):
-        if (
-            self.file
-        ):
+        if self.file:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='drivers', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='drivers',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('drivers')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6195,27 +11846,75 @@ class drivers(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='drivers')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='drivers'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='drivers', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='drivers',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='drivers'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='drivers',
+    ):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='drivers', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='drivers',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for file_ in self.file:
-            file_.export(outfile, level, namespaceprefix_, name_='file', pretty_print=pretty_print)
+            file_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='file',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6223,24 +11922,30 @@ class drivers(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             self.profiles = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'file':
             obj_ = file.factory()
             obj_.build(child_)
             self.file.append(obj_)
             obj_.original_tagname_ = 'file'
+
+
 # end class drivers
 
 
 class strip(GeneratedsSuper):
     """A Collection of files to strip"""
+
     subclass = None
     superclass = None
+
     def __init__(self, type_=None, profiles=None, file=None):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
@@ -6249,34 +11954,61 @@ class strip(GeneratedsSuper):
             self.file = []
         else:
             self.file = file
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, strip)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, strip)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if strip.subclass:
             return strip.subclass(*args_, **kwargs_)
         else:
             return strip(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_file(self): return self.file
-    def set_file(self, file): self.file = file
-    def add_file(self, value): self.file.append(value)
-    def insert_file_at(self, index, value): self.file.insert(index, value)
-    def replace_file_at(self, index, value): self.file[index] = value
-    def get_type(self): return self.type_
-    def set_type(self, type_): self.type_ = type_
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
+
+    def get_file(self):
+        return self.file
+
+    def set_file(self, file):
+        self.file = file
+
+    def add_file(self, value):
+        self.file.append(value)
+
+    def insert_file_at(self, index, value):
+        self.file.insert(index, value)
+
+    def replace_file_at(self, index, value):
+        self.file[index] = value
+
+    def get_type(self):
+        return self.type_
+
+    def set_type(self, type_):
+        self.type_ = type_
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
     def hasContent_(self):
-        if (
-            self.file
-        ):
+        if self.file:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='strip', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='strip',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('strip')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6287,30 +12019,87 @@ class strip(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='strip')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='strip'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='strip', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='strip',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='strip'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='strip',
+    ):
         if self.type_ is not None and 'type_' not in already_processed:
             already_processed.add('type_')
-            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
+            outfile.write(
+                ' type=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.type_), input_name='type'
+                        )
+                    ),
+                )
+            )
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='strip', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='strip',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for file_ in self.file:
-            file_.export(outfile, level, namespaceprefix_, name_='file', pretty_print=pretty_print)
+            file_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='file',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6318,6 +12107,7 @@ class strip(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('type', node)
         if value is not None and 'type' not in already_processed:
@@ -6328,21 +12118,41 @@ class strip(GeneratedsSuper):
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             self.profiles = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'file':
             obj_ = file.factory()
             obj_.build(child_)
             self.file.append(obj_)
             obj_.original_tagname_ = 'file'
+
+
 # end class strip
 
 
 class bootloader(GeneratedsSuper):
     """The bootloader section is used to select the bootloader and to
     provide configuration parameters for it"""
+
     subclass = None
     superclass = None
-    def __init__(self, name=None, bls=None, output_console=None, input_console=None, serial_line=None, video_mode=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None, securelinux=None):
+
+    def __init__(
+        self,
+        name=None,
+        bls=None,
+        output_console=None,
+        input_console=None,
+        serial_line=None,
+        video_mode=None,
+        timeout=None,
+        timeout_style=None,
+        targettype=None,
+        use_disk_password=None,
+        grub_template=None,
+        bootloadersettings=None,
+        securelinux=None,
+    ):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.bls = _cast(bool, bls)
@@ -6363,72 +12173,172 @@ class bootloader(GeneratedsSuper):
             self.securelinux = []
         else:
             self.securelinux = securelinux
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, bootloader)
+                CurrentSubclassModule_, bootloader
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if bootloader.subclass:
             return bootloader.subclass(*args_, **kwargs_)
         else:
             return bootloader(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_bootloadersettings(self): return self.bootloadersettings
-    def set_bootloadersettings(self, bootloadersettings): self.bootloadersettings = bootloadersettings
-    def add_bootloadersettings(self, value): self.bootloadersettings.append(value)
-    def insert_bootloadersettings_at(self, index, value): self.bootloadersettings.insert(index, value)
-    def replace_bootloadersettings_at(self, index, value): self.bootloadersettings[index] = value
-    def get_securelinux(self): return self.securelinux
-    def set_securelinux(self, securelinux): self.securelinux = securelinux
-    def add_securelinux(self, value): self.securelinux.append(value)
-    def insert_securelinux_at(self, index, value): self.securelinux.insert(index, value)
-    def replace_securelinux_at(self, index, value): self.securelinux[index] = value
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_bls(self): return self.bls
-    def set_bls(self, bls): self.bls = bls
-    def get_output_console(self): return self.output_console
-    def set_output_console(self, output_console): self.output_console = output_console
-    def get_input_console(self): return self.input_console
-    def set_input_console(self, input_console): self.input_console = input_console
-    def get_serial_line(self): return self.serial_line
-    def set_serial_line(self, serial_line): self.serial_line = serial_line
-    def get_video_mode(self): return self.video_mode
-    def set_video_mode(self, video_mode): self.video_mode = video_mode
-    def get_timeout(self): return self.timeout
-    def set_timeout(self, timeout): self.timeout = timeout
-    def get_timeout_style(self): return self.timeout_style
-    def set_timeout_style(self, timeout_style): self.timeout_style = timeout_style
-    def get_targettype(self): return self.targettype
-    def set_targettype(self, targettype): self.targettype = targettype
-    def get_use_disk_password(self): return self.use_disk_password
-    def set_use_disk_password(self, use_disk_password): self.use_disk_password = use_disk_password
-    def get_grub_template(self): return self.grub_template
-    def set_grub_template(self, grub_template): self.grub_template = grub_template
+
+    def get_bootloadersettings(self):
+        return self.bootloadersettings
+
+    def set_bootloadersettings(self, bootloadersettings):
+        self.bootloadersettings = bootloadersettings
+
+    def add_bootloadersettings(self, value):
+        self.bootloadersettings.append(value)
+
+    def insert_bootloadersettings_at(self, index, value):
+        self.bootloadersettings.insert(index, value)
+
+    def replace_bootloadersettings_at(self, index, value):
+        self.bootloadersettings[index] = value
+
+    def get_securelinux(self):
+        return self.securelinux
+
+    def set_securelinux(self, securelinux):
+        self.securelinux = securelinux
+
+    def add_securelinux(self, value):
+        self.securelinux.append(value)
+
+    def insert_securelinux_at(self, index, value):
+        self.securelinux.insert(index, value)
+
+    def replace_securelinux_at(self, index, value):
+        self.securelinux[index] = value
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_bls(self):
+        return self.bls
+
+    def set_bls(self, bls):
+        self.bls = bls
+
+    def get_output_console(self):
+        return self.output_console
+
+    def set_output_console(self, output_console):
+        self.output_console = output_console
+
+    def get_input_console(self):
+        return self.input_console
+
+    def set_input_console(self, input_console):
+        self.input_console = input_console
+
+    def get_serial_line(self):
+        return self.serial_line
+
+    def set_serial_line(self, serial_line):
+        self.serial_line = serial_line
+
+    def get_video_mode(self):
+        return self.video_mode
+
+    def set_video_mode(self, video_mode):
+        self.video_mode = video_mode
+
+    def get_timeout(self):
+        return self.timeout
+
+    def set_timeout(self, timeout):
+        self.timeout = timeout
+
+    def get_timeout_style(self):
+        return self.timeout_style
+
+    def set_timeout_style(self, timeout_style):
+        self.timeout_style = timeout_style
+
+    def get_targettype(self):
+        return self.targettype
+
+    def set_targettype(self, targettype):
+        self.targettype = targettype
+
+    def get_use_disk_password(self):
+        return self.use_disk_password
+
+    def set_use_disk_password(self, use_disk_password):
+        self.use_disk_password = use_disk_password
+
+    def get_grub_template(self):
+        return self.grub_template
+
+    def set_grub_template(self, grub_template):
+        self.grub_template = grub_template
+
     def validate_grub_console_output(self, value):
         # Validate type grub_console_output, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_grub_console_output_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_output_patterns_, ))
-    validate_grub_console_output_patterns_ = [['^(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (console|gfxterm|serial|vga_text|mda_text|morse|spkmodem))*$']]
+                self.validate_grub_console_output_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_grub_console_output_patterns_,
+                    )
+                )
+
+    validate_grub_console_output_patterns_ = [
+        [
+            '^(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (console|gfxterm|serial|vga_text|mda_text|morse|spkmodem))*$'
+        ]
+    ]
+
     def validate_grub_console_input(self, value):
         # Validate type grub_console_input, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_grub_console_input_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_input_patterns_, ))
-    validate_grub_console_input_patterns_ = [['^(none|console|serial|at_keyboard|usb_keyboard)( (console|serial|at_keyboard|usb_keyboard))*$']]
+                self.validate_grub_console_input_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_grub_console_input_patterns_,
+                    )
+                )
+
+    validate_grub_console_input_patterns_ = [
+        [
+            '^(none|console|serial|at_keyboard|usb_keyboard)( (console|serial|at_keyboard|usb_keyboard))*$'
+        ]
+    ]
+
     def hasContent_(self):
-        if (
-            self.bootloadersettings or
-            self.securelinux
-        ):
+        if self.bootloadersettings or self.securelinux:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='bootloader', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='bootloader',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('bootloader')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6439,59 +12349,206 @@ class bootloader(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='bootloader')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='bootloader',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='bootloader', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='bootloader',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='bootloader'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='bootloader',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.bls is not None and 'bls' not in already_processed:
             already_processed.add('bls')
-            outfile.write(' bls="%s"' % self.gds_format_boolean(self.bls, input_name='bls'))
-        if self.output_console is not None and 'output_console' not in already_processed:
+            outfile.write(
+                ' bls="%s"'
+                % self.gds_format_boolean(self.bls, input_name='bls')
+            )
+        if (
+            self.output_console is not None
+            and 'output_console' not in already_processed
+        ):
             already_processed.add('output_console')
-            outfile.write(' output_console=%s' % (quote_attrib(self.output_console), ))
-        if self.input_console is not None and 'input_console' not in already_processed:
+            outfile.write(
+                ' output_console=%s' % (quote_attrib(self.output_console),)
+            )
+        if (
+            self.input_console is not None
+            and 'input_console' not in already_processed
+        ):
             already_processed.add('input_console')
-            outfile.write(' input_console=%s' % (quote_attrib(self.input_console), ))
-        if self.serial_line is not None and 'serial_line' not in already_processed:
+            outfile.write(
+                ' input_console=%s' % (quote_attrib(self.input_console),)
+            )
+        if (
+            self.serial_line is not None
+            and 'serial_line' not in already_processed
+        ):
             already_processed.add('serial_line')
-            outfile.write(' serial_line=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.serial_line), input_name='serial_line')), ))
-        if self.video_mode is not None and 'video_mode' not in already_processed:
+            outfile.write(
+                ' serial_line=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.serial_line),
+                            input_name='serial_line',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.video_mode is not None
+            and 'video_mode' not in already_processed
+        ):
             already_processed.add('video_mode')
-            outfile.write(' video_mode=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.video_mode), input_name='video_mode')), ))
+            outfile.write(
+                ' video_mode=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.video_mode),
+                            input_name='video_mode',
+                        )
+                    ),
+                )
+            )
         if self.timeout is not None and 'timeout' not in already_processed:
             already_processed.add('timeout')
-            outfile.write(' timeout="%s"' % self.gds_format_integer(self.timeout, input_name='timeout'))
-        if self.timeout_style is not None and 'timeout_style' not in already_processed:
+            outfile.write(
+                ' timeout="%s"'
+                % self.gds_format_integer(self.timeout, input_name='timeout')
+            )
+        if (
+            self.timeout_style is not None
+            and 'timeout_style' not in already_processed
+        ):
             already_processed.add('timeout_style')
-            outfile.write(' timeout_style=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.timeout_style), input_name='timeout_style')), ))
-        if self.targettype is not None and 'targettype' not in already_processed:
+            outfile.write(
+                ' timeout_style=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.timeout_style),
+                            input_name='timeout_style',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.targettype is not None
+            and 'targettype' not in already_processed
+        ):
             already_processed.add('targettype')
-            outfile.write(' targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.targettype), input_name='targettype')), ))
-        if self.use_disk_password is not None and 'use_disk_password' not in already_processed:
+            outfile.write(
+                ' targettype=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.targettype),
+                            input_name='targettype',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.use_disk_password is not None
+            and 'use_disk_password' not in already_processed
+        ):
             already_processed.add('use_disk_password')
-            outfile.write(' use_disk_password="%s"' % self.gds_format_boolean(self.use_disk_password, input_name='use_disk_password'))
-        if self.grub_template is not None and 'grub_template' not in already_processed:
+            outfile.write(
+                ' use_disk_password="%s"'
+                % self.gds_format_boolean(
+                    self.use_disk_password, input_name='use_disk_password'
+                )
+            )
+        if (
+            self.grub_template is not None
+            and 'grub_template' not in already_processed
+        ):
             already_processed.add('grub_template')
-            outfile.write(' grub_template=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.grub_template), input_name='grub_template')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='bootloader', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' grub_template=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.grub_template),
+                            input_name='grub_template',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='bootloader',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for bootloadersettings_ in self.bootloadersettings:
-            bootloadersettings_.export(outfile, level, namespaceprefix_, name_='bootloadersettings', pretty_print=pretty_print)
+            bootloadersettings_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='bootloadersettings',
+                pretty_print=pretty_print,
+            )
         for securelinux_ in self.securelinux:
-            securelinux_.export(outfile, level, namespaceprefix_, name_='securelinux', pretty_print=pretty_print)
+            securelinux_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='securelinux',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6499,6 +12556,7 @@ class bootloader(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -6519,13 +12577,17 @@ class bootloader(GeneratedsSuper):
             already_processed.add('output_console')
             self.output_console = value
             self.output_console = ' '.join(self.output_console.split())
-            self.validate_grub_console_output(self.output_console)    # validate type grub_console_output
+            self.validate_grub_console_output(
+                self.output_console
+            )  # validate type grub_console_output
         value = find_attr_value_('input_console', node)
         if value is not None and 'input_console' not in already_processed:
             already_processed.add('input_console')
             self.input_console = value
             self.input_console = ' '.join(self.input_console.split())
-            self.validate_grub_console_input(self.input_console)    # validate type grub_console_input
+            self.validate_grub_console_input(
+                self.input_console
+            )  # validate type grub_console_input
         value = find_attr_value_('serial_line', node)
         if value is not None and 'serial_line' not in already_processed:
             already_processed.add('serial_line')
@@ -6566,6 +12628,7 @@ class bootloader(GeneratedsSuper):
         if value is not None and 'grub_template' not in already_processed:
             already_processed.add('grub_template')
             self.grub_template = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'bootloadersettings':
             obj_ = bootloadersettings.factory()
@@ -6577,6 +12640,8 @@ class bootloader(GeneratedsSuper):
             obj_.build(child_)
             self.securelinux.append(obj_)
             obj_.original_tagname_ = 'securelinux'
+
+
 # end class bootloader
 
 
@@ -6586,9 +12651,27 @@ class containerconfig(GeneratedsSuper):
     engine tool chain. container specific data should be provided in
     an additional subsection whereas this section provides globally
     useful container information."""
+
     subclass = None
     superclass = None
-    def __init__(self, name=None, tag=None, additionalnames=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, stopsignal=None, environment=None, labels=None, history=None):
+
+    def __init__(
+        self,
+        name=None,
+        tag=None,
+        additionalnames=None,
+        maintainer=None,
+        user=None,
+        workingdir=None,
+        entrypoint=None,
+        subcommand=None,
+        expose=None,
+        volumes=None,
+        stopsignal=None,
+        environment=None,
+        labels=None,
+        history=None,
+    ):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.tag = _cast(None, tag)
@@ -6628,84 +12711,201 @@ class containerconfig(GeneratedsSuper):
             self.history = []
         else:
             self.history = history
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, containerconfig)
+                CurrentSubclassModule_, containerconfig
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if containerconfig.subclass:
             return containerconfig.subclass(*args_, **kwargs_)
         else:
             return containerconfig(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_entrypoint(self): return self.entrypoint
-    def set_entrypoint(self, entrypoint): self.entrypoint = entrypoint
-    def add_entrypoint(self, value): self.entrypoint.append(value)
-    def insert_entrypoint_at(self, index, value): self.entrypoint.insert(index, value)
-    def replace_entrypoint_at(self, index, value): self.entrypoint[index] = value
-    def get_subcommand(self): return self.subcommand
-    def set_subcommand(self, subcommand): self.subcommand = subcommand
-    def add_subcommand(self, value): self.subcommand.append(value)
-    def insert_subcommand_at(self, index, value): self.subcommand.insert(index, value)
-    def replace_subcommand_at(self, index, value): self.subcommand[index] = value
-    def get_expose(self): return self.expose
-    def set_expose(self, expose): self.expose = expose
-    def add_expose(self, value): self.expose.append(value)
-    def insert_expose_at(self, index, value): self.expose.insert(index, value)
-    def replace_expose_at(self, index, value): self.expose[index] = value
-    def get_volumes(self): return self.volumes
-    def set_volumes(self, volumes): self.volumes = volumes
-    def add_volumes(self, value): self.volumes.append(value)
-    def insert_volumes_at(self, index, value): self.volumes.insert(index, value)
-    def replace_volumes_at(self, index, value): self.volumes[index] = value
-    def get_stopsignal(self): return self.stopsignal
-    def set_stopsignal(self, stopsignal): self.stopsignal = stopsignal
-    def add_stopsignal(self, value): self.stopsignal.append(value)
-    def insert_stopsignal_at(self, index, value): self.stopsignal.insert(index, value)
-    def replace_stopsignal_at(self, index, value): self.stopsignal[index] = value
-    def get_environment(self): return self.environment
-    def set_environment(self, environment): self.environment = environment
-    def add_environment(self, value): self.environment.append(value)
-    def insert_environment_at(self, index, value): self.environment.insert(index, value)
-    def replace_environment_at(self, index, value): self.environment[index] = value
-    def get_labels(self): return self.labels
-    def set_labels(self, labels): self.labels = labels
-    def add_labels(self, value): self.labels.append(value)
-    def insert_labels_at(self, index, value): self.labels.insert(index, value)
-    def replace_labels_at(self, index, value): self.labels[index] = value
-    def get_history(self): return self.history
-    def set_history(self, history): self.history = history
-    def add_history(self, value): self.history.append(value)
-    def insert_history_at(self, index, value): self.history.insert(index, value)
-    def replace_history_at(self, index, value): self.history[index] = value
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_tag(self): return self.tag
-    def set_tag(self, tag): self.tag = tag
-    def get_additionalnames(self): return self.additionalnames
-    def set_additionalnames(self, additionalnames): self.additionalnames = additionalnames
-    def get_maintainer(self): return self.maintainer
-    def set_maintainer(self, maintainer): self.maintainer = maintainer
-    def get_user(self): return self.user
-    def set_user(self, user): self.user = user
-    def get_workingdir(self): return self.workingdir
-    def set_workingdir(self, workingdir): self.workingdir = workingdir
+
+    def get_entrypoint(self):
+        return self.entrypoint
+
+    def set_entrypoint(self, entrypoint):
+        self.entrypoint = entrypoint
+
+    def add_entrypoint(self, value):
+        self.entrypoint.append(value)
+
+    def insert_entrypoint_at(self, index, value):
+        self.entrypoint.insert(index, value)
+
+    def replace_entrypoint_at(self, index, value):
+        self.entrypoint[index] = value
+
+    def get_subcommand(self):
+        return self.subcommand
+
+    def set_subcommand(self, subcommand):
+        self.subcommand = subcommand
+
+    def add_subcommand(self, value):
+        self.subcommand.append(value)
+
+    def insert_subcommand_at(self, index, value):
+        self.subcommand.insert(index, value)
+
+    def replace_subcommand_at(self, index, value):
+        self.subcommand[index] = value
+
+    def get_expose(self):
+        return self.expose
+
+    def set_expose(self, expose):
+        self.expose = expose
+
+    def add_expose(self, value):
+        self.expose.append(value)
+
+    def insert_expose_at(self, index, value):
+        self.expose.insert(index, value)
+
+    def replace_expose_at(self, index, value):
+        self.expose[index] = value
+
+    def get_volumes(self):
+        return self.volumes
+
+    def set_volumes(self, volumes):
+        self.volumes = volumes
+
+    def add_volumes(self, value):
+        self.volumes.append(value)
+
+    def insert_volumes_at(self, index, value):
+        self.volumes.insert(index, value)
+
+    def replace_volumes_at(self, index, value):
+        self.volumes[index] = value
+
+    def get_stopsignal(self):
+        return self.stopsignal
+
+    def set_stopsignal(self, stopsignal):
+        self.stopsignal = stopsignal
+
+    def add_stopsignal(self, value):
+        self.stopsignal.append(value)
+
+    def insert_stopsignal_at(self, index, value):
+        self.stopsignal.insert(index, value)
+
+    def replace_stopsignal_at(self, index, value):
+        self.stopsignal[index] = value
+
+    def get_environment(self):
+        return self.environment
+
+    def set_environment(self, environment):
+        self.environment = environment
+
+    def add_environment(self, value):
+        self.environment.append(value)
+
+    def insert_environment_at(self, index, value):
+        self.environment.insert(index, value)
+
+    def replace_environment_at(self, index, value):
+        self.environment[index] = value
+
+    def get_labels(self):
+        return self.labels
+
+    def set_labels(self, labels):
+        self.labels = labels
+
+    def add_labels(self, value):
+        self.labels.append(value)
+
+    def insert_labels_at(self, index, value):
+        self.labels.insert(index, value)
+
+    def replace_labels_at(self, index, value):
+        self.labels[index] = value
+
+    def get_history(self):
+        return self.history
+
+    def set_history(self, history):
+        self.history = history
+
+    def add_history(self, value):
+        self.history.append(value)
+
+    def insert_history_at(self, index, value):
+        self.history.insert(index, value)
+
+    def replace_history_at(self, index, value):
+        self.history[index] = value
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_tag(self):
+        return self.tag
+
+    def set_tag(self, tag):
+        self.tag = tag
+
+    def get_additionalnames(self):
+        return self.additionalnames
+
+    def set_additionalnames(self, additionalnames):
+        self.additionalnames = additionalnames
+
+    def get_maintainer(self):
+        return self.maintainer
+
+    def set_maintainer(self, maintainer):
+        self.maintainer = maintainer
+
+    def get_user(self):
+        return self.user
+
+    def set_user(self, user):
+        self.user = user
+
+    def get_workingdir(self):
+        return self.workingdir
+
+    def set_workingdir(self, workingdir):
+        self.workingdir = workingdir
+
     def hasContent_(self):
         if (
-            self.entrypoint or
-            self.subcommand or
-            self.expose or
-            self.volumes or
-            self.stopsignal or
-            self.environment or
-            self.labels or
-            self.history
+            self.entrypoint
+            or self.subcommand
+            or self.expose
+            or self.volumes
+            or self.stopsignal
+            or self.environment
+            or self.labels
+            or self.history
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='containerconfig', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='containerconfig',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('containerconfig')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6716,57 +12916,212 @@ class containerconfig(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='containerconfig')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='containerconfig',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='containerconfig', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='containerconfig',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='containerconfig'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='containerconfig',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.tag is not None and 'tag' not in already_processed:
             already_processed.add('tag')
-            outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
-        if self.additionalnames is not None and 'additionalnames' not in already_processed:
+            outfile.write(
+                ' tag=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.tag), input_name='tag'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.additionalnames is not None
+            and 'additionalnames' not in already_processed
+        ):
             already_processed.add('additionalnames')
-            outfile.write(' additionalnames=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.additionalnames), input_name='additionalnames')), ))
-        if self.maintainer is not None and 'maintainer' not in already_processed:
+            outfile.write(
+                ' additionalnames=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.additionalnames),
+                            input_name='additionalnames',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.maintainer is not None
+            and 'maintainer' not in already_processed
+        ):
             already_processed.add('maintainer')
-            outfile.write(' maintainer=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.maintainer), input_name='maintainer')), ))
+            outfile.write(
+                ' maintainer=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.maintainer),
+                            input_name='maintainer',
+                        )
+                    ),
+                )
+            )
         if self.user is not None and 'user' not in already_processed:
             already_processed.add('user')
-            outfile.write(' user=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.user), input_name='user')), ))
-        if self.workingdir is not None and 'workingdir' not in already_processed:
+            outfile.write(
+                ' user=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.user), input_name='user'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.workingdir is not None
+            and 'workingdir' not in already_processed
+        ):
             already_processed.add('workingdir')
-            outfile.write(' workingdir=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.workingdir), input_name='workingdir')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='containerconfig', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' workingdir=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.workingdir),
+                            input_name='workingdir',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='containerconfig',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for entrypoint_ in self.entrypoint:
-            entrypoint_.export(outfile, level, namespaceprefix_, name_='entrypoint', pretty_print=pretty_print)
+            entrypoint_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='entrypoint',
+                pretty_print=pretty_print,
+            )
         for subcommand_ in self.subcommand:
-            subcommand_.export(outfile, level, namespaceprefix_, name_='subcommand', pretty_print=pretty_print)
+            subcommand_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='subcommand',
+                pretty_print=pretty_print,
+            )
         for expose_ in self.expose:
-            expose_.export(outfile, level, namespaceprefix_, name_='expose', pretty_print=pretty_print)
+            expose_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='expose',
+                pretty_print=pretty_print,
+            )
         for volumes_ in self.volumes:
-            volumes_.export(outfile, level, namespaceprefix_, name_='volumes', pretty_print=pretty_print)
+            volumes_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='volumes',
+                pretty_print=pretty_print,
+            )
         for stopsignal_ in self.stopsignal:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<stopsignal>%s</stopsignal>%s' % (self.gds_encode(self.gds_format_string(quote_xml(stopsignal_), input_name='stopsignal')), eol_))
+            outfile.write(
+                '<stopsignal>%s</stopsignal>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(stopsignal_), input_name='stopsignal'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for environment_ in self.environment:
-            environment_.export(outfile, level, namespaceprefix_, name_='environment', pretty_print=pretty_print)
+            environment_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='environment',
+                pretty_print=pretty_print,
+            )
         for labels_ in self.labels:
-            labels_.export(outfile, level, namespaceprefix_, name_='labels', pretty_print=pretty_print)
+            labels_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='labels',
+                pretty_print=pretty_print,
+            )
         for history_ in self.history:
-            history_.export(outfile, level, namespaceprefix_, name_='history', pretty_print=pretty_print)
+            history_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='history',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6774,6 +13129,7 @@ class containerconfig(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -6799,6 +13155,7 @@ class containerconfig(GeneratedsSuper):
         if value is not None and 'workingdir' not in already_processed:
             already_processed.add('workingdir')
             self.workingdir = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'entrypoint':
             obj_ = entrypoint.factory()
@@ -6822,7 +13179,9 @@ class containerconfig(GeneratedsSuper):
             obj_.original_tagname_ = 'volumes'
         elif nodeName_ == 'stopsignal':
             stopsignal_ = child_.text
-            stopsignal_ = self.gds_validate_string(stopsignal_, node, 'stopsignal')
+            stopsignal_ = self.gds_validate_string(
+                stopsignal_, node, 'stopsignal'
+            )
             self.stopsignal.append(stopsignal_)
         elif nodeName_ == 'environment':
             obj_ = environment.factory()
@@ -6839,6 +13198,8 @@ class containerconfig(GeneratedsSuper):
             obj_.build(child_)
             self.history.append(obj_)
             obj_.original_tagname_ = 'history'
+
+
 # end class containerconfig
 
 
@@ -6846,8 +13207,10 @@ class entrypoint(GeneratedsSuper):
     """Provides details for the entry point command. This includes the
     execution name and its parameters. Arguments can be optionally
     specified"""
+
     subclass = None
     superclass = None
+
     def __init__(self, execute=None, clear=None, argument=None):
         self.original_tagname_ = None
         self.execute = _cast(None, execute)
@@ -6856,34 +13219,63 @@ class entrypoint(GeneratedsSuper):
             self.argument = []
         else:
             self.argument = argument
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, entrypoint)
+                CurrentSubclassModule_, entrypoint
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if entrypoint.subclass:
             return entrypoint.subclass(*args_, **kwargs_)
         else:
             return entrypoint(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_argument(self): return self.argument
-    def set_argument(self, argument): self.argument = argument
-    def add_argument(self, value): self.argument.append(value)
-    def insert_argument_at(self, index, value): self.argument.insert(index, value)
-    def replace_argument_at(self, index, value): self.argument[index] = value
-    def get_execute(self): return self.execute
-    def set_execute(self, execute): self.execute = execute
-    def get_clear(self): return self.clear
-    def set_clear(self, clear): self.clear = clear
+
+    def get_argument(self):
+        return self.argument
+
+    def set_argument(self, argument):
+        self.argument = argument
+
+    def add_argument(self, value):
+        self.argument.append(value)
+
+    def insert_argument_at(self, index, value):
+        self.argument.insert(index, value)
+
+    def replace_argument_at(self, index, value):
+        self.argument[index] = value
+
+    def get_execute(self):
+        return self.execute
+
+    def set_execute(self, execute):
+        self.execute = execute
+
+    def get_clear(self):
+        return self.clear
+
+    def set_clear(self, clear):
+        self.clear = clear
+
     def hasContent_(self):
-        if (
-            self.argument
-        ):
+        if self.argument:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='entrypoint', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='entrypoint',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('entrypoint')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6894,30 +13286,85 @@ class entrypoint(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='entrypoint')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='entrypoint',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='entrypoint', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='entrypoint',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='entrypoint'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='entrypoint',
+    ):
         if self.execute is not None and 'execute' not in already_processed:
             already_processed.add('execute')
-            outfile.write(' execute=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.execute), input_name='execute')), ))
+            outfile.write(
+                ' execute=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.execute), input_name='execute'
+                        )
+                    ),
+                )
+            )
         if self.clear is not None and 'clear' not in already_processed:
             already_processed.add('clear')
-            outfile.write(' clear="%s"' % self.gds_format_boolean(self.clear, input_name='clear'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='entrypoint', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' clear="%s"'
+                % self.gds_format_boolean(self.clear, input_name='clear')
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='entrypoint',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for argument_ in self.argument:
-            argument_.export(outfile, level, namespaceprefix_, name_='argument', pretty_print=pretty_print)
+            argument_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='argument',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6925,6 +13372,7 @@ class entrypoint(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('execute', node)
         if value is not None and 'execute' not in already_processed:
@@ -6939,12 +13387,15 @@ class entrypoint(GeneratedsSuper):
                 self.clear = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'argument':
             obj_ = argument.factory()
             obj_.build(child_)
             self.argument.append(obj_)
             obj_.original_tagname_ = 'argument'
+
+
 # end class entrypoint
 
 
@@ -6955,8 +13406,10 @@ class subcommand(GeneratedsSuper):
     from the entrypoint. It is in the responsibility of the author
     to make sure the combination of entrypoint and subcommand forms
     a valid execution command"""
+
     subclass = None
     superclass = None
+
     def __init__(self, execute=None, clear=None, argument=None):
         self.original_tagname_ = None
         self.execute = _cast(None, execute)
@@ -6965,34 +13418,63 @@ class subcommand(GeneratedsSuper):
             self.argument = []
         else:
             self.argument = argument
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, subcommand)
+                CurrentSubclassModule_, subcommand
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if subcommand.subclass:
             return subcommand.subclass(*args_, **kwargs_)
         else:
             return subcommand(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_argument(self): return self.argument
-    def set_argument(self, argument): self.argument = argument
-    def add_argument(self, value): self.argument.append(value)
-    def insert_argument_at(self, index, value): self.argument.insert(index, value)
-    def replace_argument_at(self, index, value): self.argument[index] = value
-    def get_execute(self): return self.execute
-    def set_execute(self, execute): self.execute = execute
-    def get_clear(self): return self.clear
-    def set_clear(self, clear): self.clear = clear
+
+    def get_argument(self):
+        return self.argument
+
+    def set_argument(self, argument):
+        self.argument = argument
+
+    def add_argument(self, value):
+        self.argument.append(value)
+
+    def insert_argument_at(self, index, value):
+        self.argument.insert(index, value)
+
+    def replace_argument_at(self, index, value):
+        self.argument[index] = value
+
+    def get_execute(self):
+        return self.execute
+
+    def set_execute(self, execute):
+        self.execute = execute
+
+    def get_clear(self):
+        return self.clear
+
+    def set_clear(self, clear):
+        self.clear = clear
+
     def hasContent_(self):
-        if (
-            self.argument
-        ):
+        if self.argument:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='subcommand', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='subcommand',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('subcommand')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7003,30 +13485,85 @@ class subcommand(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='subcommand')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='subcommand',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='subcommand', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='subcommand',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='subcommand'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='subcommand',
+    ):
         if self.execute is not None and 'execute' not in already_processed:
             already_processed.add('execute')
-            outfile.write(' execute=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.execute), input_name='execute')), ))
+            outfile.write(
+                ' execute=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.execute), input_name='execute'
+                        )
+                    ),
+                )
+            )
         if self.clear is not None and 'clear' not in already_processed:
             already_processed.add('clear')
-            outfile.write(' clear="%s"' % self.gds_format_boolean(self.clear, input_name='clear'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='subcommand', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' clear="%s"'
+                % self.gds_format_boolean(self.clear, input_name='clear')
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='subcommand',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for argument_ in self.argument:
-            argument_.export(outfile, level, namespaceprefix_, name_='argument', pretty_print=pretty_print)
+            argument_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='argument',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7034,6 +13571,7 @@ class subcommand(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('execute', node)
         if value is not None and 'execute' not in already_processed:
@@ -7048,43 +13586,61 @@ class subcommand(GeneratedsSuper):
                 self.clear = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'argument':
             obj_ = argument.factory()
             obj_.build(child_)
             self.argument.append(obj_)
             obj_.original_tagname_ = 'argument'
+
+
 # end class subcommand
 
 
 class argument(GeneratedsSuper):
     """Provides details about a command argument"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, argument)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, argument)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if argument.subclass:
             return argument.subclass(*args_, **kwargs_)
         else:
             return argument(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='argument', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='argument',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('argument')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7095,21 +13651,67 @@ class argument(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='argument')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='argument',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='argument', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='argument',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='argument'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='argument',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='argument', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='argument',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7117,51 +13719,76 @@ class argument(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class argument
 
 
 class expose(GeneratedsSuper):
     """Provides details about network ports which should be exposed from
     the container. At least one port must be configured"""
+
     subclass = None
     superclass = None
+
     def __init__(self, port=None):
         self.original_tagname_ = None
         if port is None:
             self.port = []
         else:
             self.port = port
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, expose)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, expose)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if expose.subclass:
             return expose.subclass(*args_, **kwargs_)
         else:
             return expose(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_port(self): return self.port
-    def set_port(self, port): self.port = port
-    def add_port(self, value): self.port.append(value)
-    def insert_port_at(self, index, value): self.port.insert(index, value)
-    def replace_port_at(self, index, value): self.port[index] = value
+
+    def get_port(self):
+        return self.port
+
+    def set_port(self, port):
+        self.port = port
+
+    def add_port(self, value):
+        self.port.append(value)
+
+    def insert_port_at(self, index, value):
+        self.port.insert(index, value)
+
+    def replace_port_at(self, index, value):
+        self.port[index] = value
+
     def hasContent_(self):
-        if (
-            self.port
-        ):
+        if self.port:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='expose', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='expose',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('expose')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7172,25 +13799,64 @@ class expose(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='expose')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='expose'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='expose', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='expose',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='expose'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='expose',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='expose', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='expose',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for port_ in self.port:
-            port_.export(outfile, level, namespaceprefix_, name_='port', pretty_print=pretty_print)
+            port_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='port',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7198,52 +13864,80 @@ class expose(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'port':
             obj_ = port.factory()
             obj_.build(child_)
             self.port.append(obj_)
             obj_.original_tagname_ = 'port'
+
+
 # end class expose
 
 
 class port(GeneratedsSuper):
     """Provides details about an exposed port."""
+
     subclass = None
     superclass = None
+
     def __init__(self, number=None):
         self.original_tagname_ = None
         self.number = _cast(None, number)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, port)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, port)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if port.subclass:
             return port.subclass(*args_, **kwargs_)
         else:
             return port(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_number(self): return self.number
-    def set_number(self, number): self.number = number
+
+    def get_number(self):
+        return self.number
+
+    def set_number(self, number):
+        self.number = number
+
     def validate_portnum_type(self, value):
         # Validate type portnum-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_portnum_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_portnum_type_patterns_, ))
-    validate_portnum_type_patterns_ = [['^(\\d+|\\d+/(udp|tcp))$']]
-    def hasContent_(self):
-        if (
+                self.validate_portnum_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_portnum_type_patterns_,
+                    )
+                )
 
-        ):
+    validate_portnum_type_patterns_ = [['^(\\d+|\\d+/(udp|tcp))$']]
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='port', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='port',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('port')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7254,21 +13948,54 @@ class port(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='port')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='port'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='port', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='port',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='port'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='port',
+    ):
         if self.number is not None and 'number' not in already_processed:
             already_processed.add('number')
-            outfile.write(' number=%s' % (quote_attrib(self.number), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='port', fromsubclass_=False, pretty_print=True):
+            outfile.write(' number=%s' % (quote_attrib(self.number),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='port',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7276,53 +14003,80 @@ class port(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('number', node)
         if value is not None and 'number' not in already_processed:
             already_processed.add('number')
             self.number = value
             self.number = ' '.join(self.number.split())
-            self.validate_portnum_type(self.number)    # validate type portnum-type
+            self.validate_portnum_type(
+                self.number
+            )  # validate type portnum-type
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class port
 
 
 class volumes(GeneratedsSuper):
     """Provides details about storage volumes in the container At least one
     volume must be configured"""
+
     subclass = None
     superclass = None
+
     def __init__(self, volume=None):
         self.original_tagname_ = None
         if volume is None:
             self.volume = []
         else:
             self.volume = volume
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, volumes)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, volumes)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if volumes.subclass:
             return volumes.subclass(*args_, **kwargs_)
         else:
             return volumes(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_volume(self): return self.volume
-    def set_volume(self, volume): self.volume = volume
-    def add_volume(self, value): self.volume.append(value)
-    def insert_volume_at(self, index, value): self.volume.insert(index, value)
-    def replace_volume_at(self, index, value): self.volume[index] = value
+
+    def get_volume(self):
+        return self.volume
+
+    def set_volume(self, volume):
+        self.volume = volume
+
+    def add_volume(self, value):
+        self.volume.append(value)
+
+    def insert_volume_at(self, index, value):
+        self.volume.insert(index, value)
+
+    def replace_volume_at(self, index, value):
+        self.volume[index] = value
+
     def hasContent_(self):
-        if (
-            self.volume
-        ):
+        if self.volume:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='volumes', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='volumes',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('volumes')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7333,25 +14087,64 @@ class volumes(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='volumes')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='volumes'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='volumes', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='volumes',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='volumes'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='volumes',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='volumes', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='volumes',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for volume_ in self.volume:
-            volume_.export(outfile, level, namespaceprefix_, name_='volume', pretty_print=pretty_print)
+            volume_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='volume',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7359,51 +14152,78 @@ class volumes(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'volume':
             obj_ = volume.factory()
             obj_.build(child_)
             self.volume.append(obj_)
             obj_.original_tagname_ = 'volume'
+
+
 # end class volumes
 
 
 class partitions(GeneratedsSuper):
     """Partition table entries within the custom area of the storage device"""
+
     subclass = None
     superclass = None
+
     def __init__(self, partition=None):
         self.original_tagname_ = None
         if partition is None:
             self.partition = []
         else:
             self.partition = partition
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, partitions)
+                CurrentSubclassModule_, partitions
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if partitions.subclass:
             return partitions.subclass(*args_, **kwargs_)
         else:
             return partitions(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_partition(self): return self.partition
-    def set_partition(self, partition): self.partition = partition
-    def add_partition(self, value): self.partition.append(value)
-    def insert_partition_at(self, index, value): self.partition.insert(index, value)
-    def replace_partition_at(self, index, value): self.partition[index] = value
+
+    def get_partition(self):
+        return self.partition
+
+    def set_partition(self, partition):
+        self.partition = partition
+
+    def add_partition(self, value):
+        self.partition.append(value)
+
+    def insert_partition_at(self, index, value):
+        self.partition.insert(index, value)
+
+    def replace_partition_at(self, index, value):
+        self.partition[index] = value
+
     def hasContent_(self):
-        if (
-            self.partition
-        ):
+        if self.partition:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='partitions', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='partitions',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('partitions')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7414,25 +14234,68 @@ class partitions(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='partitions')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='partitions',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='partitions', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='partitions',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='partitions'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='partitions',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='partitions', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='partitions',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for partition_ in self.partition:
-            partition_.export(outfile, level, namespaceprefix_, name_='partition', pretty_print=pretty_print)
+            partition_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='partition',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7440,51 +14303,78 @@ class partitions(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'partition':
             obj_ = partition.factory()
             obj_.build(child_)
             self.partition.append(obj_)
             obj_.original_tagname_ = 'partition'
+
+
 # end class partitions
 
 
 class luksformat(GeneratedsSuper):
     """luksFormat option settings"""
+
     subclass = None
     superclass = None
+
     def __init__(self, option=None):
         self.original_tagname_ = None
         if option is None:
             self.option = []
         else:
             self.option = option
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, luksformat)
+                CurrentSubclassModule_, luksformat
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if luksformat.subclass:
             return luksformat.subclass(*args_, **kwargs_)
         else:
             return luksformat(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_option(self): return self.option
-    def set_option(self, option): self.option = option
-    def add_option(self, value): self.option.append(value)
-    def insert_option_at(self, index, value): self.option.insert(index, value)
-    def replace_option_at(self, index, value): self.option[index] = value
+
+    def get_option(self):
+        return self.option
+
+    def set_option(self, option):
+        self.option = option
+
+    def add_option(self, value):
+        self.option.append(value)
+
+    def insert_option_at(self, index, value):
+        self.option.insert(index, value)
+
+    def replace_option_at(self, index, value):
+        self.option[index] = value
+
     def hasContent_(self):
-        if (
-            self.option
-        ):
+        if self.option:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='luksformat', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='luksformat',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('luksformat')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7495,25 +14385,68 @@ class luksformat(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='luksformat')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='luksformat',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='luksformat', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='luksformat',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='luksformat'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='luksformat',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='luksformat', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='luksformat',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for option_ in self.option:
-            option_.export(outfile, level, namespaceprefix_, name_='option', pretty_print=pretty_print)
+            option_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='option',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7521,22 +14454,34 @@ class luksformat(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'option':
             obj_ = option.factory()
             obj_.build(child_)
             self.option.append(obj_)
             obj_.original_tagname_ = 'option'
+
+
 # end class luksformat
 
 
 class bootloadersettings(GeneratedsSuper):
     """Additional bootloader settings"""
+
     subclass = None
     superclass = None
-    def __init__(self, shimoption=None, installoption=None, environment=None, configoption=None):
+
+    def __init__(
+        self,
+        shimoption=None,
+        installoption=None,
+        environment=None,
+        configoption=None,
+    ):
         self.original_tagname_ = None
         if shimoption is None:
             self.shimoption = []
@@ -7554,48 +14499,101 @@ class bootloadersettings(GeneratedsSuper):
             self.configoption = []
         else:
             self.configoption = configoption
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, bootloadersettings)
+                CurrentSubclassModule_, bootloadersettings
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if bootloadersettings.subclass:
             return bootloadersettings.subclass(*args_, **kwargs_)
         else:
             return bootloadersettings(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_shimoption(self): return self.shimoption
-    def set_shimoption(self, shimoption): self.shimoption = shimoption
-    def add_shimoption(self, value): self.shimoption.append(value)
-    def insert_shimoption_at(self, index, value): self.shimoption.insert(index, value)
-    def replace_shimoption_at(self, index, value): self.shimoption[index] = value
-    def get_installoption(self): return self.installoption
-    def set_installoption(self, installoption): self.installoption = installoption
-    def add_installoption(self, value): self.installoption.append(value)
-    def insert_installoption_at(self, index, value): self.installoption.insert(index, value)
-    def replace_installoption_at(self, index, value): self.installoption[index] = value
-    def get_environment(self): return self.environment
-    def set_environment(self, environment): self.environment = environment
-    def add_environment(self, value): self.environment.append(value)
-    def insert_environment_at(self, index, value): self.environment.insert(index, value)
-    def replace_environment_at(self, index, value): self.environment[index] = value
-    def get_configoption(self): return self.configoption
-    def set_configoption(self, configoption): self.configoption = configoption
-    def add_configoption(self, value): self.configoption.append(value)
-    def insert_configoption_at(self, index, value): self.configoption.insert(index, value)
-    def replace_configoption_at(self, index, value): self.configoption[index] = value
+
+    def get_shimoption(self):
+        return self.shimoption
+
+    def set_shimoption(self, shimoption):
+        self.shimoption = shimoption
+
+    def add_shimoption(self, value):
+        self.shimoption.append(value)
+
+    def insert_shimoption_at(self, index, value):
+        self.shimoption.insert(index, value)
+
+    def replace_shimoption_at(self, index, value):
+        self.shimoption[index] = value
+
+    def get_installoption(self):
+        return self.installoption
+
+    def set_installoption(self, installoption):
+        self.installoption = installoption
+
+    def add_installoption(self, value):
+        self.installoption.append(value)
+
+    def insert_installoption_at(self, index, value):
+        self.installoption.insert(index, value)
+
+    def replace_installoption_at(self, index, value):
+        self.installoption[index] = value
+
+    def get_environment(self):
+        return self.environment
+
+    def set_environment(self, environment):
+        self.environment = environment
+
+    def add_environment(self, value):
+        self.environment.append(value)
+
+    def insert_environment_at(self, index, value):
+        self.environment.insert(index, value)
+
+    def replace_environment_at(self, index, value):
+        self.environment[index] = value
+
+    def get_configoption(self):
+        return self.configoption
+
+    def set_configoption(self, configoption):
+        self.configoption = configoption
+
+    def add_configoption(self, value):
+        self.configoption.append(value)
+
+    def insert_configoption_at(self, index, value):
+        self.configoption.insert(index, value)
+
+    def replace_configoption_at(self, index, value):
+        self.configoption[index] = value
+
     def hasContent_(self):
         if (
-            self.shimoption or
-            self.installoption or
-            self.environment or
-            self.configoption
+            self.shimoption
+            or self.installoption
+            or self.environment
+            or self.configoption
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='bootloadersettings', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='bootloadersettings',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('bootloadersettings')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7606,31 +14604,92 @@ class bootloadersettings(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='bootloadersettings')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='bootloadersettings',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='bootloadersettings', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='bootloadersettings',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='bootloadersettings'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='bootloadersettings',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='bootloadersettings', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='bootloadersettings',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for shimoption_ in self.shimoption:
-            shimoption_.export(outfile, level, namespaceprefix_, name_='shimoption', pretty_print=pretty_print)
+            shimoption_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='shimoption',
+                pretty_print=pretty_print,
+            )
         for installoption_ in self.installoption:
-            installoption_.export(outfile, level, namespaceprefix_, name_='installoption', pretty_print=pretty_print)
+            installoption_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='installoption',
+                pretty_print=pretty_print,
+            )
         for environment_ in self.environment:
-            environment_.export(outfile, level, namespaceprefix_, name_='environment', pretty_print=pretty_print)
+            environment_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='environment',
+                pretty_print=pretty_print,
+            )
         for configoption_ in self.configoption:
-            configoption_.export(outfile, level, namespaceprefix_, name_='configoption', pretty_print=pretty_print)
+            configoption_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='configoption',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7638,8 +14697,10 @@ class bootloadersettings(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'shimoption':
             obj_ = shimoption.factory()
@@ -7661,6 +14722,8 @@ class bootloadersettings(GeneratedsSuper):
             obj_.build(child_)
             self.configoption.append(obj_)
             obj_.original_tagname_ = 'configoption'
+
+
 # end class bootloadersettings
 
 
@@ -7668,9 +14731,17 @@ class securelinux(GeneratedsSuper):
     """securelinux contains all elements to describe data required to setup
     a secure linux execution process for the individual architecture
     in the scope of the bootloader process"""
+
     subclass = None
     superclass = None
-    def __init__(self, hkd_ca_cert=None, hkd_sign_cert=None, hkd_cert=None, hkd_revocation_list=None):
+
+    def __init__(
+        self,
+        hkd_ca_cert=None,
+        hkd_sign_cert=None,
+        hkd_cert=None,
+        hkd_revocation_list=None,
+    ):
         self.original_tagname_ = None
         self.hkd_ca_cert = _cast(None, hkd_ca_cert)
         self.hkd_sign_cert = _cast(None, hkd_sign_cert)
@@ -7682,40 +14753,78 @@ class securelinux(GeneratedsSuper):
             self.hkd_revocation_list = []
         else:
             self.hkd_revocation_list = hkd_revocation_list
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, securelinux)
+                CurrentSubclassModule_, securelinux
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if securelinux.subclass:
             return securelinux.subclass(*args_, **kwargs_)
         else:
             return securelinux(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_hkd_cert(self): return self.hkd_cert
-    def set_hkd_cert(self, hkd_cert): self.hkd_cert = hkd_cert
-    def add_hkd_cert(self, value): self.hkd_cert.append(value)
-    def insert_hkd_cert_at(self, index, value): self.hkd_cert.insert(index, value)
-    def replace_hkd_cert_at(self, index, value): self.hkd_cert[index] = value
-    def get_hkd_revocation_list(self): return self.hkd_revocation_list
-    def set_hkd_revocation_list(self, hkd_revocation_list): self.hkd_revocation_list = hkd_revocation_list
-    def add_hkd_revocation_list(self, value): self.hkd_revocation_list.append(value)
-    def insert_hkd_revocation_list_at(self, index, value): self.hkd_revocation_list.insert(index, value)
-    def replace_hkd_revocation_list_at(self, index, value): self.hkd_revocation_list[index] = value
-    def get_hkd_ca_cert(self): return self.hkd_ca_cert
-    def set_hkd_ca_cert(self, hkd_ca_cert): self.hkd_ca_cert = hkd_ca_cert
-    def get_hkd_sign_cert(self): return self.hkd_sign_cert
-    def set_hkd_sign_cert(self, hkd_sign_cert): self.hkd_sign_cert = hkd_sign_cert
+
+    def get_hkd_cert(self):
+        return self.hkd_cert
+
+    def set_hkd_cert(self, hkd_cert):
+        self.hkd_cert = hkd_cert
+
+    def add_hkd_cert(self, value):
+        self.hkd_cert.append(value)
+
+    def insert_hkd_cert_at(self, index, value):
+        self.hkd_cert.insert(index, value)
+
+    def replace_hkd_cert_at(self, index, value):
+        self.hkd_cert[index] = value
+
+    def get_hkd_revocation_list(self):
+        return self.hkd_revocation_list
+
+    def set_hkd_revocation_list(self, hkd_revocation_list):
+        self.hkd_revocation_list = hkd_revocation_list
+
+    def add_hkd_revocation_list(self, value):
+        self.hkd_revocation_list.append(value)
+
+    def insert_hkd_revocation_list_at(self, index, value):
+        self.hkd_revocation_list.insert(index, value)
+
+    def replace_hkd_revocation_list_at(self, index, value):
+        self.hkd_revocation_list[index] = value
+
+    def get_hkd_ca_cert(self):
+        return self.hkd_ca_cert
+
+    def set_hkd_ca_cert(self, hkd_ca_cert):
+        self.hkd_ca_cert = hkd_ca_cert
+
+    def get_hkd_sign_cert(self):
+        return self.hkd_sign_cert
+
+    def set_hkd_sign_cert(self, hkd_sign_cert):
+        self.hkd_sign_cert = hkd_sign_cert
+
     def hasContent_(self):
-        if (
-            self.hkd_cert or
-            self.hkd_revocation_list
-        ):
+        if self.hkd_cert or self.hkd_revocation_list:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='securelinux', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='securelinux',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('securelinux')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7726,32 +14835,107 @@ class securelinux(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='securelinux')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='securelinux',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='securelinux', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='securelinux',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='securelinux'):
-        if self.hkd_ca_cert is not None and 'hkd_ca_cert' not in already_processed:
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='securelinux',
+    ):
+        if (
+            self.hkd_ca_cert is not None
+            and 'hkd_ca_cert' not in already_processed
+        ):
             already_processed.add('hkd_ca_cert')
-            outfile.write(' hkd_ca_cert=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.hkd_ca_cert), input_name='hkd_ca_cert')), ))
-        if self.hkd_sign_cert is not None and 'hkd_sign_cert' not in already_processed:
+            outfile.write(
+                ' hkd_ca_cert=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.hkd_ca_cert),
+                            input_name='hkd_ca_cert',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.hkd_sign_cert is not None
+            and 'hkd_sign_cert' not in already_processed
+        ):
             already_processed.add('hkd_sign_cert')
-            outfile.write(' hkd_sign_cert=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.hkd_sign_cert), input_name='hkd_sign_cert')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='securelinux', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' hkd_sign_cert=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.hkd_sign_cert),
+                            input_name='hkd_sign_cert',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='securelinux',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for hkd_cert_ in self.hkd_cert:
-            hkd_cert_.export(outfile, level, namespaceprefix_, name_='hkd_cert', pretty_print=pretty_print)
+            hkd_cert_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='hkd_cert',
+                pretty_print=pretty_print,
+            )
         for hkd_revocation_list_ in self.hkd_revocation_list:
-            hkd_revocation_list_.export(outfile, level, namespaceprefix_, name_='hkd_revocation_list', pretty_print=pretty_print)
+            hkd_revocation_list_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='hkd_revocation_list',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7759,6 +14943,7 @@ class securelinux(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('hkd_ca_cert', node)
         if value is not None and 'hkd_ca_cert' not in already_processed:
@@ -7768,6 +14953,7 @@ class securelinux(GeneratedsSuper):
         if value is not None and 'hkd_sign_cert' not in already_processed:
             already_processed.add('hkd_sign_cert')
             self.hkd_sign_cert = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'hkd_cert':
             obj_ = hkd_cert.factory()
@@ -7779,36 +14965,52 @@ class securelinux(GeneratedsSuper):
             obj_.build(child_)
             self.hkd_revocation_list.append(obj_)
             obj_.original_tagname_ = 'hkd_revocation_list'
+
+
 # end class securelinux
 
 
 class hkd_cert(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, name=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, hkd_cert)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, hkd_cert)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if hkd_cert.subclass:
             return hkd_cert.subclass(*args_, **kwargs_)
         else:
             return hkd_cert(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='hkd_cert', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='hkd_cert',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('hkd_cert')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7819,21 +15021,67 @@ class hkd_cert(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='hkd_cert')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='hkd_cert',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='hkd_cert', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='hkd_cert',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='hkd_cert'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='hkd_cert',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='hkd_cert', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='hkd_cert',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7841,43 +15089,63 @@ class hkd_cert(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class hkd_cert
 
 
 class hkd_revocation_list(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, name=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, hkd_revocation_list)
+                CurrentSubclassModule_, hkd_revocation_list
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if hkd_revocation_list.subclass:
             return hkd_revocation_list.subclass(*args_, **kwargs_)
         else:
             return hkd_revocation_list(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='hkd_revocation_list', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='hkd_revocation_list',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('hkd_revocation_list')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7888,21 +15156,67 @@ class hkd_revocation_list(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='hkd_revocation_list')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='hkd_revocation_list',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='hkd_revocation_list', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='hkd_revocation_list',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='hkd_revocation_list'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='hkd_revocation_list',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='hkd_revocation_list', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='hkd_revocation_list',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7910,51 +15224,78 @@ class hkd_revocation_list(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class hkd_revocation_list
 
 
 class environment(GeneratedsSuper):
     """Provides details about the container/bootloader environment
     variables. At least one environment variable must be configured"""
+
     subclass = None
     superclass = None
+
     def __init__(self, env=None):
         self.original_tagname_ = None
         if env is None:
             self.env = []
         else:
             self.env = env
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, environment)
+                CurrentSubclassModule_, environment
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if environment.subclass:
             return environment.subclass(*args_, **kwargs_)
         else:
             return environment(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_env(self): return self.env
-    def set_env(self, env): self.env = env
-    def add_env(self, value): self.env.append(value)
-    def insert_env_at(self, index, value): self.env.insert(index, value)
-    def replace_env_at(self, index, value): self.env[index] = value
+
+    def get_env(self):
+        return self.env
+
+    def set_env(self, env):
+        self.env = env
+
+    def add_env(self, value):
+        self.env.append(value)
+
+    def insert_env_at(self, index, value):
+        self.env.insert(index, value)
+
+    def replace_env_at(self, index, value):
+        self.env[index] = value
+
     def hasContent_(self):
-        if (
-            self.env
-        ):
+        if self.env:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='environment', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='environment',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('environment')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7965,25 +15306,68 @@ class environment(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='environment')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='environment',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='environment', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='environment',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='environment'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='environment',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='environment', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='environment',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for env_ in self.env:
-            env_.export(outfile, level, namespaceprefix_, name_='env', pretty_print=pretty_print)
+            env_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='env',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7991,48 +15375,71 @@ class environment(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'env':
             obj_ = env.factory()
             obj_.build(child_)
             self.env.append(obj_)
             obj_.original_tagname_ = 'env'
+
+
 # end class environment
 
 
 class env(GeneratedsSuper):
     """Provides details about an environment variable"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, value=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.value = _cast(None, value)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, env)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, env)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if env.subclass:
             return env.subclass(*args_, **kwargs_)
         else:
             return env(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_value(self): return self.value
-    def set_value(self, value): self.value = value
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='env', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='env',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('env')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8043,24 +15450,75 @@ class env(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='env')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='env'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='env', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='env',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='env'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='env',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='env', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' value=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.value), input_name='value'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='env',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8068,6 +15526,7 @@ class env(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -8077,46 +15536,70 @@ class env(GeneratedsSuper):
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             self.value = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class env
 
 
 class labels(GeneratedsSuper):
     """Provides details about container labels At least one label must be
     configured"""
+
     subclass = None
     superclass = None
+
     def __init__(self, label=None):
         self.original_tagname_ = None
         if label is None:
             self.label = []
         else:
             self.label = label
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, labels)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, labels)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if labels.subclass:
             return labels.subclass(*args_, **kwargs_)
         else:
             return labels(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_label(self): return self.label
-    def set_label(self, label): self.label = label
-    def add_label(self, value): self.label.append(value)
-    def insert_label_at(self, index, value): self.label.insert(index, value)
-    def replace_label_at(self, index, value): self.label[index] = value
+
+    def get_label(self):
+        return self.label
+
+    def set_label(self, label):
+        self.label = label
+
+    def add_label(self, value):
+        self.label.append(value)
+
+    def insert_label_at(self, index, value):
+        self.label.insert(index, value)
+
+    def replace_label_at(self, index, value):
+        self.label[index] = value
+
     def hasContent_(self):
-        if (
-            self.label
-        ):
+        if self.label:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='labels', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='labels',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('labels')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8127,25 +15610,64 @@ class labels(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='labels')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='labels'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='labels', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='labels',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='labels'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='labels',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='labels', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='labels',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for label_ in self.label:
-            label_.export(outfile, level, namespaceprefix_, name_='label', pretty_print=pretty_print)
+            label_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='label',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8153,48 +15675,71 @@ class labels(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'label':
             obj_ = label.factory()
             obj_.build(child_)
             self.label.append(obj_)
             obj_.original_tagname_ = 'label'
+
+
 # end class labels
 
 
 class label(GeneratedsSuper):
     """Provides details about a container label"""
+
     subclass = None
     superclass = None
+
     def __init__(self, name=None, value=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.value = _cast(None, value)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, label)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, label)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if label.subclass:
             return label.subclass(*args_, **kwargs_)
         else:
             return label(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_name(self): return self.name
-    def set_name(self, name): self.name = name
-    def get_value(self): return self.value
-    def set_value(self, value): self.value = value
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_value(self):
+        return self.value
+
+    def set_value(self, value):
+        self.value = value
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='label', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='label',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('label')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8205,24 +15750,75 @@ class label(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='label')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='label'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='label', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='label',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='label'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='label',
+    ):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(
+                ' name=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.name), input_name='name'
+                        )
+                    ),
+                )
+            )
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='label', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' value=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.value), input_name='value'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='label',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8230,6 +15826,7 @@ class label(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
@@ -8239,8 +15836,11 @@ class label(GeneratedsSuper):
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             self.value = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class label
 
 
@@ -8248,9 +15848,21 @@ class history(GeneratedsSuper):
     """Provides details about the container history. Includes the 'created
     by', 'author' as attributes and its content represents the
     'comment' entry."""
+
     subclass = None
     superclass = None
-    def __init__(self, created_by=None, author=None, application_id=None, package_version=None, launcher=None, valueOf_=None, mixedclass_=None, content_=None):
+
+    def __init__(
+        self,
+        created_by=None,
+        author=None,
+        application_id=None,
+        package_version=None,
+        launcher=None,
+        valueOf_=None,
+        mixedclass_=None,
+        content_=None,
+    ):
         self.original_tagname_ = None
         self.created_by = _cast(None, created_by)
         self.author = _cast(None, author)
@@ -8267,44 +15879,90 @@ class history(GeneratedsSuper):
         else:
             self.content_ = content_
         self.valueOf_ = valueOf_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, history)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, history)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if history.subclass:
             return history.subclass(*args_, **kwargs_)
         else:
             return history(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_created_by(self): return self.created_by
-    def set_created_by(self, created_by): self.created_by = created_by
-    def get_author(self): return self.author
-    def set_author(self, author): self.author = author
-    def get_application_id(self): return self.application_id
-    def set_application_id(self, application_id): self.application_id = application_id
-    def get_package_version(self): return self.package_version
-    def set_package_version(self, package_version): self.package_version = package_version
-    def get_launcher(self): return self.launcher
-    def set_launcher(self, launcher): self.launcher = launcher
-    def get_valueOf_(self): return self.valueOf_
-    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+
+    def get_created_by(self):
+        return self.created_by
+
+    def set_created_by(self, created_by):
+        self.created_by = created_by
+
+    def get_author(self):
+        return self.author
+
+    def set_author(self, author):
+        self.author = author
+
+    def get_application_id(self):
+        return self.application_id
+
+    def set_application_id(self, application_id):
+        self.application_id = application_id
+
+    def get_package_version(self):
+        return self.package_version
+
+    def set_package_version(self, package_version):
+        self.package_version = package_version
+
+    def get_launcher(self):
+        return self.launcher
+
+    def set_launcher(self, launcher):
+        self.launcher = launcher
+
+    def get_valueOf_(self):
+        return self.valueOf_
+
+    def set_valueOf_(self, valueOf_):
+        self.valueOf_ = valueOf_
+
     def validate_package_version_type(self, value):
         # Validate type package-version-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_package_version_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_package_version_type_patterns_, ))
-    validate_package_version_type_patterns_ = [['^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}$']]
+                self.validate_package_version_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_package_version_type_patterns_,
+                    )
+                )
+
+    validate_package_version_type_patterns_ = [
+        [
+            '^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}$'
+        ]
+    ]
+
     def hasContent_(self):
-        if (
-            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
-        ):
+        if 1 if type(self.valueOf_) in [int, float] else self.valueOf_:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='history', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='history',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('history')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8315,43 +15973,130 @@ class history(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='history')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='history'
+        )
         outfile.write('>')
-        self.exportChildren(outfile, level + 1, namespaceprefix_, name_, pretty_print=pretty_print)
+        self.exportChildren(
+            outfile,
+            level + 1,
+            namespaceprefix_,
+            name_,
+            pretty_print=pretty_print,
+        )
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='history'):
-        if self.created_by is not None and 'created_by' not in already_processed:
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='history',
+    ):
+        if (
+            self.created_by is not None
+            and 'created_by' not in already_processed
+        ):
             already_processed.add('created_by')
-            outfile.write(' created_by=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.created_by), input_name='created_by')), ))
+            outfile.write(
+                ' created_by=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.created_by),
+                            input_name='created_by',
+                        )
+                    ),
+                )
+            )
         if self.author is not None and 'author' not in already_processed:
             already_processed.add('author')
-            outfile.write(' author=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.author), input_name='author')), ))
-        if self.application_id is not None and 'application_id' not in already_processed:
+            outfile.write(
+                ' author=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.author), input_name='author'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.application_id is not None
+            and 'application_id' not in already_processed
+        ):
             already_processed.add('application_id')
-            outfile.write(' application_id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.application_id), input_name='application_id')), ))
-        if self.package_version is not None and 'package_version' not in already_processed:
+            outfile.write(
+                ' application_id=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.application_id),
+                            input_name='application_id',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.package_version is not None
+            and 'package_version' not in already_processed
+        ):
             already_processed.add('package_version')
-            outfile.write(' package_version=%s' % (quote_attrib(self.package_version), ))
+            outfile.write(
+                ' package_version=%s' % (quote_attrib(self.package_version),)
+            )
         if self.launcher is not None and 'launcher' not in already_processed:
             already_processed.add('launcher')
-            outfile.write(' launcher=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.launcher), input_name='launcher')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='history', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' launcher=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.launcher), input_name='launcher'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='history',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
         self.valueOf_ = get_all_text_(node)
         if node.text is not None:
-            obj_ = self.mixedclass_(MixedContainer.CategoryText,
-                MixedContainer.TypeNone, '', node.text)
+            obj_ = self.mixedclass_(
+                MixedContainer.CategoryText,
+                MixedContainer.TypeNone,
+                '',
+                node.text,
+            )
             self.content_.append(obj_)
         for child in node:
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('created_by', node)
         if value is not None and 'created_by' not in already_processed:
@@ -8370,26 +16115,68 @@ class history(GeneratedsSuper):
             already_processed.add('package_version')
             self.package_version = value
             self.package_version = ' '.join(self.package_version.split())
-            self.validate_package_version_type(self.package_version)    # validate type package-version-type
+            self.validate_package_version_type(
+                self.package_version
+            )  # validate type package-version-type
         value = find_attr_value_('launcher', node)
         if value is not None and 'launcher' not in already_processed:
             already_processed.add('launcher')
             self.launcher = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if not fromsubclass_ and child_.tail is not None:
-            obj_ = self.mixedclass_(MixedContainer.CategoryText,
-                MixedContainer.TypeNone, '', child_.tail)
+            obj_ = self.mixedclass_(
+                MixedContainer.CategoryText,
+                MixedContainer.TypeNone,
+                '',
+                child_.tail,
+            )
             self.content_.append(obj_)
         pass
+
+
 # end class history
 
 
 class oemconfig(GeneratedsSuper):
     """The oemconfig element specifies the OEM image configuration options
     which are used to repartition and setup the system disk."""
+
     subclass = None
     superclass = None
-    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_resize=None, oem_resize_once=None, oem_ramdisk_size=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_swapname=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
+
+    def __init__(
+        self,
+        oem_boot_title=None,
+        oem_bootwait=None,
+        oem_resize=None,
+        oem_resize_once=None,
+        oem_ramdisk_size=None,
+        oem_device_filter=None,
+        oem_nic_filter=None,
+        oem_inplace_recovery=None,
+        oem_kiwi_initrd=None,
+        oem_multipath_scan=None,
+        oem_vmcp_parmfile=None,
+        oem_partition_install=None,
+        oem_reboot=None,
+        oem_reboot_interactive=None,
+        oem_recovery=None,
+        oem_recoveryID=None,
+        oem_recovery_part_size=None,
+        oem_shutdown=None,
+        oem_shutdown_interactive=None,
+        oem_silent_boot=None,
+        oem_silent_install=None,
+        oem_silent_verify=None,
+        oem_skip_verify=None,
+        oem_swap=None,
+        oem_swapsize=None,
+        oem_swapname=None,
+        oem_systemsize=None,
+        oem_unattended=None,
+        oem_unattended_id=None,
+    ):
         self.original_tagname_ = None
         if oem_boot_title is None:
             self.oem_boot_title = []
@@ -8507,198 +16294,499 @@ class oemconfig(GeneratedsSuper):
             self.oem_unattended_id = []
         else:
             self.oem_unattended_id = oem_unattended_id
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, oemconfig)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, oemconfig)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if oemconfig.subclass:
             return oemconfig.subclass(*args_, **kwargs_)
         else:
             return oemconfig(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_oem_boot_title(self): return self.oem_boot_title
-    def set_oem_boot_title(self, oem_boot_title): self.oem_boot_title = oem_boot_title
-    def add_oem_boot_title(self, value): self.oem_boot_title.append(value)
-    def insert_oem_boot_title_at(self, index, value): self.oem_boot_title.insert(index, value)
-    def replace_oem_boot_title_at(self, index, value): self.oem_boot_title[index] = value
-    def get_oem_bootwait(self): return self.oem_bootwait
-    def set_oem_bootwait(self, oem_bootwait): self.oem_bootwait = oem_bootwait
-    def add_oem_bootwait(self, value): self.oem_bootwait.append(value)
-    def insert_oem_bootwait_at(self, index, value): self.oem_bootwait.insert(index, value)
-    def replace_oem_bootwait_at(self, index, value): self.oem_bootwait[index] = value
-    def get_oem_resize(self): return self.oem_resize
-    def set_oem_resize(self, oem_resize): self.oem_resize = oem_resize
-    def add_oem_resize(self, value): self.oem_resize.append(value)
-    def insert_oem_resize_at(self, index, value): self.oem_resize.insert(index, value)
-    def replace_oem_resize_at(self, index, value): self.oem_resize[index] = value
-    def get_oem_resize_once(self): return self.oem_resize_once
-    def set_oem_resize_once(self, oem_resize_once): self.oem_resize_once = oem_resize_once
-    def add_oem_resize_once(self, value): self.oem_resize_once.append(value)
-    def insert_oem_resize_once_at(self, index, value): self.oem_resize_once.insert(index, value)
-    def replace_oem_resize_once_at(self, index, value): self.oem_resize_once[index] = value
-    def get_oem_ramdisk_size(self): return self.oem_ramdisk_size
-    def set_oem_ramdisk_size(self, oem_ramdisk_size): self.oem_ramdisk_size = oem_ramdisk_size
-    def add_oem_ramdisk_size(self, value): self.oem_ramdisk_size.append(value)
-    def insert_oem_ramdisk_size_at(self, index, value): self.oem_ramdisk_size.insert(index, value)
-    def replace_oem_ramdisk_size_at(self, index, value): self.oem_ramdisk_size[index] = value
-    def get_oem_device_filter(self): return self.oem_device_filter
-    def set_oem_device_filter(self, oem_device_filter): self.oem_device_filter = oem_device_filter
-    def add_oem_device_filter(self, value): self.oem_device_filter.append(value)
-    def insert_oem_device_filter_at(self, index, value): self.oem_device_filter.insert(index, value)
-    def replace_oem_device_filter_at(self, index, value): self.oem_device_filter[index] = value
-    def get_oem_nic_filter(self): return self.oem_nic_filter
-    def set_oem_nic_filter(self, oem_nic_filter): self.oem_nic_filter = oem_nic_filter
-    def add_oem_nic_filter(self, value): self.oem_nic_filter.append(value)
-    def insert_oem_nic_filter_at(self, index, value): self.oem_nic_filter.insert(index, value)
-    def replace_oem_nic_filter_at(self, index, value): self.oem_nic_filter[index] = value
-    def get_oem_inplace_recovery(self): return self.oem_inplace_recovery
-    def set_oem_inplace_recovery(self, oem_inplace_recovery): self.oem_inplace_recovery = oem_inplace_recovery
-    def add_oem_inplace_recovery(self, value): self.oem_inplace_recovery.append(value)
-    def insert_oem_inplace_recovery_at(self, index, value): self.oem_inplace_recovery.insert(index, value)
-    def replace_oem_inplace_recovery_at(self, index, value): self.oem_inplace_recovery[index] = value
-    def get_oem_kiwi_initrd(self): return self.oem_kiwi_initrd
-    def set_oem_kiwi_initrd(self, oem_kiwi_initrd): self.oem_kiwi_initrd = oem_kiwi_initrd
-    def add_oem_kiwi_initrd(self, value): self.oem_kiwi_initrd.append(value)
-    def insert_oem_kiwi_initrd_at(self, index, value): self.oem_kiwi_initrd.insert(index, value)
-    def replace_oem_kiwi_initrd_at(self, index, value): self.oem_kiwi_initrd[index] = value
-    def get_oem_multipath_scan(self): return self.oem_multipath_scan
-    def set_oem_multipath_scan(self, oem_multipath_scan): self.oem_multipath_scan = oem_multipath_scan
-    def add_oem_multipath_scan(self, value): self.oem_multipath_scan.append(value)
-    def insert_oem_multipath_scan_at(self, index, value): self.oem_multipath_scan.insert(index, value)
-    def replace_oem_multipath_scan_at(self, index, value): self.oem_multipath_scan[index] = value
-    def get_oem_vmcp_parmfile(self): return self.oem_vmcp_parmfile
-    def set_oem_vmcp_parmfile(self, oem_vmcp_parmfile): self.oem_vmcp_parmfile = oem_vmcp_parmfile
-    def add_oem_vmcp_parmfile(self, value): self.oem_vmcp_parmfile.append(value)
-    def insert_oem_vmcp_parmfile_at(self, index, value): self.oem_vmcp_parmfile.insert(index, value)
-    def replace_oem_vmcp_parmfile_at(self, index, value): self.oem_vmcp_parmfile[index] = value
-    def get_oem_partition_install(self): return self.oem_partition_install
-    def set_oem_partition_install(self, oem_partition_install): self.oem_partition_install = oem_partition_install
-    def add_oem_partition_install(self, value): self.oem_partition_install.append(value)
-    def insert_oem_partition_install_at(self, index, value): self.oem_partition_install.insert(index, value)
-    def replace_oem_partition_install_at(self, index, value): self.oem_partition_install[index] = value
-    def get_oem_reboot(self): return self.oem_reboot
-    def set_oem_reboot(self, oem_reboot): self.oem_reboot = oem_reboot
-    def add_oem_reboot(self, value): self.oem_reboot.append(value)
-    def insert_oem_reboot_at(self, index, value): self.oem_reboot.insert(index, value)
-    def replace_oem_reboot_at(self, index, value): self.oem_reboot[index] = value
-    def get_oem_reboot_interactive(self): return self.oem_reboot_interactive
-    def set_oem_reboot_interactive(self, oem_reboot_interactive): self.oem_reboot_interactive = oem_reboot_interactive
-    def add_oem_reboot_interactive(self, value): self.oem_reboot_interactive.append(value)
-    def insert_oem_reboot_interactive_at(self, index, value): self.oem_reboot_interactive.insert(index, value)
-    def replace_oem_reboot_interactive_at(self, index, value): self.oem_reboot_interactive[index] = value
-    def get_oem_recovery(self): return self.oem_recovery
-    def set_oem_recovery(self, oem_recovery): self.oem_recovery = oem_recovery
-    def add_oem_recovery(self, value): self.oem_recovery.append(value)
-    def insert_oem_recovery_at(self, index, value): self.oem_recovery.insert(index, value)
-    def replace_oem_recovery_at(self, index, value): self.oem_recovery[index] = value
-    def get_oem_recoveryID(self): return self.oem_recoveryID
-    def set_oem_recoveryID(self, oem_recoveryID): self.oem_recoveryID = oem_recoveryID
-    def add_oem_recoveryID(self, value): self.oem_recoveryID.append(value)
-    def insert_oem_recoveryID_at(self, index, value): self.oem_recoveryID.insert(index, value)
-    def replace_oem_recoveryID_at(self, index, value): self.oem_recoveryID[index] = value
-    def get_oem_recovery_part_size(self): return self.oem_recovery_part_size
-    def set_oem_recovery_part_size(self, oem_recovery_part_size): self.oem_recovery_part_size = oem_recovery_part_size
-    def add_oem_recovery_part_size(self, value): self.oem_recovery_part_size.append(value)
-    def insert_oem_recovery_part_size_at(self, index, value): self.oem_recovery_part_size.insert(index, value)
-    def replace_oem_recovery_part_size_at(self, index, value): self.oem_recovery_part_size[index] = value
-    def get_oem_shutdown(self): return self.oem_shutdown
-    def set_oem_shutdown(self, oem_shutdown): self.oem_shutdown = oem_shutdown
-    def add_oem_shutdown(self, value): self.oem_shutdown.append(value)
-    def insert_oem_shutdown_at(self, index, value): self.oem_shutdown.insert(index, value)
-    def replace_oem_shutdown_at(self, index, value): self.oem_shutdown[index] = value
-    def get_oem_shutdown_interactive(self): return self.oem_shutdown_interactive
-    def set_oem_shutdown_interactive(self, oem_shutdown_interactive): self.oem_shutdown_interactive = oem_shutdown_interactive
-    def add_oem_shutdown_interactive(self, value): self.oem_shutdown_interactive.append(value)
-    def insert_oem_shutdown_interactive_at(self, index, value): self.oem_shutdown_interactive.insert(index, value)
-    def replace_oem_shutdown_interactive_at(self, index, value): self.oem_shutdown_interactive[index] = value
-    def get_oem_silent_boot(self): return self.oem_silent_boot
-    def set_oem_silent_boot(self, oem_silent_boot): self.oem_silent_boot = oem_silent_boot
-    def add_oem_silent_boot(self, value): self.oem_silent_boot.append(value)
-    def insert_oem_silent_boot_at(self, index, value): self.oem_silent_boot.insert(index, value)
-    def replace_oem_silent_boot_at(self, index, value): self.oem_silent_boot[index] = value
-    def get_oem_silent_install(self): return self.oem_silent_install
-    def set_oem_silent_install(self, oem_silent_install): self.oem_silent_install = oem_silent_install
-    def add_oem_silent_install(self, value): self.oem_silent_install.append(value)
-    def insert_oem_silent_install_at(self, index, value): self.oem_silent_install.insert(index, value)
-    def replace_oem_silent_install_at(self, index, value): self.oem_silent_install[index] = value
-    def get_oem_silent_verify(self): return self.oem_silent_verify
-    def set_oem_silent_verify(self, oem_silent_verify): self.oem_silent_verify = oem_silent_verify
-    def add_oem_silent_verify(self, value): self.oem_silent_verify.append(value)
-    def insert_oem_silent_verify_at(self, index, value): self.oem_silent_verify.insert(index, value)
-    def replace_oem_silent_verify_at(self, index, value): self.oem_silent_verify[index] = value
-    def get_oem_skip_verify(self): return self.oem_skip_verify
-    def set_oem_skip_verify(self, oem_skip_verify): self.oem_skip_verify = oem_skip_verify
-    def add_oem_skip_verify(self, value): self.oem_skip_verify.append(value)
-    def insert_oem_skip_verify_at(self, index, value): self.oem_skip_verify.insert(index, value)
-    def replace_oem_skip_verify_at(self, index, value): self.oem_skip_verify[index] = value
-    def get_oem_swap(self): return self.oem_swap
-    def set_oem_swap(self, oem_swap): self.oem_swap = oem_swap
-    def add_oem_swap(self, value): self.oem_swap.append(value)
-    def insert_oem_swap_at(self, index, value): self.oem_swap.insert(index, value)
-    def replace_oem_swap_at(self, index, value): self.oem_swap[index] = value
-    def get_oem_swapsize(self): return self.oem_swapsize
-    def set_oem_swapsize(self, oem_swapsize): self.oem_swapsize = oem_swapsize
-    def add_oem_swapsize(self, value): self.oem_swapsize.append(value)
-    def insert_oem_swapsize_at(self, index, value): self.oem_swapsize.insert(index, value)
-    def replace_oem_swapsize_at(self, index, value): self.oem_swapsize[index] = value
-    def get_oem_swapname(self): return self.oem_swapname
-    def set_oem_swapname(self, oem_swapname): self.oem_swapname = oem_swapname
-    def add_oem_swapname(self, value): self.oem_swapname.append(value)
-    def insert_oem_swapname_at(self, index, value): self.oem_swapname.insert(index, value)
-    def replace_oem_swapname_at(self, index, value): self.oem_swapname[index] = value
-    def get_oem_systemsize(self): return self.oem_systemsize
-    def set_oem_systemsize(self, oem_systemsize): self.oem_systemsize = oem_systemsize
-    def add_oem_systemsize(self, value): self.oem_systemsize.append(value)
-    def insert_oem_systemsize_at(self, index, value): self.oem_systemsize.insert(index, value)
-    def replace_oem_systemsize_at(self, index, value): self.oem_systemsize[index] = value
-    def get_oem_unattended(self): return self.oem_unattended
-    def set_oem_unattended(self, oem_unattended): self.oem_unattended = oem_unattended
-    def add_oem_unattended(self, value): self.oem_unattended.append(value)
-    def insert_oem_unattended_at(self, index, value): self.oem_unattended.insert(index, value)
-    def replace_oem_unattended_at(self, index, value): self.oem_unattended[index] = value
-    def get_oem_unattended_id(self): return self.oem_unattended_id
-    def set_oem_unattended_id(self, oem_unattended_id): self.oem_unattended_id = oem_unattended_id
-    def add_oem_unattended_id(self, value): self.oem_unattended_id.append(value)
-    def insert_oem_unattended_id_at(self, index, value): self.oem_unattended_id.insert(index, value)
-    def replace_oem_unattended_id_at(self, index, value): self.oem_unattended_id[index] = value
+
+    def get_oem_boot_title(self):
+        return self.oem_boot_title
+
+    def set_oem_boot_title(self, oem_boot_title):
+        self.oem_boot_title = oem_boot_title
+
+    def add_oem_boot_title(self, value):
+        self.oem_boot_title.append(value)
+
+    def insert_oem_boot_title_at(self, index, value):
+        self.oem_boot_title.insert(index, value)
+
+    def replace_oem_boot_title_at(self, index, value):
+        self.oem_boot_title[index] = value
+
+    def get_oem_bootwait(self):
+        return self.oem_bootwait
+
+    def set_oem_bootwait(self, oem_bootwait):
+        self.oem_bootwait = oem_bootwait
+
+    def add_oem_bootwait(self, value):
+        self.oem_bootwait.append(value)
+
+    def insert_oem_bootwait_at(self, index, value):
+        self.oem_bootwait.insert(index, value)
+
+    def replace_oem_bootwait_at(self, index, value):
+        self.oem_bootwait[index] = value
+
+    def get_oem_resize(self):
+        return self.oem_resize
+
+    def set_oem_resize(self, oem_resize):
+        self.oem_resize = oem_resize
+
+    def add_oem_resize(self, value):
+        self.oem_resize.append(value)
+
+    def insert_oem_resize_at(self, index, value):
+        self.oem_resize.insert(index, value)
+
+    def replace_oem_resize_at(self, index, value):
+        self.oem_resize[index] = value
+
+    def get_oem_resize_once(self):
+        return self.oem_resize_once
+
+    def set_oem_resize_once(self, oem_resize_once):
+        self.oem_resize_once = oem_resize_once
+
+    def add_oem_resize_once(self, value):
+        self.oem_resize_once.append(value)
+
+    def insert_oem_resize_once_at(self, index, value):
+        self.oem_resize_once.insert(index, value)
+
+    def replace_oem_resize_once_at(self, index, value):
+        self.oem_resize_once[index] = value
+
+    def get_oem_ramdisk_size(self):
+        return self.oem_ramdisk_size
+
+    def set_oem_ramdisk_size(self, oem_ramdisk_size):
+        self.oem_ramdisk_size = oem_ramdisk_size
+
+    def add_oem_ramdisk_size(self, value):
+        self.oem_ramdisk_size.append(value)
+
+    def insert_oem_ramdisk_size_at(self, index, value):
+        self.oem_ramdisk_size.insert(index, value)
+
+    def replace_oem_ramdisk_size_at(self, index, value):
+        self.oem_ramdisk_size[index] = value
+
+    def get_oem_device_filter(self):
+        return self.oem_device_filter
+
+    def set_oem_device_filter(self, oem_device_filter):
+        self.oem_device_filter = oem_device_filter
+
+    def add_oem_device_filter(self, value):
+        self.oem_device_filter.append(value)
+
+    def insert_oem_device_filter_at(self, index, value):
+        self.oem_device_filter.insert(index, value)
+
+    def replace_oem_device_filter_at(self, index, value):
+        self.oem_device_filter[index] = value
+
+    def get_oem_nic_filter(self):
+        return self.oem_nic_filter
+
+    def set_oem_nic_filter(self, oem_nic_filter):
+        self.oem_nic_filter = oem_nic_filter
+
+    def add_oem_nic_filter(self, value):
+        self.oem_nic_filter.append(value)
+
+    def insert_oem_nic_filter_at(self, index, value):
+        self.oem_nic_filter.insert(index, value)
+
+    def replace_oem_nic_filter_at(self, index, value):
+        self.oem_nic_filter[index] = value
+
+    def get_oem_inplace_recovery(self):
+        return self.oem_inplace_recovery
+
+    def set_oem_inplace_recovery(self, oem_inplace_recovery):
+        self.oem_inplace_recovery = oem_inplace_recovery
+
+    def add_oem_inplace_recovery(self, value):
+        self.oem_inplace_recovery.append(value)
+
+    def insert_oem_inplace_recovery_at(self, index, value):
+        self.oem_inplace_recovery.insert(index, value)
+
+    def replace_oem_inplace_recovery_at(self, index, value):
+        self.oem_inplace_recovery[index] = value
+
+    def get_oem_kiwi_initrd(self):
+        return self.oem_kiwi_initrd
+
+    def set_oem_kiwi_initrd(self, oem_kiwi_initrd):
+        self.oem_kiwi_initrd = oem_kiwi_initrd
+
+    def add_oem_kiwi_initrd(self, value):
+        self.oem_kiwi_initrd.append(value)
+
+    def insert_oem_kiwi_initrd_at(self, index, value):
+        self.oem_kiwi_initrd.insert(index, value)
+
+    def replace_oem_kiwi_initrd_at(self, index, value):
+        self.oem_kiwi_initrd[index] = value
+
+    def get_oem_multipath_scan(self):
+        return self.oem_multipath_scan
+
+    def set_oem_multipath_scan(self, oem_multipath_scan):
+        self.oem_multipath_scan = oem_multipath_scan
+
+    def add_oem_multipath_scan(self, value):
+        self.oem_multipath_scan.append(value)
+
+    def insert_oem_multipath_scan_at(self, index, value):
+        self.oem_multipath_scan.insert(index, value)
+
+    def replace_oem_multipath_scan_at(self, index, value):
+        self.oem_multipath_scan[index] = value
+
+    def get_oem_vmcp_parmfile(self):
+        return self.oem_vmcp_parmfile
+
+    def set_oem_vmcp_parmfile(self, oem_vmcp_parmfile):
+        self.oem_vmcp_parmfile = oem_vmcp_parmfile
+
+    def add_oem_vmcp_parmfile(self, value):
+        self.oem_vmcp_parmfile.append(value)
+
+    def insert_oem_vmcp_parmfile_at(self, index, value):
+        self.oem_vmcp_parmfile.insert(index, value)
+
+    def replace_oem_vmcp_parmfile_at(self, index, value):
+        self.oem_vmcp_parmfile[index] = value
+
+    def get_oem_partition_install(self):
+        return self.oem_partition_install
+
+    def set_oem_partition_install(self, oem_partition_install):
+        self.oem_partition_install = oem_partition_install
+
+    def add_oem_partition_install(self, value):
+        self.oem_partition_install.append(value)
+
+    def insert_oem_partition_install_at(self, index, value):
+        self.oem_partition_install.insert(index, value)
+
+    def replace_oem_partition_install_at(self, index, value):
+        self.oem_partition_install[index] = value
+
+    def get_oem_reboot(self):
+        return self.oem_reboot
+
+    def set_oem_reboot(self, oem_reboot):
+        self.oem_reboot = oem_reboot
+
+    def add_oem_reboot(self, value):
+        self.oem_reboot.append(value)
+
+    def insert_oem_reboot_at(self, index, value):
+        self.oem_reboot.insert(index, value)
+
+    def replace_oem_reboot_at(self, index, value):
+        self.oem_reboot[index] = value
+
+    def get_oem_reboot_interactive(self):
+        return self.oem_reboot_interactive
+
+    def set_oem_reboot_interactive(self, oem_reboot_interactive):
+        self.oem_reboot_interactive = oem_reboot_interactive
+
+    def add_oem_reboot_interactive(self, value):
+        self.oem_reboot_interactive.append(value)
+
+    def insert_oem_reboot_interactive_at(self, index, value):
+        self.oem_reboot_interactive.insert(index, value)
+
+    def replace_oem_reboot_interactive_at(self, index, value):
+        self.oem_reboot_interactive[index] = value
+
+    def get_oem_recovery(self):
+        return self.oem_recovery
+
+    def set_oem_recovery(self, oem_recovery):
+        self.oem_recovery = oem_recovery
+
+    def add_oem_recovery(self, value):
+        self.oem_recovery.append(value)
+
+    def insert_oem_recovery_at(self, index, value):
+        self.oem_recovery.insert(index, value)
+
+    def replace_oem_recovery_at(self, index, value):
+        self.oem_recovery[index] = value
+
+    def get_oem_recoveryID(self):
+        return self.oem_recoveryID
+
+    def set_oem_recoveryID(self, oem_recoveryID):
+        self.oem_recoveryID = oem_recoveryID
+
+    def add_oem_recoveryID(self, value):
+        self.oem_recoveryID.append(value)
+
+    def insert_oem_recoveryID_at(self, index, value):
+        self.oem_recoveryID.insert(index, value)
+
+    def replace_oem_recoveryID_at(self, index, value):
+        self.oem_recoveryID[index] = value
+
+    def get_oem_recovery_part_size(self):
+        return self.oem_recovery_part_size
+
+    def set_oem_recovery_part_size(self, oem_recovery_part_size):
+        self.oem_recovery_part_size = oem_recovery_part_size
+
+    def add_oem_recovery_part_size(self, value):
+        self.oem_recovery_part_size.append(value)
+
+    def insert_oem_recovery_part_size_at(self, index, value):
+        self.oem_recovery_part_size.insert(index, value)
+
+    def replace_oem_recovery_part_size_at(self, index, value):
+        self.oem_recovery_part_size[index] = value
+
+    def get_oem_shutdown(self):
+        return self.oem_shutdown
+
+    def set_oem_shutdown(self, oem_shutdown):
+        self.oem_shutdown = oem_shutdown
+
+    def add_oem_shutdown(self, value):
+        self.oem_shutdown.append(value)
+
+    def insert_oem_shutdown_at(self, index, value):
+        self.oem_shutdown.insert(index, value)
+
+    def replace_oem_shutdown_at(self, index, value):
+        self.oem_shutdown[index] = value
+
+    def get_oem_shutdown_interactive(self):
+        return self.oem_shutdown_interactive
+
+    def set_oem_shutdown_interactive(self, oem_shutdown_interactive):
+        self.oem_shutdown_interactive = oem_shutdown_interactive
+
+    def add_oem_shutdown_interactive(self, value):
+        self.oem_shutdown_interactive.append(value)
+
+    def insert_oem_shutdown_interactive_at(self, index, value):
+        self.oem_shutdown_interactive.insert(index, value)
+
+    def replace_oem_shutdown_interactive_at(self, index, value):
+        self.oem_shutdown_interactive[index] = value
+
+    def get_oem_silent_boot(self):
+        return self.oem_silent_boot
+
+    def set_oem_silent_boot(self, oem_silent_boot):
+        self.oem_silent_boot = oem_silent_boot
+
+    def add_oem_silent_boot(self, value):
+        self.oem_silent_boot.append(value)
+
+    def insert_oem_silent_boot_at(self, index, value):
+        self.oem_silent_boot.insert(index, value)
+
+    def replace_oem_silent_boot_at(self, index, value):
+        self.oem_silent_boot[index] = value
+
+    def get_oem_silent_install(self):
+        return self.oem_silent_install
+
+    def set_oem_silent_install(self, oem_silent_install):
+        self.oem_silent_install = oem_silent_install
+
+    def add_oem_silent_install(self, value):
+        self.oem_silent_install.append(value)
+
+    def insert_oem_silent_install_at(self, index, value):
+        self.oem_silent_install.insert(index, value)
+
+    def replace_oem_silent_install_at(self, index, value):
+        self.oem_silent_install[index] = value
+
+    def get_oem_silent_verify(self):
+        return self.oem_silent_verify
+
+    def set_oem_silent_verify(self, oem_silent_verify):
+        self.oem_silent_verify = oem_silent_verify
+
+    def add_oem_silent_verify(self, value):
+        self.oem_silent_verify.append(value)
+
+    def insert_oem_silent_verify_at(self, index, value):
+        self.oem_silent_verify.insert(index, value)
+
+    def replace_oem_silent_verify_at(self, index, value):
+        self.oem_silent_verify[index] = value
+
+    def get_oem_skip_verify(self):
+        return self.oem_skip_verify
+
+    def set_oem_skip_verify(self, oem_skip_verify):
+        self.oem_skip_verify = oem_skip_verify
+
+    def add_oem_skip_verify(self, value):
+        self.oem_skip_verify.append(value)
+
+    def insert_oem_skip_verify_at(self, index, value):
+        self.oem_skip_verify.insert(index, value)
+
+    def replace_oem_skip_verify_at(self, index, value):
+        self.oem_skip_verify[index] = value
+
+    def get_oem_swap(self):
+        return self.oem_swap
+
+    def set_oem_swap(self, oem_swap):
+        self.oem_swap = oem_swap
+
+    def add_oem_swap(self, value):
+        self.oem_swap.append(value)
+
+    def insert_oem_swap_at(self, index, value):
+        self.oem_swap.insert(index, value)
+
+    def replace_oem_swap_at(self, index, value):
+        self.oem_swap[index] = value
+
+    def get_oem_swapsize(self):
+        return self.oem_swapsize
+
+    def set_oem_swapsize(self, oem_swapsize):
+        self.oem_swapsize = oem_swapsize
+
+    def add_oem_swapsize(self, value):
+        self.oem_swapsize.append(value)
+
+    def insert_oem_swapsize_at(self, index, value):
+        self.oem_swapsize.insert(index, value)
+
+    def replace_oem_swapsize_at(self, index, value):
+        self.oem_swapsize[index] = value
+
+    def get_oem_swapname(self):
+        return self.oem_swapname
+
+    def set_oem_swapname(self, oem_swapname):
+        self.oem_swapname = oem_swapname
+
+    def add_oem_swapname(self, value):
+        self.oem_swapname.append(value)
+
+    def insert_oem_swapname_at(self, index, value):
+        self.oem_swapname.insert(index, value)
+
+    def replace_oem_swapname_at(self, index, value):
+        self.oem_swapname[index] = value
+
+    def get_oem_systemsize(self):
+        return self.oem_systemsize
+
+    def set_oem_systemsize(self, oem_systemsize):
+        self.oem_systemsize = oem_systemsize
+
+    def add_oem_systemsize(self, value):
+        self.oem_systemsize.append(value)
+
+    def insert_oem_systemsize_at(self, index, value):
+        self.oem_systemsize.insert(index, value)
+
+    def replace_oem_systemsize_at(self, index, value):
+        self.oem_systemsize[index] = value
+
+    def get_oem_unattended(self):
+        return self.oem_unattended
+
+    def set_oem_unattended(self, oem_unattended):
+        self.oem_unattended = oem_unattended
+
+    def add_oem_unattended(self, value):
+        self.oem_unattended.append(value)
+
+    def insert_oem_unattended_at(self, index, value):
+        self.oem_unattended.insert(index, value)
+
+    def replace_oem_unattended_at(self, index, value):
+        self.oem_unattended[index] = value
+
+    def get_oem_unattended_id(self):
+        return self.oem_unattended_id
+
+    def set_oem_unattended_id(self, oem_unattended_id):
+        self.oem_unattended_id = oem_unattended_id
+
+    def add_oem_unattended_id(self, value):
+        self.oem_unattended_id.append(value)
+
+    def insert_oem_unattended_id_at(self, index, value):
+        self.oem_unattended_id.insert(index, value)
+
+    def replace_oem_unattended_id_at(self, index, value):
+        self.oem_unattended_id[index] = value
+
     def hasContent_(self):
         if (
-            self.oem_boot_title or
-            self.oem_bootwait or
-            self.oem_resize or
-            self.oem_resize_once or
-            self.oem_ramdisk_size or
-            self.oem_device_filter or
-            self.oem_nic_filter or
-            self.oem_inplace_recovery or
-            self.oem_kiwi_initrd or
-            self.oem_multipath_scan or
-            self.oem_vmcp_parmfile or
-            self.oem_partition_install or
-            self.oem_reboot or
-            self.oem_reboot_interactive or
-            self.oem_recovery or
-            self.oem_recoveryID or
-            self.oem_recovery_part_size or
-            self.oem_shutdown or
-            self.oem_shutdown_interactive or
-            self.oem_silent_boot or
-            self.oem_silent_install or
-            self.oem_silent_verify or
-            self.oem_skip_verify or
-            self.oem_swap or
-            self.oem_swapsize or
-            self.oem_swapname or
-            self.oem_systemsize or
-            self.oem_unattended or
-            self.oem_unattended_id
+            self.oem_boot_title
+            or self.oem_bootwait
+            or self.oem_resize
+            or self.oem_resize_once
+            or self.oem_ramdisk_size
+            or self.oem_device_filter
+            or self.oem_nic_filter
+            or self.oem_inplace_recovery
+            or self.oem_kiwi_initrd
+            or self.oem_multipath_scan
+            or self.oem_vmcp_parmfile
+            or self.oem_partition_install
+            or self.oem_reboot
+            or self.oem_reboot_interactive
+            or self.oem_recovery
+            or self.oem_recoveryID
+            or self.oem_recovery_part_size
+            or self.oem_shutdown
+            or self.oem_shutdown_interactive
+            or self.oem_silent_boot
+            or self.oem_silent_install
+            or self.oem_silent_verify
+            or self.oem_skip_verify
+            or self.oem_swap
+            or self.oem_swapsize
+            or self.oem_swapname
+            or self.oem_systemsize
+            or self.oem_unattended
+            or self.oem_unattended_id
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='oemconfig', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='oemconfig',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('oemconfig')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8709,110 +16797,401 @@ class oemconfig(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='oemconfig')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='oemconfig',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='oemconfig', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='oemconfig',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='oemconfig'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='oemconfig',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='oemconfig', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='oemconfig',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for oem_boot_title_ in self.oem_boot_title:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-boot-title>%s</oem-boot-title>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_boot_title_), input_name='oem-boot-title')), eol_))
+            outfile.write(
+                '<oem-boot-title>%s</oem-boot-title>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_boot_title_),
+                            input_name='oem-boot-title',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for oem_bootwait_ in self.oem_bootwait:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-bootwait>%s</oem-bootwait>%s' % (self.gds_format_boolean(oem_bootwait_, input_name='oem-bootwait'), eol_))
+            outfile.write(
+                '<oem-bootwait>%s</oem-bootwait>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_bootwait_, input_name='oem-bootwait'
+                    ),
+                    eol_,
+                )
+            )
         for oem_resize_ in self.oem_resize:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-resize>%s</oem-resize>%s' % (self.gds_format_boolean(oem_resize_, input_name='oem-resize'), eol_))
+            outfile.write(
+                '<oem-resize>%s</oem-resize>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_resize_, input_name='oem-resize'
+                    ),
+                    eol_,
+                )
+            )
         for oem_resize_once_ in self.oem_resize_once:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-resize-once>%s</oem-resize-once>%s' % (self.gds_format_boolean(oem_resize_once_, input_name='oem-resize-once'), eol_))
+            outfile.write(
+                '<oem-resize-once>%s</oem-resize-once>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_resize_once_, input_name='oem-resize-once'
+                    ),
+                    eol_,
+                )
+            )
         for oem_ramdisk_size_ in self.oem_ramdisk_size:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-ramdisk-size>%s</oem-ramdisk-size>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_ramdisk_size_), input_name='oem-ramdisk-size')), eol_))
+            outfile.write(
+                '<oem-ramdisk-size>%s</oem-ramdisk-size>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_ramdisk_size_),
+                            input_name='oem-ramdisk-size',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for oem_device_filter_ in self.oem_device_filter:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-device-filter>%s</oem-device-filter>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), eol_))
+            outfile.write(
+                '<oem-device-filter>%s</oem-device-filter>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_device_filter_),
+                            input_name='oem-device-filter',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for oem_nic_filter_ in self.oem_nic_filter:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-nic-filter>%s</oem-nic-filter>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_nic_filter_), input_name='oem-nic-filter')), eol_))
+            outfile.write(
+                '<oem-nic-filter>%s</oem-nic-filter>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_nic_filter_),
+                            input_name='oem-nic-filter',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for oem_inplace_recovery_ in self.oem_inplace_recovery:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-inplace-recovery>%s</oem-inplace-recovery>%s' % (self.gds_format_boolean(oem_inplace_recovery_, input_name='oem-inplace-recovery'), eol_))
+            outfile.write(
+                '<oem-inplace-recovery>%s</oem-inplace-recovery>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_inplace_recovery_, input_name='oem-inplace-recovery'
+                    ),
+                    eol_,
+                )
+            )
         for oem_kiwi_initrd_ in self.oem_kiwi_initrd:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-kiwi-initrd>%s</oem-kiwi-initrd>%s' % (self.gds_format_boolean(oem_kiwi_initrd_, input_name='oem-kiwi-initrd'), eol_))
+            outfile.write(
+                '<oem-kiwi-initrd>%s</oem-kiwi-initrd>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_kiwi_initrd_, input_name='oem-kiwi-initrd'
+                    ),
+                    eol_,
+                )
+            )
         for oem_multipath_scan_ in self.oem_multipath_scan:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-multipath-scan>%s</oem-multipath-scan>%s' % (self.gds_format_boolean(oem_multipath_scan_, input_name='oem-multipath-scan'), eol_))
+            outfile.write(
+                '<oem-multipath-scan>%s</oem-multipath-scan>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_multipath_scan_, input_name='oem-multipath-scan'
+                    ),
+                    eol_,
+                )
+            )
         for oem_vmcp_parmfile_ in self.oem_vmcp_parmfile:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-vmcp-parmfile>%s</oem-vmcp-parmfile>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_vmcp_parmfile_), input_name='oem-vmcp-parmfile')), eol_))
+            outfile.write(
+                '<oem-vmcp-parmfile>%s</oem-vmcp-parmfile>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_vmcp_parmfile_),
+                            input_name='oem-vmcp-parmfile',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for oem_partition_install_ in self.oem_partition_install:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-partition-install>%s</oem-partition-install>%s' % (self.gds_format_boolean(oem_partition_install_, input_name='oem-partition-install'), eol_))
+            outfile.write(
+                '<oem-partition-install>%s</oem-partition-install>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_partition_install_,
+                        input_name='oem-partition-install',
+                    ),
+                    eol_,
+                )
+            )
         for oem_reboot_ in self.oem_reboot:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-reboot>%s</oem-reboot>%s' % (self.gds_format_boolean(oem_reboot_, input_name='oem-reboot'), eol_))
+            outfile.write(
+                '<oem-reboot>%s</oem-reboot>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_reboot_, input_name='oem-reboot'
+                    ),
+                    eol_,
+                )
+            )
         for oem_reboot_interactive_ in self.oem_reboot_interactive:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-reboot-interactive>%s</oem-reboot-interactive>%s' % (self.gds_format_boolean(oem_reboot_interactive_, input_name='oem-reboot-interactive'), eol_))
+            outfile.write(
+                '<oem-reboot-interactive>%s</oem-reboot-interactive>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_reboot_interactive_,
+                        input_name='oem-reboot-interactive',
+                    ),
+                    eol_,
+                )
+            )
         for oem_recovery_ in self.oem_recovery:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-recovery>%s</oem-recovery>%s' % (self.gds_format_boolean(oem_recovery_, input_name='oem-recovery'), eol_))
+            outfile.write(
+                '<oem-recovery>%s</oem-recovery>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_recovery_, input_name='oem-recovery'
+                    ),
+                    eol_,
+                )
+            )
         for oem_recoveryID_ in self.oem_recoveryID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-recoveryID>%s</oem-recoveryID>%s' % (self.gds_format_integer(oem_recoveryID_, input_name='oem-recoveryID'), eol_))
+            outfile.write(
+                '<oem-recoveryID>%s</oem-recoveryID>%s'
+                % (
+                    self.gds_format_integer(
+                        oem_recoveryID_, input_name='oem-recoveryID'
+                    ),
+                    eol_,
+                )
+            )
         for oem_recovery_part_size_ in self.oem_recovery_part_size:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-recovery-part-size>%s</oem-recovery-part-size>%s' % (self.gds_format_integer(oem_recovery_part_size_, input_name='oem-recovery-part-size'), eol_))
+            outfile.write(
+                '<oem-recovery-part-size>%s</oem-recovery-part-size>%s'
+                % (
+                    self.gds_format_integer(
+                        oem_recovery_part_size_,
+                        input_name='oem-recovery-part-size',
+                    ),
+                    eol_,
+                )
+            )
         for oem_shutdown_ in self.oem_shutdown:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-shutdown>%s</oem-shutdown>%s' % (self.gds_format_boolean(oem_shutdown_, input_name='oem-shutdown'), eol_))
+            outfile.write(
+                '<oem-shutdown>%s</oem-shutdown>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_shutdown_, input_name='oem-shutdown'
+                    ),
+                    eol_,
+                )
+            )
         for oem_shutdown_interactive_ in self.oem_shutdown_interactive:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-shutdown-interactive>%s</oem-shutdown-interactive>%s' % (self.gds_format_boolean(oem_shutdown_interactive_, input_name='oem-shutdown-interactive'), eol_))
+            outfile.write(
+                '<oem-shutdown-interactive>%s</oem-shutdown-interactive>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_shutdown_interactive_,
+                        input_name='oem-shutdown-interactive',
+                    ),
+                    eol_,
+                )
+            )
         for oem_silent_boot_ in self.oem_silent_boot:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-silent-boot>%s</oem-silent-boot>%s' % (self.gds_format_boolean(oem_silent_boot_, input_name='oem-silent-boot'), eol_))
+            outfile.write(
+                '<oem-silent-boot>%s</oem-silent-boot>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_silent_boot_, input_name='oem-silent-boot'
+                    ),
+                    eol_,
+                )
+            )
         for oem_silent_install_ in self.oem_silent_install:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-silent-install>%s</oem-silent-install>%s' % (self.gds_format_boolean(oem_silent_install_, input_name='oem-silent-install'), eol_))
+            outfile.write(
+                '<oem-silent-install>%s</oem-silent-install>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_silent_install_, input_name='oem-silent-install'
+                    ),
+                    eol_,
+                )
+            )
         for oem_silent_verify_ in self.oem_silent_verify:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-silent-verify>%s</oem-silent-verify>%s' % (self.gds_format_boolean(oem_silent_verify_, input_name='oem-silent-verify'), eol_))
+            outfile.write(
+                '<oem-silent-verify>%s</oem-silent-verify>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_silent_verify_, input_name='oem-silent-verify'
+                    ),
+                    eol_,
+                )
+            )
         for oem_skip_verify_ in self.oem_skip_verify:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-skip-verify>%s</oem-skip-verify>%s' % (self.gds_format_boolean(oem_skip_verify_, input_name='oem-skip-verify'), eol_))
+            outfile.write(
+                '<oem-skip-verify>%s</oem-skip-verify>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_skip_verify_, input_name='oem-skip-verify'
+                    ),
+                    eol_,
+                )
+            )
         for oem_swap_ in self.oem_swap:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-swap>%s</oem-swap>%s' % (self.gds_format_boolean(oem_swap_, input_name='oem-swap'), eol_))
+            outfile.write(
+                '<oem-swap>%s</oem-swap>%s'
+                % (
+                    self.gds_format_boolean(oem_swap_, input_name='oem-swap'),
+                    eol_,
+                )
+            )
         for oem_swapsize_ in self.oem_swapsize:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-swapsize>%s</oem-swapsize>%s' % (self.gds_format_integer(oem_swapsize_, input_name='oem-swapsize'), eol_))
+            outfile.write(
+                '<oem-swapsize>%s</oem-swapsize>%s'
+                % (
+                    self.gds_format_integer(
+                        oem_swapsize_, input_name='oem-swapsize'
+                    ),
+                    eol_,
+                )
+            )
         for oem_swapname_ in self.oem_swapname:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-swapname>%s</oem-swapname>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_swapname_), input_name='oem-swapname')), eol_))
+            outfile.write(
+                '<oem-swapname>%s</oem-swapname>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_swapname_), input_name='oem-swapname'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for oem_systemsize_ in self.oem_systemsize:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-systemsize>%s</oem-systemsize>%s' % (self.gds_format_integer(oem_systemsize_, input_name='oem-systemsize'), eol_))
+            outfile.write(
+                '<oem-systemsize>%s</oem-systemsize>%s'
+                % (
+                    self.gds_format_integer(
+                        oem_systemsize_, input_name='oem-systemsize'
+                    ),
+                    eol_,
+                )
+            )
         for oem_unattended_ in self.oem_unattended:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-unattended>%s</oem-unattended>%s' % (self.gds_format_boolean(oem_unattended_, input_name='oem-unattended'), eol_))
+            outfile.write(
+                '<oem-unattended>%s</oem-unattended>%s'
+                % (
+                    self.gds_format_boolean(
+                        oem_unattended_, input_name='oem-unattended'
+                    ),
+                    eol_,
+                )
+            )
         for oem_unattended_id_ in self.oem_unattended_id:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<oem-unattended-id>%s</oem-unattended-id>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_unattended_id_), input_name='oem-unattended-id')), eol_))
+            outfile.write(
+                '<oem-unattended-id>%s</oem-unattended-id>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(oem_unattended_id_),
+                            input_name='oem-unattended-id',
+                        )
+                    ),
+                    eol_,
+                )
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8820,12 +17199,16 @@ class oemconfig(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'oem-boot-title':
             oem_boot_title_ = child_.text
-            oem_boot_title_ = self.gds_validate_string(oem_boot_title_, node, 'oem_boot_title')
+            oem_boot_title_ = self.gds_validate_string(
+                oem_boot_title_, node, 'oem_boot_title'
+            )
             self.oem_boot_title.append(oem_boot_title_)
         elif nodeName_ == 'oem-bootwait':
             sval_ = child_.text
@@ -8859,15 +17242,21 @@ class oemconfig(GeneratedsSuper):
             self.oem_resize_once.append(ival_)
         elif nodeName_ == 'oem-ramdisk-size':
             oem_ramdisk_size_ = child_.text
-            oem_ramdisk_size_ = self.gds_validate_string(oem_ramdisk_size_, node, 'oem_ramdisk_size')
+            oem_ramdisk_size_ = self.gds_validate_string(
+                oem_ramdisk_size_, node, 'oem_ramdisk_size'
+            )
             self.oem_ramdisk_size.append(oem_ramdisk_size_)
         elif nodeName_ == 'oem-device-filter':
             oem_device_filter_ = child_.text
-            oem_device_filter_ = self.gds_validate_string(oem_device_filter_, node, 'oem_device_filter')
+            oem_device_filter_ = self.gds_validate_string(
+                oem_device_filter_, node, 'oem_device_filter'
+            )
             self.oem_device_filter.append(oem_device_filter_)
         elif nodeName_ == 'oem-nic-filter':
             oem_nic_filter_ = child_.text
-            oem_nic_filter_ = self.gds_validate_string(oem_nic_filter_, node, 'oem_nic_filter')
+            oem_nic_filter_ = self.gds_validate_string(
+                oem_nic_filter_, node, 'oem_nic_filter'
+            )
             self.oem_nic_filter.append(oem_nic_filter_)
         elif nodeName_ == 'oem-inplace-recovery':
             sval_ = child_.text
@@ -8877,7 +17266,9 @@ class oemconfig(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'oem_inplace_recovery')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'oem_inplace_recovery'
+            )
             self.oem_inplace_recovery.append(ival_)
         elif nodeName_ == 'oem-kiwi-initrd':
             sval_ = child_.text
@@ -8901,7 +17292,9 @@ class oemconfig(GeneratedsSuper):
             self.oem_multipath_scan.append(ival_)
         elif nodeName_ == 'oem-vmcp-parmfile':
             oem_vmcp_parmfile_ = child_.text
-            oem_vmcp_parmfile_ = self.gds_validate_string(oem_vmcp_parmfile_, node, 'oem_vmcp_parmfile')
+            oem_vmcp_parmfile_ = self.gds_validate_string(
+                oem_vmcp_parmfile_, node, 'oem_vmcp_parmfile'
+            )
             self.oem_vmcp_parmfile.append(oem_vmcp_parmfile_)
         elif nodeName_ == 'oem-partition-install':
             sval_ = child_.text
@@ -8911,7 +17304,9 @@ class oemconfig(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'oem_partition_install')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'oem_partition_install'
+            )
             self.oem_partition_install.append(ival_)
         elif nodeName_ == 'oem-reboot':
             sval_ = child_.text
@@ -8931,7 +17326,9 @@ class oemconfig(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'oem_reboot_interactive')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'oem_reboot_interactive'
+            )
             self.oem_reboot_interactive.append(ival_)
         elif nodeName_ == 'oem-recovery':
             sval_ = child_.text
@@ -8961,7 +17358,9 @@ class oemconfig(GeneratedsSuper):
                 raise_parse_error(child_, 'requires integer: %s' % exp)
             if ival_ < 0:
                 raise_parse_error(child_, 'requires nonNegativeInteger')
-            ival_ = self.gds_validate_integer(ival_, node, 'oem_recovery_part_size')
+            ival_ = self.gds_validate_integer(
+                ival_, node, 'oem_recovery_part_size'
+            )
             self.oem_recovery_part_size.append(ival_)
         elif nodeName_ == 'oem-shutdown':
             sval_ = child_.text
@@ -8981,7 +17380,9 @@ class oemconfig(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'oem_shutdown_interactive')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'oem_shutdown_interactive'
+            )
             self.oem_shutdown_interactive.append(ival_)
         elif nodeName_ == 'oem-silent-boot':
             sval_ = child_.text
@@ -9045,7 +17446,9 @@ class oemconfig(GeneratedsSuper):
             self.oem_swapsize.append(ival_)
         elif nodeName_ == 'oem-swapname':
             oem_swapname_ = child_.text
-            oem_swapname_ = self.gds_validate_string(oem_swapname_, node, 'oem_swapname')
+            oem_swapname_ = self.gds_validate_string(
+                oem_swapname_, node, 'oem_swapname'
+            )
             self.oem_swapname.append(oem_swapname_)
         elif nodeName_ == 'oem-systemsize' and child_.text:
             sval_ = child_.text
@@ -9069,52 +17472,102 @@ class oemconfig(GeneratedsSuper):
             self.oem_unattended.append(ival_)
         elif nodeName_ == 'oem-unattended-id':
             oem_unattended_id_ = child_.text
-            oem_unattended_id_ = self.gds_validate_string(oem_unattended_id_, node, 'oem_unattended_id')
+            oem_unattended_id_ = self.gds_validate_string(
+                oem_unattended_id_, node, 'oem_unattended_id'
+            )
             self.oem_unattended_id.append(oem_unattended_id_)
+
+
 # end class oemconfig
 
 
 class vagrantconfig(GeneratedsSuper):
     """The vagrantconfig element specifies the Vagrant meta configuration
     options which are used inside a vagrant box"""
+
     subclass = None
     superclass = None
-    def __init__(self, provider=None, virtualsize=None, boxname=None, virtualbox_guest_additions_present=None, embedded_vagrantfile=None):
+
+    def __init__(
+        self,
+        provider=None,
+        virtualsize=None,
+        boxname=None,
+        virtualbox_guest_additions_present=None,
+        embedded_vagrantfile=None,
+    ):
         self.original_tagname_ = None
         self.provider = _cast(None, provider)
         self.virtualsize = _cast(int, virtualsize)
         self.boxname = _cast(None, boxname)
-        self.virtualbox_guest_additions_present = _cast(bool, virtualbox_guest_additions_present)
+        self.virtualbox_guest_additions_present = _cast(
+            bool, virtualbox_guest_additions_present
+        )
         self.embedded_vagrantfile = _cast(None, embedded_vagrantfile)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, vagrantconfig)
+                CurrentSubclassModule_, vagrantconfig
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if vagrantconfig.subclass:
             return vagrantconfig.subclass(*args_, **kwargs_)
         else:
             return vagrantconfig(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_provider(self): return self.provider
-    def set_provider(self, provider): self.provider = provider
-    def get_virtualsize(self): return self.virtualsize
-    def set_virtualsize(self, virtualsize): self.virtualsize = virtualsize
-    def get_boxname(self): return self.boxname
-    def set_boxname(self, boxname): self.boxname = boxname
-    def get_virtualbox_guest_additions_present(self): return self.virtualbox_guest_additions_present
-    def set_virtualbox_guest_additions_present(self, virtualbox_guest_additions_present): self.virtualbox_guest_additions_present = virtualbox_guest_additions_present
-    def get_embedded_vagrantfile(self): return self.embedded_vagrantfile
-    def set_embedded_vagrantfile(self, embedded_vagrantfile): self.embedded_vagrantfile = embedded_vagrantfile
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_provider(self):
+        return self.provider
+
+    def set_provider(self, provider):
+        self.provider = provider
+
+    def get_virtualsize(self):
+        return self.virtualsize
+
+    def set_virtualsize(self, virtualsize):
+        self.virtualsize = virtualsize
+
+    def get_boxname(self):
+        return self.boxname
+
+    def set_boxname(self, boxname):
+        self.boxname = boxname
+
+    def get_virtualbox_guest_additions_present(self):
+        return self.virtualbox_guest_additions_present
+
+    def set_virtualbox_guest_additions_present(
+        self, virtualbox_guest_additions_present
+    ):
+        self.virtualbox_guest_additions_present = (
+            virtualbox_guest_additions_present
+        )
+
+    def get_embedded_vagrantfile(self):
+        return self.embedded_vagrantfile
+
+    def set_embedded_vagrantfile(self, embedded_vagrantfile):
+        self.embedded_vagrantfile = embedded_vagrantfile
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='vagrantconfig', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vagrantconfig',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('vagrantconfig')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9125,33 +17578,118 @@ class vagrantconfig(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='vagrantconfig')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='vagrantconfig',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='vagrantconfig', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='vagrantconfig',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='vagrantconfig'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='vagrantconfig',
+    ):
         if self.provider is not None and 'provider' not in already_processed:
             already_processed.add('provider')
-            outfile.write(' provider=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.provider), input_name='provider')), ))
-        if self.virtualsize is not None and 'virtualsize' not in already_processed:
+            outfile.write(
+                ' provider=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.provider), input_name='provider'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.virtualsize is not None
+            and 'virtualsize' not in already_processed
+        ):
             already_processed.add('virtualsize')
-            outfile.write(' virtualsize="%s"' % self.gds_format_integer(self.virtualsize, input_name='virtualsize'))
+            outfile.write(
+                ' virtualsize="%s"'
+                % self.gds_format_integer(
+                    self.virtualsize, input_name='virtualsize'
+                )
+            )
         if self.boxname is not None and 'boxname' not in already_processed:
             already_processed.add('boxname')
-            outfile.write(' boxname=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.boxname), input_name='boxname')), ))
-        if self.virtualbox_guest_additions_present is not None and 'virtualbox_guest_additions_present' not in already_processed:
+            outfile.write(
+                ' boxname=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.boxname), input_name='boxname'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.virtualbox_guest_additions_present is not None
+            and 'virtualbox_guest_additions_present' not in already_processed
+        ):
             already_processed.add('virtualbox_guest_additions_present')
-            outfile.write(' virtualbox_guest_additions_present="%s"' % self.gds_format_boolean(self.virtualbox_guest_additions_present, input_name='virtualbox_guest_additions_present'))
-        if self.embedded_vagrantfile is not None and 'embedded_vagrantfile' not in already_processed:
+            outfile.write(
+                ' virtualbox_guest_additions_present="%s"'
+                % self.gds_format_boolean(
+                    self.virtualbox_guest_additions_present,
+                    input_name='virtualbox_guest_additions_present',
+                )
+            )
+        if (
+            self.embedded_vagrantfile is not None
+            and 'embedded_vagrantfile' not in already_processed
+        ):
             already_processed.add('embedded_vagrantfile')
-            outfile.write(' embedded_vagrantfile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.embedded_vagrantfile), input_name='embedded_vagrantfile')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='vagrantconfig', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' embedded_vagrantfile=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.embedded_vagrantfile),
+                            input_name='embedded_vagrantfile',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='vagrantconfig',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9159,6 +17697,7 @@ class vagrantconfig(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('provider', node)
         if value is not None and 'provider' not in already_processed:
@@ -9179,7 +17718,10 @@ class vagrantconfig(GeneratedsSuper):
             already_processed.add('boxname')
             self.boxname = value
         value = find_attr_value_('virtualbox_guest_additions_present', node)
-        if value is not None and 'virtualbox_guest_additions_present' not in already_processed:
+        if (
+            value is not None
+            and 'virtualbox_guest_additions_present' not in already_processed
+        ):
             already_processed.add('virtualbox_guest_additions_present')
             if value in ('true', '1'):
                 self.virtualbox_guest_additions_present = True
@@ -9188,49 +17730,78 @@ class vagrantconfig(GeneratedsSuper):
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('embedded_vagrantfile', node)
-        if value is not None and 'embedded_vagrantfile' not in already_processed:
+        if (
+            value is not None
+            and 'embedded_vagrantfile' not in already_processed
+        ):
             already_processed.add('embedded_vagrantfile')
             self.embedded_vagrantfile = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class vagrantconfig
 
 
 class installmedia(GeneratedsSuper):
     """The installmedia element defined the configuration parameters for
     the installation media of OEM images."""
+
     subclass = None
     superclass = None
+
     def __init__(self, initrd=None):
         self.original_tagname_ = None
         if initrd is None:
             self.initrd = []
         else:
             self.initrd = initrd
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, installmedia)
+                CurrentSubclassModule_, installmedia
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if installmedia.subclass:
             return installmedia.subclass(*args_, **kwargs_)
         else:
             return installmedia(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_initrd(self): return self.initrd
-    def set_initrd(self, initrd): self.initrd = initrd
-    def add_initrd(self, value): self.initrd.append(value)
-    def insert_initrd_at(self, index, value): self.initrd.insert(index, value)
-    def replace_initrd_at(self, index, value): self.initrd[index] = value
+
+    def get_initrd(self):
+        return self.initrd
+
+    def set_initrd(self, initrd):
+        self.initrd = initrd
+
+    def add_initrd(self, value):
+        self.initrd.append(value)
+
+    def insert_initrd_at(self, index, value):
+        self.initrd.insert(index, value)
+
+    def replace_initrd_at(self, index, value):
+        self.initrd[index] = value
+
     def hasContent_(self):
-        if (
-            self.initrd
-        ):
+        if self.initrd:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='installmedia', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='installmedia',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('installmedia')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9241,25 +17812,68 @@ class installmedia(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='installmedia')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='installmedia',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='installmedia', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='installmedia',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='installmedia'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='installmedia',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='installmedia', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='installmedia',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for initrd_ in self.initrd:
-            initrd_.export(outfile, level, namespaceprefix_, name_='initrd', pretty_print=pretty_print)
+            initrd_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='initrd',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9267,22 +17881,28 @@ class installmedia(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'initrd':
             obj_ = initrd.factory()
             obj_.build(child_)
             self.initrd.append(obj_)
             obj_.original_tagname_ = 'initrd'
+
+
 # end class installmedia
 
 
 class initrd(GeneratedsSuper):
     """The initrd element defines the dracut modules configuration for the
     installation media."""
+
     subclass = None
     superclass = None
+
     def __init__(self, action=None, dracut=None):
         self.original_tagname_ = None
         self.action = _cast(None, action)
@@ -9290,32 +17910,55 @@ class initrd(GeneratedsSuper):
             self.dracut = []
         else:
             self.dracut = dracut
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, initrd)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, initrd)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if initrd.subclass:
             return initrd.subclass(*args_, **kwargs_)
         else:
             return initrd(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_dracut(self): return self.dracut
-    def set_dracut(self, dracut): self.dracut = dracut
-    def add_dracut(self, value): self.dracut.append(value)
-    def insert_dracut_at(self, index, value): self.dracut.insert(index, value)
-    def replace_dracut_at(self, index, value): self.dracut[index] = value
-    def get_action(self): return self.action
-    def set_action(self, action): self.action = action
+
+    def get_dracut(self):
+        return self.dracut
+
+    def set_dracut(self, dracut):
+        self.dracut = dracut
+
+    def add_dracut(self, value):
+        self.dracut.append(value)
+
+    def insert_dracut_at(self, index, value):
+        self.dracut.insert(index, value)
+
+    def replace_dracut_at(self, index, value):
+        self.dracut[index] = value
+
+    def get_action(self):
+        return self.action
+
+    def set_action(self, action):
+        self.action = action
+
     def hasContent_(self):
-        if (
-            self.dracut
-        ):
+        if self.dracut:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='initrd', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='initrd',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('initrd')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9326,27 +17969,75 @@ class initrd(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='initrd')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='initrd'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='initrd', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='initrd',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='initrd'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='initrd',
+    ):
         if self.action is not None and 'action' not in already_processed:
             already_processed.add('action')
-            outfile.write(' action=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.action), input_name='action')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='initrd', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' action=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.action), input_name='action'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='initrd',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for dracut_ in self.dracut:
-            dracut_.export(outfile, level, namespaceprefix_, name_='dracut', pretty_print=pretty_print)
+            dracut_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='dracut',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9354,55 +18045,82 @@ class initrd(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('action', node)
         if value is not None and 'action' not in already_processed:
             already_processed.add('action')
             self.action = value
             self.action = ' '.join(self.action.split())
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'dracut':
             obj_ = dracut.factory()
             obj_.build(child_)
             self.dracut.append(obj_)
             obj_.original_tagname_ = 'dracut'
+
+
 # end class initrd
 
 
 class dracut(GeneratedsSuper):
     """A dracut module"""
+
     subclass = None
     superclass = None
+
     def __init__(self, module=None, driver=None, uefi=None):
         self.original_tagname_ = None
         self.module = _cast(None, module)
         self.driver = _cast(None, driver)
         self.uefi = _cast(bool, uefi)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, dracut)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, dracut)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if dracut.subclass:
             return dracut.subclass(*args_, **kwargs_)
         else:
             return dracut(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_module(self): return self.module
-    def set_module(self, module): self.module = module
-    def get_driver(self): return self.driver
-    def set_driver(self, driver): self.driver = driver
-    def get_uefi(self): return self.uefi
-    def set_uefi(self, uefi): self.uefi = uefi
-    def hasContent_(self):
-        if (
 
-        ):
+    factory = staticmethod(factory)
+
+    def get_module(self):
+        return self.module
+
+    def set_module(self, module):
+        self.module = module
+
+    def get_driver(self):
+        return self.driver
+
+    def set_driver(self, driver):
+        self.driver = driver
+
+    def get_uefi(self):
+        return self.uefi
+
+    def set_uefi(self, uefi):
+        self.uefi = uefi
+
+    def hasContent_(self):
+        if ():
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='dracut', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='dracut',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('dracut')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9413,27 +18131,81 @@ class dracut(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='dracut')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='dracut'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='dracut', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='dracut',
+                pretty_print=pretty_print,
+            )
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='dracut'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='dracut',
+    ):
         if self.module is not None and 'module' not in already_processed:
             already_processed.add('module')
-            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+            outfile.write(
+                ' module=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.module), input_name='module'
+                        )
+                    ),
+                )
+            )
         if self.driver is not None and 'driver' not in already_processed:
             already_processed.add('driver')
-            outfile.write(' driver=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.driver), input_name='driver')), ))
+            outfile.write(
+                ' driver=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.driver), input_name='driver'
+                        )
+                    ),
+                )
+            )
         if self.uefi is not None and 'uefi' not in already_processed:
             already_processed.add('uefi')
-            outfile.write(' uefi="%s"' % self.gds_format_boolean(self.uefi, input_name='uefi'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='dracut', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' uefi="%s"'
+                % self.gds_format_boolean(self.uefi, input_name='uefi')
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='dracut',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9441,6 +18213,7 @@ class dracut(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('module', node)
         if value is not None and 'module' not in already_processed:
@@ -9459,17 +18232,39 @@ class dracut(GeneratedsSuper):
                 self.uefi = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class dracut
 
 
 class machine(GeneratedsSuper):
     """The machine element specifies VM guest configuration options which
     are used by the virtual machine when running the image."""
+
     subclass = None
     superclass = None
-    def __init__(self, min_memory=None, max_memory=None, min_cpu=None, max_cpu=None, ovftype=None, HWversion=None, arch=None, xen_loader=None, guestOS=None, memory=None, ncpus=None, vmconfig_entry=None, vmdisk=None, vmdvd=None, vmnic=None):
+
+    def __init__(
+        self,
+        min_memory=None,
+        max_memory=None,
+        min_cpu=None,
+        max_cpu=None,
+        ovftype=None,
+        HWversion=None,
+        arch=None,
+        xen_loader=None,
+        guestOS=None,
+        memory=None,
+        ncpus=None,
+        vmconfig_entry=None,
+        vmdisk=None,
+        vmdvd=None,
+        vmnic=None,
+    ):
         self.original_tagname_ = None
         self.min_memory = _cast(int, min_memory)
         self.max_memory = _cast(int, max_memory)
@@ -9498,70 +18293,160 @@ class machine(GeneratedsSuper):
             self.vmnic = []
         else:
             self.vmnic = vmnic
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, machine)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, machine)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if machine.subclass:
             return machine.subclass(*args_, **kwargs_)
         else:
             return machine(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_vmconfig_entry(self): return self.vmconfig_entry
-    def set_vmconfig_entry(self, vmconfig_entry): self.vmconfig_entry = vmconfig_entry
-    def add_vmconfig_entry(self, value): self.vmconfig_entry.append(value)
-    def insert_vmconfig_entry_at(self, index, value): self.vmconfig_entry.insert(index, value)
-    def replace_vmconfig_entry_at(self, index, value): self.vmconfig_entry[index] = value
-    def get_vmdisk(self): return self.vmdisk
-    def set_vmdisk(self, vmdisk): self.vmdisk = vmdisk
-    def add_vmdisk(self, value): self.vmdisk.append(value)
-    def insert_vmdisk_at(self, index, value): self.vmdisk.insert(index, value)
-    def replace_vmdisk_at(self, index, value): self.vmdisk[index] = value
-    def get_vmdvd(self): return self.vmdvd
-    def set_vmdvd(self, vmdvd): self.vmdvd = vmdvd
-    def add_vmdvd(self, value): self.vmdvd.append(value)
-    def insert_vmdvd_at(self, index, value): self.vmdvd.insert(index, value)
-    def replace_vmdvd_at(self, index, value): self.vmdvd[index] = value
-    def get_vmnic(self): return self.vmnic
-    def set_vmnic(self, vmnic): self.vmnic = vmnic
-    def add_vmnic(self, value): self.vmnic.append(value)
-    def insert_vmnic_at(self, index, value): self.vmnic.insert(index, value)
-    def replace_vmnic_at(self, index, value): self.vmnic[index] = value
-    def get_min_memory(self): return self.min_memory
-    def set_min_memory(self, min_memory): self.min_memory = min_memory
-    def get_max_memory(self): return self.max_memory
-    def set_max_memory(self, max_memory): self.max_memory = max_memory
-    def get_min_cpu(self): return self.min_cpu
-    def set_min_cpu(self, min_cpu): self.min_cpu = min_cpu
-    def get_max_cpu(self): return self.max_cpu
-    def set_max_cpu(self, max_cpu): self.max_cpu = max_cpu
-    def get_ovftype(self): return self.ovftype
-    def set_ovftype(self, ovftype): self.ovftype = ovftype
-    def get_HWversion(self): return self.HWversion
-    def set_HWversion(self, HWversion): self.HWversion = HWversion
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
-    def get_xen_loader(self): return self.xen_loader
-    def set_xen_loader(self, xen_loader): self.xen_loader = xen_loader
-    def get_guestOS(self): return self.guestOS
-    def set_guestOS(self, guestOS): self.guestOS = guestOS
-    def get_memory(self): return self.memory
-    def set_memory(self, memory): self.memory = memory
-    def get_ncpus(self): return self.ncpus
-    def set_ncpus(self, ncpus): self.ncpus = ncpus
+
+    def get_vmconfig_entry(self):
+        return self.vmconfig_entry
+
+    def set_vmconfig_entry(self, vmconfig_entry):
+        self.vmconfig_entry = vmconfig_entry
+
+    def add_vmconfig_entry(self, value):
+        self.vmconfig_entry.append(value)
+
+    def insert_vmconfig_entry_at(self, index, value):
+        self.vmconfig_entry.insert(index, value)
+
+    def replace_vmconfig_entry_at(self, index, value):
+        self.vmconfig_entry[index] = value
+
+    def get_vmdisk(self):
+        return self.vmdisk
+
+    def set_vmdisk(self, vmdisk):
+        self.vmdisk = vmdisk
+
+    def add_vmdisk(self, value):
+        self.vmdisk.append(value)
+
+    def insert_vmdisk_at(self, index, value):
+        self.vmdisk.insert(index, value)
+
+    def replace_vmdisk_at(self, index, value):
+        self.vmdisk[index] = value
+
+    def get_vmdvd(self):
+        return self.vmdvd
+
+    def set_vmdvd(self, vmdvd):
+        self.vmdvd = vmdvd
+
+    def add_vmdvd(self, value):
+        self.vmdvd.append(value)
+
+    def insert_vmdvd_at(self, index, value):
+        self.vmdvd.insert(index, value)
+
+    def replace_vmdvd_at(self, index, value):
+        self.vmdvd[index] = value
+
+    def get_vmnic(self):
+        return self.vmnic
+
+    def set_vmnic(self, vmnic):
+        self.vmnic = vmnic
+
+    def add_vmnic(self, value):
+        self.vmnic.append(value)
+
+    def insert_vmnic_at(self, index, value):
+        self.vmnic.insert(index, value)
+
+    def replace_vmnic_at(self, index, value):
+        self.vmnic[index] = value
+
+    def get_min_memory(self):
+        return self.min_memory
+
+    def set_min_memory(self, min_memory):
+        self.min_memory = min_memory
+
+    def get_max_memory(self):
+        return self.max_memory
+
+    def set_max_memory(self, max_memory):
+        self.max_memory = max_memory
+
+    def get_min_cpu(self):
+        return self.min_cpu
+
+    def set_min_cpu(self, min_cpu):
+        self.min_cpu = min_cpu
+
+    def get_max_cpu(self):
+        return self.max_cpu
+
+    def set_max_cpu(self, max_cpu):
+        self.max_cpu = max_cpu
+
+    def get_ovftype(self):
+        return self.ovftype
+
+    def set_ovftype(self, ovftype):
+        self.ovftype = ovftype
+
+    def get_HWversion(self):
+        return self.HWversion
+
+    def set_HWversion(self, HWversion):
+        self.HWversion = HWversion
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
+    def get_xen_loader(self):
+        return self.xen_loader
+
+    def set_xen_loader(self, xen_loader):
+        self.xen_loader = xen_loader
+
+    def get_guestOS(self):
+        return self.guestOS
+
+    def set_guestOS(self, guestOS):
+        self.guestOS = guestOS
+
+    def get_memory(self):
+        return self.memory
+
+    def set_memory(self, memory):
+        self.memory = memory
+
+    def get_ncpus(self):
+        return self.ncpus
+
+    def set_ncpus(self, ncpus):
+        self.ncpus = ncpus
+
     def hasContent_(self):
-        if (
-            self.vmconfig_entry or
-            self.vmdisk or
-            self.vmdvd or
-            self.vmnic
-        ):
+        if self.vmconfig_entry or self.vmdisk or self.vmdvd or self.vmnic:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='machine', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='machine',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('machine')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9572,64 +18457,199 @@ class machine(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='machine')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='machine'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='machine', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='machine',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='machine'):
-        if self.min_memory is not None and 'min_memory' not in already_processed:
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='machine',
+    ):
+        if (
+            self.min_memory is not None
+            and 'min_memory' not in already_processed
+        ):
             already_processed.add('min_memory')
-            outfile.write(' min_memory="%s"' % self.gds_format_integer(self.min_memory, input_name='min_memory'))
-        if self.max_memory is not None and 'max_memory' not in already_processed:
+            outfile.write(
+                ' min_memory="%s"'
+                % self.gds_format_integer(
+                    self.min_memory, input_name='min_memory'
+                )
+            )
+        if (
+            self.max_memory is not None
+            and 'max_memory' not in already_processed
+        ):
             already_processed.add('max_memory')
-            outfile.write(' max_memory="%s"' % self.gds_format_integer(self.max_memory, input_name='max_memory'))
+            outfile.write(
+                ' max_memory="%s"'
+                % self.gds_format_integer(
+                    self.max_memory, input_name='max_memory'
+                )
+            )
         if self.min_cpu is not None and 'min_cpu' not in already_processed:
             already_processed.add('min_cpu')
-            outfile.write(' min_cpu="%s"' % self.gds_format_integer(self.min_cpu, input_name='min_cpu'))
+            outfile.write(
+                ' min_cpu="%s"'
+                % self.gds_format_integer(self.min_cpu, input_name='min_cpu')
+            )
         if self.max_cpu is not None and 'max_cpu' not in already_processed:
             already_processed.add('max_cpu')
-            outfile.write(' max_cpu="%s"' % self.gds_format_integer(self.max_cpu, input_name='max_cpu'))
+            outfile.write(
+                ' max_cpu="%s"'
+                % self.gds_format_integer(self.max_cpu, input_name='max_cpu')
+            )
         if self.ovftype is not None and 'ovftype' not in already_processed:
             already_processed.add('ovftype')
-            outfile.write(' ovftype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.ovftype), input_name='ovftype')), ))
+            outfile.write(
+                ' ovftype=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.ovftype), input_name='ovftype'
+                        )
+                    ),
+                )
+            )
         if self.HWversion is not None and 'HWversion' not in already_processed:
             already_processed.add('HWversion')
-            outfile.write(' HWversion="%s"' % self.gds_format_integer(self.HWversion, input_name='HWversion'))
+            outfile.write(
+                ' HWversion="%s"'
+                % self.gds_format_integer(
+                    self.HWversion, input_name='HWversion'
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.arch), input_name='arch')), ))
-        if self.xen_loader is not None and 'xen_loader' not in already_processed:
+            outfile.write(
+                ' arch=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.arch), input_name='arch'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.xen_loader is not None
+            and 'xen_loader' not in already_processed
+        ):
             already_processed.add('xen_loader')
-            outfile.write(' xen_loader=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.xen_loader), input_name='xen_loader')), ))
+            outfile.write(
+                ' xen_loader=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.xen_loader),
+                            input_name='xen_loader',
+                        )
+                    ),
+                )
+            )
         if self.guestOS is not None and 'guestOS' not in already_processed:
             already_processed.add('guestOS')
-            outfile.write(' guestOS=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.guestOS), input_name='guestOS')), ))
+            outfile.write(
+                ' guestOS=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.guestOS), input_name='guestOS'
+                        )
+                    ),
+                )
+            )
         if self.memory is not None and 'memory' not in already_processed:
             already_processed.add('memory')
-            outfile.write(' memory="%s"' % self.gds_format_integer(self.memory, input_name='memory'))
+            outfile.write(
+                ' memory="%s"'
+                % self.gds_format_integer(self.memory, input_name='memory')
+            )
         if self.ncpus is not None and 'ncpus' not in already_processed:
             already_processed.add('ncpus')
-            outfile.write(' ncpus="%s"' % self.gds_format_integer(self.ncpus, input_name='ncpus'))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='machine', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' ncpus="%s"'
+                % self.gds_format_integer(self.ncpus, input_name='ncpus')
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='machine',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for vmconfig_entry_ in self.vmconfig_entry:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<vmconfig-entry>%s</vmconfig-entry>%s' % (self.gds_encode(self.gds_format_string(quote_xml(vmconfig_entry_), input_name='vmconfig-entry')), eol_))
+            outfile.write(
+                '<vmconfig-entry>%s</vmconfig-entry>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(vmconfig_entry_),
+                            input_name='vmconfig-entry',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for vmdisk_ in self.vmdisk:
-            vmdisk_.export(outfile, level, namespaceprefix_, name_='vmdisk', pretty_print=pretty_print)
+            vmdisk_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='vmdisk',
+                pretty_print=pretty_print,
+            )
         for vmdvd_ in self.vmdvd:
-            vmdvd_.export(outfile, level, namespaceprefix_, name_='vmdvd', pretty_print=pretty_print)
+            vmdvd_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='vmdvd',
+                pretty_print=pretty_print,
+            )
         for vmnic_ in self.vmnic:
-            vmnic_.export(outfile, level, namespaceprefix_, name_='vmnic', pretty_print=pretty_print)
+            vmnic_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='vmnic',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9637,6 +18657,7 @@ class machine(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('min_memory', node)
         if value is not None and 'min_memory' not in already_processed:
@@ -9718,10 +18739,13 @@ class machine(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.ncpus < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'vmconfig-entry':
             vmconfig_entry_ = child_.text
-            vmconfig_entry_ = self.gds_validate_string(vmconfig_entry_, node, 'vmconfig_entry')
+            vmconfig_entry_ = self.gds_validate_string(
+                vmconfig_entry_, node, 'vmconfig_entry'
+            )
             self.vmconfig_entry.append(vmconfig_entry_)
         elif nodeName_ == 'vmdisk':
             obj_ = vmdisk.factory()
@@ -9738,14 +18762,31 @@ class machine(GeneratedsSuper):
             obj_.build(child_)
             self.vmnic.append(obj_)
             obj_.original_tagname_ = 'vmnic'
+
+
 # end class machine
 
 
 class packages(GeneratedsSuper):
     """Specifies Packages/Patterns Used in Different Stages"""
+
     subclass = None
     superclass = None
-    def __init__(self, type_=None, profiles=None, patternType=None, bootstrap_package=None, archive=None, file=None, ignore=None, namedCollection=None, collectionModule=None, product=None, package=None):
+
+    def __init__(
+        self,
+        type_=None,
+        profiles=None,
+        patternType=None,
+        bootstrap_package=None,
+        archive=None,
+        file=None,
+        ignore=None,
+        namedCollection=None,
+        collectionModule=None,
+        product=None,
+        package=None,
+    ):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
@@ -9779,74 +18820,171 @@ class packages(GeneratedsSuper):
             self.package = []
         else:
             self.package = package
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, packages)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, packages)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if packages.subclass:
             return packages.subclass(*args_, **kwargs_)
         else:
             return packages(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_archive(self): return self.archive
-    def set_archive(self, archive): self.archive = archive
-    def add_archive(self, value): self.archive.append(value)
-    def insert_archive_at(self, index, value): self.archive.insert(index, value)
-    def replace_archive_at(self, index, value): self.archive[index] = value
-    def get_file(self): return self.file
-    def set_file(self, file): self.file = file
-    def add_file(self, value): self.file.append(value)
-    def insert_file_at(self, index, value): self.file.insert(index, value)
-    def replace_file_at(self, index, value): self.file[index] = value
-    def get_ignore(self): return self.ignore
-    def set_ignore(self, ignore): self.ignore = ignore
-    def add_ignore(self, value): self.ignore.append(value)
-    def insert_ignore_at(self, index, value): self.ignore.insert(index, value)
-    def replace_ignore_at(self, index, value): self.ignore[index] = value
-    def get_namedCollection(self): return self.namedCollection
-    def set_namedCollection(self, namedCollection): self.namedCollection = namedCollection
-    def add_namedCollection(self, value): self.namedCollection.append(value)
-    def insert_namedCollection_at(self, index, value): self.namedCollection.insert(index, value)
-    def replace_namedCollection_at(self, index, value): self.namedCollection[index] = value
-    def get_collectionModule(self): return self.collectionModule
-    def set_collectionModule(self, collectionModule): self.collectionModule = collectionModule
-    def add_collectionModule(self, value): self.collectionModule.append(value)
-    def insert_collectionModule_at(self, index, value): self.collectionModule.insert(index, value)
-    def replace_collectionModule_at(self, index, value): self.collectionModule[index] = value
-    def get_product(self): return self.product
-    def set_product(self, product): self.product = product
-    def add_product(self, value): self.product.append(value)
-    def insert_product_at(self, index, value): self.product.insert(index, value)
-    def replace_product_at(self, index, value): self.product[index] = value
-    def get_package(self): return self.package
-    def set_package(self, package): self.package = package
-    def add_package(self, value): self.package.append(value)
-    def insert_package_at(self, index, value): self.package.insert(index, value)
-    def replace_package_at(self, index, value): self.package[index] = value
-    def get_type(self): return self.type_
-    def set_type(self, type_): self.type_ = type_
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def get_patternType(self): return self.patternType
-    def set_patternType(self, patternType): self.patternType = patternType
-    def get_bootstrap_package(self): return self.bootstrap_package
-    def set_bootstrap_package(self, bootstrap_package): self.bootstrap_package = bootstrap_package
+
+    def get_archive(self):
+        return self.archive
+
+    def set_archive(self, archive):
+        self.archive = archive
+
+    def add_archive(self, value):
+        self.archive.append(value)
+
+    def insert_archive_at(self, index, value):
+        self.archive.insert(index, value)
+
+    def replace_archive_at(self, index, value):
+        self.archive[index] = value
+
+    def get_file(self):
+        return self.file
+
+    def set_file(self, file):
+        self.file = file
+
+    def add_file(self, value):
+        self.file.append(value)
+
+    def insert_file_at(self, index, value):
+        self.file.insert(index, value)
+
+    def replace_file_at(self, index, value):
+        self.file[index] = value
+
+    def get_ignore(self):
+        return self.ignore
+
+    def set_ignore(self, ignore):
+        self.ignore = ignore
+
+    def add_ignore(self, value):
+        self.ignore.append(value)
+
+    def insert_ignore_at(self, index, value):
+        self.ignore.insert(index, value)
+
+    def replace_ignore_at(self, index, value):
+        self.ignore[index] = value
+
+    def get_namedCollection(self):
+        return self.namedCollection
+
+    def set_namedCollection(self, namedCollection):
+        self.namedCollection = namedCollection
+
+    def add_namedCollection(self, value):
+        self.namedCollection.append(value)
+
+    def insert_namedCollection_at(self, index, value):
+        self.namedCollection.insert(index, value)
+
+    def replace_namedCollection_at(self, index, value):
+        self.namedCollection[index] = value
+
+    def get_collectionModule(self):
+        return self.collectionModule
+
+    def set_collectionModule(self, collectionModule):
+        self.collectionModule = collectionModule
+
+    def add_collectionModule(self, value):
+        self.collectionModule.append(value)
+
+    def insert_collectionModule_at(self, index, value):
+        self.collectionModule.insert(index, value)
+
+    def replace_collectionModule_at(self, index, value):
+        self.collectionModule[index] = value
+
+    def get_product(self):
+        return self.product
+
+    def set_product(self, product):
+        self.product = product
+
+    def add_product(self, value):
+        self.product.append(value)
+
+    def insert_product_at(self, index, value):
+        self.product.insert(index, value)
+
+    def replace_product_at(self, index, value):
+        self.product[index] = value
+
+    def get_package(self):
+        return self.package
+
+    def set_package(self, package):
+        self.package = package
+
+    def add_package(self, value):
+        self.package.append(value)
+
+    def insert_package_at(self, index, value):
+        self.package.insert(index, value)
+
+    def replace_package_at(self, index, value):
+        self.package[index] = value
+
+    def get_type(self):
+        return self.type_
+
+    def set_type(self, type_):
+        self.type_ = type_
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
+    def get_patternType(self):
+        return self.patternType
+
+    def set_patternType(self, patternType):
+        self.patternType = patternType
+
+    def get_bootstrap_package(self):
+        return self.bootstrap_package
+
+    def set_bootstrap_package(self, bootstrap_package):
+        self.bootstrap_package = bootstrap_package
+
     def hasContent_(self):
         if (
-            self.archive or
-            self.file or
-            self.ignore or
-            self.namedCollection or
-            self.collectionModule or
-            self.product or
-            self.package
+            self.archive
+            or self.file
+            or self.ignore
+            or self.namedCollection
+            or self.collectionModule
+            or self.product
+            or self.package
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='packages', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='packages',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('packages')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9857,48 +18995,171 @@ class packages(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='packages')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='packages',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='packages', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='packages',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='packages'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='packages',
+    ):
         if self.type_ is not None and 'type_' not in already_processed:
             already_processed.add('type_')
-            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
+            outfile.write(
+                ' type=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.type_), input_name='type'
+                        )
+                    ),
+                )
+            )
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-        if self.patternType is not None and 'patternType' not in already_processed:
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
+        if (
+            self.patternType is not None
+            and 'patternType' not in already_processed
+        ):
             already_processed.add('patternType')
-            outfile.write(' patternType=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.patternType), input_name='patternType')), ))
-        if self.bootstrap_package is not None and 'bootstrap_package' not in already_processed:
+            outfile.write(
+                ' patternType=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.patternType),
+                            input_name='patternType',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.bootstrap_package is not None
+            and 'bootstrap_package' not in already_processed
+        ):
             already_processed.add('bootstrap_package')
-            outfile.write(' bootstrap_package=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootstrap_package), input_name='bootstrap_package')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='packages', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' bootstrap_package=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.bootstrap_package),
+                            input_name='bootstrap_package',
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='packages',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for archive_ in self.archive:
-            archive_.export(outfile, level, namespaceprefix_, name_='archive', pretty_print=pretty_print)
+            archive_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='archive',
+                pretty_print=pretty_print,
+            )
         for file_ in self.file:
-            file_.export(outfile, level, namespaceprefix_, name_='file', pretty_print=pretty_print)
+            file_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='file',
+                pretty_print=pretty_print,
+            )
         for ignore_ in self.ignore:
-            ignore_.export(outfile, level, namespaceprefix_, name_='ignore', pretty_print=pretty_print)
+            ignore_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='ignore',
+                pretty_print=pretty_print,
+            )
         for namedCollection_ in self.namedCollection:
-            namedCollection_.export(outfile, level, namespaceprefix_, name_='namedCollection', pretty_print=pretty_print)
+            namedCollection_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='namedCollection',
+                pretty_print=pretty_print,
+            )
         for collectionModule_ in self.collectionModule:
-            collectionModule_.export(outfile, level, namespaceprefix_, name_='collectionModule', pretty_print=pretty_print)
+            collectionModule_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='collectionModule',
+                pretty_print=pretty_print,
+            )
         for product_ in self.product:
-            product_.export(outfile, level, namespaceprefix_, name_='product', pretty_print=pretty_print)
+            product_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='product',
+                pretty_print=pretty_print,
+            )
         for package_ in self.package:
-            package_.export(outfile, level, namespaceprefix_, name_='package', pretty_print=pretty_print)
+            package_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='package',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9906,6 +19167,7 @@ class packages(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('type', node)
         if value is not None and 'type' not in already_processed:
@@ -9925,6 +19187,7 @@ class packages(GeneratedsSuper):
         if value is not None and 'bootstrap_package' not in already_processed:
             already_processed.add('bootstrap_package')
             self.bootstrap_package = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'archive':
             obj_ = archive.factory()
@@ -9961,6 +19224,8 @@ class packages(GeneratedsSuper):
             obj_.build(child_)
             self.package.append(obj_)
             obj_.original_tagname_ = 'package'
+
+
 # end class packages
 
 
@@ -9968,9 +19233,28 @@ class preferences(GeneratedsSuper):
     """Configuration Information Needed for Logical Extend All elements are
     optional since the combination of appropriate preference
     sections based on profiles combine to create on vaild definition"""
+
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, arch=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, release_version=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
+
+    def __init__(
+        self,
+        profiles=None,
+        arch=None,
+        bootsplash_theme=None,
+        bootloader_theme=None,
+        keytable=None,
+        locale=None,
+        packagemanager=None,
+        release_version=None,
+        rpm_locale_filtering=None,
+        rpm_check_signatures=None,
+        rpm_excludedocs=None,
+        showlicense=None,
+        timezone=None,
+        type_=None,
+        version=None,
+    ):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         self.arch = _cast(None, arch)
@@ -10026,113 +19310,273 @@ class preferences(GeneratedsSuper):
             self.version = []
         else:
             self.version = version
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, preferences)
+                CurrentSubclassModule_, preferences
+            )
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if preferences.subclass:
             return preferences.subclass(*args_, **kwargs_)
         else:
             return preferences(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_bootsplash_theme(self): return self.bootsplash_theme
-    def set_bootsplash_theme(self, bootsplash_theme): self.bootsplash_theme = bootsplash_theme
-    def add_bootsplash_theme(self, value): self.bootsplash_theme.append(value)
-    def insert_bootsplash_theme_at(self, index, value): self.bootsplash_theme.insert(index, value)
-    def replace_bootsplash_theme_at(self, index, value): self.bootsplash_theme[index] = value
-    def get_bootloader_theme(self): return self.bootloader_theme
-    def set_bootloader_theme(self, bootloader_theme): self.bootloader_theme = bootloader_theme
-    def add_bootloader_theme(self, value): self.bootloader_theme.append(value)
-    def insert_bootloader_theme_at(self, index, value): self.bootloader_theme.insert(index, value)
-    def replace_bootloader_theme_at(self, index, value): self.bootloader_theme[index] = value
-    def get_keytable(self): return self.keytable
-    def set_keytable(self, keytable): self.keytable = keytable
-    def add_keytable(self, value): self.keytable.append(value)
-    def insert_keytable_at(self, index, value): self.keytable.insert(index, value)
-    def replace_keytable_at(self, index, value): self.keytable[index] = value
-    def get_locale(self): return self.locale
-    def set_locale(self, locale): self.locale = locale
-    def add_locale(self, value): self.locale.append(value)
-    def insert_locale_at(self, index, value): self.locale.insert(index, value)
-    def replace_locale_at(self, index, value): self.locale[index] = value
-    def get_packagemanager(self): return self.packagemanager
-    def set_packagemanager(self, packagemanager): self.packagemanager = packagemanager
-    def add_packagemanager(self, value): self.packagemanager.append(value)
-    def insert_packagemanager_at(self, index, value): self.packagemanager.insert(index, value)
-    def replace_packagemanager_at(self, index, value): self.packagemanager[index] = value
-    def get_release_version(self): return self.release_version
-    def set_release_version(self, release_version): self.release_version = release_version
-    def add_release_version(self, value): self.release_version.append(value)
-    def insert_release_version_at(self, index, value): self.release_version.insert(index, value)
-    def replace_release_version_at(self, index, value): self.release_version[index] = value
-    def get_rpm_locale_filtering(self): return self.rpm_locale_filtering
-    def set_rpm_locale_filtering(self, rpm_locale_filtering): self.rpm_locale_filtering = rpm_locale_filtering
-    def add_rpm_locale_filtering(self, value): self.rpm_locale_filtering.append(value)
-    def insert_rpm_locale_filtering_at(self, index, value): self.rpm_locale_filtering.insert(index, value)
-    def replace_rpm_locale_filtering_at(self, index, value): self.rpm_locale_filtering[index] = value
-    def get_rpm_check_signatures(self): return self.rpm_check_signatures
-    def set_rpm_check_signatures(self, rpm_check_signatures): self.rpm_check_signatures = rpm_check_signatures
-    def add_rpm_check_signatures(self, value): self.rpm_check_signatures.append(value)
-    def insert_rpm_check_signatures_at(self, index, value): self.rpm_check_signatures.insert(index, value)
-    def replace_rpm_check_signatures_at(self, index, value): self.rpm_check_signatures[index] = value
-    def get_rpm_excludedocs(self): return self.rpm_excludedocs
-    def set_rpm_excludedocs(self, rpm_excludedocs): self.rpm_excludedocs = rpm_excludedocs
-    def add_rpm_excludedocs(self, value): self.rpm_excludedocs.append(value)
-    def insert_rpm_excludedocs_at(self, index, value): self.rpm_excludedocs.insert(index, value)
-    def replace_rpm_excludedocs_at(self, index, value): self.rpm_excludedocs[index] = value
-    def get_showlicense(self): return self.showlicense
-    def set_showlicense(self, showlicense): self.showlicense = showlicense
-    def add_showlicense(self, value): self.showlicense.append(value)
-    def insert_showlicense_at(self, index, value): self.showlicense.insert(index, value)
-    def replace_showlicense_at(self, index, value): self.showlicense[index] = value
-    def get_timezone(self): return self.timezone
-    def set_timezone(self, timezone): self.timezone = timezone
-    def add_timezone(self, value): self.timezone.append(value)
-    def insert_timezone_at(self, index, value): self.timezone.insert(index, value)
-    def replace_timezone_at(self, index, value): self.timezone[index] = value
-    def get_type(self): return self.type_
-    def set_type(self, type_): self.type_ = type_
-    def add_type(self, value): self.type_.append(value)
-    def insert_type_at(self, index, value): self.type_.insert(index, value)
-    def replace_type_at(self, index, value): self.type_[index] = value
-    def get_version(self): return self.version
-    def set_version(self, version): self.version = version
-    def add_version(self, value): self.version.append(value)
-    def insert_version_at(self, index, value): self.version.insert(index, value)
-    def replace_version_at(self, index, value): self.version[index] = value
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
+
+    def get_bootsplash_theme(self):
+        return self.bootsplash_theme
+
+    def set_bootsplash_theme(self, bootsplash_theme):
+        self.bootsplash_theme = bootsplash_theme
+
+    def add_bootsplash_theme(self, value):
+        self.bootsplash_theme.append(value)
+
+    def insert_bootsplash_theme_at(self, index, value):
+        self.bootsplash_theme.insert(index, value)
+
+    def replace_bootsplash_theme_at(self, index, value):
+        self.bootsplash_theme[index] = value
+
+    def get_bootloader_theme(self):
+        return self.bootloader_theme
+
+    def set_bootloader_theme(self, bootloader_theme):
+        self.bootloader_theme = bootloader_theme
+
+    def add_bootloader_theme(self, value):
+        self.bootloader_theme.append(value)
+
+    def insert_bootloader_theme_at(self, index, value):
+        self.bootloader_theme.insert(index, value)
+
+    def replace_bootloader_theme_at(self, index, value):
+        self.bootloader_theme[index] = value
+
+    def get_keytable(self):
+        return self.keytable
+
+    def set_keytable(self, keytable):
+        self.keytable = keytable
+
+    def add_keytable(self, value):
+        self.keytable.append(value)
+
+    def insert_keytable_at(self, index, value):
+        self.keytable.insert(index, value)
+
+    def replace_keytable_at(self, index, value):
+        self.keytable[index] = value
+
+    def get_locale(self):
+        return self.locale
+
+    def set_locale(self, locale):
+        self.locale = locale
+
+    def add_locale(self, value):
+        self.locale.append(value)
+
+    def insert_locale_at(self, index, value):
+        self.locale.insert(index, value)
+
+    def replace_locale_at(self, index, value):
+        self.locale[index] = value
+
+    def get_packagemanager(self):
+        return self.packagemanager
+
+    def set_packagemanager(self, packagemanager):
+        self.packagemanager = packagemanager
+
+    def add_packagemanager(self, value):
+        self.packagemanager.append(value)
+
+    def insert_packagemanager_at(self, index, value):
+        self.packagemanager.insert(index, value)
+
+    def replace_packagemanager_at(self, index, value):
+        self.packagemanager[index] = value
+
+    def get_release_version(self):
+        return self.release_version
+
+    def set_release_version(self, release_version):
+        self.release_version = release_version
+
+    def add_release_version(self, value):
+        self.release_version.append(value)
+
+    def insert_release_version_at(self, index, value):
+        self.release_version.insert(index, value)
+
+    def replace_release_version_at(self, index, value):
+        self.release_version[index] = value
+
+    def get_rpm_locale_filtering(self):
+        return self.rpm_locale_filtering
+
+    def set_rpm_locale_filtering(self, rpm_locale_filtering):
+        self.rpm_locale_filtering = rpm_locale_filtering
+
+    def add_rpm_locale_filtering(self, value):
+        self.rpm_locale_filtering.append(value)
+
+    def insert_rpm_locale_filtering_at(self, index, value):
+        self.rpm_locale_filtering.insert(index, value)
+
+    def replace_rpm_locale_filtering_at(self, index, value):
+        self.rpm_locale_filtering[index] = value
+
+    def get_rpm_check_signatures(self):
+        return self.rpm_check_signatures
+
+    def set_rpm_check_signatures(self, rpm_check_signatures):
+        self.rpm_check_signatures = rpm_check_signatures
+
+    def add_rpm_check_signatures(self, value):
+        self.rpm_check_signatures.append(value)
+
+    def insert_rpm_check_signatures_at(self, index, value):
+        self.rpm_check_signatures.insert(index, value)
+
+    def replace_rpm_check_signatures_at(self, index, value):
+        self.rpm_check_signatures[index] = value
+
+    def get_rpm_excludedocs(self):
+        return self.rpm_excludedocs
+
+    def set_rpm_excludedocs(self, rpm_excludedocs):
+        self.rpm_excludedocs = rpm_excludedocs
+
+    def add_rpm_excludedocs(self, value):
+        self.rpm_excludedocs.append(value)
+
+    def insert_rpm_excludedocs_at(self, index, value):
+        self.rpm_excludedocs.insert(index, value)
+
+    def replace_rpm_excludedocs_at(self, index, value):
+        self.rpm_excludedocs[index] = value
+
+    def get_showlicense(self):
+        return self.showlicense
+
+    def set_showlicense(self, showlicense):
+        self.showlicense = showlicense
+
+    def add_showlicense(self, value):
+        self.showlicense.append(value)
+
+    def insert_showlicense_at(self, index, value):
+        self.showlicense.insert(index, value)
+
+    def replace_showlicense_at(self, index, value):
+        self.showlicense[index] = value
+
+    def get_timezone(self):
+        return self.timezone
+
+    def set_timezone(self, timezone):
+        self.timezone = timezone
+
+    def add_timezone(self, value):
+        self.timezone.append(value)
+
+    def insert_timezone_at(self, index, value):
+        self.timezone.insert(index, value)
+
+    def replace_timezone_at(self, index, value):
+        self.timezone[index] = value
+
+    def get_type(self):
+        return self.type_
+
+    def set_type(self, type_):
+        self.type_ = type_
+
+    def add_type(self, value):
+        self.type_.append(value)
+
+    def insert_type_at(self, index, value):
+        self.type_.insert(index, value)
+
+    def replace_type_at(self, index, value):
+        self.type_[index] = value
+
+    def get_version(self):
+        return self.version
+
+    def set_version(self, version):
+        self.version = version
+
+    def add_version(self, value):
+        self.version.append(value)
+
+    def insert_version_at(self, index, value):
+        self.version.insert(index, value)
+
+    def replace_version_at(self, index, value):
+        self.version[index] = value
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
+
     validate_arch_name_patterns_ = [['^.*$']]
+
     def hasContent_(self):
         if (
-            self.bootsplash_theme or
-            self.bootloader_theme or
-            self.keytable or
-            self.locale or
-            self.packagemanager or
-            self.release_version or
-            self.rpm_locale_filtering or
-            self.rpm_check_signatures or
-            self.rpm_excludedocs or
-            self.showlicense or
-            self.timezone or
-            self.type_ or
-            self.version
+            self.bootsplash_theme
+            or self.bootloader_theme
+            or self.keytable
+            or self.locale
+            or self.packagemanager
+            or self.release_version
+            or self.rpm_locale_filtering
+            or self.rpm_check_signatures
+            or self.rpm_excludedocs
+            or self.showlicense
+            or self.timezone
+            or self.type_
+            or self.version
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='preferences', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='preferences',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('preferences')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10143,66 +19587,236 @@ class preferences(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='preferences')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='preferences',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='preferences', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='preferences',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='preferences'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='preferences',
+    ):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='preferences', fromsubclass_=False, pretty_print=True):
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='preferences',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for bootsplash_theme_ in self.bootsplash_theme:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<bootsplash-theme>%s</bootsplash-theme>%s' % (self.gds_encode(self.gds_format_string(quote_xml(bootsplash_theme_), input_name='bootsplash-theme')), eol_))
+            outfile.write(
+                '<bootsplash-theme>%s</bootsplash-theme>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(bootsplash_theme_),
+                            input_name='bootsplash-theme',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for bootloader_theme_ in self.bootloader_theme:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<bootloader-theme>%s</bootloader-theme>%s' % (self.gds_encode(self.gds_format_string(quote_xml(bootloader_theme_), input_name='bootloader-theme')), eol_))
+            outfile.write(
+                '<bootloader-theme>%s</bootloader-theme>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(bootloader_theme_),
+                            input_name='bootloader-theme',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for keytable_ in self.keytable:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<keytable>%s</keytable>%s' % (self.gds_encode(self.gds_format_string(quote_xml(keytable_), input_name='keytable')), eol_))
+            outfile.write(
+                '<keytable>%s</keytable>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(keytable_), input_name='keytable'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for locale_ in self.locale:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<locale>%s</locale>%s' % (self.gds_encode(self.gds_format_string(quote_xml(locale_), input_name='locale')), eol_))
+            outfile.write(
+                '<locale>%s</locale>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(locale_), input_name='locale'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for packagemanager_ in self.packagemanager:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<packagemanager>%s</packagemanager>%s' % (self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), eol_))
+            outfile.write(
+                '<packagemanager>%s</packagemanager>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(packagemanager_),
+                            input_name='packagemanager',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for release_version_ in self.release_version:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<release-version>%s</release-version>%s' % (self.gds_encode(self.gds_format_string(quote_xml(release_version_), input_name='release-version')), eol_))
+            outfile.write(
+                '<release-version>%s</release-version>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(release_version_),
+                            input_name='release-version',
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for rpm_locale_filtering_ in self.rpm_locale_filtering:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<rpm-locale-filtering>%s</rpm-locale-filtering>%s' % (self.gds_format_boolean(rpm_locale_filtering_, input_name='rpm-locale-filtering'), eol_))
+            outfile.write(
+                '<rpm-locale-filtering>%s</rpm-locale-filtering>%s'
+                % (
+                    self.gds_format_boolean(
+                        rpm_locale_filtering_, input_name='rpm-locale-filtering'
+                    ),
+                    eol_,
+                )
+            )
         for rpm_check_signatures_ in self.rpm_check_signatures:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<rpm-check-signatures>%s</rpm-check-signatures>%s' % (self.gds_format_boolean(rpm_check_signatures_, input_name='rpm-check-signatures'), eol_))
+            outfile.write(
+                '<rpm-check-signatures>%s</rpm-check-signatures>%s'
+                % (
+                    self.gds_format_boolean(
+                        rpm_check_signatures_, input_name='rpm-check-signatures'
+                    ),
+                    eol_,
+                )
+            )
         for rpm_excludedocs_ in self.rpm_excludedocs:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<rpm-excludedocs>%s</rpm-excludedocs>%s' % (self.gds_format_boolean(rpm_excludedocs_, input_name='rpm-excludedocs'), eol_))
+            outfile.write(
+                '<rpm-excludedocs>%s</rpm-excludedocs>%s'
+                % (
+                    self.gds_format_boolean(
+                        rpm_excludedocs_, input_name='rpm-excludedocs'
+                    ),
+                    eol_,
+                )
+            )
         for showlicense_ in self.showlicense:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<showlicense>%s</showlicense>%s' % (self.gds_encode(self.gds_format_string(quote_xml(showlicense_), input_name='showlicense')), eol_))
+            outfile.write(
+                '<showlicense>%s</showlicense>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(showlicense_), input_name='showlicense'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for timezone_ in self.timezone:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<timezone>%s</timezone>%s' % (self.gds_encode(self.gds_format_string(quote_xml(timezone_), input_name='timezone')), eol_))
+            outfile.write(
+                '<timezone>%s</timezone>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(timezone_), input_name='timezone'
+                        )
+                    ),
+                    eol_,
+                )
+            )
         for type_ in self.type_:
-            type_.export(outfile, level, namespaceprefix_, name_='type', pretty_print=pretty_print)
+            type_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='type',
+                pretty_print=pretty_print,
+            )
         for version_ in self.version:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<version>%s</version>%s' % (self.gds_encode(self.gds_format_string(quote_xml(version_), input_name='version')), eol_))
+            outfile.write(
+                '<version>%s</version>%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_xml(version_), input_name='version'
+                        )
+                    ),
+                    eol_,
+                )
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -10210,6 +19824,7 @@ class preferences(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
@@ -10220,15 +19835,20 @@ class preferences(GeneratedsSuper):
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'bootsplash-theme':
             bootsplash_theme_ = child_.text
-            bootsplash_theme_ = self.gds_validate_string(bootsplash_theme_, node, 'bootsplash_theme')
+            bootsplash_theme_ = self.gds_validate_string(
+                bootsplash_theme_, node, 'bootsplash_theme'
+            )
             self.bootsplash_theme.append(bootsplash_theme_)
         elif nodeName_ == 'bootloader-theme':
             bootloader_theme_ = child_.text
-            bootloader_theme_ = self.gds_validate_string(bootloader_theme_, node, 'bootloader_theme')
+            bootloader_theme_ = self.gds_validate_string(
+                bootloader_theme_, node, 'bootloader_theme'
+            )
             self.bootloader_theme.append(bootloader_theme_)
         elif nodeName_ == 'keytable':
             keytable_ = child_.text
@@ -10245,14 +19865,20 @@ class preferences(GeneratedsSuper):
         elif nodeName_ == 'packagemanager':
             packagemanager_ = child_.text
             if packagemanager_:
-                packagemanager_ = re_.sub(String_cleanup_pat_, " ", packagemanager_).strip()
+                packagemanager_ = re_.sub(
+                    String_cleanup_pat_, " ", packagemanager_
+                ).strip()
             else:
                 packagemanager_ = ""
-            packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
+            packagemanager_ = self.gds_validate_string(
+                packagemanager_, node, 'packagemanager'
+            )
             self.packagemanager.append(packagemanager_)
         elif nodeName_ == 'release-version':
             release_version_ = child_.text
-            release_version_ = self.gds_validate_string(release_version_, node, 'release_version')
+            release_version_ = self.gds_validate_string(
+                release_version_, node, 'release_version'
+            )
             self.release_version.append(release_version_)
         elif nodeName_ == 'rpm-locale-filtering':
             sval_ = child_.text
@@ -10262,7 +19888,9 @@ class preferences(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_locale_filtering')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'rpm_locale_filtering'
+            )
             self.rpm_locale_filtering.append(ival_)
         elif nodeName_ == 'rpm-check-signatures':
             sval_ = child_.text
@@ -10272,7 +19900,9 @@ class preferences(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'rpm_check_signatures')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'rpm_check_signatures'
+            )
             self.rpm_check_signatures.append(ival_)
         elif nodeName_ == 'rpm-excludedocs':
             sval_ = child_.text
@@ -10286,7 +19916,9 @@ class preferences(GeneratedsSuper):
             self.rpm_excludedocs.append(ival_)
         elif nodeName_ == 'showlicense':
             showlicense_ = child_.text
-            showlicense_ = self.gds_validate_string(showlicense_, node, 'showlicense')
+            showlicense_ = self.gds_validate_string(
+                showlicense_, node, 'showlicense'
+            )
             self.showlicense.append(showlicense_)
         elif nodeName_ == 'timezone':
             timezone_ = child_.text
@@ -10301,44 +19933,67 @@ class preferences(GeneratedsSuper):
             version_ = child_.text
             version_ = self.gds_validate_string(version_, node, 'version')
             self.version.append(version_)
+
+
 # end class preferences
 
 
 class profiles(GeneratedsSuper):
     """Namespace section which creates a namespace and the drivers can bind
     itself to one of the listed namespaces."""
+
     subclass = None
     superclass = None
+
     def __init__(self, profile=None):
         self.original_tagname_ = None
         if profile is None:
             self.profile = []
         else:
             self.profile = profile
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, profiles)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, profiles)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if profiles.subclass:
             return profiles.subclass(*args_, **kwargs_)
         else:
             return profiles(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_profile(self): return self.profile
-    def set_profile(self, profile): self.profile = profile
-    def add_profile(self, value): self.profile.append(value)
-    def insert_profile_at(self, index, value): self.profile.insert(index, value)
-    def replace_profile_at(self, index, value): self.profile[index] = value
+
+    def get_profile(self):
+        return self.profile
+
+    def set_profile(self, profile):
+        self.profile = profile
+
+    def add_profile(self, value):
+        self.profile.append(value)
+
+    def insert_profile_at(self, index, value):
+        self.profile.insert(index, value)
+
+    def replace_profile_at(self, index, value):
+        self.profile[index] = value
+
     def hasContent_(self):
-        if (
-            self.profile
-        ):
+        if self.profile:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='profiles', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='profiles',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profiles')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10349,25 +20004,68 @@ class profiles(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profiles')
+        self.exportAttributes(
+            outfile,
+            level,
+            already_processed,
+            namespaceprefix_,
+            name_='profiles',
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='profiles', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='profiles',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profiles'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='profiles',
+    ):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='profiles', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='profiles',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for profile_ in self.profile:
-            profile_.export(outfile, level, namespaceprefix_, name_='profile', pretty_print=pretty_print)
+            profile_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='profile',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -10375,21 +20073,27 @@ class profiles(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'profile':
             obj_ = profile.factory()
             obj_.build(child_)
             self.profile.append(obj_)
             obj_.original_tagname_ = 'profile'
+
+
 # end class profiles
 
 
 class users(GeneratedsSuper):
     """A List of Users"""
+
     subclass = None
     superclass = None
+
     def __init__(self, arch=None, profiles=None, user=None):
         self.original_tagname_ = None
         self.arch = _cast(None, arch)
@@ -10398,41 +20102,77 @@ class users(GeneratedsSuper):
             self.user = []
         else:
             self.user = user
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
-            subclass = getSubclassFromModule_(
-                CurrentSubclassModule_, users)
+            subclass = getSubclassFromModule_(CurrentSubclassModule_, users)
             if subclass is not None:
                 return subclass(*args_, **kwargs_)
         if users.subclass:
             return users.subclass(*args_, **kwargs_)
         else:
             return users(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_user(self): return self.user
-    def set_user(self, user): self.user = user
-    def add_user(self, value): self.user.append(value)
-    def insert_user_at(self, index, value): self.user.insert(index, value)
-    def replace_user_at(self, index, value): self.user[index] = value
-    def get_arch(self): return self.arch
-    def set_arch(self, arch): self.arch = arch
-    def get_profiles(self): return self.profiles
-    def set_profiles(self, profiles): self.profiles = profiles
+
+    def get_user(self):
+        return self.user
+
+    def set_user(self, user):
+        self.user = user
+
+    def add_user(self, value):
+        self.user.append(value)
+
+    def insert_user_at(self, index, value):
+        self.user.insert(index, value)
+
+    def replace_user_at(self, index, value):
+        self.user[index] = value
+
+    def get_arch(self):
+        return self.arch
+
+    def set_arch(self, arch):
+        self.arch = arch
+
+    def get_profiles(self):
+        return self.profiles
+
+    def set_profiles(self, profiles):
+        self.profiles = profiles
+
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_arch_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+                self.validate_arch_name_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_arch_name_patterns_,
+                    )
+                )
+
     validate_arch_name_patterns_ = [['^.*$']]
+
     def hasContent_(self):
-        if (
-            self.user
-        ):
+        if self.user:
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', name_='users', namespacedef_='', pretty_print=True):
+
+    def export(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='users',
+        namespacedef_='',
+        pretty_print=True,
+    ):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('users')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10443,30 +20183,78 @@ class users(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write(
+            '<%s%s%s'
+            % (
+                namespaceprefix_,
+                name_,
+                namespacedef_ and ' ' + namespacedef_ or '',
+            )
+        )
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='users')
+        self.exportAttributes(
+            outfile, level, already_processed, namespaceprefix_, name_='users'
+        )
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='users', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(
+                outfile,
+                level + 1,
+                namespaceprefix_='',
+                name_='users',
+                pretty_print=pretty_print,
+            )
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='users'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(
+        self,
+        outfile,
+        level,
+        already_processed,
+        namespaceprefix_='',
+        name_='users',
+    ):
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
-            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+            outfile.write(' arch=%s' % (quote_attrib(self.arch),))
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
-            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
-    def exportChildren(self, outfile, level, namespaceprefix_='', name_='users', fromsubclass_=False, pretty_print=True):
+            outfile.write(
+                ' profiles=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.profiles), input_name='profiles'
+                        )
+                    ),
+                )
+            )
+
+    def exportChildren(
+        self,
+        outfile,
+        level,
+        namespaceprefix_='',
+        name_='users',
+        fromsubclass_=False,
+        pretty_print=True,
+    ):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for user_ in self.user:
-            user_.export(outfile, level, namespaceprefix_, name_='user', pretty_print=pretty_print)
+            user_.export(
+                outfile,
+                level,
+                namespaceprefix_,
+                name_='user',
+                pretty_print=pretty_print,
+            )
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -10474,28 +20262,31 @@ class users(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('arch', node)
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             self.arch = value
             self.arch = ' '.join(self.arch.split())
-            self.validate_arch_name(self.arch)    # validate type arch-name
+            self.validate_arch_name(self.arch)  # validate type arch-name
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             self.profiles = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'user':
             obj_ = user.factory()
             obj_.build(child_)
             self.user.append(obj_)
             obj_.original_tagname_ = 'user'
+
+
 # end class users
 
 
-GDSClassesMapping = {
-}
+GDSClassesMapping = {}
 
 
 USAGE_TEXT = """
@@ -10531,9 +20322,8 @@ def parse(inFileName, silence=False):
     if not silence:
         sys.stdout.write('<?xml version="1.0" ?>\n')
         rootObj.export(
-            sys.stdout, 0, name_=rootTag,
-            namespacedef_='',
-            pretty_print=True)
+            sys.stdout, 0, name_=rootTag, namespacedef_='', pretty_print=True
+        )
     return rootObj
 
 
@@ -10554,8 +20344,11 @@ def parseEtree(inFileName, silence=False):
     reverse_mapping = rootObj.gds_reverse_node_mapping(mapping)
     if not silence:
         content = etree_.tostring(
-            rootElement, pretty_print=True,
-            xml_declaration=True, encoding="utf-8")
+            rootElement,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding="utf-8",
+        )
         sys.stdout.write(content)
         sys.stdout.write('\n')
     return rootObj, rootElement, mapping, reverse_mapping
@@ -10571,7 +20364,7 @@ def parseString(inString, silence=False):
     Returns -- The root object in the tree.
     '''
     parser = None
-    rootNode= parsexmlstring_(inString, parser)
+    rootNode = parsexmlstring_(inString, parser)
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
         rootTag = 'k_source'
@@ -10581,9 +20374,7 @@ def parseString(inString, silence=False):
     # Enable Python to collect the space used by the DOM.
     if not silence:
         sys.stdout.write('<?xml version="1.0" ?>\n')
-        rootObj.export(
-            sys.stdout, 0, name_=rootTag,
-            namespacedef_='')
+        rootObj.export(sys.stdout, 0, name_=rootTag, namespacedef_='')
     return rootObj
 
 
@@ -10617,7 +20408,7 @@ def main():
 
 
 if __name__ == '__main__':
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     main()
 
 
@@ -10686,5 +20477,5 @@ __all__ = [
     "vmdvd",
     "vmnic",
     "volume",
-    "volumes"
+    "volumes",
 ]

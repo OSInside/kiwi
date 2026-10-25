@@ -1,11 +1,7 @@
 import logging
 import io
-from unittest.mock import (
-    patch, call, MagicMock, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call, MagicMock, Mock
+from pytest import raises, fixture
 
 from kiwi.exceptions import KiwiLuksSetupError
 from kiwi.storage.luks_device import LuksDevice
@@ -18,18 +14,10 @@ class TestLuksDevice:
 
     def setup(self):
         storage_device = Mock()
-        storage_device.get_byte_size = Mock(
-            return_value=1048576
-        )
-        storage_device.get_uuid = Mock(
-            return_value='0815'
-        )
-        storage_device.get_device = Mock(
-            return_value='/dev/some-device'
-        )
-        storage_device.is_loop = Mock(
-            return_value=True
-        )
+        storage_device.get_byte_size = Mock(return_value=1048576)
+        storage_device.get_uuid = Mock(return_value='0815')
+        storage_device.get_device = Mock(return_value='/dev/some-device')
+        storage_device.is_loop = Mock(return_value=True)
         self.luks = LuksDevice(storage_device)
         self.runtime_config = Mock()
         self.shasum = self.runtime_config.get_checksum_handler.return_value
@@ -68,47 +56,76 @@ class TestLuksDevice:
     ):
         with patch('builtins.open', create=True):
             self.luks.create_crypto_luks(
-                passphrase='', osname='sle12',
-                keyfile='some-keyfile', root_dir='root'
+                passphrase='',
+                osname='sle12',
+                keyfile='some-keyfile',
+                root_dir='root',
             )
             assert mock_command.call_args_list == [
                 call(
                     [
-                        'dd', 'if=/dev/urandom', 'bs=1M', 'count=1',
-                        'of=/dev/some-device'
+                        'dd',
+                        'if=/dev/urandom',
+                        'bs=1M',
+                        'count=1',
+                        'of=/dev/some-device',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '-q', '--key-file', '/dev/zero',
-                        '--cipher', 'aes-xts-plain64',
-                        '--key-size', '256', '--hash', 'sha1',
-                        '--keyfile-size', '32',
-                        'luksFormat', '/dev/some-device'
+                        'cryptsetup',
+                        '-q',
+                        '--key-file',
+                        '/dev/zero',
+                        '--cipher',
+                        'aes-xts-plain64',
+                        '--key-size',
+                        '256',
+                        '--hash',
+                        'sha1',
+                        '--keyfile-size',
+                        '32',
+                        'luksFormat',
+                        '/dev/some-device',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', '/dev/zero',
-                        '--keyfile-size', '32',
-                        'luksAddKey', '/dev/some-device', 'root/some-keyfile'
+                        'cryptsetup',
+                        '--key-file',
+                        '/dev/zero',
+                        '--keyfile-size',
+                        '32',
+                        'luksAddKey',
+                        '/dev/some-device',
+                        'root/some-keyfile',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', '/dev/zero',
-                        '--keyfile-size', '32',
-                        'luksHeaderBackup', '/dev/some-device',
-                        '--header-backup-file', 'root/root/.luks.header'
+                        'cryptsetup',
+                        '--key-file',
+                        '/dev/zero',
+                        '--keyfile-size',
+                        '32',
+                        'luksHeaderBackup',
+                        '/dev/some-device',
+                        '--header-backup-file',
+                        'root/root/.luks.header',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', '/dev/zero',
-                        '--keyfile-size', '32',
-                        'luksOpen', '/dev/some-device', self.luks.luks_name
+                        'cryptsetup',
+                        '--key-file',
+                        '/dev/zero',
+                        '--keyfile-size',
+                        '32',
+                        'luksOpen',
+                        '/dev/some-device',
+                        self.luks.luks_name,
                     ]
-                )
+                ),
             ]
             self.shasum.digest.assert_called_once_with()
             self.luks.luks_device = None
@@ -118,45 +135,65 @@ class TestLuksDevice:
     @patch('kiwi.storage.luks_device.Temporary.new_file')
     @patch('os.chmod')
     def test_create_crypto_luks_random_passphrase(
-        self, mock_os_chmod, mock_tmpfile,
-        mock_command, mock_LuksDevice
+        self, mock_os_chmod, mock_tmpfile, mock_command, mock_LuksDevice
     ):
         tmpfile = Mock()
         tmpfile.name = 'tmpfile'
         mock_tmpfile.return_value = tmpfile
         with patch('builtins.open', create=True):
             self.luks.create_crypto_luks(
-                passphrase='random', osname='sle12',
-                keyfile='some-keyfile', root_dir='root'
+                passphrase='random',
+                osname='sle12',
+                keyfile='some-keyfile',
+                root_dir='root',
             )
             assert mock_command.call_args_list == [
                 call(
                     [
-                        'dd', 'if=/dev/urandom', 'bs=1M', 'count=1',
-                        'of=/dev/some-device'
+                        'dd',
+                        'if=/dev/urandom',
+                        'bs=1M',
+                        'count=1',
+                        'of=/dev/some-device',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '-q', '--key-file', 'root/some-keyfile',
-                        '--cipher', 'aes-xts-plain64',
-                        '--key-size', '256', '--hash', 'sha1',
-                        'luksFormat', '/dev/some-device'
+                        'cryptsetup',
+                        '-q',
+                        '--key-file',
+                        'root/some-keyfile',
+                        '--cipher',
+                        'aes-xts-plain64',
+                        '--key-size',
+                        '256',
+                        '--hash',
+                        'sha1',
+                        'luksFormat',
+                        '/dev/some-device',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', 'root/some-keyfile',
-                        'luksHeaderBackup', '/dev/some-device',
-                        '--header-backup-file', 'root/root/.luks.header'
+                        'cryptsetup',
+                        '--key-file',
+                        'root/some-keyfile',
+                        'luksHeaderBackup',
+                        '/dev/some-device',
+                        '--header-backup-file',
+                        'root/root/.luks.header',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', 'root/some-keyfile', 'luksOpen',
-                        '/dev/some-device', self.luks.luks_name
+                        'cryptsetup',
+                        '--key-file',
+                        'root/some-keyfile',
+                        'luksOpen',
+                        '/dev/some-device',
+                        self.luks.luks_name,
                     ]
-                )
+                ),
             ]
             self.shasum.digest.assert_called_once_with()
             mock_LuksDevice.create_random_keyfile.assert_called_once_with(
@@ -170,51 +207,75 @@ class TestLuksDevice:
     @patch('kiwi.storage.luks_device.Temporary.new_file')
     @patch('os.chmod')
     def test_create_crypto_luks(
-        self, mock_os_chmod, mock_tmpfile,
-        mock_command, mock_LuksDevice
+        self, mock_os_chmod, mock_tmpfile, mock_command, mock_LuksDevice
     ):
         tmpfile = Mock()
         tmpfile.name = 'tmpfile'
         mock_tmpfile.return_value = tmpfile
         with patch('builtins.open', create=True):
             self.luks.create_crypto_luks(
-                passphrase='passphrase', osname='sle12',
-                keyfile='some-keyfile', root_dir='root'
+                passphrase='passphrase',
+                osname='sle12',
+                keyfile='some-keyfile',
+                root_dir='root',
             )
             assert mock_command.call_args_list == [
                 call(
                     [
-                        'dd', 'if=/dev/urandom', 'bs=1M', 'count=1',
-                        'of=/dev/some-device'
+                        'dd',
+                        'if=/dev/urandom',
+                        'bs=1M',
+                        'count=1',
+                        'of=/dev/some-device',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '-q', '--key-file', 'tmpfile',
-                        '--cipher', 'aes-xts-plain64',
-                        '--key-size', '256', '--hash', 'sha1',
-                        'luksFormat', '/dev/some-device'
+                        'cryptsetup',
+                        '-q',
+                        '--key-file',
+                        'tmpfile',
+                        '--cipher',
+                        'aes-xts-plain64',
+                        '--key-size',
+                        '256',
+                        '--hash',
+                        'sha1',
+                        'luksFormat',
+                        '/dev/some-device',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', 'tmpfile', 'luksAddKey',
-                        '/dev/some-device', 'root/some-keyfile'
+                        'cryptsetup',
+                        '--key-file',
+                        'tmpfile',
+                        'luksAddKey',
+                        '/dev/some-device',
+                        'root/some-keyfile',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', 'tmpfile',
-                        'luksHeaderBackup', '/dev/some-device',
-                        '--header-backup-file', 'root/root/.luks.header'
+                        'cryptsetup',
+                        '--key-file',
+                        'tmpfile',
+                        'luksHeaderBackup',
+                        '/dev/some-device',
+                        '--header-backup-file',
+                        'root/root/.luks.header',
                     ]
                 ),
                 call(
                     [
-                        'cryptsetup', '--key-file', 'tmpfile', 'luksOpen',
-                        '/dev/some-device', self.luks.luks_name
+                        'cryptsetup',
+                        '--key-file',
+                        'tmpfile',
+                        'luksOpen',
+                        '/dev/some-device',
+                        self.luks.luks_name,
                     ]
-                )
+                ),
             ]
             self.shasum.digest.assert_called_once_with()
             mock_LuksDevice.create_random_keyfile.assert_called_once_with(
@@ -228,8 +289,7 @@ class TestLuksDevice:
     @patch('kiwi.storage.luks_device.Temporary.new_file')
     @patch('os.chmod')
     def test_create_crypto_luks_header_digest_before_write(
-        self, mock_os_chmod, mock_tmpfile,
-        mock_command, mock_LuksDevice
+        self, mock_os_chmod, mock_tmpfile, mock_command, mock_LuksDevice
     ):
         # The header backup file is also the file the checksum gets
         # written to. Opening it for writing truncates it, thus the
@@ -251,8 +311,10 @@ class TestLuksDevice:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.side_effect = open_file
             self.luks.create_crypto_luks(
-                passphrase='passphrase', osname='sle12',
-                keyfile='some-keyfile', root_dir='root'
+                passphrase='passphrase',
+                osname='sle12',
+                keyfile='some-keyfile',
+                root_dir='root',
             )
         assert order.index('digest') < order.index(
             'open:root/root/.luks.header'
@@ -266,9 +328,7 @@ class TestLuksDevice:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.luks.create_crypttab('crypttab')
-            file_handle.write.assert_called_once_with(
-                'luks UUID=0815\n'
-            )
+            file_handle.write.assert_called_once_with('luks UUID=0815\n')
             self.luks.luks_device = None
         self.luks.luks_keyfile = 'some-keyfile'
         with patch('builtins.open', create=True) as mock_open:

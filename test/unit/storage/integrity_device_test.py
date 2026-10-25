@@ -1,16 +1,12 @@
 import logging
 import io
 from textwrap import dedent
-from pytest import (
-    raises, fixture
-)
-from unittest.mock import (
-    patch, Mock, call, MagicMock
-)
+from pytest import raises, fixture
+from unittest.mock import patch, Mock, call, MagicMock
 
 from kiwi.storage.integrity_device import (
     IntegrityDevice,
-    integrity_credentials_type
+    integrity_credentials_type,
 )
 from kiwi.exceptions import KiwiOffsetError
 
@@ -28,25 +24,22 @@ class TestIntegrityDevice:
         metadata_file = Mock()
         metadata_file.name = 'metadata_file'
         storage_device = Mock()
-        storage_device.get_device = Mock(
-            return_value='/dev/some-device'
-        )
-        storage_device.is_loop = Mock(
-            return_value=True
-        )
+        storage_device.get_device = Mock(return_value='/dev/some-device')
+        storage_device.is_loop = Mock(return_value=True)
 
         self.integrity = IntegrityDevice(
             storage_device, defaults.INTEGRITY_ALGORITHM
         )
 
         self.integrity_hmac = IntegrityDevice(
-            storage_device, defaults.INTEGRITY_ALGORITHM,
+            storage_device,
+            defaults.INTEGRITY_ALGORITHM,
             integrity_credentials_type(
                 keydescription=None,
                 keyfile='/etc/pki/storage/dm-integrity-hmac-secret.bin',
                 keyfile_algorithm=defaults.INTEGRITY_KEY_ALGORITHM,
-                options=['legacy_hmac']
-            )
+                options=['legacy_hmac'],
+            ),
         )
 
         self.integrity.integrity_metadata_file = metadata_file
@@ -71,18 +64,29 @@ class TestIntegrityDevice:
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'integritysetup', '-v', '--batch-mode', 'format',
-                    '--integrity', 'sha256', '--sector-size', '512',
-                    '/dev/some-device'
+                    'integritysetup',
+                    '-v',
+                    '--batch-mode',
+                    'format',
+                    '--integrity',
+                    'sha256',
+                    '--sector-size',
+                    '512',
+                    '/dev/some-device',
                 ]
             ),
             call(
                 [
-                    'integritysetup', '-v', '--batch-mode', 'open',
-                    '--integrity', 'sha256',
-                    '/dev/some-device', 'integrityRoot'
+                    'integritysetup',
+                    '-v',
+                    '--batch-mode',
+                    'open',
+                    '--integrity',
+                    'sha256',
+                    '/dev/some-device',
+                    'integrityRoot',
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.storage.integrity_device.Command.run')
@@ -91,32 +95,43 @@ class TestIntegrityDevice:
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'integritysetup', '-v', '--batch-mode', 'format',
-                    '--integrity', 'hmac-sha256', '--sector-size', '512',
+                    'integritysetup',
+                    '-v',
+                    '--batch-mode',
+                    'format',
+                    '--integrity',
+                    'hmac-sha256',
+                    '--sector-size',
+                    '512',
                     '--integrity-legacy-hmac',
                     '--integrity-key-file',
                     '/etc/pki/storage/dm-integrity-hmac-secret.bin',
-                    '--integrity-key-size', '42',
-                    '/dev/some-device'
+                    '--integrity-key-size',
+                    '42',
+                    '/dev/some-device',
                 ]
             ),
             call(
                 [
-                    'integritysetup', '-v', '--batch-mode', 'open',
-                    '--integrity', 'hmac-sha256',
+                    'integritysetup',
+                    '-v',
+                    '--batch-mode',
+                    'open',
+                    '--integrity',
+                    'hmac-sha256',
                     '--integrity-key-file',
                     '/etc/pki/storage/dm-integrity-hmac-secret.bin',
-                    '--integrity-key-size', '42',
-                    '/dev/some-device', 'integrityRoot'
+                    '--integrity-key-size',
+                    '42',
+                    '/dev/some-device',
+                    'integrityRoot',
                 ]
-            )
+            ),
         ]
 
     @patch('kiwi.storage.integrity_device.Command.run')
     @patch('kiwi.storage.integrity_device.BlockID')
-    def test_create_integrity_metadata(
-        self, mock_BlockID, mock_Command_run
-    ):
+    def test_create_integrity_metadata(self, mock_BlockID, mock_Command_run):
         mock_BlockID.return_value.get_filesystem.return_value = 'xfs'
         mock_Command_run.return_value.output = dedent('''\n
             Info for integrity device /dev/mapper/loop0p4.
@@ -138,7 +153,7 @@ class TestIntegrityDevice:
             call(b'\xff'),
             call(b'2234096 512 2 internal_hash:sha256 fix_padding'),
             call(b'\xff'),
-            call(b'\x00')
+            call(b'\x00'),
         ]
 
     @patch('kiwi.storage.integrity_device.Command.run')
@@ -170,7 +185,7 @@ class TestIntegrityDevice:
                 b'hmac(sha256)::dm-integrity-hmac-secret fix_padding'
             ),
             call(b'\xff'),
-            call(b'\x00')
+            call(b'\x00'),
         ]
 
     @patch('kiwi.storage.integrity_device.Signature')
@@ -193,14 +208,12 @@ class TestIntegrityDevice:
             self.integrity.write_integrity_metadata()
         assert mock_open.call_args_list == [
             call('metadata_file', 'rb'),
-            call('/dev/some-device', 'r+b')
+            call('/dev/some-device', 'r+b'),
         ]
         file_handle.seek.assert_called_once_with(
             -defaults.DM_METADATA_OFFSET, 2
         )
-        file_handle.write.assert_called_once_with(
-            file_handle.read.return_value
-        )
+        file_handle.write.assert_called_once_with(file_handle.read.return_value)
 
     @patch('kiwi.storage.integrity_device.BlockID')
     def test_create_integritytab(self, mock_BlockID):

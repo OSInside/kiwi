@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    List, Dict, Union, Optional
-)
+from typing import List, Dict, Union, Optional
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
@@ -27,9 +25,12 @@ class PartitionerBase:
     """
     **Base class for partitioners**
     """
+
     def __init__(
-        self, disk_provider: DeviceProvider, start_sector: int = None,
-        extended_layout: bool = False
+        self,
+        disk_provider: DeviceProvider,
+        start_sector: int = None,
+        extended_layout: bool = False,
     ) -> None:
         """
         Base class constructor for partitioners
@@ -74,8 +75,12 @@ class PartitionerBase:
         return self.partition_id
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        mbsize: int,
+        type_name: str,
+        flags: List[str] = [],
+        partition_id: Optional[int] = None,
     ):
         """
         Create partition

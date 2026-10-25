@@ -10,19 +10,15 @@ class TestPackageManagerTemplateAptGet:
 
     def test_get_host_template(self):
         assert self.apt.get_host_template().substitute(
-            apt_shared_base='/var/cache/kiwi/apt-get',
-            unauthenticated='true'
+            apt_shared_base='/var/cache/kiwi/apt-get', unauthenticated='true'
         )
 
     def test_get_image_template(self):
-        assert self.apt.get_image_template().substitute(
-            unauthenticated='true'
-        )
+        assert self.apt.get_image_template().substitute(unauthenticated='true')
 
     def test_get_host_template_with_exclude_docs(self):
         assert self.apt.get_host_template(exclude_docs=True).substitute(
-            apt_shared_base='/var/cache/kiwi/apt-get',
-            unauthenticated='true'
+            apt_shared_base='/var/cache/kiwi/apt-get', unauthenticated='true'
         )
 
     def test_get_image_template_with_exclude_docs(self):

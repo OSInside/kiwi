@@ -29,6 +29,7 @@ class Help:
     shown if the positional argument 'help' is passed to the
     command.
     """
+
     def show(self, command=None):
         """
         Call man to show the command specific manual page

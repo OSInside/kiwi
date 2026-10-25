@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    List, Dict, Optional, Any
-)
+from typing import List, Dict, Optional, Any
 
 # project
 from kiwi.mount_manager import MountManager
@@ -34,9 +32,14 @@ class SnapshotManagerBase:
         snapshots are hosted in a subvolume.
     :param dict custom_args: dictionary of custom snapshot manager arguments
     """
+
     def __init__(
-        self, device: str, root_dir: str, mountpoint: str,
-        root_volume_name: str, custom_args: Optional[Dict[str, Any]] = None
+        self,
+        device: str,
+        root_dir: str,
+        mountpoint: str,
+        root_volume_name: str,
+        custom_args: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.device = device
         self.root_dir = root_dir

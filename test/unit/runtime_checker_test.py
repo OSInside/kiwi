@@ -1,11 +1,7 @@
 import sys
 import logging
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, Mock
+from pytest import raises, fixture
 import pytest
 
 from .test_helper import argv_kiwi_tests
@@ -32,9 +28,7 @@ class TestRuntimeChecker:
         self.description = XMLDescription(
             '../data/example_runtime_checker_config.xml'
         )
-        self.xml_state = XMLState(
-            self.description.load()
-        )
+        self.xml_state = XMLState(self.description.load())
         self.runtime_config = Mock()
         self.runtime_config.get_oci_archive_tool.return_value = 'umoci'
         kiwi.runtime_checker.RuntimeConfig = Mock(
@@ -94,8 +88,9 @@ class TestRuntimeChecker:
         self, mock_os_path_isdir
     ):
         mock_os_path_isdir.return_value = False
-        self.runtime_checker.\
-            check_dracut_module_versions_compatible_to_kiwi('root_dir')
+        self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi(
+            'root_dir'
+        )
         # does not raise if no dracut is installed
 
     @patch('os.listdir')
@@ -113,29 +108,41 @@ class TestRuntimeChecker:
         package_manager.return_value = 'zypper'
         self.xml_state.get_package_manager = package_manager
         with raises(KiwiRuntimeError) as exception_data:
-            self.runtime_checker.\
-                check_dracut_module_versions_compatible_to_kiwi('root_dir')
+            self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi(
+                'root_dir'
+            )
         assert "'dracut-kiwi-oem-dump': 'got:1.2.3, need:>=9.20.1'" in str(
             exception_data.value
         )
         mock_Command_run.assert_called_once_with(
             [
-                'chroot', 'root_dir', 'rpm', '-q',
-                '--qf', '%{VERSION}', 'dracut-kiwi-oem-dump'
+                'chroot',
+                'root_dir',
+                'rpm',
+                '-q',
+                '--qf',
+                '%{VERSION}',
+                'dracut-kiwi-oem-dump',
             ]
         )
         package_manager.return_value = 'apt'
         mock_Command_run.reset_mock()
         with raises(KiwiRuntimeError) as exception_data:
-            self.runtime_checker.\
-                check_dracut_module_versions_compatible_to_kiwi('root_dir')
+            self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi(
+                'root_dir'
+            )
         assert "'dracut-kiwi-oem-dump': 'got:1.2.3, need:>=9.20.1'" in str(
             exception_data.value
         )
         mock_Command_run.assert_called_once_with(
             [
-                'chroot', 'root_dir', 'dpkg-query',
-                '-W', '-f', '${Version}', 'dracut-kiwi-oem-dump'
+                'chroot',
+                'root_dir',
+                'dpkg-query',
+                '-W',
+                '-f',
+                '${Version}',
+                'dracut-kiwi-oem-dump',
             ]
         )
         mock_Command_run.side_effect = Exception
@@ -143,18 +150,25 @@ class TestRuntimeChecker:
         # the expected behavior is the runtime check to just pass
         # because there is no data to operate on. Best guess approach
         with self._caplog.at_level(logging.DEBUG):
-            self.runtime_checker.\
-                check_dracut_module_versions_compatible_to_kiwi('root_dir')
+            self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi(
+                'root_dir'
+            )
 
     def test_valid_target_dir_1(self):
-        assert self.runtime_checker.check_target_directory_not_in_shared_cache(
-            '/var/cache/kiwi-fast-tmpsystemdir'
-        ) is None
+        assert (
+            self.runtime_checker.check_target_directory_not_in_shared_cache(
+                '/var/cache/kiwi-fast-tmpsystemdir'
+            )
+            is None
+        )
 
     def test_valid_target_dir_2(self):
-        assert self.runtime_checker.check_target_directory_not_in_shared_cache(
-            '/foo/bar'
-        ) is None
+        assert (
+            self.runtime_checker.check_target_directory_not_in_shared_cache(
+                '/foo/bar'
+            )
+            is None
+        )
 
     def test_check_repositories_configured(self):
         self.xml_state.delete_repository_sections()
@@ -170,34 +184,27 @@ class TestRuntimeChecker:
             runtime_checker.check_volume_setup_defines_reserved_labels()
 
     def test_appx_invalid_name(self):
-        xml_state = XMLState(
-            self.description.load(), ['wsl_launcher'], 'appx'
-        )
+        xml_state = XMLState(self.description.load(), ['wsl_launcher'], 'appx')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_appx_naming_conventions_valid()
 
     def test_appx_invalid_id(self):
-        xml_state = XMLState(
-            self.description.load(), ['wsl_id'], 'appx'
-        )
+        xml_state = XMLState(self.description.load(), ['wsl_id'], 'appx')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_appx_naming_conventions_valid()
 
     def test_check_volume_setup_defines_multiple_fullsize_volumes(self):
         with raises(KiwiRuntimeError):
-            self.runtime_checker.\
-                check_volume_setup_defines_multiple_fullsize_volumes()
+            self.runtime_checker.check_volume_setup_defines_multiple_fullsize_volumes()
 
     def test_check_volume_setup_has_no_root_definition(self):
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_volume_setup_has_no_root_definition()
 
     def test_check_partuuid_persistency_type_used_with_mbr(self):
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_partuuid_persistency_type_used_with_mbr()
@@ -211,9 +218,7 @@ class TestRuntimeChecker:
     @patch('kiwi.runtime_checker.Path.which')
     def test_check_container_tool_chain_installed(self, mock_which):
         mock_which.return_value = False
-        xml_state = XMLState(
-            self.description.load(), ['docker'], 'docker'
-        )
+        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -224,22 +229,16 @@ class TestRuntimeChecker:
     ):
         self.runtime_config.get_oci_archive_tool.return_value = 'budah'
         mock_which.return_value = False
-        xml_state = XMLState(
-            self.description.load(), ['docker'], 'docker'
-        )
+        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
 
     @patch('kiwi.runtime_checker.Path.which')
-    def test_check_container_tool_chain_installed_buildah(
-        self, mock_which
-    ):
+    def test_check_container_tool_chain_installed_buildah(self, mock_which):
         self.runtime_config.get_oci_archive_tool.return_value = 'buildah'
         mock_which.return_value = False
-        xml_state = XMLState(
-            self.description.load(), ['docker'], 'docker'
-        )
+        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -251,9 +250,7 @@ class TestRuntimeChecker:
     ):
         mock_which.return_value = True
         mock_cmdver.return_value = False
-        xml_state = XMLState(
-            self.description.load(), ['docker'], 'docker'
-        )
+        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -267,9 +264,7 @@ class TestRuntimeChecker:
         mock_which.return_value = True
         mock_cmdver.return_value = True
         mock_cmdoptions.return_value = False
-        xml_state = XMLState(
-            self.description.load(), ['docker'], 'docker'
-        )
+        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -279,9 +274,7 @@ class TestRuntimeChecker:
         self, mock_boot_path
     ):
         mock_boot_path.return_value = '../data'
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'oem'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_consistent_kernel_in_boot_and_system_image()
@@ -314,51 +307,35 @@ class TestRuntimeChecker:
             runtime_checker.check_boot_description_exists()
 
     def test_check_xen_uniquely_setup_as_server_or_guest_for_ec2(self):
-        self.xml_state.build_type.get_firmware = Mock(
-            return_value='ec2'
-        )
-        self.xml_state.is_xen_server = Mock(
-            return_value=True
-        )
-        self.xml_state.is_xen_guest = Mock(
-            return_value=True
-        )
+        self.xml_state.build_type.get_firmware = Mock(return_value='ec2')
+        self.xml_state.is_xen_server = Mock(return_value=True)
+        self.xml_state.is_xen_guest = Mock(return_value=True)
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
 
     def test_check_efi_fat_image_has_correct_size(self):
-        self.xml_state.build_type.get_efifatimagesize = Mock(
-            return_value='200'
-        )
+        self.xml_state.build_type.get_efifatimagesize = Mock(return_value='200')
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_efi_fat_image_has_correct_size()
 
     def test_check_xen_uniquely_setup_as_server_or_guest_for_xen(self):
-        self.xml_state.build_type.get_firmware = Mock(
-            return_value=None
-        )
-        self.xml_state.is_xen_server = Mock(
-            return_value=True
-        )
-        self.xml_state.is_xen_guest = Mock(
-            return_value=True
-        )
+        self.xml_state.build_type.get_firmware = Mock(return_value=None)
+        self.xml_state.is_xen_server = Mock(return_value=True)
+        self.xml_state.is_xen_guest = Mock(return_value=True)
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
 
     def test_check_dracut_module_for_disk_overlay_in_package_list(self):
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
-        xml_state.build_type.get_overlayroot = Mock(
-            return_value=True
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
+        xml_state.build_type.get_overlayroot = Mock(return_value=True)
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
-            runtime_checker.\
-                check_dracut_module_for_disk_overlay_in_package_list()
+            runtime_checker.check_dracut_module_for_disk_overlay_in_package_list()
 
-    @pytest.mark.parametrize("tool_name, tool_binary", [("isomd5sum", "implantisomd5"), ("checkmedia", "tagmedia")])
+    @pytest.mark.parametrize(
+        "tool_name, tool_binary",
+        [("isomd5sum", "implantisomd5"), ("checkmedia", "tagmedia")],
+    )
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.RuntimeConfig')
     def test_check_mediacheck_installed_implantisomd5_missing(
@@ -369,14 +346,15 @@ class TestRuntimeChecker:
         mock_RuntimeConfig.return_value = runtime_config
 
         mock_which.return_value = False
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError) as rt_err_ctx:
             runtime_checker.check_mediacheck_installed()
 
-        assert f"Required tool {tool_binary} not found in caller environment" in str(rt_err_ctx.value)
+        assert (
+            f"Required tool {tool_binary} not found in caller environment"
+            in str(rt_err_ctx.value)
+        )
 
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.RuntimeConfig')
@@ -387,7 +365,7 @@ class TestRuntimeChecker:
         mock_CommandCapabilities_check_version,
         mock_FirmWare,
         mock_RuntimeConfig,
-        mock_which
+        mock_which,
     ):
         mock_CommandCapabilities_check_version.return_value = False
         firmware = Mock()
@@ -397,57 +375,46 @@ class TestRuntimeChecker:
         runtime_config.get_iso_media_tag_tool.return_value = 'checkmedia'
         mock_RuntimeConfig.return_value = runtime_config
         mock_which.return_value = True
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError) as runtime_context:
             runtime_checker.check_checkmedia_used_with_msdos_table()
 
-        assert 'ISO media tag tool tagmedia < v6.6 does not support gpt' in \
-            format(runtime_context)
+        assert (
+            'ISO media tag tool tagmedia < v6.6 does not support gpt'
+            in format(runtime_context)
+        )
 
     def test_check_dracut_module_for_live_iso_in_package_list(self):
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_dracut_module_for_live_iso_in_package_list()
 
     def test_check_dracut_module_for_disk_oem_in_package_list(self):
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'oem'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_dracut_module_for_disk_oem_in_package_list()
 
     def test_check_dracut_module_for_oem_install_in_package_list(self):
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'oem'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
-            runtime_checker.\
-                check_dracut_module_for_oem_install_in_package_list()
+            runtime_checker.check_dracut_module_for_oem_install_in_package_list()
 
     def test_check_volume_label_used_with_lvm(self):
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_volume_label_used_with_lvm()
 
     def test_check_swap_name_used_with_lvm(self):
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'oem'
-        )
+        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_swap_name_used_with_lvm()
 
     def test_check_preferences_data_no_version(self):
-        xml_state = XMLState(
-            self.description.load(), ['docker'], 'docker'
-        )
+        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_image_version_provided()

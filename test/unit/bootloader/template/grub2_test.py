@@ -27,7 +27,7 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_multiboot_install_template_console(self):
@@ -48,7 +48,7 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_multiboot_install_template_serial(self):
@@ -69,7 +69,7 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='serial',
-            terminal_output='serial'
+            terminal_output='serial',
         )
 
     def test_get_multiboot_install_template_console_relative_btrfs(self):
@@ -90,13 +90,11 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_install_template(self):
-        assert self.grub2.get_install_template(
-            has_serial=True
-        ).substitute(
+        assert self.grub2.get_install_template(has_serial=True).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
             default_boot='0',
             kernel_file='boot/linux.vmx',
@@ -113,7 +111,7 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_install_template_relative_btrfs(self):
@@ -136,13 +134,11 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_iso_template(self):
-        assert self.grub2.get_iso_template(
-            has_serial=True
-        ).substitute(
+        assert self.grub2.get_iso_template(has_serial=True).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
             default_boot='0',
             kernel_file='boot/linux.vmx',
@@ -159,7 +155,7 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_iso_template_checkiso(self):
@@ -180,7 +176,7 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_iso_template_checkiso_relative_btrfs(self):
@@ -203,7 +199,7 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_multiboot_iso_template(self):
@@ -225,7 +221,7 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_multiboot_iso_template_console(self):
@@ -246,13 +242,12 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_multiboot_iso_template_serial(self):
         assert self.grub2.get_multiboot_iso_template(
-            has_graphics=False,
-            has_serial=True
+            has_graphics=False, has_serial=True
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -268,7 +263,7 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='serial',
-            terminal_output='serial'
+            terminal_output='serial',
         )
 
     def test_get_multiboot_iso_template_checkiso(self):
@@ -290,7 +285,7 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )
 
     def test_get_multiboot_iso_template_checkiso_relative_btrfs(self):
@@ -314,5 +309,5 @@ class TestBootLoaderTemplateGrub2:
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
             terminal_input='console',
-            terminal_output='console'
+            terminal_output='console',
         )

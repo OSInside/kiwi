@@ -21,9 +21,7 @@ import random
 import logging
 import copy
 from functools import reduce
-from typing import (
-    Dict, List, Optional
-)
+from typing import Dict, List, Optional
 
 # project
 import kiwi.defaults as defaults
@@ -36,9 +34,7 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.utils.veritysetup import VeritySetup
 
-from kiwi.exceptions import (
-    KiwiFileSystemSyncError
-)
+from kiwi.exceptions import KiwiFileSystemSyncError
 
 log = logging.getLogger('kiwi')
 
@@ -54,6 +50,7 @@ class FileSystemBase:
     :param string root_dir: root directory path name
     :param dict custom_args: custom filesystem arguments
     """
+
     # Mount options applied only to the install time mount of a newly created
     # filesystem. They are deliberately not part of the mount options from the
     # image description and therefore never end up in the fstab of the
@@ -63,8 +60,10 @@ class FileSystemBase:
     sparse_install_mount_options: List[str] = []
 
     def __init__(
-        self, device_provider: DeviceProvider,
-        root_dir: str = '', custom_args: Dict = {}
+        self,
+        device_provider: DeviceProvider,
+        root_dir: str = '',
+        custom_args: Dict = {},
     ):
         # filesystems created with a block device stores the mountpoint
         # here. The file name of the file containing the filesystem is
@@ -137,8 +136,11 @@ class FileSystemBase:
         )
 
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
-        uuid: str = None
+        self,
+        label: str = None,
+        size: int = 0,
+        unit: str = defaults.UNIT.kb,
+        uuid: str = None,
     ):
         """
         Create filesystem on block device
@@ -194,9 +196,7 @@ class FileSystemBase:
             un-mount the filesystem again.
         """
         if not self.root_dir:
-            raise KiwiFileSystemSyncError(
-                'no root directory specified'
-            )
+            raise KiwiFileSystemSyncError('no root directory specified')
         if not os.path.exists(self.root_dir):
             raise KiwiFileSystemSyncError(
                 f'given root directory {self.root_dir} does not exist'
@@ -204,16 +204,10 @@ class FileSystemBase:
         self.filesystem_mount = MountManager(
             device=self.device_provider.get_device()
         )
-        self.filesystem_mount.mount(
-            self._get_install_mount_options()
-        )
+        self.filesystem_mount.mount(self._get_install_mount_options())
         self._apply_attributes()
-        data = DataSync(
-            self.root_dir, self.filesystem_mount.mountpoint
-        )
-        data.sync_data(
-            exclude=exclude, options=Defaults.get_sync_options()
-        )
+        data = DataSync(self.root_dir, self.filesystem_mount.mountpoint)
+        data.sync_data(exclude=exclude, options=Defaults.get_sync_options())
         return self.filesystem_mount
 
     def _get_install_mount_options(self) -> List[str]:
@@ -235,8 +229,7 @@ class FileSystemBase:
         :rtype: list
         """
         return FileSystemBase.merge_install_mount_options(
-            self.sparse_install_mount_options,
-            self.custom_args['mount_options']
+            self.sparse_install_mount_options, self.custom_args['mount_options']
         )
 
     @staticmethod
@@ -296,8 +289,7 @@ class FileSystemBase:
         """
         on_file_name = filename or self.filename
         self.veritysetup = VeritySetup(
-            on_file_name or self.device_provider.get_device(),
-            blocks
+            on_file_name or self.device_provider.get_device(), blocks
         )
         log.info(
             '--> Creating dm verity hash ({0} blocks)...'.format(
@@ -330,9 +322,7 @@ class FileSystemBase:
         Mount the filesystem
         """
         if self.filesystem_mount:
-            self.filesystem_mount.mount(
-                self.custom_args['mount_options']
-            )
+            self.filesystem_mount.mount(self.custom_args['mount_options'])
 
     def umount(self) -> None:
         """
@@ -408,9 +398,7 @@ class FileSystemBase:
             )
             rd = random.Random()
             rd.seed(epoch_seed)
-            return format(
-                uuid.UUID(int=rd.getrandbits(random_bits))
-            )
+            return format(uuid.UUID(int=rd.getrandbits(random_bits)))
         else:
             return format(uuid.uuid4())
 
@@ -433,7 +421,7 @@ class FileSystemBase:
             defaults.UNIT.byte: 1,
             defaults.UNIT.kb: 1024,
             defaults.UNIT.mb: 1048576,
-            defaults.UNIT.gb: 1073741824
+            defaults.UNIT.gb: 1073741824,
         }
         byte_size = size * unit_map[from_unit]
         return byte_size / unit_map[to_unit]
@@ -471,7 +459,8 @@ class FileSystemBase:
             requested_byte_size = self._map_size(size, unit, defaults.UNIT.byte)
             result_size = self._map_size(
                 (device_byte_size + requested_byte_size) / blocksize,
-                from_unit=defaults.UNIT.byte, to_unit=unit
+                from_unit=defaults.UNIT.byte,
+                to_unit=unit,
             )
         return format(int(result_size))
 
@@ -479,10 +468,7 @@ class FileSystemBase:
         """
         Apply filesystem attributes
         """
-        attribute_map = {
-            'synchronous-updates': '+S',
-            'no-copy-on-write': '+C'
-        }
+        attribute_map = {'synchronous-updates': '+S', 'no-copy-on-write': '+C'}
         for attribute in self.custom_args['fs_attributes']:
             if attribute_map.get(attribute):
                 log.info(
@@ -492,8 +478,9 @@ class FileSystemBase:
                 )
                 Command.run(
                     [
-                        'chattr', attribute_map.get(attribute),
-                        self.filesystem_mount.mountpoint
+                        'chattr',
+                        attribute_map.get(attribute),
+                        self.filesystem_mount.mountpoint,
                     ]
                 )
 

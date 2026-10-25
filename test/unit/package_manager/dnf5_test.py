@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call
-)
+from unittest.mock import patch, call
 from pytest import raises
 import unittest.mock as mock
 
@@ -17,7 +15,7 @@ class TestPackageManagerDnf5:
         repository.runtime_config = mock.Mock(
             return_value={
                 'dnf_args': ['--config', '/root-dir/dnf.conf', '-y'],
-                'command_env': ['env']
+                'command_env': ['env'],
             }
         )
         self.manager = PackageManagerDnf5(repository)
@@ -44,41 +42,23 @@ class TestPackageManagerDnf5:
     @patch('kiwi.command.Command.run')
     def test_setup_repository_modules(self, mock_run):
         self.manager.setup_repository_modules(
-            {
-                'disable': ['mod_c'],
-                'enable': ['mod_a:stream', 'mod_b']
-            }
+            {'disable': ['mod_c'], 'enable': ['mod_a:stream', 'mod_b']}
         )
         dnf_call_args = [
-            'dnf5', '--config', '/root-dir/dnf.conf',
-            '-y', '--installroot', '/root-dir', '--releasever=0'
+            'dnf5',
+            '--config',
+            '/root-dir/dnf.conf',
+            '-y',
+            '--installroot',
+            '/root-dir',
+            '--releasever=0',
         ]
         assert mock_run.call_args_list == [
-            call(
-                dnf_call_args + [
-                    'module', 'disable', 'mod_c'
-                ], ['env']
-            ),
-            call(
-                dnf_call_args + [
-                    'module', 'reset', 'mod_a'
-                ], ['env']
-            ),
-            call(
-                dnf_call_args + [
-                    'module', 'enable', 'mod_a:stream'
-                ], ['env']
-            ),
-            call(
-                dnf_call_args + [
-                    'module', 'reset', 'mod_b'
-                ], ['env']
-            ),
-            call(
-                dnf_call_args + [
-                    'module', 'enable', 'mod_b'
-                ], ['env']
-            )
+            call(dnf_call_args + ['module', 'disable', 'mod_c'], ['env']),
+            call(dnf_call_args + ['module', 'reset', 'mod_a'], ['env']),
+            call(dnf_call_args + ['module', 'enable', 'mod_a:stream'], ['env']),
+            call(dnf_call_args + ['module', 'reset', 'mod_b'], ['env']),
+            call(dnf_call_args + ['module', 'enable', 'mod_b'], ['env']),
         ]
 
     @patch('kiwi.command.Command.call')
@@ -90,17 +70,30 @@ class TestPackageManagerDnf5:
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
             [
-                'dnf5', '--config', '/root-dir/dnf.conf', '-y',
-                '--releasever=0', 'makecache'
-            ], ['env']
+                'dnf5',
+                '--config',
+                '/root-dir/dnf.conf',
+                '-y',
+                '--releasever=0',
+                'makecache',
+            ],
+            ['env'],
         )
         mock_call.assert_called_once_with(
             [
-                'dnf5', '--config', '/root-dir/dnf.conf', '-y',
-                '--installroot', '/root-dir', '--releasever=0',
+                'dnf5',
+                '--config',
+                '/root-dir/dnf.conf',
+                '-y',
+                '--installroot',
+                '/root-dir',
+                '--releasever=0',
                 '--exclude=skipme',
-                'install', 'vim', '@collection'
-            ], ['env']
+                'install',
+                'vim',
+                '@collection',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -111,10 +104,19 @@ class TestPackageManagerDnf5:
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'dnf5', '--config', '/dnf.conf', '-y',
-                '--releasever=0', '--exclude=skipme',
-                'install', 'vim', '@collection'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'dnf5',
+                '--config',
+                '/dnf.conf',
+                '-y',
+                '--releasever=0',
+                '--exclude=skipme',
+                'install',
+                'vim',
+                '@collection',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -124,12 +126,16 @@ class TestPackageManagerDnf5:
         self.manager.process_delete_requests(True)
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'rpm', '-e',
-                '--nodeps', '--allmatches', '--noscripts', 'vim'
+                'chroot',
+                '/root-dir',
+                'rpm',
+                '-e',
+                '--nodeps',
+                '--allmatches',
+                '--noscripts',
+                'vim',
             ],
-            [
-                'env'
-            ]
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -139,19 +145,23 @@ class TestPackageManagerDnf5:
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'dnf5',
-                '--config', '/dnf.conf', '-y',
-                '--releasever=0', '--setopt=clean_requirements_on_remove=true',
-                'remove', 'vim'
+                'chroot',
+                '/root-dir',
+                'dnf5',
+                '--config',
+                '/dnf.conf',
+                '-y',
+                '--releasever=0',
+                '--setopt=clean_requirements_on_remove=true',
+                'remove',
+                'vim',
             ],
-            ['env']
+            ['env'],
         )
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.command.Command.call')
-    def test_process_delete_requests_package_missing(
-        self, mock_call, mock_run
-    ):
+    def test_process_delete_requests_package_missing(self, mock_call, mock_run):
         mock_run.side_effect = Exception
         self.manager.request_package('vim')
         with raises(KiwiRequestError):
@@ -165,17 +175,23 @@ class TestPackageManagerDnf5:
         self.manager.update()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'dnf5',
-                '--config', '/dnf.conf', '-y',
-                '--releasever=0', 'upgrade'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'dnf5',
+                '--config',
+                '/dnf.conf',
+                '-y',
+                '--releasever=0',
+                'upgrade',
+            ],
+            ['env'],
         )
 
     def test_process_only_required(self):
         self.manager.process_only_required()
         assert self.manager.custom_args == [
             '--setopt=install_weak_deps=False',
-            '--setopt=group_package_types=mandatory'
+            '--setopt=group_package_types=mandatory',
         ]
 
     def test_process_plus_recommended(self):
@@ -183,12 +199,12 @@ class TestPackageManagerDnf5:
         self.manager.process_plus_recommended()
         assert self.manager.custom_args == [
             '--setopt=install_weak_deps=True',
-            '--setopt=group_package_types=default,mandatory,conditional'
+            '--setopt=group_package_types=default,mandatory,conditional',
         ]
         self.manager.process_only_required()
         assert self.manager.custom_args == [
             '--setopt=install_weak_deps=False',
-            '--setopt=group_package_types=mandatory'
+            '--setopt=group_package_types=mandatory',
         ]
 
     def test_match_package_installed(self):

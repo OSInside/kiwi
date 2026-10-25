@@ -19,8 +19,5 @@ class TestSparseFile:
         mock_which.return_value = None
         SparseFile.create('disk.raw', '20M')
         mock_command_run.assert_called_once_with(
-            [
-                'dd', 'if=/dev/null', 'of=disk.raw',
-                'bs=1', 'count=0', 'seek=20M'
-            ]
+            ['dd', 'if=/dev/null', 'of=disk.raw', 'bs=1', 'count=0', 'seek=20M']
         )

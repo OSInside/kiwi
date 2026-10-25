@@ -40,6 +40,7 @@ class ImageInfoTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Walks through the given info options and provide the requested data
@@ -58,7 +59,7 @@ class ImageInfoTask(CliTask):
         if self.command_args['--add-repo']:
             for add_repo, add_credentials in zip_longest(
                 self.command_args['--add-repo'],
-                self.command_args['--add-repo-credentials']
+                self.command_args['--add-repo-credentials'],
             ):
                 self.xml_state.add_repository(
                     *self._get_repo_parameters(add_repo, add_credentials)
@@ -66,9 +67,7 @@ class ImageInfoTask(CliTask):
 
         self.runtime_checker.check_repositories_configured()
 
-        result = {
-            'image': self.xml_state.xml_data.get_name()
-        }
+        result = {'image': self.xml_state.xml_data.get_name()}
 
         if self.command_args['--print-kiwi-env']:
             profile = Profile(self.xml_state)
@@ -85,19 +84,22 @@ class ImageInfoTask(CliTask):
         if self.command_args['--resolve-package-list']:
             solver = self._setup_solver()
             boostrap_package_list = self.xml_state.get_bootstrap_packages()
-            package_list = boostrap_package_list + \
-                self.xml_state.get_system_packages()
-            bootstrap_collection_type = \
+            package_list = (
+                boostrap_package_list + self.xml_state.get_system_packages()
+            )
+            bootstrap_collection_type = (
                 self.xml_state.get_bootstrap_collection_type()
-            system_collection_type = \
-                self.xml_state.get_system_collection_type()
+            )
+            system_collection_type = self.xml_state.get_system_collection_type()
             bootstrap_packages = solver.solve(
-                boostrap_package_list, False,
-                True if bootstrap_collection_type == 'onlyRequired' else False
+                boostrap_package_list,
+                False,
+                True if bootstrap_collection_type == 'onlyRequired' else False,
             )
             solved_packages = solver.solve(
-                self.xml_state.get_system_packages(), False,
-                True if system_collection_type == 'onlyRequired' else False
+                self.xml_state.get_system_packages(),
+                False,
+                True if system_collection_type == 'onlyRequired' else False,
             )
             solved_packages.update(bootstrap_packages)
             package_info = {}
@@ -111,7 +113,7 @@ class ImageInfoTask(CliTask):
                     'installsize_bytes': int(metadata.installsize_bytes),
                     'arch': metadata.arch,
                     'version': metadata.version,
-                    'status': status
+                    'status': status,
                 }
             result['resolved-packages'] = package_info
 
@@ -123,17 +125,17 @@ class ImageInfoTask(CliTask):
         if self.command_args['--print-xml']:
             DataOutput.display_file(
                 self.description.markup.get_xml_description(),
-                'Description(XML):'
+                'Description(XML):',
             )
         elif self.command_args['--print-yaml']:
             DataOutput.display_file(
                 self.description.markup.get_yaml_description(),
-                'Description(YAML):'
+                'Description(YAML):',
             )
         elif self.command_args['--print-toml']:
             DataOutput.display_file(
                 self.description.markup.get_toml_description(),
-                'Description(TOML):'
+                'Description(TOML):',
             )
 
     def _setup_solver(self):
@@ -149,7 +151,8 @@ class ImageInfoTask(CliTask):
             if not repo_type:
                 repo_type = SolverRepositoryBase(
                     Uri(uri=repo_source, source_type=repo_sourcetype),
-                    repo_user, repo_secret
+                    repo_user,
+                    repo_secret,
                 ).get_repo_type()
             if repo_type == 'apt-deb':
                 # Debian based repos can be setup for a specific
@@ -163,24 +166,30 @@ class ImageInfoTask(CliTask):
                     for component in repo_components.split():
                         repo_source_for_component = os.sep.join(
                             [
-                                repo_source.rstrip(os.sep), 'dists', repo_dist,
-                                component, f'binary-{dist_type.get("arch")}'
+                                repo_source.rstrip(os.sep),
+                                'dists',
+                                repo_dist,
+                                component,
+                                f'binary-{dist_type.get("arch")}',
                             ]
                         )
                         solver.add_repository(
                             SolverRepository.new(
                                 Uri(
                                     repo_source_for_component,
-                                    repo_type, repo_sourcetype
+                                    repo_type,
+                                    repo_sourcetype,
                                 ),
-                                repo_user, repo_secret
+                                repo_user,
+                                repo_secret,
                             )
                         )
                     continue
             solver.add_repository(
                 SolverRepository.new(
                     Uri(repo_source, repo_type, repo_sourcetype),
-                    repo_user, repo_secret
+                    repo_user,
+                    repo_secret,
                 )
             )
         return solver

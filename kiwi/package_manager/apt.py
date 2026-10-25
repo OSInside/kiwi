@@ -20,9 +20,7 @@ import os
 import glob
 import logging
 import pathlib
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.command import CommandCallT
@@ -38,7 +36,7 @@ import kiwi.defaults as defaults
 from kiwi.exceptions import (
     KiwiDebianBootstrapError,
     KiwiRequestError,
-    KiwiFileNotFound
+    KiwiFileNotFound,
 )
 
 log = logging.getLogger('kiwi')
@@ -54,6 +52,7 @@ class PackageManagerApt(PackageManagerBase):
         apt-get command environment from repository
         runtime configuration
     """
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -90,9 +89,7 @@ class PackageManagerApt(PackageManagerBase):
 
         :param str name: unused
         """
-        log.warning(
-            'Collection(%s) handling not supported for apt-get', name
-        )
+        log.warning('Collection(%s) handling not supported for apt-get', name)
 
     def request_product(self, name: str) -> None:
         """
@@ -102,9 +99,7 @@ class PackageManagerApt(PackageManagerBase):
 
         :param str name: unused
         """
-        log.warning(
-            'Product(%s) handling not supported for apt-get', name
-        )
+        log.warning('Product(%s) handling not supported for apt-get', name)
 
     def request_package_exclusion(self, name: str) -> None:
         """
@@ -175,22 +170,17 @@ class PackageManagerApt(PackageManagerBase):
         :rtype: command_call_type
         """
         # Install prebuilt bootstrap package on build host
-        update_command = [
-            'apt-get'
-        ] + self.apt_get_args + self.custom_args + [
-            'update'
-        ]
-        install_command = [
-            'apt-get'
-        ] + self.apt_get_args + self.custom_args + [
-            'install', bootstrap_package
-        ]
-        Command.run(
-            update_command, self.command_env
+        update_command = (
+            ['apt-get'] + self.apt_get_args + self.custom_args + ['update']
         )
-        Command.run(
-            install_command, self.command_env
+        install_command = (
+            ['apt-get']
+            + self.apt_get_args
+            + self.custom_args
+            + ['install', bootstrap_package]
         )
+        Command.run(update_command, self.command_env)
+        Command.run(install_command, self.command_env)
         # Unpack prebuilt bootstrap root tarball as new root
         bootstrap_root_tarball = '/var/lib/bootstrap/{0}.{1}.tar.xz'.format(
             bootstrap_package, defaults.PLATFORM_MACHINE
@@ -199,9 +189,7 @@ class PackageManagerApt(PackageManagerBase):
             raise KiwiFileNotFound(
                 f'bootstrap tarball: {bootstrap_root_tarball!r} not found'
             )
-        Command.run(
-            ['tar', '-C', self.root_dir, '-xf', bootstrap_root_tarball]
-        )
+        Command.run(['tar', '-C', self.root_dir, '-xf', bootstrap_root_tarball])
         # Install eventual bootstrap packages as standard system install
         return self.process_install_requests()
 
@@ -238,32 +226,26 @@ class PackageManagerApt(PackageManagerBase):
 
             if 'apt' not in self.package_requests:
                 self.package_requests.append('apt')
-            update_cache = [
-                'apt-get'
-            ] + self.apt_get_args + self.custom_args + [
-                'update'
-            ]
-            result = Command.run(
-                update_cache, self.command_env
+            update_cache = (
+                ['apt-get'] + self.apt_get_args + self.custom_args + ['update']
             )
-            log.debug(
-                'Apt update: {0} {1}'.format(result.output, result.error)
-            )
+            result = Command.run(update_cache, self.command_env)
+            log.debug('Apt update: {0} {1}'.format(result.output, result.error))
             package_names = Temporary(prefix='kiwi_debs_').new_file()
-            self.bootstrap_packages = [
-                '?essential'
-            ] + self.package_requests
-            download_bootstrap = [
-                'apt-get'
-            ] + self.apt_get_args + self.custom_args + [
-                'install',
-                '-oDebug::pkgDPkgPm=1',
-                f'-oDPkg::Pre-Install-Pkgs::=cat >{package_names.name}'
-            ] + self.bootstrap_packages
-            # Download solved bootstrap packages
-            result = Command.run(
-                download_bootstrap, self.command_env
+            self.bootstrap_packages = ['?essential'] + self.package_requests
+            download_bootstrap = (
+                ['apt-get']
+                + self.apt_get_args
+                + self.custom_args
+                + [
+                    'install',
+                    '-oDebug::pkgDPkgPm=1',
+                    f'-oDPkg::Pre-Install-Pkgs::=cat >{package_names.name}',
+                ]
+                + self.bootstrap_packages
             )
+            # Download solved bootstrap packages
+            result = Command.run(download_bootstrap, self.command_env)
             log.debug(
                 'Apt download: {0} {1}'.format(result.output, result.error)
             )
@@ -274,11 +256,13 @@ class PackageManagerApt(PackageManagerBase):
             for package in solved_debootstrap_packages:
                 Command.run(
                     [
-                        'bash', '-c',
+                        'bash',
+                        '-c',
                         'dpkg-deb --fsys-tarfile {0} | tar -C {1} -x'.format(
                             package, self.root_dir
-                        )
-                    ], self.command_env
+                        ),
+                    ],
+                    self.command_env,
                 )
             # Run package scripts. Unfortuantely Debian based systems
             # requires special sauce for bootstrap. See the exceptions
@@ -290,21 +274,17 @@ class PackageManagerApt(PackageManagerBase):
             # 1. Pass: Run package scripts, manual order
             self._run_bootstrap_scripts(
                 solved_debootstrap_packages,
-                only_for=['base-passwd'], skip=['usrmerge']
+                only_for=['base-passwd'],
+                skip=['usrmerge'],
             )
             # 2. Pass: Run package scripts in apt order
             self._run_bootstrap_scripts(
-                solved_debootstrap_packages,
-                skip=['usrmerge']
+                solved_debootstrap_packages, skip=['usrmerge']
             )
             self.cleanup_requests()
-            return Command.call(
-                update_cache, self.command_env
-            )
+            return Command.call(update_cache, self.command_env)
         except Exception as e:
-            raise KiwiDebianBootstrapError(
-                f'{type(e).__name__}: {format(e)}'
-            )
+            raise KiwiDebianBootstrapError(f'{type(e).__name__}: {format(e)}')
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -337,9 +317,7 @@ class PackageManagerApt(PackageManagerBase):
         apt_get_command.extend(self.bootstrap_packages)
         apt_get_command.extend(self._package_requests())
 
-        return Command.call(
-            apt_get_command, self.command_env
-        )
+        return Command.call(apt_get_command, self.command_env)
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
@@ -383,14 +361,14 @@ class PackageManagerApt(PackageManagerBase):
             [
                 'cp',
                 f'{self.root_dir}/usr/sbin/ldconfig',
-                f'{self.root_dir}/usr/sbin/ldconfig.orig'
+                f'{self.root_dir}/usr/sbin/ldconfig.orig',
             ]
         )
         Command.run(
             [
                 'cp',
                 f'{self.root_dir}/usr/bin/true',
-                f'{self.root_dir}/usr/sbin/ldconfig'
+                f'{self.root_dir}/usr/sbin/ldconfig',
             ]
         )
         if force:
@@ -401,10 +379,12 @@ class PackageManagerApt(PackageManagerBase):
             # are still cases when it does not work depending on the many
             # code that runs on deleting
             for package in delete_items:
-                pre_delete_pattern = \
+                pre_delete_pattern = (
                     f'{self.root_dir}/var/lib/dpkg/info/{package}*.pre*'
-                post_delete_pattern = \
+                )
+                post_delete_pattern = (
                     f'{self.root_dir}/var/lib/dpkg/info/{package}*.post*'
+                )
                 for delete_file in glob.iglob(pre_delete_pattern):
                     Path.wipe(delete_file)
                 for delete_file in glob.iglob(post_delete_pattern):
@@ -416,7 +396,7 @@ class PackageManagerApt(PackageManagerBase):
                     '--remove',
                     '--force-remove-reinstreq',
                     '--force-remove-essential',
-                    '--force-depends'
+                    '--force-depends',
                 ]
             )
             apt_get_command.extend(delete_items)
@@ -429,13 +409,9 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command.extend(['--auto-remove', 'remove'])
             apt_get_command.extend(delete_items)
 
-        return Command.call(
-            apt_get_command, self.command_env
-        )
+        return Command.call(apt_get_command, self.command_env)
 
-    def post_process_delete_requests(
-        self, root_bind: RootBind = None
-    ) -> None:
+    def post_process_delete_requests(self, root_bind: RootBind = None) -> None:
         """
         Revert system changes done prior deleting packages
 
@@ -445,7 +421,7 @@ class PackageManagerApt(PackageManagerBase):
             [
                 'mv',
                 f'{self.root_dir}/usr/sbin/ldconfig.orig',
-                f'{self.root_dir}/usr/sbin/ldconfig'
+                f'{self.root_dir}/usr/sbin/ldconfig',
             ]
         )
 
@@ -464,9 +440,7 @@ class PackageManagerApt(PackageManagerBase):
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('upgrade')
 
-        return Command.call(
-            apt_get_command, self.command_env
-        )
+        return Command.call(apt_get_command, self.command_env)
 
     def process_only_required(self) -> None:
         """
@@ -505,7 +479,7 @@ class PackageManagerApt(PackageManagerBase):
         return bool(
             re.match(
                 '.*Unpacking {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -525,7 +499,7 @@ class PackageManagerApt(PackageManagerBase):
         return bool(
             re.match(
                 '.*Removing {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -545,8 +519,10 @@ class PackageManagerApt(PackageManagerBase):
         return items
 
     def _run_bootstrap_scripts(
-        self, solved_debootstrap_packages: List[str],
-        only_for: List[str] = [], skip: List[str] = []
+        self,
+        solved_debootstrap_packages: List[str],
+        only_for: List[str] = [],
+        skip: List[str] = [],
     ):
         # TODO: this should not be needed but without setting
         # the following environment variables no package pre/post
@@ -571,14 +547,11 @@ class PackageManagerApt(PackageManagerBase):
                     break
             if not go_ahead:
                 continue
-            log.debug(
-                f'Running pre/post scripts for: {package_base_name}'
-            )
-            package_metadata_dir = \
+            log.debug(f'Running pre/post scripts for: {package_base_name}')
+            package_metadata_dir = (
                 f'{post_script_dir.name}/{os.path.basename(package)}'
-            Command.run(
-                ['dpkg', '-e', package, package_metadata_dir]
             )
+            Command.run(['dpkg', '-e', package, package_metadata_dir])
             script_pre = f'{package_metadata_dir}/preinst'
             script_post = f'{package_metadata_dir}/postinst'
             # 1. preinst
@@ -586,9 +559,12 @@ class PackageManagerApt(PackageManagerBase):
                 Command.run(['chmod', '755', script_pre])
                 Command.run(
                     [
-                        'chroot', self.root_dir,
-                        f'{script_pre.replace(self.root_dir, "")}', 'install'
-                    ], self.command_env
+                        'chroot',
+                        self.root_dir,
+                        f'{script_pre.replace(self.root_dir, "")}',
+                        'install',
+                    ],
+                    self.command_env,
                 )
             # 2. postinst
             if os.path.exists(script_post):
@@ -596,18 +572,23 @@ class PackageManagerApt(PackageManagerBase):
                 try:
                     Command.run(
                         [
-                            'chroot', self.root_dir,
+                            'chroot',
+                            self.root_dir,
                             f'{script_post.replace(self.root_dir, "")}',
-                            'configure'
-                        ], self.command_env
+                            'configure',
+                        ],
+                        self.command_env,
                     )
                 except Exception:
                     # Some newer postinst scripts require a non-empty
                     # version number as second parameter.
                     Command.run(
                         [
-                            'chroot', self.root_dir,
+                            'chroot',
+                            self.root_dir,
                             f'{script_post.replace(self.root_dir, "")}',
-                            'configure', "0"
-                        ], self.command_env
+                            'configure',
+                            "0",
+                        ],
+                        self.command_env,
                     )

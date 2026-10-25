@@ -27,6 +27,7 @@ class FileSystemSquashFs(FileSystemBase):
     """
     **Implements creation of squashfs filesystem**
     """
+
     def create_on_file(
         self, filename, label: str = None, exclude: List[str] = None
     ):
@@ -73,7 +74,13 @@ class FileSystemSquashFs(FileSystemBase):
 
         Command.run(
             [
-                'mksquashfs', self.root_dir, self.filename,
-                '-noappend', '-b', '1M'
-            ] + call_args + exclude_options
+                'mksquashfs',
+                self.root_dir,
+                self.filename,
+                '-noappend',
+                '-b',
+                '1M',
+            ]
+            + call_args
+            + exclude_options
         )

@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call, MagicMock
-)
+from unittest.mock import patch, call, MagicMock
 from base64 import b64encode
 from pytest import raises
 import io
@@ -29,9 +27,7 @@ class TestRepositoryApt:
         root_bind.shared_location = '/shared-dir'
 
         with patch('builtins.open', create=True):
-            self.repo = RepositoryApt(
-                root_bind, custom_args=['exclude_docs']
-            )
+            self.repo = RepositoryApt(root_bind, custom_args=['exclude_docs'])
 
             self.exclude_docs = True
             self.apt_conf.get_host_template.assert_called_once_with(
@@ -40,11 +36,12 @@ class TestRepositoryApt:
             template.substitute.assert_called_once_with(
                 {
                     'apt_shared_base': '/shared-dir/apt-get',
-                    'unauthenticated': 'true'
+                    'unauthenticated': 'true',
                 }
             )
             repo = RepositoryApt(
-                root_bind, custom_args=['check_signatures', '_target_arch%amd64']
+                root_bind,
+                custom_args=['check_signatures', '_target_arch%amd64'],
             )
             assert repo.custom_args == []
             assert repo.unauthenticated == 'false'
@@ -65,12 +62,18 @@ class TestRepositoryApt:
         self.apt_conf.get_image_template.return_value = template
         with patch('builtins.open', create=True):
             self.repo.use_default_location()
-        assert self.repo.shared_apt_get_dir['sources-dir'] == \
-            '../data/etc/apt/sources.list.d'
-        assert self.repo.shared_apt_get_dir['preferences-dir'] == \
-            '../data/etc/apt/preferences.d'
-        assert self.repo.shared_apt_get_dir['netrcparts-dir'] == \
-            '../data/etc/apt/auth.conf.d'
+        assert (
+            self.repo.shared_apt_get_dir['sources-dir']
+            == '../data/etc/apt/sources.list.d'
+        )
+        assert (
+            self.repo.shared_apt_get_dir['preferences-dir']
+            == '../data/etc/apt/preferences.d'
+        )
+        assert (
+            self.repo.shared_apt_get_dir['netrcparts-dir']
+            == '../data/etc/apt/auth.conf.d'
+        )
         self.apt_conf.get_image_template.assert_called_once_with(
             self.exclude_docs
         )
@@ -107,10 +110,12 @@ class TestRepositoryApt:
         assert command_env['DEBIAN_FRONTEND'] == 'noninteractive'
 
     def test_runtime_config(self):
-        assert self.repo.runtime_config()['apt_get_args'] == \
-            self.repo.apt_get_args
-        assert self.repo.runtime_config()['command_env'] == \
-            self.repo.command_env
+        assert (
+            self.repo.runtime_config()['apt_get_args'] == self.repo.apt_get_args
+        )
+        assert (
+            self.repo.runtime_config()['command_env'] == self.repo.command_env
+        )
 
     def test_setup_package_database_configuration(self):
         # just pass
@@ -124,12 +129,17 @@ class TestRepositoryApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', '/srv/my-repo', 'deb', '42', 'xenial', 'a b',
-                customization_script='custom_script'
+                'foo',
+                '/srv/my-repo',
+                'deb',
+                '42',
+                'xenial',
+                'a b',
+                customization_script='custom_script',
             )
             assert mock_open.call_args_list == [
                 call('/shared-dir/apt-get/sources.list.d/foo.sources', 'w'),
-                call('/shared-dir/apt-get/preferences.d/foo.pref', 'w')
+                call('/shared-dir/apt-get/preferences.d/foo.pref', 'w'),
             ]
             assert file_handle.write.call_args_list == [
                 call(
@@ -140,21 +150,25 @@ class TestRepositoryApt:
                 ),
                 call('Package: *\n'),
                 call('Pin: origin ""\n'),
-                call('Pin-Priority: 42\n')
+                call('Pin-Priority: 42\n'),
             ]
             assert mock_Command_run.call_args_list == [
                 call(
                     [
-                        'bash', '--norc', 'custom_script',
-                        '/shared-dir/apt-get/sources.list.d/foo.sources'
+                        'bash',
+                        '--norc',
+                        'custom_script',
+                        '/shared-dir/apt-get/sources.list.d/foo.sources',
                     ]
                 ),
                 call(
                     [
-                        'bash', '--norc', 'custom_script',
-                        '/shared-dir/apt-get/preferences.d/foo.pref'
+                        'bash',
+                        '--norc',
+                        'custom_script',
+                        '/shared-dir/apt-get/preferences.d/foo.pref',
                     ]
-                )
+                ),
             ]
         mock_exists.return_value = False
         with patch('builtins.open', create=True) as mock_open:
@@ -163,7 +177,10 @@ class TestRepositoryApt:
             self.repo.add_repo(
                 'foo',
                 'http://download.opensuse.org/repositories/V:/A:/C/Debian_9.0/',
-                'deb', '99', 'xenial', 'a b'
+                'deb',
+                '99',
+                'xenial',
+                'a b',
             )
             assert file_handle.write.call_args_list == [
                 call(
@@ -174,7 +191,7 @@ class TestRepositoryApt:
                 ),
                 call('Package: *\n'),
                 call('Pin: origin "download.opensuse.org"\n'),
-                call('Pin-Priority: 99\n')
+                call('Pin-Priority: 99\n'),
             ]
 
     @patch('os.path.exists')
@@ -184,8 +201,13 @@ class TestRepositoryApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
-                architectures='amd64,arm64'
+                'foo',
+                'kiwi_iso_mount/uri',
+                'deb',
+                None,
+                'xenial',
+                'a b',
+                architectures='amd64,arm64',
             )
             file_handle.write.assert_called_once_with(
                 'Types: deb\n'
@@ -205,13 +227,19 @@ class TestRepositoryApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', 'https://example.org/debian', 'deb', None, 'xenial', 'a b',
-                user='some-user', secret='some-secret',
-                architectures='amd64,arm64'
+                'foo',
+                'https://example.org/debian',
+                'deb',
+                None,
+                'xenial',
+                'a b',
+                user='some-user',
+                secret='some-secret',
+                architectures='amd64,arm64',
             )
             assert mock_open.call_args_list == [
                 call('/shared-dir/apt-get/sources.list.d/foo.sources', 'w'),
-                call('/shared-dir/apt-get/auth.conf.d/foo.conf', 'w')
+                call('/shared-dir/apt-get/auth.conf.d/foo.conf', 'w'),
             ]
             assert file_handle.write.call_args_list == [
                 call(
@@ -224,13 +252,18 @@ class TestRepositoryApt:
                 call(
                     'machine https://example.org/debian login '
                     'some-user password some-secret\n'
-                )
+                ),
             ]
             file_handle.reset_mock()
             self.repo.add_repo(
-                'foo', 'https://example.org/debian', 'deb', None, 'xenial', 'a b',
+                'foo',
+                'https://example.org/debian',
+                'deb',
+                None,
+                'xenial',
+                'a b',
                 secret='some-token',
-                architectures='amd64,arm64'
+                architectures='amd64,arm64',
             )
             assert file_handle.write.call_args_list == [
                 call(
@@ -241,9 +274,8 @@ class TestRepositoryApt:
                     'Components: a b\n'
                 ),
                 call(
-                    'machine https://example.org/debian login '
-                    'some-token\n'
-                )
+                    'machine https://example.org/debian login ' 'some-token\n'
+                ),
             ]
 
     @patch('os.path.exists')
@@ -253,8 +285,14 @@ class TestRepositoryApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
-                repo_gpgcheck=False, pkg_gpgcheck=False
+                'foo',
+                'kiwi_iso_mount/uri',
+                'deb',
+                None,
+                'xenial',
+                'a b',
+                repo_gpgcheck=False,
+                pkg_gpgcheck=False,
             )
             file_handle.write.assert_called_once_with(
                 'Types: deb\n'
@@ -293,13 +331,9 @@ class TestRepositoryApt:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
-            self.repo.add_repo(
-                'foo', 'http://repo.com', 'deb'
-            )
+            self.repo.add_repo('foo', 'http://repo.com', 'deb')
             file_handle.write.assert_called_once_with(
-                'Types: deb\n'
-                'URIs: http://repo.com\n'
-                'Suites: ./\n'
+                'Types: deb\n' 'URIs: http://repo.com\n' 'Suites: ./\n'
             )
             mock_open.assert_called_once_with(
                 '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
@@ -312,14 +346,16 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.Temporary.new_dir')
     @patch('kiwi.repository.apt.os.unlink')
     def test_import_trusted_keys(
-        self, mock_unlink, mock_Temporary_new_dir, mock_Path_create,
-        mock_copy, mock_chmod, mock_glob
+        self,
+        mock_unlink,
+        mock_Temporary_new_dir,
+        mock_Path_create,
+        mock_copy,
+        mock_chmod,
+        mock_glob,
     ):
-        mock_Temporary_new_dir.return_value.__enter__.return_value = \
-            '/tmp/keys'
-        mock_glob.side_effect = lambda pattern: [
-            pattern.replace('*', '0.gpg')
-        ]
+        mock_Temporary_new_dir.return_value.__enter__.return_value = '/tmp/keys'
+        mock_glob.side_effect = lambda pattern: [pattern.replace('*', '0.gpg')]
         self.repo.keyring_prefix = 'kiwi-1234-'
         self.repo.import_trusted_keys(
             ['../data/signing_key.asc', '../data/signing_key.gpg']
@@ -328,43 +364,41 @@ class TestRepositoryApt:
         # keyrings of a former import are deleted
         assert mock_unlink.call_args_list == [
             call('/etc/apt/keyrings/kiwi-1234-0.gpg'),
-            call('../data/etc/apt/keyrings/kiwi-1234-0.gpg')
+            call('../data/etc/apt/keyrings/kiwi-1234-0.gpg'),
         ]
         assert mock_Path_create.call_args_list == [
             call('/etc/apt/keyrings'),
             call('../data/etc/apt/keyrings'),
             call('/etc/apt/keyrings'),
-            call('../data/etc/apt/keyrings')
+            call('../data/etc/apt/keyrings'),
         ]
         # keys are used as they are, the name extension
         # reflects the key format as apt expects it
         assert mock_copy.call_args_list == [
             call(
-                '../data/signing_key.asc',
-                '/etc/apt/keyrings/kiwi-1234-0.asc'
+                '../data/signing_key.asc', '/etc/apt/keyrings/kiwi-1234-0.asc'
             ),
             call(
                 '../data/signing_key.asc',
-                '../data/etc/apt/keyrings/kiwi-1234-0.asc'
+                '../data/etc/apt/keyrings/kiwi-1234-0.asc',
+            ),
+            call(
+                '../data/signing_key.gpg', '/etc/apt/keyrings/kiwi-1234-1.gpg'
             ),
             call(
                 '../data/signing_key.gpg',
-                '/etc/apt/keyrings/kiwi-1234-1.gpg'
+                '../data/etc/apt/keyrings/kiwi-1234-1.gpg',
             ),
-            call(
-                '../data/signing_key.gpg',
-                '../data/etc/apt/keyrings/kiwi-1234-1.gpg'
-            )
         ]
         assert mock_chmod.call_args_list == [
             call('/etc/apt/keyrings/kiwi-1234-0.asc', 0o644),
             call('../data/etc/apt/keyrings/kiwi-1234-0.asc', 0o644),
             call('/etc/apt/keyrings/kiwi-1234-1.gpg', 0o644),
-            call('../data/etc/apt/keyrings/kiwi-1234-1.gpg', 0o644)
+            call('../data/etc/apt/keyrings/kiwi-1234-1.gpg', 0o644),
         ]
         assert self.repo.keyrings == [
             '/etc/apt/keyrings/kiwi-1234-0.asc',
-            '/etc/apt/keyrings/kiwi-1234-1.gpg'
+            '/etc/apt/keyrings/kiwi-1234-1.gpg',
         ]
 
         # sources files reference the keyrings via Signed-By
@@ -372,8 +406,12 @@ class TestRepositoryApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', 'http://example.com/debian', 'deb', None,
-                'trixie', 'main'
+                'foo',
+                'http://example.com/debian',
+                'deb',
+                None,
+                'trixie',
+                'main',
             )
             file_handle.write.assert_called_once_with(
                 'Types: deb\n'
@@ -391,11 +429,15 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.Temporary.new_dir')
     @patch('kiwi.repository.apt.os.unlink')
     def test_import_repository_signing_keys(
-        self, mock_unlink, mock_Temporary_new_dir, mock_Path_create,
-        mock_copy, mock_chmod, mock_glob
+        self,
+        mock_unlink,
+        mock_Temporary_new_dir,
+        mock_Path_create,
+        mock_copy,
+        mock_chmod,
+        mock_glob,
     ):
-        mock_Temporary_new_dir.return_value.__enter__.return_value = \
-            '/tmp/keys'
+        mock_Temporary_new_dir.return_value.__enter__.return_value = '/tmp/keys'
         mock_glob.return_value = [
             '../data/usr/share/keyrings/foo-archive-keyring.gpg'
         ]
@@ -414,26 +456,26 @@ class TestRepositoryApt:
         # keys are stored in the image root only
         assert mock_Path_create.call_args_list == [
             call('../data/usr/share/keyrings'),
-            call('../data/usr/share/keyrings')
+            call('../data/usr/share/keyrings'),
         ]
         assert mock_copy.call_args_list == [
             call(
                 '../data/signing_key.asc',
-                '../data/usr/share/keyrings/foo-archive-keyring.asc'
+                '../data/usr/share/keyrings/foo-archive-keyring.asc',
             ),
             call(
                 '../data/signing_key.gpg',
-                '../data/usr/share/keyrings/foo-archive-keyring-1.gpg'
-            )
+                '../data/usr/share/keyrings/foo-archive-keyring-1.gpg',
+            ),
         ]
         assert mock_chmod.call_args_list == [
             call('../data/usr/share/keyrings/foo-archive-keyring.asc', 0o644),
-            call('../data/usr/share/keyrings/foo-archive-keyring-1.gpg', 0o644)
+            call('../data/usr/share/keyrings/foo-archive-keyring-1.gpg', 0o644),
         ]
         assert self.repo.repository_keyrings == {
             'foo': [
                 '/usr/share/keyrings/foo-archive-keyring.asc',
-                '/usr/share/keyrings/foo-archive-keyring-1.gpg'
+                '/usr/share/keyrings/foo-archive-keyring-1.gpg',
             ]
         }
 
@@ -444,8 +486,12 @@ class TestRepositoryApt:
             # the sources file of the repository references
             # its own keyrings via Signed-By
             self.repo.add_repo(
-                'foo', 'http://example.com/debian', 'deb', None,
-                'trixie', 'main'
+                'foo',
+                'http://example.com/debian',
+                'deb',
+                None,
+                'trixie',
+                'main',
             )
             file_handle.write.assert_called_once_with(
                 'Types: deb\n'
@@ -459,8 +505,12 @@ class TestRepositoryApt:
             # repositories without own keyrings use the build keyrings
             file_handle.write.reset_mock()
             self.repo.add_repo(
-                'bar', 'http://example.com/debian', 'deb', None,
-                'trixie', 'main'
+                'bar',
+                'http://example.com/debian',
+                'deb',
+                None,
+                'trixie',
+                'main',
             )
             file_handle.write.assert_called_once_with(
                 'Types: deb\n'
@@ -477,25 +527,31 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.urlopen')
     @patch('kiwi.repository.apt.Temporary.new_dir')
     def test_import_repository_signing_keys_remote(
-        self, mock_Temporary_new_dir, mock_urlopen, mock_Path_create,
-        mock_copy, mock_chmod, mock_glob
+        self,
+        mock_Temporary_new_dir,
+        mock_urlopen,
+        mock_Path_create,
+        mock_copy,
+        mock_chmod,
+        mock_glob,
     ):
         mock_glob.return_value = []
-        mock_Temporary_new_dir.return_value.__enter__.return_value = \
-            '/tmp/keys'
-        mock_urlopen.return_value.__enter__.return_value.read.return_value = \
+        mock_Temporary_new_dir.return_value.__enter__.return_value = '/tmp/keys'
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = (
             b'key-data'
+        )
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
-            file_handle.read.return_value = \
+            file_handle.read.return_value = (
                 b'-----BEGIN PGP PUBLIC KEY BLOCK-----'
+            )
             self.repo.import_repository_signing_keys(
                 'foo', ['https://example.com/key.asc']
             )
         mock_copy.assert_called_once_with(
             '/tmp/keys/key.0',
-            '../data/usr/share/keyrings/foo-archive-keyring.asc'
+            '../data/usr/share/keyrings/foo-archive-keyring.asc',
         )
         assert self.repo.repository_keyrings == {
             'foo': ['/usr/share/keyrings/foo-archive-keyring.asc']
@@ -508,46 +564,54 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.urlopen')
     @patch('kiwi.repository.apt.Temporary.new_dir')
     def test_import_trusted_keys_remote(
-        self, mock_Temporary_new_dir, mock_urlopen, mock_Path_create,
-        mock_copy, mock_chmod, mock_glob
+        self,
+        mock_Temporary_new_dir,
+        mock_urlopen,
+        mock_Path_create,
+        mock_copy,
+        mock_chmod,
+        mock_glob,
     ):
         mock_glob.return_value = []
-        mock_Temporary_new_dir.return_value.__enter__.return_value = \
-            '/tmp/keys'
-        mock_urlopen.return_value.__enter__.return_value.read.return_value = \
+        mock_Temporary_new_dir.return_value.__enter__.return_value = '/tmp/keys'
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = (
             b'key-data'
+        )
         self.repo.keyring_prefix = 'kiwi-1234-'
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
-            file_handle.read.return_value = \
+            file_handle.read.return_value = (
                 b'-----BEGIN PGP PUBLIC KEY BLOCK-----'
+            )
             self.repo.import_trusted_keys(
                 [
                     'https://user:pass%40word@example.com/key.asc',
-                    'ftp://user:secret@example.com/key.asc'
+                    'ftp://user:secret@example.com/key.asc',
                 ]
             )
             assert mock_open.call_args_list == [
                 call('/tmp/keys/key.0', 'wb'),
                 call('/tmp/keys/key.0', 'rb'),
                 call('/tmp/keys/key.1', 'wb'),
-                call('/tmp/keys/key.1', 'rb')
+                call('/tmp/keys/key.1', 'rb'),
             ]
             assert file_handle.write.call_args_list == [
-                call(b'key-data'), call(b'key-data')
+                call(b'key-data'),
+                call(b'key-data'),
             ]
         http_request = mock_urlopen.call_args_list[0][0][0]
         assert http_request.full_url == 'https://example.com/key.asc'
-        assert http_request.get_header('Authorization') == \
-            'Basic ' + b64encode(b'user:pass@word').decode()
+        assert (
+            http_request.get_header('Authorization')
+            == 'Basic ' + b64encode(b'user:pass@word').decode()
+        )
         ftp_request = mock_urlopen.call_args_list[1][0][0]
-        assert ftp_request.full_url == \
-            'ftp://user:secret@example.com/key.asc'
+        assert ftp_request.full_url == 'ftp://user:secret@example.com/key.asc'
         assert ftp_request.get_header('Authorization') is None
         assert mock_copy.call_args_list[::2] == [
             call('/tmp/keys/key.0', '/etc/apt/keyrings/kiwi-1234-0.asc'),
-            call('/tmp/keys/key.1', '/etc/apt/keyrings/kiwi-1234-1.asc')
+            call('/tmp/keys/key.1', '/etc/apt/keyrings/kiwi-1234-1.asc'),
         ]
 
     @patch('kiwi.repository.apt.glob.glob')
@@ -558,8 +622,7 @@ class TestRepositoryApt:
         self, mock_Temporary_new_dir, mock_urlopen, mock_copy, mock_glob
     ):
         mock_glob.return_value = []
-        mock_Temporary_new_dir.return_value.__enter__.return_value = \
-            '/tmp/keys'
+        mock_Temporary_new_dir.return_value.__enter__.return_value = '/tmp/keys'
         mock_urlopen.side_effect = Exception('404')
         with raises(KiwiUriOpenError) as issue:
             self.repo.import_trusted_keys(
@@ -571,9 +634,7 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.glob.glob')
     @patch('kiwi.repository.apt.os.unlink')
     def test_delete_trusted_keys(self, mock_unlink, mock_glob):
-        mock_glob.side_effect = lambda pattern: [
-            pattern.replace('*', '0.gpg')
-        ]
+        mock_glob.side_effect = lambda pattern: [pattern.replace('*', '0.gpg')]
         self.repo.keyring_prefix = 'kiwi-1234-'
         self.repo.keyrings = ['/etc/apt/keyrings/kiwi-1234-0.gpg']
         self.repo.repository_keyrings = {
@@ -582,11 +643,11 @@ class TestRepositoryApt:
         self.repo.delete_trusted_keys()
         assert mock_glob.call_args_list == [
             call('/etc/apt/keyrings/kiwi-1234-*'),
-            call('../data/etc/apt/keyrings/kiwi-1234-*')
+            call('../data/etc/apt/keyrings/kiwi-1234-*'),
         ]
         assert mock_unlink.call_args_list == [
             call('/etc/apt/keyrings/kiwi-1234-0.gpg'),
-            call('../data/etc/apt/keyrings/kiwi-1234-0.gpg')
+            call('../data/etc/apt/keyrings/kiwi-1234-0.gpg'),
         ]
         assert self.repo.keyrings == []
         # keyrings permanently stored in the image are kept
@@ -600,8 +661,12 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.os.path.exists')
     @patch('kiwi.repository.apt.os.unlink')
     def test_post_init_deletes_legacy_keyring(
-        self, mock_unlink, mock_exists, mock_Path_create, mock_template,
-        mock_temp
+        self,
+        mock_unlink,
+        mock_exists,
+        mock_Path_create,
+        mock_template,
+        mock_temp,
     ):
         mock_exists.return_value = True
         root_bind = mock.Mock()
@@ -617,15 +682,13 @@ class TestRepositoryApt:
         assert mock_wipe.call_args_list == [
             call('/shared-dir/apt-get/sources.list.d/foo.sources'),
             call('/shared-dir/apt-get/auth.conf.d/foo.conf'),
-            call('/shared-dir/apt-get/preferences.d/foo.pref')
+            call('/shared-dir/apt-get/preferences.d/foo.pref'),
         ]
 
     @patch('kiwi.path.Path.wipe')
     @patch('os.walk')
     def test_cleanup_unused_repos(self, mock_walk, mock_path):
-        mock_walk.return_value = [
-            ('/foo', ('bar', 'baz'), ('spam', 'eggs'))
-        ]
+        mock_walk.return_value = [('/foo', ('bar', 'baz'), ('spam', 'eggs'))]
         self.repo.repo_names = ['eggs']
         self.repo.cleanup_unused_repos()
         mock_path.assert_called_once_with(
@@ -639,12 +702,12 @@ class TestRepositoryApt:
         assert mock_wipe.call_args_list == [
             call('/shared-dir/apt-get/sources.list.d'),
             call('/shared-dir/apt-get/auth.conf.d'),
-            call('/shared-dir/apt-get/preferences.d')
+            call('/shared-dir/apt-get/preferences.d'),
         ]
         assert mock_create.call_args_list == [
             call('/shared-dir/apt-get/sources.list.d'),
             call('/shared-dir/apt-get/auth.conf.d'),
-            call('/shared-dir/apt-get/preferences.d')
+            call('/shared-dir/apt-get/preferences.d'),
         ]
 
     @patch('kiwi.path.Path.wipe')
@@ -653,7 +716,7 @@ class TestRepositoryApt:
         assert mock_wipe.call_args_list == [
             call('/shared-dir/apt-get/archives'),
             call('/shared-dir/apt-get/pkgcache.bin'),
-            call('/shared-dir/apt-get/srcpkgcache.bin')
+            call('/shared-dir/apt-get/srcpkgcache.bin'),
         ]
 
     @patch('kiwi.repository.apt.glob.glob')
@@ -667,5 +730,5 @@ class TestRepositoryApt:
         mock_glob.assert_called_once_with('/etc/apt/keyrings/kiwi-1234-*')
         assert mock_os_unlink.call_args_list == [
             call('tmpfile'),
-            call('/etc/apt/keyrings/kiwi-1234-0.gpg')
+            call('/etc/apt/keyrings/kiwi-1234-0.gpg'),
         ]

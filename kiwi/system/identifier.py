@@ -34,6 +34,7 @@ class SystemIdentifier:
 
     :param str image_id: hex identifier string
     """
+
     def __init__(self):
         self.image_id = None
         sde = os.environ.get('SOURCE_DATE_EPOCH')
@@ -58,7 +59,10 @@ class SystemIdentifier:
         Using 4 tuples of rand in range from 1..0xfe
         """
         self.image_id = '0x%02x%02x%02x%02x' % (
-            self._rand(), self._rand(), self._rand(), self._rand()
+            self._rand(),
+            self._rand(),
+            self._rand(),
+            self._rand(),
         )
 
     def write(self, filename: str) -> None:
@@ -83,4 +87,4 @@ class SystemIdentifier:
                 disk.write(packed_id)
 
     def _rand(self):
-        return random.randrange(1, 0xfe)
+        return random.randrange(1, 0xFE)

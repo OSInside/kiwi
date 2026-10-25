@@ -33,6 +33,7 @@ class Path:
     """
     **Directory path helpers**
     """
+
     @staticmethod
     def sort_by_hierarchy(path_list: List[str]) -> List[str]:
         """
@@ -123,9 +124,7 @@ class Path:
         :param string path: path name
         """
         if os.path.exists(path):
-            Command.run(
-                ['rm', '-r', '-f', path]
-            )
+            Command.run(['rm', '-r', '-f', path])
 
     @staticmethod
     def remove_hierarchy(root: str, path: str) -> None:
@@ -139,13 +138,21 @@ class Path:
         """
         Command.run(
             [
-                'rmdir', '--ignore-fail-on-non-empty',
-                os.path.normpath(os.sep.join([root, path]))
+                'rmdir',
+                '--ignore-fail-on-non-empty',
+                os.path.normpath(os.sep.join([root, path])),
             ]
         )
         path_elements = path.split(os.sep)
         protected_elements = [
-            'boot', 'dev', 'proc', 'run', 'sys', 'tmp', 'home', 'mnt'
+            'boot',
+            'dev',
+            'proc',
+            'run',
+            'sys',
+            'tmp',
+            'home',
+            'mnt',
         ]
         for path_index in reversed(range(0, len(path_elements))):
             sub_path = os.sep.join(path_elements[0:path_index])
@@ -159,8 +166,9 @@ class Path:
                     return
                 Command.run(
                     [
-                        'rmdir', '--ignore-fail-on-non-empty',
-                        os.path.normpath(os.sep.join([root, sub_path]))
+                        'rmdir',
+                        '--ignore-fail-on-non-empty',
+                        os.path.normpath(os.sep.join([root, sub_path])),
                     ]
                 )
 
@@ -208,7 +216,7 @@ class Path:
         filename: str,
         custom_env: Optional[MutableMapping[str, str]] = None,
         access_mode: int = os.F_OK | os.X_OK,
-        root_dir: Optional[str] = None
+        root_dir: Optional[str] = None,
     ) -> Optional[str]:
         """
         Lookup file name in PATH
@@ -225,13 +233,17 @@ class Path:
 
         :rtype: str
         """
-        system_path = (custom_env.get("PATH") if custom_env else os.environ.get("PATH")) or os.defpath
+        system_path = (
+            custom_env.get("PATH") if custom_env else os.environ.get("PATH")
+        ) or os.defpath
 
         lookup_paths = system_path.split(os.pathsep)
         if root_dir:
             lookup_paths = Path.rebase_to_root(root_dir, lookup_paths)
         log.debug(f"Looking for {filename} in {os.pathsep.join(lookup_paths)}")
-        return shutil.which(filename, access_mode, path=os.pathsep.join(lookup_paths))
+        return shutil.which(
+            filename, access_mode, path=os.pathsep.join(lookup_paths)
+        )
 
     @staticmethod
     def first_exists(path: str) -> str:

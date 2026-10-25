@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    List, Dict, no_type_check
-)
+from typing import List, Dict, no_type_check
 
 # project
 from kiwi.command import CommandCallT
@@ -30,6 +28,7 @@ class PackageManagerDnf(PackageManagerBase):
     """
     decommissioned, moved to PackageManagerDnf4
     """
+
     @decommissioned
     def post_init(self, custom_args: List = []) -> None:
         pass  # pragma: no cover

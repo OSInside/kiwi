@@ -46,6 +46,7 @@ class SystemStashTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self) -> None:
         """
         Create a stash container from the given root directory
@@ -59,9 +60,11 @@ class SystemStashTask(CliTask):
             stash_dir = StackBuildDefaults.get_stash_home()
             stashes = DataOutput(
                 {
-                    stash_dir: os.listdir(
-                        stash_dir
-                    ) if os.path.isdir(stash_dir) else []
+                    stash_dir: (
+                        os.listdir(stash_dir)
+                        if os.path.isdir(stash_dir)
+                        else []
+                    )
                 }
             )
             stashes.display()
@@ -75,12 +78,12 @@ class SystemStashTask(CliTask):
                 self.command_args['--root'], 'image', 'config.xml'
             )
             description = XMLDescription(kiwi_description)
-            xml_state = XMLState(
-                xml_data=description.load()
-            )
+            xml_state = XMLState(xml_data=description.load())
             contact_info = xml_state.get_description_section()
-            image_name = self.command_args.get('--container-name') or \
-                xml_state.xml_data.get_name()
+            image_name = (
+                self.command_args.get('--container-name')
+                or xml_state.xml_data.get_name()
+            )
             if not StackBuildDefaults.is_container_name_valid(image_name):
                 message = dedent('''\n
                     Image name {0!r} cannot be used as container name
@@ -98,9 +101,7 @@ class SystemStashTask(CliTask):
                     option
                 ''')
                 raise KiwiStackBuildContainerNameInvalid(
-                    message.format(
-                        image_name, kiwi_description
-                    )
+                    message.format(image_name, kiwi_description)
                 )
             stash_target_dir = SystemStashTask._create_stash_target_dir(
                 image_name
@@ -128,26 +129,24 @@ class SystemStashTask(CliTask):
             oci.unpack()
             oci.sync_rootfs(
                 self.command_args['--root'],
-                StackBuildDefaults.get_stash_exclude_list()
+                StackBuildDefaults.get_stash_exclude_list(),
             )
             oci.repack(container_config)
             oci.set_config(container_config)
             oci.post_process()
             log.info('Exporting stash container')
             oci.export_container_image(
-                stash_container_file_name, 'oci-archive',
-                f'{image_name}:{stash_container_tag}'
+                stash_container_file_name,
+                'oci-archive',
+                f'{image_name}:{stash_container_tag}',
             )
             log.info('Importing stash to local registry')
-            Command.run(
-                ['podman', 'load', '-i', stash_container_file_name]
-            )
+            Command.run(['podman', 'load', '-i', stash_container_file_name])
 
     @staticmethod
     def _create_stash_target_dir(image_name: str) -> str:
         stash_target_dir = os.path.join(
-            StackBuildDefaults.get_stash_home(),
-            image_name
+            StackBuildDefaults.get_stash_home(), image_name
         )
         Path.create(stash_target_dir)
         return stash_target_dir

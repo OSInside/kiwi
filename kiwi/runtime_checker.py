@@ -20,9 +20,7 @@ import json
 import re
 import logging
 from textwrap import dedent
-from typing import (
-    NamedTuple, Dict, List, Any
-)
+from typing import NamedTuple, Dict, List, Any
 
 # project
 from kiwi.version import __version__
@@ -36,17 +34,12 @@ from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.runtime_config import RuntimeConfig
-from kiwi.exceptions import (
-    KiwiRuntimeError
-)
+from kiwi.exceptions import KiwiRuntimeError
 
 import kiwi.defaults as defaults
 
 dracut_module_type = NamedTuple(
-    'dracut_module_type', [
-        ('package', str),
-        ('min_version', str)
-    ]
+    'dracut_module_type', [('package', str), ('min_version', str)]
 )
 
 log = logging.getLogger('kiwi')
@@ -56,6 +49,7 @@ class RuntimeChecker:
     """
     **Implements build consistency checks at runtime**
     """
+
     def __init__(self, xml_state: XMLState) -> None:
         """
         The schema of an image description covers structure and syntax of
@@ -72,9 +66,7 @@ class RuntimeChecker:
         Verify that there are repositories configured
         """
         if not self.xml_state.get_repository_sections():
-            raise KiwiRuntimeError(
-                'No repositories configured'
-            )
+            raise KiwiRuntimeError('No repositories configured')
 
     @staticmethod
     def check_target_dir_on_unsupported_filesystem(target_dir: str) -> None:
@@ -127,8 +119,9 @@ class RuntimeChecker:
 
             {0}
         ''')
-        include_files = \
+        include_files = (
             self.xml_state.get_include_section_reference_file_names()
+        )
         if include_files:
             raise KiwiRuntimeError(
                 message.format(json.dumps(include_files, indent=4))
@@ -158,9 +151,7 @@ class RuntimeChecker:
                 repo_type = xml_repo.get_type()
                 uri = Uri(repo_source, repo_type)
                 if not uri.is_public():
-                    raise KiwiRuntimeError(
-                        message.format(repo_source)
-                    )
+                    raise KiwiRuntimeError(message.format(repo_source))
 
     @staticmethod
     def check_target_directory_not_in_shared_cache(target_dir: str) -> None:
@@ -180,9 +171,11 @@ class RuntimeChecker:
 
         shared_cache_location = Defaults.get_shared_cache_location()
 
-        target_dir_stack = os.path.abspath(
-            os.path.normpath(target_dir)
-        ).replace(os.sep + os.sep, os.sep).split(os.sep)
+        target_dir_stack = (
+            os.path.abspath(os.path.normpath(target_dir))
+            .replace(os.sep + os.sep, os.sep)
+            .split(os.sep)
+        )
         if target_dir_stack[1:4] == shared_cache_location.split(os.sep):
             raise KiwiRuntimeError(
                 message % (target_dir, shared_cache_location)
@@ -217,9 +210,7 @@ class RuntimeChecker:
         if volume_management != 'lvm':
             for volume in self.xml_state.get_volumes():
                 if volume.label and volume.label != 'SWAP':
-                    raise KiwiRuntimeError(
-                        message.format(volume_management)
-                    )
+                    raise KiwiRuntimeError(message.format(volume_management))
 
     def check_partuuid_persistency_type_used_with_mbr(self) -> None:
         """
@@ -302,7 +293,8 @@ class RuntimeChecker:
         ''')
         reserved_labels = [
             self.xml_state.build_type.get_rootfs_label() or 'ROOT',
-            'SWAP', 'SPARE'
+            'SWAP',
+            'SPARE',
         ]
         volume_management = self.xml_state.get_volume_management()
         if volume_management == 'lvm':
@@ -429,8 +421,10 @@ class RuntimeChecker:
         ''')
         if 'additional_names' in self.xml_state.get_container_config():
             if not CommandCapabilities.has_option_in_help(
-                'skopeo', '--additional-tag', ['copy', '--help'],
-                raise_on_error=False
+                'skopeo',
+                '--additional-tag',
+                ['copy', '--help'],
+                raise_on_error=False,
             ):
                 raise KiwiRuntimeError(message)
 
@@ -453,8 +447,7 @@ class RuntimeChecker:
             for option in luksformat[0].get_option():
                 argument = option.get_name()
                 if not CommandCapabilities.has_option_in_help(
-                    'cryptsetup', argument, ['--help'],
-                    raise_on_error=False
+                    'cryptsetup', argument, ['--help'], raise_on_error=False
                 ):
                     raise KiwiRuntimeError(message.format(argument))
 
@@ -551,8 +544,10 @@ class RuntimeChecker:
         image_types_supporting_custom_boot_description = ['oem', 'pxe']
         build_type = self.xml_state.get_build_type_name()
         initrd_system = self.xml_state.get_initrd_system()
-        if initrd_system == 'kiwi' and \
-           build_type in image_types_supporting_custom_boot_description:
+        if (
+            initrd_system == 'kiwi'
+            and build_type in image_types_supporting_custom_boot_description
+        ):
 
             boot_image_reference = self.xml_state.build_type.get_boot()
             if not boot_image_reference:
@@ -564,7 +559,7 @@ class RuntimeChecker:
                 boot_image_reference = os.sep.join(
                     [
                         Defaults.get_boot_image_description_path(),
-                        boot_image_reference
+                        boot_image_reference,
                     ]
                 )
             if not os.path.exists(boot_image_reference):
@@ -606,19 +601,16 @@ class RuntimeChecker:
                 boot_image_reference = os.sep.join(
                     [
                         Defaults.get_boot_image_description_path(),
-                        boot_image_reference
+                        boot_image_reference,
                     ]
                 )
-            boot_config_file = os.sep.join(
-                [boot_image_reference, 'config.xml']
-            )
+            boot_config_file = os.sep.join([boot_image_reference, 'config.xml'])
             if os.path.exists(boot_config_file):
                 boot_description = XMLDescription(
                     description=boot_config_file,
-                    derived_from=self.xml_state.xml_data.description_dir
+                    derived_from=self.xml_state.xml_data.description_dir,
                 )
-                boot_kernel_profile = \
-                    self.xml_state.build_type.get_bootkernel()
+                boot_kernel_profile = self.xml_state.build_type.get_bootkernel()
                 if not boot_kernel_profile:
                     boot_kernel_profile = 'std'
                 boot_xml_state = XMLState(
@@ -638,7 +630,7 @@ class RuntimeChecker:
 
                 for package in kernel_package_sections:
                     if boot_xml_state.package_matches_host_architecture(
-                            package
+                        package
                     ):
                         boot_kernel_package_name = package.get_name()
 
@@ -651,7 +643,7 @@ class RuntimeChecker:
                 raise KiwiRuntimeError(
                     message.format(
                         self.xml_state.build_type.get_boot(),
-                        boot_kernel_package_name
+                        boot_kernel_package_name,
                     )
                 )
 
@@ -680,12 +672,8 @@ class RuntimeChecker:
             {1}
         ''')
         kiwi_dracut_modules = {
-            '55kiwi-dump': dracut_module_type(
-                'dracut-kiwi-oem-dump', '9.20.1'
-            ),
-            '55kiwi-live': dracut_module_type(
-                'dracut-kiwi-live', '9.20.1'
-            ),
+            '55kiwi-dump': dracut_module_type('dracut-kiwi-oem-dump', '9.20.1'),
+            '55kiwi-live': dracut_module_type('dracut-kiwi-live', '9.20.1'),
             '55kiwi-overlay': dracut_module_type(
                 'dracut-kiwi-overlay', '9.20.1'
             ),
@@ -695,13 +683,9 @@ class RuntimeChecker:
             '59kiwi-dump-reboot': dracut_module_type(
                 'dracut-kiwi-oem-dump', '9.20.1'
             ),
-            '59kiwi-lib': dracut_module_type(
-                'dracut-kiwi-lib', '9.20.1'
-            )
+            '59kiwi-lib': dracut_module_type('dracut-kiwi-lib', '9.20.1'),
         }
-        dracut_module_dir = os.sep.join(
-            [root_dir, '/usr/lib/dracut/modules.d']
-        )
+        dracut_module_dir = os.sep.join([root_dir, '/usr/lib/dracut/modules.d'])
         if not os.path.isdir(dracut_module_dir):
             # no dracut module dir present
             return
@@ -712,7 +696,8 @@ class RuntimeChecker:
             if module_meta:
                 module_version = self._get_dracut_module_version_from_pdb(
                     self.xml_state.get_package_manager(),
-                    module_meta.package, root_dir
+                    module_meta.package,
+                    root_dir,
                 )
                 if module_version:
                     module_version_nr = tuple(
@@ -722,10 +707,10 @@ class RuntimeChecker:
                         int(it) for it in module_meta.min_version.split('.')
                     )
                     if module_version_nr < module_min_version_nr:
-                        incompatible_modules[
-                            module_meta.package
-                        ] = 'got:{0}, need:>={1}'.format(
-                            module_version, module_meta.min_version
+                        incompatible_modules[module_meta.package] = (
+                            'got:{0}, need:>={1}'.format(
+                                module_version, module_meta.min_version
+                            )
                         )
         if incompatible_modules:
             raise KiwiRuntimeError(
@@ -761,9 +746,10 @@ class RuntimeChecker:
             install_stick = self.xml_state.build_type.get_installstick()
             install_pxe = self.xml_state.build_type.get_installpxe()
             if install_iso or install_stick or install_pxe:
-                package_names = \
-                    self.xml_state.get_bootstrap_packages() + \
-                    self.xml_state.get_system_packages()
+                package_names = (
+                    self.xml_state.get_bootstrap_packages()
+                    + self.xml_state.get_system_packages()
+                )
                 if not RuntimeChecker._package_in_list(
                     package_names, required_dracut_packages
                 ):
@@ -793,17 +779,19 @@ class RuntimeChecker:
         initrd_system = self.xml_state.get_initrd_system()
         disk_resize_requested = self.xml_state.get_oemconfig_oem_resize()
         build_type = self.xml_state.get_build_type_name()
-        if build_type == 'oem' and initrd_system == 'dracut' and \
-           disk_resize_requested:
-            package_names = \
-                self.xml_state.get_bootstrap_packages() + \
-                self.xml_state.get_system_packages()
+        if (
+            build_type == 'oem'
+            and initrd_system == 'dracut'
+            and disk_resize_requested
+        ):
+            package_names = (
+                self.xml_state.get_bootstrap_packages()
+                + self.xml_state.get_system_packages()
+            )
             if not RuntimeChecker._package_in_list(
                 package_names, required_dracut_packages
             ):
-                raise KiwiRuntimeError(
-                    message.format(required_dracut_packages)
-                )
+                raise KiwiRuntimeError(message.format(required_dracut_packages))
 
     def check_dracut_module_for_live_iso_in_package_list(self) -> None:
         """
@@ -827,15 +815,14 @@ class RuntimeChecker:
         type_name = self.xml_state.get_build_type_name()
         type_flag = self.xml_state.build_type.get_flags()
         if type_name == 'iso' and type_flag != 'dmsquash':
-            package_names = \
-                self.xml_state.get_bootstrap_packages() + \
-                self.xml_state.get_system_packages()
+            package_names = (
+                self.xml_state.get_bootstrap_packages()
+                + self.xml_state.get_system_packages()
+            )
             if not RuntimeChecker._package_in_list(
                 package_names, required_dracut_packages
             ):
-                raise KiwiRuntimeError(
-                    message.format(required_dracut_packages)
-                )
+                raise KiwiRuntimeError(message.format(required_dracut_packages))
 
     def check_dracut_module_for_disk_overlay_in_package_list(self) -> None:
         """
@@ -858,17 +845,18 @@ class RuntimeChecker:
         initrd_system = self.xml_state.get_initrd_system()
         meta = Defaults.get_runtime_checker_metadata()
         required_dracut_packages = meta['package_names']['dracut_overlay']
-        if initrd_system == 'dracut' and \
-           self.xml_state.build_type.get_overlayroot():
-            package_names = \
-                self.xml_state.get_bootstrap_packages() + \
-                self.xml_state.get_system_packages()
+        if (
+            initrd_system == 'dracut'
+            and self.xml_state.build_type.get_overlayroot()
+        ):
+            package_names = (
+                self.xml_state.get_bootstrap_packages()
+                + self.xml_state.get_system_packages()
+            )
             if not RuntimeChecker._package_in_list(
                 package_names, required_dracut_packages
             ):
-                raise KiwiRuntimeError(
-                    message.format(required_dracut_packages)
-                )
+                raise KiwiRuntimeError(message.format(required_dracut_packages))
 
     def check_xen_uniquely_setup_as_server_or_guest(self) -> None:
         """
@@ -928,9 +916,7 @@ class RuntimeChecker:
             elif media_tagger == 'isomd5sum':
                 tool = 'implantisomd5'
             if not Path.which(filename=tool, access_mode=os.X_OK):
-                raise KiwiRuntimeError(
-                    message_tool_not_found.format(name=tool)
-                )
+                raise KiwiRuntimeError(message_tool_not_found.format(name=tool))
 
     def check_checkmedia_used_with_msdos_table(self) -> None:
         """
@@ -1015,8 +1001,9 @@ class RuntimeChecker:
                     image_type.export(type_export, 0)
                 raise KiwiRuntimeError(
                     message.format(
-                        type_name, self.xml_state.profiles or ['Default'],
-                        type_export.getvalue()
+                        type_name,
+                        self.xml_state.profiles or ['Default'],
+                        type_export.getvalue(),
                     )
                 )
 
@@ -1032,13 +1019,11 @@ class RuntimeChecker:
             the El Torito max load size of 65535 * 512 bytes (~31MB).
         ''')
         fat_image_mbsize = int(
-            self.xml_state.build_type
-                .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
+            self.xml_state.build_type.get_efifatimagesize()
+            or defaults.EFI_FAT_IMAGE_SIZE
         )
         if fat_image_mbsize > 31:
-            raise KiwiRuntimeError(
-                message.format(fat_image_mbsize)
-            )
+            raise KiwiRuntimeError(message.format(fat_image_mbsize))
 
     def check_bootloader_env_compatible_with_loader(self) -> None:
         """
@@ -1053,18 +1038,13 @@ class RuntimeChecker:
             environment settings. Please drop the <environment>
             setting from <bootloadersettings> for this loader
         ''')
-        env_supported_loaders = [
-            'grub2',
-            'grub2_s390x_emu',
-            'custom'
-        ]
+        env_supported_loaders = ['grub2', 'grub2_s390x_emu', 'custom']
         bootloader = self.xml_state.get_build_type_bootloader_name()
-        variable_list = self.xml_state.\
-            get_build_type_bootloader_environment_variables()
+        variable_list = (
+            self.xml_state.get_build_type_bootloader_environment_variables()
+        )
         if variable_list and bootloader not in env_supported_loaders:
-            raise KiwiRuntimeError(
-                message.format(bootloader)
-            )
+            raise KiwiRuntimeError(message.format(bootloader))
 
     @staticmethod
     def _package_in_list(
@@ -1087,13 +1067,23 @@ class RuntimeChecker:
         package_version = ''
         if tool == 'rpm':
             package_manager_query = [
-                'chroot', root_dir, tool, '-q', '--qf',
-                '%{VERSION}', package_name
+                'chroot',
+                root_dir,
+                tool,
+                '-q',
+                '--qf',
+                '%{VERSION}',
+                package_name,
             ]
         elif tool == 'dpkg':
             package_manager_query = [
-                'chroot', root_dir, 'dpkg-query', '-W', '-f',
-                '${Version}', package_name
+                'chroot',
+                root_dir,
+                'dpkg-query',
+                '-W',
+                '-f',
+                '${Version}',
+                package_name,
             ]
         if package_manager_query:
             try:

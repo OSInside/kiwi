@@ -1,13 +1,9 @@
 from pytest import raises
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 
 from kiwi.oci_tools import OCI
 
-from kiwi.exceptions import (
-    KiwiOCIArchiveToolError
-)
+from kiwi.exceptions import KiwiOCIArchiveToolError
 
 
 class TestOCI:
@@ -20,9 +16,7 @@ class TestOCI:
 
     @patch('kiwi.oci_tools.umoci.OCIUmoci')
     @patch('kiwi.oci_tools.RuntimeConfig')
-    def test_oci_tool_umoci(
-        self, mock_RuntimeConfig, mock_OCIUmoci
-    ):
+    def test_oci_tool_umoci(self, mock_RuntimeConfig, mock_OCIUmoci):
         self.runtime_config.get_oci_archive_tool.return_value = 'umoci'
         mock_RuntimeConfig.return_value = self.runtime_config
         OCI.new()
@@ -30,9 +24,7 @@ class TestOCI:
 
     @patch('kiwi.oci_tools.buildah.OCIBuildah')
     @patch('kiwi.oci_tools.RuntimeConfig')
-    def test_oci_tool_buildah(
-        self, mock_RuntimeConfig, mock_OCIBuildah
-    ):
+    def test_oci_tool_buildah(self, mock_RuntimeConfig, mock_OCIBuildah):
         self.runtime_config.get_oci_archive_tool.return_value = 'buildah'
         mock_RuntimeConfig.return_value = self.runtime_config
         OCI.new()

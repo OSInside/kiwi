@@ -31,9 +31,7 @@ from kiwi.defaults import Defaults
 from kiwi.privileges import Privileges
 from kiwi.path import Path
 
-from kiwi.exceptions import (
-    KiwiCATargetDistributionError
-)
+from kiwi.exceptions import KiwiCATargetDistributionError
 
 log = logging.getLogger('kiwi')
 
@@ -47,6 +45,7 @@ class SystemBuildTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Build a system image from the specified description. The
@@ -58,9 +57,7 @@ class SystemBuildTask(CliTask):
 
         Privileges.check_for_root_permissions()
 
-        abs_target_dir_path = os.path.abspath(
-            self.command_args['--target-dir']
-        )
+        abs_target_dir_path = os.path.abspath(self.command_args['--target-dir'])
         build_dir = os.sep.join([abs_target_dir_path, 'build'])
         image_root = os.sep.join([build_dir, 'image-root'])
         Path.create(build_dir)
@@ -77,17 +74,19 @@ class SystemBuildTask(CliTask):
         build_checks = self.checks_before_command_args
         build_checks.update(
             {
-                'check_target_directory_not_in_shared_cache':
-                    [abs_target_dir_path],
-                'check_target_dir_on_unsupported_filesystem':
-                    [abs_target_dir_path]
+                'check_target_directory_not_in_shared_cache': [
+                    abs_target_dir_path
+                ],
+                'check_target_dir_on_unsupported_filesystem': [
+                    abs_target_dir_path
+                ],
             }
         )
         self.run_checks(build_checks)
 
         if self.command_args['--set-type-attr']:
             for set_type_attr in self.command_args['--set-type-attr']:
-                (attribute, value) = self.attr_token(set_type_attr)
+                attribute, value = self.attr_token(set_type_attr)
                 log.info(f'--> Set <type ... {attribute}="{value}" .../>')
                 try:
                     eval(
@@ -120,14 +119,14 @@ class SystemBuildTask(CliTask):
             self.xml_state.set_repository(
                 *self._get_repo_parameters(
                     self.command_args['--set-repo'],
-                    self.command_args['--set-repo-credentials']
+                    self.command_args['--set-repo-credentials'],
                 )
             )
 
         if self.command_args['--add-repo']:
             for add_repo, add_credentials in zip_longest(
                 self.command_args['--add-repo'],
-                self.command_args['--add-repo-credentials']
+                self.command_args['--add-repo-credentials'],
             ):
                 self.xml_state.add_repository(
                     *self._get_repo_parameters(add_repo, add_credentials)
@@ -141,7 +140,7 @@ class SystemBuildTask(CliTask):
         if self.command_args['--add-container-label']:
             for add_label in self.command_args['--add-container-label']:
                 try:
-                    (name, value) = add_label.split('=', 1)
+                    name, value = add_label.split('=', 1)
                     self.xml_state.add_container_config_label(name, value)
                 except Exception:
                     log.warning(
@@ -157,9 +156,10 @@ class SystemBuildTask(CliTask):
         if self.command_args['--ca-cert']:
             ca_certs = self.command_args['--ca-cert']
             if ca_certs:
-                target_distribution = \
-                    self.command_args['--ca-target-distribution'] or \
-                    self.xml_state.get_certificates_target_distribution()
+                target_distribution = (
+                    self.command_args['--ca-target-distribution']
+                    or self.xml_state.get_certificates_target_distribution()
+                )
                 if not target_distribution or not Defaults.get_ca_update_map(
                     target_distribution
                 ):
@@ -168,7 +168,7 @@ class SystemBuildTask(CliTask):
                             'set via --ca-target-distribution.',
                             'allowed values are {}'.format(
                                 Defaults.get_ca_target_distributions()
-                            )
+                            ),
                         )
                     )
                 for certificate in ca_certs:
@@ -182,22 +182,19 @@ class SystemBuildTask(CliTask):
         with SystemPrepare(
             self.xml_state,
             image_root,
-            self.command_args['--allow-existing-root']
+            self.command_args['--allow-existing-root'],
         ) as system:
             with system.setup_repositories(
                 self.command_args['--clear-cache'],
-                self.command_args[
-                    '--signing-key'
-                ] + self.xml_state.get_repositories_signing_keys(),
-                self.global_args['--target-arch']
+                self.command_args['--signing-key']
+                + self.xml_state.get_repositories_signing_keys(),
+                self.global_args['--target-arch'],
             ) as manager:
                 system.install_bootstrap(
                     manager, self.command_args['--add-bootstrap-package']
                 )
 
-                setup = SystemSetup(
-                    self.xml_state, image_root
-                )
+                setup = SystemSetup(self.xml_state, image_root)
                 setup.import_description()
 
                 # call post_bootstrap.sh script if present
@@ -206,9 +203,7 @@ class SystemBuildTask(CliTask):
                 # Setup custom CA certificates after bootstrap package install
                 system.setup_ca_certificates()
 
-                system.install_system(
-                    manager
-                )
+                system.install_system(manager)
                 if self.command_args['--add-package']:
                     system.install_packages(
                         manager, self.command_args['--add-package']
@@ -222,9 +217,7 @@ class SystemBuildTask(CliTask):
 
                 defaults = Defaults()
                 defaults.to_profile(profile)
-                profile.create(
-                    Defaults.get_profile_file(image_root)
-                )
+                profile.create(Defaults.get_profile_file(image_root))
 
                 setup.import_overlay_files()
                 setup.import_image_identifier()
@@ -265,27 +258,21 @@ class SystemBuildTask(CliTask):
 
         log.info('Creating system image')
         self.run_checks(
-            {
-                'check_dracut_module_versions_compatible_to_kiwi':
-                    [image_root]
-            }
+            {'check_dracut_module_versions_compatible_to_kiwi': [image_root]}
         )
         image_builder = ImageBuilder.new(
             self.xml_state,
             abs_target_dir_path,
             image_root,
             custom_args={
-                'signing_keys': self.command_args[
-                    '--signing-key'
-                ] + self.xml_state.get_repositories_signing_keys(),
-                'xz_options': self.runtime_config.get_xz_options()
-            }
+                'signing_keys': self.command_args['--signing-key']
+                + self.xml_state.get_repositories_signing_keys(),
+                'xz_options': self.runtime_config.get_xz_options(),
+            },
         )
         result = image_builder.create()
         result.print_results()
-        result.dump(
-            os.sep.join([abs_target_dir_path, 'kiwi.result'])
-        )
+        result.dump(os.sep.join([abs_target_dir_path, 'kiwi.result']))
 
     def _help(self):
         if self.command_args['help']:

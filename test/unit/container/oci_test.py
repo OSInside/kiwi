@@ -1,8 +1,6 @@
 import logging
 from pytest import fixture
-from unittest.mock import (
-    patch, mock_open, Mock
-)
+from unittest.mock import patch, mock_open, Mock
 
 import kiwi
 
@@ -21,17 +19,17 @@ class TestContainerImageOCI:
         mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True
         self.runtime_config = Mock()
-        self.runtime_config.get_container_compression = Mock(
-            return_value=None
-        )
+        self.runtime_config.get_container_compression = Mock(return_value=None)
         kiwi.container.oci.RuntimeConfig = Mock(
             return_value=self.runtime_config
         )
         self.oci = ContainerImageOCI(
-            'root_dir', 'docker-archive', {
+            'root_dir',
+            'docker-archive',
+            {
                 'container_name': 'foo/bar',
-                'additional_names': [':current', 'name:foobar', 'newname']
-            }
+                'additional_names': [':current', 'name:foobar', 'newname'],
+            },
         )
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
@@ -56,11 +54,9 @@ class TestContainerImageOCI:
             'expose_ports': ['80', '42'],
             'volumes': ['/var/log', '/tmp'],
             'environment': {'PATH': '/bin', 'FOO': 'bar'},
-            'labels': {'a': 'value', 'b': 'value'}
+            'labels': {'a': 'value', 'b': 'value'},
         }
-        container = ContainerImageOCI(
-            'root_dir', 'oci-archive', custom_args
-        )
+        container = ContainerImageOCI('root_dir', 'oci-archive', custom_args)
         assert container.oci_config == custom_args
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
@@ -74,7 +70,7 @@ class TestContainerImageOCI:
         assert container.oci_config == {
             'container_name': 'kiwi-container',
             'container_tag': 'latest',
-            'history': {'created_by': 'KIWI {0}'.format(__version__)}
+            'history': {'created_by': 'KIWI {0}'.format(__version__)},
         }
 
     @patch('kiwi.container.oci.RuntimeConfig')
@@ -88,22 +84,21 @@ class TestContainerImageOCI:
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            m_open.return_value.__iter__ = lambda _: \
-                iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
-            container = ContainerImageOCI(
-                'root_dir', 'oci-archive'
+            m_open.return_value.__iter__ = lambda _: iter(
+                ['BUILD_DISTURL=obs://build.opensuse.org/some:project']
             )
+            container = ContainerImageOCI('root_dir', 'oci-archive')
 
         m_open.assert_called_once_with('/.buildenv')
         assert container.oci_config['labels'] == {
-            'org.openbuildservice.disturl':
-            'obs://build.opensuse.org/some:project'
+            'org.openbuildservice.disturl': 'obs://build.opensuse.org/some:project'
         }
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            m_open.return_value.__iter__ = lambda _: \
-                iter(['BUILD_DISTURL=obs://build.opensuse.org/some:project'])
+            m_open.return_value.__iter__ = lambda _: iter(
+                ['BUILD_DISTURL=obs://build.opensuse.org/some:project']
+            )
             container = ContainerImageOCI(
                 'root_dir', 'oci-archive', {'labels': {'label': 'value'}}
             )
@@ -111,8 +106,7 @@ class TestContainerImageOCI:
         m_open.assert_called_once_with('/.buildenv')
         assert container.oci_config['labels'] == {
             'label': 'value',
-            'org.openbuildservice.disturl':
-            'obs://build.opensuse.org/some:project'
+            'org.openbuildservice.disturl': 'obs://build.opensuse.org/some:project',
         }
 
     @patch('kiwi.container.oci.RuntimeConfig')
@@ -149,10 +143,18 @@ class TestContainerImageOCI:
         mock_oci.init_container.assert_called_once_with()
         mock_oci.unpack.assert_called_once_with()
         mock_oci.sync_rootfs.assert_called_once_with(
-            'root_dir', [
-                'image', '.kconfig', 'run/*', 'tmp/*',
-                '.buildenv', 'var/cache/kiwi', 'dev/*', 'sys/*', 'proc/*'
-            ]
+            'root_dir',
+            [
+                'image',
+                '.kconfig',
+                'run/*',
+                'tmp/*',
+                '.buildenv',
+                'var/cache/kiwi',
+                'dev/*',
+                'sys/*',
+                'proc/*',
+            ],
         )
         mock_oci.repack.assert_called_once_with(
             {
@@ -160,7 +162,7 @@ class TestContainerImageOCI:
                 'additional_names': [':current', 'name:foobar', 'newname'],
                 'container_tag': 'latest',
                 'entry_subcommand': ['/bin/bash'],
-                'history': {'created_by': 'KIWI {0}'.format(__version__)}
+                'history': {'created_by': 'KIWI {0}'.format(__version__)},
             }
         )
         mock_oci.set_config.assert_called_once_with(
@@ -169,7 +171,7 @@ class TestContainerImageOCI:
                 'additional_names': [':current', 'name:foobar', 'newname'],
                 'container_tag': 'latest',
                 'entry_subcommand': ['/bin/bash'],
-                'history': {'created_by': 'KIWI {0}'.format(__version__)}
+                'history': {'created_by': 'KIWI {0}'.format(__version__)},
             }
         )
         mock_oci.post_process.assert_called_once_with()
@@ -182,9 +184,7 @@ class TestContainerImageOCI:
 
     @patch('kiwi.container.oci.OCI')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
-    def test_create_derived_docker_archive(
-        self, mock_cache, mock_OCI
-    ):
+    def test_create_derived_docker_archive(self, mock_cache, mock_OCI):
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = mock_oci
@@ -198,25 +198,39 @@ class TestContainerImageOCI:
         )
         mock_oci.unpack.assert_called_once_with()
         mock_oci.sync_rootfs.assert_called_once_with(
-            'root_dir', [
-                'image', '.kconfig', 'run/*', 'tmp/*',
-                '.buildenv', 'var/cache/kiwi', 'dev/*', 'sys/*', 'proc/*'
-            ]
+            'root_dir',
+            [
+                'image',
+                '.kconfig',
+                'run/*',
+                'tmp/*',
+                '.buildenv',
+                'var/cache/kiwi',
+                'dev/*',
+                'sys/*',
+                'proc/*',
+            ],
         )
-        mock_oci.repack.assert_called_once_with({
-            'container_name': 'foo/bar',
-            'additional_names': [':current', 'name:foobar', 'newname'],
-            'container_tag': 'latest',
-            'history': {'created_by': 'KIWI {0}'.format(__version__)}
-        })
-        mock_oci.set_config.assert_called_once_with({
-            'container_name': 'foo/bar',
-            'additional_names': [':current', 'name:foobar', 'newname'],
-            'container_tag': 'latest',
-            'history': {'created_by': 'KIWI {0}'.format(__version__)}
-        })
+        mock_oci.repack.assert_called_once_with(
+            {
+                'container_name': 'foo/bar',
+                'additional_names': [':current', 'name:foobar', 'newname'],
+                'container_tag': 'latest',
+                'history': {'created_by': 'KIWI {0}'.format(__version__)},
+            }
+        )
+        mock_oci.set_config.assert_called_once_with(
+            {
+                'container_name': 'foo/bar',
+                'additional_names': [':current', 'name:foobar', 'newname'],
+                'container_tag': 'latest',
+                'history': {'created_by': 'KIWI {0}'.format(__version__)},
+            }
+        )
         mock_oci.post_process.assert_called_once_with()
         mock_oci.export_container_image.assert_called_once_with(
-            'result.tar', 'docker-archive', 'foo/bar:latest',
-            ['foo/bar:current', 'name:foobar', 'newname:latest']
+            'result.tar',
+            'docker-archive',
+            'foo/bar:latest',
+            ['foo/bar:current', 'name:foobar', 'newname:latest'],
         )

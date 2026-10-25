@@ -16,17 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import platform
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.boxbuild.boxes_config import BoxesConfig
 
-from kiwi.exceptions import (
-    KiwiBoxNameError,
-    KiwiBoxArchNotFoundError
-)
+from kiwi.exceptions import KiwiBoxNameError, KiwiBoxArchNotFoundError
 
 
 class BoxConfig:
@@ -36,6 +31,7 @@ class BoxConfig:
     :param str boxname: name of the box from kiwi_boxed_plugin.yml
     :param str arch: arch name for box
     """
+
     def __init__(self, boxname: str, arch: str = '') -> None:
         self.arch = arch or platform.machine()
 
@@ -45,9 +41,7 @@ class BoxConfig:
             boxes_config.get_config(), boxname
         )
         if not self.box_config:
-            raise KiwiBoxNameError(
-                'Box: {0} not found'.format(boxname)
-            )
+            raise KiwiBoxNameError('Box: {0} not found'.format(boxname))
         self.box_arch_config = self._get_box_arch_config(
             self.box_config, self.arch
         )
@@ -92,17 +86,13 @@ class BoxConfig:
     def use_initrd(self) -> bool:
         return bool(self.box_arch_config.get('use_initrd'))
 
-    def _get_box_config(
-        self, boxes_config: List[Dict], name: str
-    ) -> Dict:
+    def _get_box_config(self, boxes_config: List[Dict], name: str) -> Dict:
         for box in boxes_config:
             if box.get('name') == name:
                 return box
         return {}
 
-    def _get_box_arch_config(
-        self, box_config: Dict, arch: str
-    ) -> Dict:
+    def _get_box_arch_config(self, box_config: Dict, arch: str) -> Dict:
         for box_arch in box_config.get('arch') or []:
             if box_arch.get('name') == arch:
                 return box_arch

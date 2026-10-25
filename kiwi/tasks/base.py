@@ -18,9 +18,7 @@
 import os
 import logging
 import glob
-from typing import (
-    List, Dict, Optional, Union, Any
-)
+from typing import List, Dict, Optional, Union, Any
 from operator import attrgetter
 
 # project
@@ -29,9 +27,7 @@ from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
 
-from kiwi.exceptions import (
-    KiwiConfigFileNotFound
-)
+from kiwi.exceptions import KiwiConfigFileNotFound
 
 log: Any = logging.getLogger('kiwi')
 
@@ -50,6 +46,7 @@ class CliTask:
         * setup logfile
         * setup color output
     """
+
     def __init__(self, should_perform_task_setup: bool = True) -> None:
         self.cli = Cli()
 
@@ -90,25 +87,21 @@ class CliTask:
             'check_luksformat_options_valid': [],
             'check_partuuid_persistency_type_used_with_mbr': [],
             'check_efi_fat_image_has_correct_size': [],
-            'check_bootloader_env_compatible_with_loader': []
+            'check_bootloader_env_compatible_with_loader': [],
         }
         self.checks_after_command_args: Dict[str, List[str]] = {
             'check_repositories_configured': [],
-            'check_image_include_repos_publicly_resolvable': []
+            'check_image_include_repos_publicly_resolvable': [],
         }
 
         if should_perform_task_setup:
             # set log file
             if self.global_args['--logfile']:
-                log.set_logfile(
-                    self.global_args['--logfile']
-                )
+                log.set_logfile(self.global_args['--logfile'])
 
             # set log socket
             if self.global_args['--logsocket']:
-                log.set_log_socket(
-                    self.global_args['--logsocket']
-                )
+                log.set_log_socket(self.global_args['--logsocket'])
 
             # set log level
             if self.global_args['--loglevel']:
@@ -140,13 +133,14 @@ class CliTask:
 
         if self.global_args['--setenv']:
             for setenv in self.global_args['--setenv']:
-                (variable, value) = self.attr_token(setenv)
+                variable, value = self.attr_token(setenv)
                 log.info(f'--> Set Env[{variable}]="{value}"')
                 os.environ[format(variable)] = format(value)
 
         # initialize runtime configuration
         # import RuntimeConfig late to make sure the logging setup applies
         from kiwi.runtime_config import RuntimeConfig
+
         self.runtime_config = RuntimeConfig()
 
     def load_xml_description(
@@ -183,27 +177,24 @@ class CliTask:
                 f'no XML description found in {description_directory}'
             )
 
-        self.description = XMLDescription(
-            config_file
-        )
+        self.description = XMLDescription(config_file)
         self.xml_data = self.description.load()
         self.config_file = config_file.replace('//', '/')
         self.xml_state = XMLState(
             self.xml_data,
             self.global_args['--profile'],
-            self.global_args['--type']
+            self.global_args['--type'],
         )
 
         log.info('--> loaded %s', self.config_file)
         if self.xml_state.build_type:
             log.info(
                 '--> Selected build type: %s',
-                self.xml_state.get_build_type_name()
+                self.xml_state.get_build_type_name(),
             )
         if self.xml_state.profiles:
             log.info(
-                '--> Selected profiles: %s',
-                ','.join(self.xml_state.profiles)
+                '--> Selected profiles: %s', ','.join(self.xml_state.profiles)
             )
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
@@ -252,8 +243,9 @@ class CliTask:
         exclude_list = self.runtime_config.get_disabled_runtime_checks()
         if self.runtime_checker is not None:
             for method, args in {
-                key: value for key, value in checks.items()
-                    if key not in exclude_list
+                key: value
+                for key, value in checks.items()
+                if key not in exclude_list
             }.items():
                 attrgetter(method)(self.runtime_checker)(*args)
 
@@ -286,7 +278,6 @@ class CliTask:
         """
         tokens = option.split(separator, tuple_count - 1) if option else []
         return [
-            self._pop_token(tokens) if len(tokens) else None for _ in range(
-                0, tuple_count
-            )
+            self._pop_token(tokens) if len(tokens) else None
+            for _ in range(0, tuple_count)
         ]

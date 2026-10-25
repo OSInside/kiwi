@@ -24,9 +24,7 @@ from kiwi.command import Command
 from kiwi.partitioner.base import PartitionerBase
 from kiwi.utils.block import BlockID
 
-from kiwi.exceptions import (
-    KiwiPartitionerMsDosFlagError
-)
+from kiwi.exceptions import KiwiPartitionerMsDosFlagError
 
 log = logging.getLogger('kiwi')
 
@@ -35,6 +33,7 @@ class PartitionerMsDos(PartitionerBase):
     """
     **Implement old style msdos partition setup**
     """
+
     def post_init(self) -> None:
         """
         Post initialization method
@@ -52,12 +51,16 @@ class PartitionerMsDos(PartitionerBase):
             't.efi': None,
             't.csm': None,
             't.prep': '41',
-            't.extended': '5'
+            't.extended': '5',
         }
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        mbsize: int,
+        type_name: str,
+        flags: List[str] = [],
+        partition_id: Optional[int] = None,
     ) -> None:
         """
         Create msdos partition
@@ -88,9 +91,7 @@ class PartitionerMsDos(PartitionerBase):
                     name, mbsize, type_name, flags, partition_id
                 )
         else:
-            self._create_primary(
-                name, mbsize, type_name, flags, partition_id
-            )
+            self._create_primary(name, mbsize, type_name, flags, partition_id)
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """
@@ -109,15 +110,20 @@ class PartitionerMsDos(PartitionerBase):
             if flag_name == 'f.active':
                 Command.run(
                     [
-                        'sfdisk', '--activate', self.disk_device,
-                        format(partition_id)
+                        'sfdisk',
+                        '--activate',
+                        self.disk_device,
+                        format(partition_id),
                     ]
                 )
             elif isinstance(flag_val, str):
                 Command.run(
                     [
-                        'sfdisk', '-c', self.disk_device,
-                        format(partition_id), flag_val
+                        'sfdisk',
+                        '-c',
+                        self.disk_device,
+                        format(partition_id),
+                        flag_val,
                     ]
                 )
         else:
@@ -173,14 +179,19 @@ class PartitionerMsDos(PartitionerBase):
         self._call_fdisk(fdisk_input.name)
 
     def _create_primary(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        mbsize: int,
+        type_name: str,
+        flags: List[str] = [],
+        partition_id: Optional[int] = None,
     ) -> None:
         """
         Create primary msdos partition
         """
-        self.partition_id = \
+        self.partition_id = (
             partition_id if partition_id else self.partition_id + 1
+        )
         self.partition_count += 1
         fdisk_input = Temporary().new_file()
         if self.partition_id == 1 and self.start_sector:
@@ -189,17 +200,21 @@ class PartitionerMsDos(PartitionerBase):
                 # the partition size such that after set_start_sector()
                 # the requested partition size is present
                 mbsize += int(
-                    (self.start_sector - self.default_start) * self.sector_size / (1024 * 1024)
+                    (self.start_sector - self.default_start)
+                    * self.sector_size
+                    / (1024 * 1024)
                 )
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n p %d cur_position +%sM w q',
-                name, self.partition_id, format(mbsize)
+                name,
+                self.partition_id,
+                format(mbsize),
             )
             partition.write(
                 'n\np\n{0}\n\n{1}\nw\nq\n'.format(
                     self.partition_id,
-                    '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
+                    '' if mbsize == 'all_free' else '+{0}M'.format(mbsize),
                 )
             )
         self._call_fdisk(fdisk_input.name)
@@ -211,43 +226,50 @@ class PartitionerMsDos(PartitionerBase):
         """
         Create extended msdos partition
         """
-        self.partition_id = \
+        self.partition_id = (
             partition_id if partition_id else self.partition_id + 1
+        )
         self.partition_count += 1
         fdisk_input = Temporary().new_file()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n e %d cur_position +all_freeM w q',
-                name, self.partition_id
+                name,
+                self.partition_id,
             )
             partition.write(
-                'n\ne\n{0}\n{1}\n{2}\nw\nq\n'.format(
-                    self.partition_id, '', ''
-                )
+                'n\ne\n{0}\n{1}\n{2}\nw\nq\n'.format(self.partition_id, '', '')
             )
         self._call_fdisk(fdisk_input.name)
 
     def _create_logical(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
-        partition_id: Optional[int] = None
+        self,
+        name: str,
+        mbsize: int,
+        type_name: str,
+        flags: List[str] = [],
+        partition_id: Optional[int] = None,
     ) -> None:
         """
         Create logical msdos partition
         """
-        self.partition_id = \
+        self.partition_id = (
             partition_id if partition_id else self.partition_id + 1
+        )
         self.partition_count += 1
         fdisk_input = Temporary().new_file()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n %d cur_position +%sM w q',
-                name, self.partition_id, format(mbsize)
+                name,
+                self.partition_id,
+                format(mbsize),
             )
             partition.write(
                 'n\n{0}\n{1}\n{2}\nw\nq\n'.format(
                     self.partition_id,
                     '',
-                    '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
+                    '' if mbsize == 'all_free' else '+{0}M'.format(mbsize),
                 )
             )
         self._call_fdisk(fdisk_input.name)
@@ -264,9 +286,7 @@ class PartitionerMsDos(PartitionerBase):
             ['cat', fdisk_config_file_path, '|', 'fdisk', self.disk_device]
         )
         try:
-            Command.run(
-                ['bash', '-c', bash_command]
-            )
+            Command.run(['bash', '-c', bash_command])
         except Exception:
             # unfortunately fdisk reports that it can't read in the partition
             # table which I consider a bug in fdisk. However the table was

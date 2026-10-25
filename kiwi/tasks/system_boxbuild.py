@@ -41,6 +41,7 @@ class SystemBoxbuildTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self) -> None:
         """
         Build a system image from the specified description in a box.
@@ -62,13 +63,13 @@ class SystemBoxbuildTask(CliTask):
             if self.command_args.get('--container'):
                 box_container_build = BoxContainerBuild(
                     boxname=self.command_args['--box'],
-                    arch=self._get_box_arch()
+                    arch=self._get_box_arch(),
                 )
                 box_container_build.run(
                     self._get_kiwi_build_command(),
                     keep_open,
                     kiwi_version,
-                    shared_path
+                    shared_path,
                 )
             else:
                 request_update_check = not self.command_args.get(
@@ -88,7 +89,7 @@ class SystemBoxbuildTask(CliTask):
                     sharing_backend=self._get_sharing_backend(),
                     ssh_key=self.command_args.get('--ssh-key') or 'id_rsa',
                     ssh_port=self.command_args.get('--ssh-port') or '',
-                    accel=not bool(self.command_args.get('--no-accel'))
+                    accel=not bool(self.command_args.get('--no-accel')),
                 )
                 box_build.run(
                     self._get_kiwi_build_command(),
@@ -96,7 +97,7 @@ class SystemBoxbuildTask(CliTask):
                     request_snapshot_mode,
                     keep_open,
                     kiwi_version,
-                    shared_path
+                    shared_path,
                 )
 
     def _help(self) -> bool:
@@ -111,9 +112,7 @@ class SystemBoxbuildTask(CliTask):
         from the global options and the arguments passed along with
         the kiwi subcommand of boxbuild
         """
-        kiwi_build_command = [
-            'system', 'build'
-        ]
+        kiwi_build_command = ['system', 'build']
         translate_to_abspath = False
         for entry in self.command_args.get('system_build') or []:
             if translate_to_abspath:
@@ -138,7 +137,8 @@ class SystemBoxbuildTask(CliTask):
             final_kiwi_build_command.append(self.global_args.get('--kiwi-file'))
         final_kiwi_build_command += kiwi_build_command
         missing_required_options = [
-            option for option in ['--description', '--target-dir']
+            option
+            for option in ['--description', '--target-dir']
             if option not in final_kiwi_build_command
         ]
         if missing_required_options:

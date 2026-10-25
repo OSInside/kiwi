@@ -24,6 +24,7 @@ class StringToSize:
     """
     **Performs size convertions from strings to numbers**
     """
+
     @staticmethod
     def to_bytes(size_value: str) -> int:
         """
@@ -45,5 +46,4 @@ class StringToSize:
             )
         size_base = int(size.group(1))
         size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())
-        return size_base * (1024 ** size_unit) if size_unit \
-            else size_base
+        return size_base * (1024**size_unit) if size_unit else size_base

@@ -24,9 +24,7 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 
-from kiwi.exceptions import (
-    KiwiRaidSetupError
-)
+from kiwi.exceptions import KiwiRaidSetupError
 
 log = logging.getLogger('kiwi')
 
@@ -37,14 +35,12 @@ class RaidDevice(DeviceProvider):
 
     :param object storage_provider: Instance of class based on DeviceProvider
     """
+
     def __init__(self, storage_provider: DeviceProvider):
         #: the underlaying device provider
         self.storage_provider = storage_provider
 
-        self.raid_level_map = {
-            'mirroring': '1',
-            'striping': '0'
-        }
+        self.raid_level_map = {'mirroring': '1', 'striping': '0'}
         self.raid_device = None
 
     def __enter__(self):
@@ -59,9 +55,7 @@ class RaidDevice(DeviceProvider):
         :rtype: MappedDevice
         """
         if self.raid_device:
-            return MappedDevice(
-                device=self.raid_device, device_provider=self
-            )
+            return MappedDevice(device=self.raid_device, device_provider=self)
         return None
 
     def create_degraded_raid(self, raid_level):
@@ -87,15 +81,20 @@ class RaidDevice(DeviceProvider):
                 'Could not find free raid device in range md0-8'
             )
         log.info(
-            'Creating raid array in %s mode as %s',
-            raid_level, raid_device
+            'Creating raid array in %s mode as %s', raid_level, raid_device
         )
         Command.run(
             [
-                'mdadm', '--create', '--run', raid_device,
-                '--level', self.raid_level_map[raid_level],
-                '--raid-disks', '2',
-                self.storage_provider.get_device(), 'missing'
+                'mdadm',
+                '--create',
+                '--run',
+                raid_device,
+                '--level',
+                self.raid_level_map[raid_level],
+                '--raid-disks',
+                '2',
+                self.storage_provider.get_device(),
+                'missing',
             ]
         )
         self.raid_device = raid_device
@@ -107,10 +106,10 @@ class RaidDevice(DeviceProvider):
         :param string filename: config file name
         """
         if not self.raid_device:
-            raise KiwiRaidSetupError("No raid device defined, cannot create raid config!")
-        mdadm_call = Command.run(
-            ['mdadm', '-Db', self.raid_device]
-        )
+            raise KiwiRaidSetupError(
+                "No raid device defined, cannot create raid config!"
+            )
+        mdadm_call = Command.run(['mdadm', '-Db', self.raid_device])
         with open(filename, 'w') as mdadmconf:
             mdadmconf.write(mdadm_call.output)
 
@@ -129,9 +128,7 @@ class RaidDevice(DeviceProvider):
     def __exit__(self, exc_type, exc_value, traceback):
         if self.raid_device:
             try:
-                Command.run(
-                    ['mdadm', '--stop', self.raid_device]
-                )
+                Command.run(['mdadm', '--stop', self.raid_device])
             except Exception as issue:
                 log.error(
                     'Shutdown of raid device {0} failed with: {1}'.format(

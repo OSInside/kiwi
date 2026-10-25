@@ -1,9 +1,5 @@
-from unittest.mock import (
-    patch, Mock
-)
-from pytest import (
-    fixture, raises
-)
+from unittest.mock import patch, Mock
+from pytest import fixture, raises
 
 from kiwi.package_manager.apk import PackageManagerApk
 
@@ -22,7 +18,7 @@ class TestPackageManagerApk:
         repository.runtime_config = Mock(
             return_value={
                 'bootstrap_repo': 'https://some',
-                'command_env': ['env']
+                'command_env': ['env'],
             }
         )
         self.manager = PackageManagerApk(repository)
@@ -60,10 +56,18 @@ class TestPackageManagerApk:
         self.manager.process_install_requests_bootstrap()
         mock_call.assert_called_once_with(
             [
-                'apk', '--root', '/root-dir', '-X', 'https://some',
-                '-U', '--allow-untrusted', '--initdb', 'add',
+                'apk',
+                '--root',
+                '/root-dir',
+                '-X',
+                'https://some',
+                '-U',
+                '--allow-untrusted',
+                '--initdb',
+                'add',
                 'alpine-base',
-            ], ['env']
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -73,10 +77,19 @@ class TestPackageManagerApk:
         self.manager.process_install_requests_bootstrap()
         mock_call.assert_called_once_with(
             [
-                'apk', '--root', '/root-dir', '-X', 'https://some',
-                '-U', '--allow-untrusted', '--initdb', 'add',
-                'vim', 'collection'
-            ], ['env']
+                'apk',
+                '--root',
+                '/root-dir',
+                '-X',
+                'https://some',
+                '-U',
+                '--allow-untrusted',
+                '--initdb',
+                'add',
+                'vim',
+                'collection',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -90,8 +103,7 @@ class TestPackageManagerApk:
             ['chroot', '/root-dir', 'apk', 'update'], ['env']
         )
         mock_call.assert_called_once_with(
-            ['chroot', '/root-dir', 'apk', 'add', 'vim', 'collection'],
-            ['env']
+            ['chroot', '/root-dir', 'apk', 'add', 'vim', 'collection'], ['env']
         )
 
     @patch('kiwi.command.Command.call')
@@ -103,8 +115,7 @@ class TestPackageManagerApk:
             ['chroot', '/root-dir', 'apk', 'update'], ['env']
         )
         mock_call.assert_called_once_with(
-            ['chroot', '/root-dir', 'apk', 'del', 'vim'],
-            ['env']
+            ['chroot', '/root-dir', 'apk', 'del', 'vim'], ['env']
         )
 
     def test_process_only_required(self):
@@ -123,8 +134,7 @@ class TestPackageManagerApk:
             ['chroot', '/root-dir', 'apk', 'update'], ['env']
         )
         mock_call.assert_called_once_with(
-            ['chroot', '/root-dir', 'apk', 'upgrade'],
-            ['env']
+            ['chroot', '/root-dir', 'apk', 'upgrade'], ['env']
         )
 
     def test_match_package_installed(self):

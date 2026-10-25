@@ -29,6 +29,7 @@ class FileSystemIsoFs(FileSystemBase):
     """
     **Implements creation of iso filesystem**
     """
+
     def create_on_file(
         self, filename: str, label: str = None, exclude: List[str] = None
     ):

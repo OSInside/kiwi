@@ -19,9 +19,7 @@ import os
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
-from kiwi.exceptions import (
-    KiwiMappedDeviceError
-)
+from kiwi.exceptions import KiwiMappedDeviceError
 
 
 class MappedDevice(DeviceProvider):
@@ -31,11 +29,10 @@ class MappedDevice(DeviceProvider):
     :param object device_provider: Instance of class based on DeviceProvider
     :param string device: Device node name
     """
+
     def __init__(self, device: str, device_provider: DeviceProvider):
         if not os.path.exists(device):
-            raise KiwiMappedDeviceError(
-                f'Device {device} does not exist'
-            )
+            raise KiwiMappedDeviceError(f'Device {device} does not exist')
         self.device_provider = device_provider
         self.device = device
 

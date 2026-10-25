@@ -1,23 +1,16 @@
 import sys
 from pytest import raises
-from unittest.mock import (
-    Mock, patch
-)
+from unittest.mock import Mock, patch
 from tempfile import NamedTemporaryFile
 from ..test_helper import argv_kiwi_tests
 
 from kiwi.tasks.system_stash import SystemStashTask
-from kiwi.exceptions import (
-    KiwiStackBuildContainerNameInvalid
-)
+from kiwi.exceptions import KiwiStackBuildContainerNameInvalid
 
 
 class TestSystemStashTask:
     def setup(self):
-        sys.argv = [
-            sys.argv[0], 'system', 'stash',
-            '--root', 'some-root-dir'
-        ]
+        sys.argv = [sys.argv[0], 'system', 'stash', '--root', 'some-root-dir']
         self.task = SystemStashTask()
         self.tmpfile = NamedTemporaryFile()
 
@@ -46,9 +39,7 @@ class TestSystemStashTask:
         self.task.command_args['help'] = True
         self.task.command_args['stash'] = True
         self.task.process()
-        Help.show.assert_called_once_with(
-            'kiwi::system::stash'
-        )
+        Help.show.assert_called_once_with('kiwi::system::stash')
 
     @patch('kiwi.tasks.system_stash.DataOutput')
     @patch('kiwi.tasks.system_stash.Privileges')
@@ -68,7 +59,9 @@ class TestSystemStashTask:
     @patch('kiwi.tasks.system_stash.Privileges')
     def test_process_invalid_container_name(self, mock_Privileges):
         self._init_command_args()
-        self.task.command_args['--root'] = '../data/stackbuild/image-root-invalid-name'
+        self.task.command_args['--root'] = (
+            '../data/stackbuild/image-root-invalid-name'
+        )
         with raises(KiwiStackBuildContainerNameInvalid):
             self.task.process()
 
@@ -78,8 +71,12 @@ class TestSystemStashTask:
     @patch('kiwi.tasks.system_stash.Path')
     @patch('os.path.isfile')
     def test_process_build_initial_layer(
-        self, mock_os_path_isfile,
-        mock_Path, mock_Privileges, mock_OCI_new, mock_Command_run
+        self,
+        mock_os_path_isfile,
+        mock_Path,
+        mock_Privileges,
+        mock_OCI_new,
+        mock_Command_run,
     ):
         self._init_command_args()
         self.task.command_args['--root'] = '../data/stackbuild/image-root'
@@ -92,15 +89,13 @@ class TestSystemStashTask:
             'entry_command': ['/bin/sh'],
             'labels': {
                 'io.osinside.kiwi.maintainer': 'Marcus Schaefer',
-                'io.osinside.kiwi.meta':
-                    'KIWI - https://github.com/OSInside/kiwi'
+                'io.osinside.kiwi.meta': 'KIWI - https://github.com/OSInside/kiwi',
             },
             'history': {
-                'created_by':
-                    'KIWI - https://github.com/OSInside/kiwi',
+                'created_by': 'KIWI - https://github.com/OSInside/kiwi',
                 'comment': 'KIWI Root Tree Stash',
-                'author': 'Marcus Schaefer'
-            }
+                'author': 'Marcus Schaefer',
+            },
         }
         self.task.process()
         mock_Privileges.check_for_root_permissions.assert_called_once_with()
@@ -114,12 +109,15 @@ class TestSystemStashTask:
         oci.post_process.assert_called_once_with()
         oci.export_container_image.assert_called_once_with(
             '/var/tmp/kiwi-stash/tumbleweed/tumbleweed.tar',
-            'oci-archive', 'tumbleweed:latest'
+            'oci-archive',
+            'tumbleweed:latest',
         )
         mock_Command_run.assert_called_once_with(
             [
-                'podman', 'load', '-i',
-                '/var/tmp/kiwi-stash/tumbleweed/tumbleweed.tar'
+                'podman',
+                'load',
+                '-i',
+                '/var/tmp/kiwi-stash/tumbleweed/tumbleweed.tar',
             ]
         )
 
@@ -131,9 +129,14 @@ class TestSystemStashTask:
     @patch('os.path.abspath')
     @patch('kiwi.utils.temporary.NamedTemporaryFile')
     def test_process_build_additional_layer(
-        self, mock_NamedTemporaryFile, mock_os_path_abspath,
-        mock_os_path_isfile, mock_Path, mock_Privileges, mock_OCI_new,
-        mock_Command_run
+        self,
+        mock_NamedTemporaryFile,
+        mock_os_path_abspath,
+        mock_os_path_isfile,
+        mock_Path,
+        mock_Privileges,
+        mock_OCI_new,
+        mock_Command_run,
     ):
         tempfile = Mock()
         tempfile.name = self.tmpfile.name
@@ -151,7 +154,9 @@ class TestSystemStashTask:
         )
         mock_Command_run.assert_called_once_with(
             [
-                'podman', 'load', '-i',
-                '/var/tmp/kiwi-stash/tumbleweed/tumbleweed.tar'
+                'podman',
+                'load',
+                '-i',
+                '/var/tmp/kiwi-stash/tumbleweed/tumbleweed.tar',
             ]
         )

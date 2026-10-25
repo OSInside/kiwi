@@ -1,9 +1,7 @@
 import sys
 import os
 from pytest import raises
-from unittest.mock import (
-    Mock, patch
-)
+from unittest.mock import Mock, patch
 
 from ..test_helper import argv_kiwi_tests
 
@@ -16,17 +14,27 @@ class TestSystemBoxbuildTask:
         sys.argv = [
             sys.argv[0],
             '--debug',
-            '--profile', 'foo',
-            '--type', 'oem',
-            '--kiwi-file', 'appliance.kiwi',
-            'system', 'boxbuild',
-            '--box', 'universal',
-            '--box-memory', '4',
-            '--box-console', 'ttyAMA0',
-            '--box-smp-cpus', '4',
+            '--profile',
+            'foo',
+            '--type',
+            'oem',
+            '--kiwi-file',
+            'appliance.kiwi',
+            'system',
+            'boxbuild',
+            '--box',
+            'universal',
+            '--box-memory',
+            '4',
+            '--box-console',
+            'ttyAMA0',
+            '--box-smp-cpus',
+            '4',
             'kiwi',
-            '--description', '../data/description',
-            '--target-dir', '../data/target_dir'
+            '--description',
+            '../data/description',
+            '--target-dir',
+            '../data/target_dir',
         ]
         self.task = SystemBoxbuildTask()
 
@@ -56,10 +64,15 @@ class TestSystemBoxbuildTask:
         self.task.command_args['--cpu'] = None
         self.task.command_args['--machine'] = None
         self.task.command_args['system_build'] = [
-            '--description', 'foo',
-            '--target-dir', 'xxx',
-            '--add-package', 'a', '--add-package', 'b',
-            '--allow-existing-root'
+            '--description',
+            'foo',
+            '--target-dir',
+            'xxx',
+            '--add-package',
+            'a',
+            '--add-package',
+            'b',
+            '--allow-existing-root',
         ]
 
     @patch('kiwi.tasks.system_boxbuild.Help')
@@ -70,9 +83,7 @@ class TestSystemBoxbuildTask:
         self.task.command_args['help'] = True
         self.task.command_args['boxbuild'] = True
         self.task.process()
-        Help.show.assert_called_once_with(
-            'kiwi::system::boxbuild'
-        )
+        Help.show.assert_called_once_with('kiwi::system::boxbuild')
 
     @patch('kiwi.tasks.system_boxbuild.BoxesConfig')
     def test_process_system_boxbuild_list_boxes(self, mock_BoxesConfig):
@@ -99,15 +110,27 @@ class TestSystemBoxbuildTask:
         box_containerbuild.run.assert_called_once_with(
             [
                 '--debug',
-                '--type', 'oem',
-                '--profile', 'foo',
-                '--kiwi-file', 'appliance.kiwi',
-                'system', 'build',
-                '--description', os.path.abspath(os.path.normpath('foo')),
-                '--target-dir', os.path.abspath(os.path.normpath('xxx')),
-                '--add-package', 'a', '--add-package', 'b',
-                '--allow-existing-root'
-            ], False, None, None
+                '--type',
+                'oem',
+                '--profile',
+                'foo',
+                '--kiwi-file',
+                'appliance.kiwi',
+                'system',
+                'build',
+                '--description',
+                os.path.abspath(os.path.normpath('foo')),
+                '--target-dir',
+                os.path.abspath(os.path.normpath('xxx')),
+                '--add-package',
+                'a',
+                '--add-package',
+                'b',
+                '--allow-existing-root',
+            ],
+            False,
+            None,
+            None,
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')
@@ -116,33 +139,47 @@ class TestSystemBoxbuildTask:
         mock_BoxBuild.return_value = box_build
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
-            boxname='universal', ram='4', console='ttyAMA0', smp='4',
-            arch='', machine=None, cpu='host', sharing_backend='9p',
-            ssh_key='id_rsa', ssh_port='10022', accel=True
+            boxname='universal',
+            ram='4',
+            console='ttyAMA0',
+            smp='4',
+            arch='',
+            machine=None,
+            cpu='host',
+            sharing_backend='9p',
+            ssh_key='id_rsa',
+            ssh_port='10022',
+            accel=True,
         )
         box_build.run.assert_called_once_with(
             [
                 '--debug',
-                '--type', 'oem',
-                '--profile', 'foo',
-                '--kiwi-file', 'appliance.kiwi',
-                'system', 'build',
+                '--type',
+                'oem',
+                '--profile',
+                'foo',
+                '--kiwi-file',
+                'appliance.kiwi',
+                'system',
+                'build',
                 '--description',
                 os.path.abspath(os.path.normpath('../data/description')),
                 '--target-dir',
-                os.path.abspath(os.path.normpath('../data/target_dir'))
-            ], True, True, False, None, None
+                os.path.abspath(os.path.normpath('../data/target_dir')),
+            ],
+            True,
+            True,
+            False,
+            None,
+            None,
         )
 
     @patch('platform.machine')
     def test_process_system_boxbuild_no_kiwi_build_command(
-        self,
-        mock_platform_machine
+        self, mock_platform_machine
     ):
         mock_platform_machine.return_value = 'x86_64'
-        sys.argv = [
-            sys.argv[0], 'system', 'boxbuild', '--box', 'universal'
-        ]
+        sys.argv = [sys.argv[0], 'system', 'boxbuild', '--box', 'universal']
         task = SystemBoxbuildTask()
         with raises(KiwiBoxBuildError):
             task.process()
@@ -156,22 +193,44 @@ class TestSystemBoxbuildTask:
         mock_BoxBuild.return_value = box_build
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
-            boxname='universal', ram=None, console=None, smp=None, arch='',
-            machine=None, cpu='host', sharing_backend='9p',
-            ssh_key='id_rsa', ssh_port='22', accel=True
+            boxname='universal',
+            ram=None,
+            console=None,
+            smp=None,
+            arch='',
+            machine=None,
+            cpu='host',
+            sharing_backend='9p',
+            ssh_key='id_rsa',
+            ssh_port='22',
+            accel=True,
         )
         box_build.run.assert_called_once_with(
             [
                 '--debug',
-                '--type', 'oem',
-                '--profile', 'foo',
-                '--kiwi-file', 'appliance.kiwi',
-                'system', 'build',
-                '--description', os.path.abspath(os.path.normpath('foo')),
-                '--target-dir', os.path.abspath(os.path.normpath('xxx')),
-                '--add-package', 'a', '--add-package', 'b',
-                '--allow-existing-root'
-            ], True, True, False, None, None
+                '--type',
+                'oem',
+                '--profile',
+                'foo',
+                '--kiwi-file',
+                'appliance.kiwi',
+                'system',
+                'build',
+                '--description',
+                os.path.abspath(os.path.normpath('foo')),
+                '--target-dir',
+                os.path.abspath(os.path.normpath('xxx')),
+                '--add-package',
+                'a',
+                '--add-package',
+                'b',
+                '--allow-existing-root',
+            ],
+            True,
+            True,
+            False,
+            None,
+            None,
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')
@@ -185,9 +244,16 @@ class TestSystemBoxbuildTask:
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
             boxname='universal',
-            ram=None, console=None, smp=None, arch='x86_64',
-            machine=None, cpu='host', sharing_backend='9p',
-            ssh_key='id_rsa', ssh_port='22', accel=True
+            ram=None,
+            console=None,
+            smp=None,
+            arch='x86_64',
+            machine=None,
+            cpu='host',
+            sharing_backend='9p',
+            ssh_key='id_rsa',
+            ssh_port='22',
+            accel=True,
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')
@@ -201,9 +267,16 @@ class TestSystemBoxbuildTask:
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
             boxname='universal',
-            ram=None, console=None, smp=None, arch='aarch64',
-            machine=None, cpu='host', sharing_backend='9p',
-            ssh_key='id_rsa', ssh_port='22', accel=True
+            ram=None,
+            console=None,
+            smp=None,
+            arch='aarch64',
+            machine=None,
+            cpu='host',
+            sharing_backend='9p',
+            ssh_key='id_rsa',
+            ssh_port='22',
+            accel=True,
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')
@@ -216,18 +289,34 @@ class TestSystemBoxbuildTask:
         mock_BoxBuild.return_value = box_build
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
-            boxname='universal', ram=None, console=None, smp=None, arch='',
-            machine=None, cpu='host', sharing_backend='9p',
-            ssh_key='id_rsa', ssh_port='22', accel=True
+            boxname='universal',
+            ram=None,
+            console=None,
+            smp=None,
+            arch='',
+            machine=None,
+            cpu='host',
+            sharing_backend='9p',
+            ssh_key='id_rsa',
+            ssh_port='22',
+            accel=True,
         )
         self.task.command_args['--9p-sharing'] = False
         self.task.command_args['--virtiofs-sharing'] = True
         mock_BoxBuild.reset_mock()
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
-            boxname='universal', ram=None, console=None, smp=None, arch='',
-            machine=None, cpu='host', sharing_backend='virtiofs',
-            ssh_key='id_rsa', ssh_port='22', accel=True
+            boxname='universal',
+            ram=None,
+            console=None,
+            smp=None,
+            arch='',
+            machine=None,
+            cpu='host',
+            sharing_backend='virtiofs',
+            ssh_key='id_rsa',
+            ssh_port='22',
+            accel=True,
         )
         self.task.command_args['--9p-sharing'] = False
         self.task.command_args['--virtiofs-sharing'] = False
@@ -235,9 +324,17 @@ class TestSystemBoxbuildTask:
         mock_BoxBuild.reset_mock()
         self.task.process()
         mock_BoxBuild.assert_called_once_with(
-            boxname='universal', ram=None, console=None, smp=None, arch='',
-            machine=None, cpu='host', sharing_backend='sshfs',
-            ssh_key='id_rsa', ssh_port='22', accel=True
+            boxname='universal',
+            ram=None,
+            console=None,
+            smp=None,
+            arch='',
+            machine=None,
+            cpu='host',
+            sharing_backend='sshfs',
+            ssh_key='id_rsa',
+            ssh_port='22',
+            accel=True,
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')
@@ -247,8 +344,10 @@ class TestSystemBoxbuildTask:
         self._init_command_args()
         self.task.command_args['--box'] = 'leap'
         self.task.command_args['system_build'] = [
-            '--target-dir', 'xxx',
-            '--add-package', 'a'
+            '--target-dir',
+            'xxx',
+            '--add-package',
+            'a',
         ]
         box_build = Mock()
         mock_BoxBuild.return_value = box_build
@@ -262,8 +361,10 @@ class TestSystemBoxbuildTask:
         self._init_command_args()
         self.task.command_args['--box'] = 'leap'
         self.task.command_args['system_build'] = [
-            '--description', 'xxx',
-            '--add-package', 'a'
+            '--description',
+            'xxx',
+            '--add-package',
+            'a',
         ]
         box_build = Mock()
         mock_BoxBuild.return_value = box_build

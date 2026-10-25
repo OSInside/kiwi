@@ -19,29 +19,27 @@ import logging
 import simplejson
 import pickle
 import os
-from typing import (
-    Dict, NamedTuple, TypeVar, Any, Optional
-)
+from typing import Dict, NamedTuple, TypeVar, Any, Optional
 
 # project
 from kiwi.xml_state import XMLState
-from kiwi.exceptions import (
-    KiwiResultError
-)
+from kiwi.exceptions import KiwiResultError
 
 log = logging.getLogger('kiwi')
 
 # must be global to allow pickle to find it
 result_file_type = NamedTuple(
-    'result_file_type', [
+    'result_file_type',
+    [
         ('filename', str),
         ('use_for_bundle', bool),
         ('compress', bool),
-        ('shasum', bool)
-    ]
+        ('shasum', bool),
+    ],
 )
 result_name_tags = NamedTuple(
-    'result_name_tags', [
+    'result_name_tags',
+    [
         ('N', str),  # image name
         ('P', str),  # concatenated profile name (_)
         ('A', str),  # architecture name
@@ -50,8 +48,8 @@ result_name_tags = NamedTuple(
         ('M', str),  # Major version number
         ('m', str),  # Minor version number
         ('p', str),  # Patch version number
-        ('v', str)   # Version string
-    ]
+        ('v', str),  # Version string
+    ],
 )
 
 result_type = TypeVar('result_type', bound='Result')
@@ -65,6 +63,7 @@ class Result:
     :param object class_version: :class:`Result` class version
     :param object xml_state: instance of :class:`XMLState`
     """
+
     def __init__(self, xml_state: XMLState):
         self.result_files: Dict[str, Any] = {}
 
@@ -78,25 +77,27 @@ class Result:
     def add_bundle_format(self, pattern: str):
         version_string = self.xml_state.get_image_version()
         if '.' in version_string:
-            (major, minor, patch) = version_string.split(sep='.', maxsplit=2)
+            major, minor, patch = version_string.split(sep='.', maxsplit=2)
         else:
-            (major, minor, patch) = (version_string, '', '')
+            major, minor, patch = (version_string, '', '')
         self.name_tags = result_name_tags(
             N=self.xml_state.xml_data.get_name(),
-            P='_'.join(
-                self.xml_state.profiles
-            ) if self.xml_state.profiles else '',
+            P=(
+                '_'.join(self.xml_state.profiles)
+                if self.xml_state.profiles
+                else ''
+            ),
             A=self.xml_state.host_architecture,
             I='',
             T=self.xml_state.get_build_type_name(),
             M=major,
             m=minor,
             p=patch,
-            v=version_string
+            v=version_string,
         )
         self.result_files['bundle_format'] = {
             'pattern': pattern,
-            'tags': self.name_tags
+            'tags': self.name_tags,
         }
 
     def get_name_for_pattern(self, command_args: Dict[str, str] = {}) -> str:
@@ -145,8 +146,12 @@ class Result:
         return bundle_file_format_name
 
     def add(
-        self, key: str, filename: str, use_for_bundle: bool = True,
-        compress: bool = False, shasum: bool = True
+        self,
+        key: str,
+        filename: str,
+        use_for_bundle: bool = True,
+        compress: bool = False,
+        shasum: bool = True,
     ) -> None:
         """
         Add result tuple to result_files list
@@ -162,7 +167,7 @@ class Result:
                 filename=filename,
                 use_for_bundle=use_for_bundle,
                 compress=compress,
-                shasum=shasum
+                shasum=shasum,
             )
 
     def get_results(self) -> Dict[str, result_file_type]:
@@ -205,12 +210,11 @@ class Result:
                     result_portable.write(
                         simplejson.dumps(
                             self.result_files, sort_keys=True, indent=4
-                        ) + os.linesep
+                        )
+                        + os.linesep
                     )
         except Exception as e:
-            raise KiwiResultError(
-                f'Failed to pickle dump results: {format(e)}'
-            )
+            raise KiwiResultError(f'Failed to pickle dump results: {format(e)}')
 
     @staticmethod
     def load(filename: str) -> result_type:  # type: ignore
@@ -223,9 +227,7 @@ class Result:
             to load filename
         """
         if not os.path.exists(filename):
-            raise KiwiResultError(
-                f'No result information {filename} found'
-            )
+            raise KiwiResultError(f'No result information {filename} found')
         try:
             with open(filename, 'rb') as result:
                 return pickle.load(result)
@@ -249,6 +251,7 @@ class Result:
         if size_limit is not None:
             if os.path.getsize(filename) > size_limit:
                 raise KiwiResultError(
-                    'Build constraint failed: {0} is bigger than {1}'
-                    .format(filename, size_limit)
+                    'Build constraint failed: {0} is bigger than {1}'.format(
+                        filename, size_limit
+                    )
                 )

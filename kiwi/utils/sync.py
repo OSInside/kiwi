@@ -33,6 +33,7 @@ class DataSync:
     """
     **Sync data from a source directory to a target directory**
     """
+
     def __init__(self, source_dir: str, target_dir: str) -> None:
         """
         Create a new DataSync instance and initialize
@@ -45,8 +46,10 @@ class DataSync:
         self.target_dir = target_dir
 
     def sync_data(
-        self, options: List[str] = [], exclude: List[str] = [],
-        force_trailing_slash: bool = False
+        self,
+        options: List[str] = [],
+        exclude: List[str] = [],
+        force_trailing_slash: bool = False,
     ) -> None:
         """
         Sync data from source to target using the rsync protocol
@@ -90,8 +93,9 @@ class DataSync:
         if options:
             rsync_options = options
         if RuntimeConfig().get_sync_sparse():
-            rsync_options = \
-                rsync_options + self._get_sparse_options(rsync_options)
+            rsync_options = rsync_options + self._get_sparse_options(
+                rsync_options
+            )
         if not self.target_supports_extended_attributes():
             warn_me = False
             if '--xattrs' in rsync_options:
@@ -109,15 +113,14 @@ class DataSync:
         if exclude:
             for item in exclude:
                 exclude_options.append('--exclude')
-                exclude_options.append(
-                    '/' + item
-                )
+                exclude_options.append('/' + item)
         if os.path.exists(self.target_dir):
             target_entry_permissions = os.stat(self.target_dir)[ST_MODE]
         Command.run(
-            ['rsync'] + rsync_options + exclude_options + [
-                self.source_dir, self.target_dir
-            ]
+            ['rsync']
+            + rsync_options
+            + exclude_options
+            + [self.source_dir, self.target_dir]
         )
         if target_entry_permissions:
             # rsync applies the permissions of the source directory
@@ -160,8 +163,10 @@ class DataSync:
                 'Sparse data sync not used: incompatible with --preallocate'
             )
             return []
-        if '--inplace' in rsync_options and \
-           not self._rsync_supports_sparse_inplace():
+        if (
+            '--inplace' in rsync_options
+            and not self._rsync_supports_sparse_inplace()
+        ):
             log.warning(
                 'Sparse data sync not used: rsync too old to combine '
                 '--sparse with --inplace, 3.1.3 or later is required'
@@ -183,13 +188,9 @@ class DataSync:
             version = re.search(r'version (\d+)\.(\d+)\.(\d+)', version_text)
             if not version:
                 return False
-            return tuple(
-                int(part) for part in version.groups()
-            ) >= (3, 1, 3)
+            return tuple(int(part) for part in version.groups()) >= (3, 1, 3)
         except Exception as issue:
-            log.warning(
-                'Could not detect rsync version: {0}'.format(issue)
-            )
+            log.warning('Could not detect rsync version: {0}'.format(issue))
             return False
 
     def target_supports_extended_attributes(self) -> bool:

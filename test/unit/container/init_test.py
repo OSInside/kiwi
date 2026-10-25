@@ -14,27 +14,19 @@ class TestContainerImage:
     @patch('kiwi.container.oci.ContainerImageOCI')
     def test_container_image_docker(self, mock_docker):
         ContainerImage.new('docker', 'root_dir')
-        mock_docker.assert_called_once_with(
-            'root_dir', 'docker-archive', None
-        )
+        mock_docker.assert_called_once_with('root_dir', 'docker-archive', None)
 
     @patch('kiwi.container.oci.ContainerImageOCI')
     def test_container_image_oci(self, mock_oci):
         ContainerImage.new('oci', 'root_dir')
-        mock_oci.assert_called_once_with(
-            'root_dir', 'oci-archive', None
-        )
+        mock_oci.assert_called_once_with('root_dir', 'oci-archive', None)
 
     @patch('kiwi.container.appx.ContainerImageAppx')
     def test_container_image_appx(self, mock_appx):
         ContainerImage.new('appx', 'root_dir')
-        mock_appx.assert_called_once_with(
-            'root_dir', None
-        )
+        mock_appx.assert_called_once_with('root_dir', None)
 
     @patch('kiwi.container.wsl.ContainerImageWsl')
     def test_container_image_wsl(self, mock_wsl):
         ContainerImage.new('wsl', 'root_dir')
-        mock_wsl.assert_called_once_with(
-            'root_dir', None
-        )
+        mock_wsl.assert_called_once_with('root_dir', None)

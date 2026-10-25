@@ -10,13 +10,9 @@ class TestFileSystemFat32:
     def setup(self, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
-        provider.get_device = mock.Mock(
-            return_value='/dev/foo'
-        )
+        provider.get_device = mock.Mock(return_value='/dev/foo')
         self.fat32 = FileSystemFat32(provider, 'root_dir')
-        self.fat32.setup_mountpoint = mock.Mock(
-            return_value='some-mount-point'
-        )
+        self.fat32.setup_mountpoint = mock.Mock(return_value='some-mount-point')
 
     @patch('os.path.exists')
     def setup_method(self, cls, mock_exists):
@@ -31,19 +27,30 @@ class TestFileSystemFat32:
             call = mock_command.call_args_list[0]
             assert mock_command.call_args_list[0] == call(
                 [
-                    'mkdosfs', '-F32', '-I', '-n', 'label',
-                    '-i', '12345678', '/dev/foo', '100'
+                    'mkdosfs',
+                    '-F32',
+                    '-I',
+                    '-n',
+                    'label',
+                    '-i',
+                    '12345678',
+                    '/dev/foo',
+                    '100',
                 ]
             )
             mock_command.reset_mock()
             self.fat32.create_on_device('label', 100)
             assert mock_command.call_args_list[0] == call(
                 [
-                    'mkdosfs', '-F32', '-I',
-                    '-n', 'label',
-                    '-i', '2453562E',
+                    'mkdosfs',
+                    '-F32',
+                    '-I',
+                    '-n',
+                    'label',
+                    '-i',
+                    '2453562E',
                     '/dev/foo',
-                    '100'
+                    '100',
                 ]
             )
 

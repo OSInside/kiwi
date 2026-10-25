@@ -17,7 +17,7 @@ from kiwi.exceptions import (
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
     KiwiCommandNotFound,
-    KiwiExtensionError
+    KiwiExtensionError,
 )
 
 
@@ -27,8 +27,7 @@ class TestSchema:
         self._caplog = caplog
 
     def setup(self):
-        test_xml = bytes(
-            b"""<?xml version="1.0" encoding="utf-8"?>
+        test_xml = bytes(b"""<?xml version="1.0" encoding="utf-8"?>
             <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
@@ -45,10 +44,8 @@ class TestSchema:
                 <repository type="rpm-md">
                     <source path="repo"/>
                 </repository>
-            </image>"""
-        )
-        test_xml_extension = bytes(
-            b"""<?xml version="1.0" encoding="utf-8"?>
+            </image>""")
+        test_xml_extension = bytes(b"""<?xml version="1.0" encoding="utf-8"?>
             <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
@@ -70,8 +67,7 @@ class TestSchema:
                         <my_plugin:title name="cool stuff"/>
                     </my_plugin:my_feature>
                 </extension>
-            </image>"""
-        )
+            </image>""")
         test_xml_extension_not_unique = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>
             <image schemaversion="7.4" name="bob">
@@ -166,9 +162,7 @@ class TestSchema:
 
     @patch('lxml.etree.RelaxNG')
     def test_load_schema_import_error(self, mock_relax):
-        mock_relax.side_effect = KiwiSchemaImportError(
-            'ImportError'
-        )
+        mock_relax.side_effect = KiwiSchemaImportError('ImportError')
         with raises(KiwiSchemaImportError):
             self.description_from_file.load()
 
@@ -204,21 +198,13 @@ class TestSchema:
         self, mock_command, mock_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
-        mock_rng_validate.validate = mock.Mock(
-            return_value=False
-        )
+        mock_rng_validate.validate = mock.Mock(return_value=False)
 
         mock_sch_validate = mock.Mock()
-        mock_sch_validate.validate = mock.Mock(
-            return_value=False
-        )
+        mock_sch_validate.validate = mock.Mock(return_value=False)
 
-        validation_report = namedtuple(
-            'report', ['text']
-        )
-        name_spaces = namedtuple(
-            'nspaces', ['nsmap']
-        )
+        validation_report = namedtuple('report', ['text'])
+        name_spaces = namedtuple('nspaces', ['nsmap'])
         mock_validation_report = mock.Mock()
         mock_validation_report.getroot = mock.Mock(
             return_value=name_spaces(nsmap="")
@@ -226,7 +212,7 @@ class TestSchema:
         mock_validation_report.xpath = mock.Mock(
             return_value=[
                 validation_report(text='wrong attribute 1'),
-                validation_report(text='wrong attribute 2')
+                validation_report(text='wrong attribute 2'),
             ]
         )
         mock_sch_validate.validation_report = mock_validation_report
@@ -245,21 +231,13 @@ class TestSchema:
         self, mock_command, mock_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
-        mock_rng_validate.validate = mock.Mock(
-            return_value=False
-        )
+        mock_rng_validate.validate = mock.Mock(return_value=False)
 
         mock_sch_validate = mock.Mock()
-        mock_sch_validate.validate = mock.Mock(
-            return_value=False
-        )
+        mock_sch_validate.validate = mock.Mock(return_value=False)
 
-        validation_report = namedtuple(
-            'report', ['text']
-        )
-        name_spaces = namedtuple(
-            'nspaces', ['nsmap']
-        )
+        validation_report = namedtuple('report', ['text'])
+        name_spaces = namedtuple('nspaces', ['nsmap'])
         mock_validation_report = mock.Mock()
         mock_validation_report.getroot = mock.Mock(
             return_value=name_spaces(nsmap="")
@@ -267,20 +245,16 @@ class TestSchema:
         mock_validation_report.xpath = mock.Mock(
             return_value=[
                 validation_report(text='wrong attribute 1'),
-                validation_report(text='wrong attribute 2')
+                validation_report(text='wrong attribute 2'),
             ]
         )
         mock_sch_validate.validation_report = mock_validation_report
 
         mock_relax.return_value = mock_rng_validate
         mock_schematron.return_value = mock_sch_validate
-        command_run = namedtuple(
-            'command', ['output', 'error', 'returncode']
-        )
+        command_run = namedtuple('command', ['output', 'error', 'returncode'])
         mock_command.return_value = command_run(
-            output='jing output\n',
-            error='',
-            returncode=1
+            output='jing output\n', error='', returncode=1
         )
         with raises(KiwiDescriptionInvalid):
             self.description_from_data.load()
@@ -293,14 +267,10 @@ class TestSchema:
         self, mock_command, mock_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
-        mock_rng_validate.validate = mock.Mock(
-            return_value=False
-        )
+        mock_rng_validate.validate = mock.Mock(return_value=False)
 
         mock_sch_validate = mock.Mock()
-        mock_sch_validate.validate = mock.Mock(
-            return_value=True
-        )
+        mock_sch_validate.validate = mock.Mock(return_value=True)
 
         mock_relax.return_value = mock_rng_validate
         mock_schematron.return_value = mock_sch_validate
@@ -316,13 +286,9 @@ class TestSchema:
         self, mock_xml_parse, mock_etree_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
-        mock_rng_validate.validate = mock.Mock(
-            return_value=True
-        )
+        mock_rng_validate.validate = mock.Mock(return_value=True)
         mock_sch_validate = mock.Mock()
-        mock_sch_validate.validate = mock.Mock(
-            return_value=True
-        )
+        mock_sch_validate.validate = mock.Mock(return_value=True)
         mock_relax.return_value = mock_rng_validate
         mock_schematron.return_value = mock_sch_validate
         mock_xml_parse.side_effect = KiwiDataStructureError(

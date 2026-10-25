@@ -27,6 +27,7 @@ class Codec:
     """
     **Performs conversions of literal byte sequences to strings**
     """
+
     @staticmethod
     def decode(literal: bytes) -> str:
         """
@@ -51,9 +52,7 @@ class Codec:
                     literal, encoding='utf_8', error_handling_schema='replace'
                 )
             except Exception:
-                raise KiwiDecodingError(
-                    'Locale setup is not utf-8 compatible'
-                )
+                raise KiwiDecodingError('Locale setup is not utf-8 compatible')
 
     @staticmethod
     def _wrapped_decode(

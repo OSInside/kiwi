@@ -17,9 +17,7 @@
 #
 import os
 import logging
-from typing import (
-    List, Dict
-)
+from typing import List, Dict
 
 # project
 from kiwi.defaults import Defaults
@@ -34,6 +32,7 @@ class RepositoryApk(RepositoryBase):
     """
     **Implements repository handling for apk (Alpine) package manager**
     """
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -79,12 +78,21 @@ class RepositoryApk(RepositoryBase):
         }
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str = 'apk',
-        prio: int = None, dist: str = None, components: str = None,
-        user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
-        sourcetype: str = None, customization_script: str = None,
-        architectures: str = None
+        self,
+        name: str,
+        uri: str,
+        repo_type: str = 'apk',
+        prio: int = None,
+        dist: str = None,
+        components: str = None,
+        user: str = None,
+        secret: str = None,
+        credentials_file: str = None,
+        repo_gpgcheck: bool = None,
+        pkg_gpgcheck: bool = None,
+        sourcetype: str = None,
+        customization_script: str = None,
+        architectures: str = None,
     ) -> None:
         """
         Add apk repository
@@ -157,6 +165,4 @@ class RepositoryApk(RepositoryBase):
         pass
 
     def _create_apk_get_runtime_environment(self) -> Dict:
-        return dict(
-            os.environ, **HostProxy().get_env(), LANG='C'
-        )
+        return dict(os.environ, **HostProxy().get_env(), LANG='C')

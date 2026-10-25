@@ -17,9 +17,7 @@
 #
 import os
 import logging
-from typing import (
-    Dict, Optional
-)
+from typing import Dict, Optional
 import shutil
 
 # project
@@ -45,9 +43,7 @@ from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.xml_state import XMLState
 
 
-from kiwi.exceptions import (
-    KiwiInstallBootImageError
-)
+from kiwi.exceptions import KiwiInstallBootImageError
 
 log = logging.getLogger('kiwi')
 
@@ -63,10 +59,14 @@ class InstallImageBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(
-        self, xml_state: XMLState, root_dir: str, target_dir: str,
+        self,
+        xml_state: XMLState,
+        root_dir: str,
+        target_dir: str,
         boot_image_task: Optional[BootImageBase],
-        custom_args: Dict = None
+        custom_args: Dict = None,
     ) -> None:
         self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
@@ -76,44 +76,45 @@ class InstallImageBuilder:
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
-        self.root_filesystem_is_multipath = \
+        self.root_filesystem_is_multipath = (
             xml_state.get_oemconfig_oem_multipath_scan()
+        )
         self.initrd_system = xml_state.get_initrd_system()
         self.firmware = FirmWare(xml_state)
-        self.setup = SystemSetup(
-            self.xml_state, self.root_dir
+        self.setup = SystemSetup(self.xml_state, self.root_dir)
+        self.iso_volume_id = (
+            self.xml_state.build_type.get_volid()
+            or Defaults.get_install_volume_id()
         )
-        self.iso_volume_id = self.xml_state.build_type.get_volid() or \
-            Defaults.get_install_volume_id()
         self.diskname = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + xml_state.get_image_version(),
-                '.raw'
+                '.raw',
             ]
         )
         self.isoname = ''.join(
             [
-                target_dir, '/',
+                target_dir,
+                '/',
                 xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + xml_state.get_image_version(),
-                '.install.iso'
+                '.install.iso',
             ]
         )
         self.pxename = ''.join(
             [
                 xml_state.xml_data.get_name(),
                 '.' + self.arch,
-                '-' + xml_state.get_image_version()
+                '-' + xml_state.get_image_version(),
             ]
         )
         self.pxetarball = ''.join(
-            [
-                target_dir, '/', self.pxename, '.install.tar'
-            ]
+            [target_dir, '/', self.pxename, '.install.tar']
         )
         self.dracut_config_file = ''.join(
             [self.root_dir, Defaults.get_dracut_conf_name()]
@@ -121,8 +122,11 @@ class InstallImageBuilder:
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
         )
-        self.xz_options = custom_args['xz_options'] if custom_args \
-            and 'xz_options' in custom_args else None
+        self.xz_options = (
+            custom_args['xz_options']
+            if custom_args and 'xz_options' in custom_args
+            else None
+        )
 
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
@@ -163,7 +167,7 @@ class InstallImageBuilder:
                 'efi_partition_table': self.firmware.get_partition_table_type(),
                 'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
                 'ofw_mode': self.firmware.ofw_mode(),
-                'legacy_bios_mode': self.firmware.legacy_bios_mode()
+                'legacy_bios_mode': self.firmware.legacy_bios_mode(),
             }
         }
 
@@ -176,8 +180,8 @@ class InstallImageBuilder:
             target_filename='{}/{}{}'.format(
                 self.squashed_contents.name,
                 self.xml_state.xml_data.get_name(),
-                self.runtime_config.get_checksum_handler(self.diskname).suffix
-            )
+                self.runtime_config.get_checksum_handler(self.diskname).suffix,
+            ),
         )
         log.info(f'Creating disk image {shasum.suffix} checksum')
         shasum.digest()
@@ -191,45 +195,38 @@ class InstallImageBuilder:
         log.info('Creating squashfs embedded disk image')
         Command.run(
             [
-                'cp', '-l', self.diskname,
-                self.squashed_contents.name + '/' + self.squashed_diskname
+                'cp',
+                '-l',
+                self.diskname,
+                self.squashed_contents.name + '/' + self.squashed_diskname,
             ]
         )
         squashed_image_file = ''.join(
-            [
-                self.target_dir, '/', self.squashed_diskname, '.squashfs'
-            ]
+            [self.target_dir, '/', self.squashed_diskname, '.squashfs']
         )
         with FileSystemSquashFs(
             device_provider=DeviceProvider(),
             root_dir=self.squashed_contents.name,
             custom_args={
-                'compression':
-                    self.xml_state.build_type.get_squashfscompression()
-            }
+                'compression': self.xml_state.build_type.get_squashfscompression()
+            },
         ) as squashed_image:
             squashed_image.create_on_file(squashed_image_file)
-        Command.run(
-            ['mv', squashed_image_file, self.media_dir.name]
-        )
+        Command.run(['mv', squashed_image_file, self.media_dir.name])
 
-        log.info(
-            'Setting up install image bootloader configuration'
-        )
+        log.info('Setting up install image bootloader configuration')
         with self._create_bootloader_instance() as bootloader_config:
             bootloader_config.setup_install_boot_images(
                 mbrid=self.mbrid,
-                lookup_path=self.boot_image_task.boot_root_directory
+                lookup_path=self.boot_image_task.boot_root_directory,
             )
             IsoToolsBase.setup_media_loader_directory(
                 self.boot_image_task.boot_root_directory,
                 self.media_dir.name,
-                bootloader_config.get_boot_theme()
+                bootloader_config.get_boot_theme(),
             )
             bootloader_config.write_meta_data()
-            bootloader_config.setup_install_image_config(
-                mbrid=self.mbrid
-            )
+            bootloader_config.setup_install_image_config(mbrid=self.mbrid)
             bootloader_config.write()
 
             # create initrd for install image
@@ -246,14 +243,16 @@ class InstallImageBuilder:
                 bootloader_config._create_embedded_fat_efi_image(
                     efi_loader.name
                 )
-                self.custom_iso_args['meta_data']['efi_loader'] = \
-                    efi_loader.name
+                self.custom_iso_args['meta_data'][
+                    'efi_loader'
+                ] = efi_loader.name
 
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
         with FileSystemIsoFs(
-            device_provider=DeviceProvider(), root_dir=self.media_dir.name,
-            custom_args=self.custom_iso_args
+            device_provider=DeviceProvider(),
+            root_dir=self.media_dir.name,
+            custom_args=self.custom_iso_args,
         ) as iso_image:
             iso_image.create_on_file(self.isoname)
         self.boot_image_task.cleanup()
@@ -281,19 +280,13 @@ class InstallImageBuilder:
         # the system image is transfered as xz compressed variant
         log.info('xz compressing disk image')
         pxe_image_filename = ''.join(
-            [
-                self.pxe_dir.name, '/',
-                self.pxename, '.xz'
-            ]
+            [self.pxe_dir.name, '/', self.pxename, '.xz']
         )
         compress = Compress(
-            source_filename=self.diskname,
-            keep_source_on_compress=True
+            source_filename=self.diskname, keep_source_on_compress=True
         )
         xz_archive = compress.xz(self.xz_options)
-        Command.run(
-            ['mv', xz_archive, pxe_image_filename]
-        )
+        Command.run(['mv', xz_archive, pxe_image_filename])
 
         # the system image transfer is checked against a checksum
         shasum = self.runtime_config.get_checksum_handler(
@@ -301,8 +294,8 @@ class InstallImageBuilder:
             target_filename='{}/{}{}'.format(
                 self.pxe_dir.name,
                 self.pxename,
-                self.runtime_config.get_checksum_handler(self.diskname).suffix
-            )
+                self.runtime_config.get_checksum_handler(self.diskname).suffix,
+            ),
         )
         log.info(f'Creating disk image {shasum.suffix} checksum')
         shasum.digest()
@@ -320,17 +313,13 @@ class InstallImageBuilder:
             target_initrd_name = '{0}/{1}.initrd'.format(
                 self.pxe_dir.name, self.pxename
             )
-            shutil.copy(
-                system_image_initrd, target_initrd_name
-            )
+            shutil.copy(system_image_initrd, target_initrd_name)
             os.chmod(target_initrd_name, 420)
 
         # create pxe config append information
         # this information helps to configure the boot server correctly
         append_filename = ''.join(
-            [
-                self.pxe_dir.name, '/', self.pxename, '.append'
-            ]
+            [self.pxe_dir.name, '/', self.pxename, '.append']
         )
         if self.initrd_system == 'kiwi':
             cmdline = 'pxe=1'
@@ -338,7 +327,7 @@ class InstallImageBuilder:
             cmdline = ' '.join(
                 [
                     'rd.kiwi.install.pxe',
-                    'rd.kiwi.install.image=http://example.com/image.xz'
+                    'rd.kiwi.install.image=http://example.com/image.xz',
                 ]
             )
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
@@ -357,7 +346,7 @@ class InstallImageBuilder:
         configname = '{0}.config.bootoptions'.format(self.pxename)
         shutil.copy(
             os.sep.join([self.root_dir, 'config.bootoptions']),
-            os.sep.join([self.pxe_dir.name, configname])
+            os.sep.join([self.pxe_dir.name, configname]),
         )
 
         # create pxe install tarball
@@ -369,12 +358,15 @@ class InstallImageBuilder:
 
     def _create_bootloader_instance(self):
         return create_boot_loader_config(
-            name=self.bootloader, xml_state=self.xml_state,
+            name=self.bootloader,
+            xml_state=self.xml_state,
             root_dir=self.root_dir,
             boot_dir=self.media_dir.name,
-            custom_args=Defaults.get_grub_custom_arguments(
-                self.root_dir
-            ) if self.bootloader.startswith('grub') else {}
+            custom_args=(
+                Defaults.get_grub_custom_arguments(self.root_dir)
+                if self.bootloader.startswith('grub')
+                else {}
+            ),
         )
 
     def _create_pxe_install_kernel_and_initrd(self) -> None:
@@ -384,28 +376,24 @@ class InstallImageBuilder:
         if kernel.get_kernel():
             kernel.copy_kernel(self.pxe_dir.name, kernelname)
             os.symlink(
-                kernelname, ''.join(
-                    [
-                        self.pxe_dir.name, '/',
-                        self.pxename, '.kernel'
-                    ]
-                )
+                kernelname,
+                ''.join([self.pxe_dir.name, '/', self.pxename, '.kernel']),
             )
         else:
             raise KiwiInstallBootImageError(
-                'No kernel in boot image tree %s found' %
-                self.boot_image_task.boot_root_directory
+                'No kernel in boot image tree %s found'
+                % self.boot_image_task.boot_root_directory
             )
         if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
                 kernel.copy_xen_hypervisor(
                     self.pxe_dir.name,
-                    '/pxeboot.{0}.xen.gz'.format(self.pxename)
+                    '/pxeboot.{0}.xen.gz'.format(self.pxename),
                 )
             else:
                 raise KiwiInstallBootImageError(
-                    'No hypervisor in boot image tree %s found' %
-                    self.boot_image_task.boot_root_directory
+                    'No hypervisor in boot image tree %s found'
+                    % self.boot_image_task.boot_root_directory
                 )
         if self.initrd_system == 'dracut':
             self.boot_image_task.include_module('kiwi-dump')
@@ -426,13 +414,13 @@ class InstallImageBuilder:
                 self.boot_image_task.omit_driver(drv)
 
         self.boot_image_task.create_initrd(
-            self.mbrid, 'initrd_kiwi_install',
-            install_initrd=True
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
         Command.run(
             [
-                'mv', self.boot_image_task.initrd_filename,
-                self.pxe_dir.name + '/{0}'.format(initrdname)
+                'mv',
+                self.boot_image_task.initrd_filename,
+                self.pxe_dir.name + '/{0}'.format(initrdname),
             ]
         )
         os.chmod(self.pxe_dir.name + '/{0}'.format(initrdname), 420)
@@ -445,16 +433,16 @@ class InstallImageBuilder:
             kernel.copy_kernel(boot_path, '/linux')
         else:
             raise KiwiInstallBootImageError(
-                'No kernel in boot image tree %s found' %
-                self.boot_image_task.boot_root_directory
+                'No kernel in boot image tree %s found'
+                % self.boot_image_task.boot_root_directory
             )
         if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
                 kernel.copy_xen_hypervisor(boot_path, '/xen.gz')
             else:
                 raise KiwiInstallBootImageError(
-                    'No hypervisor in boot image tree %s found' %
-                    self.boot_image_task.boot_root_directory
+                    'No hypervisor in boot image tree %s found'
+                    % self.boot_image_task.boot_root_directory
                 )
         if self.initrd_system == 'dracut':
             self.boot_image_task.include_module('kiwi-dump')
@@ -478,14 +466,10 @@ class InstallImageBuilder:
             self._add_system_image_boot_options_to_boot_image()
             self._add_system_identifier_to_boot_image()
         self.boot_image_task.create_initrd(
-            self.mbrid, 'initrd_kiwi_install',
-            install_initrd=True
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
         Command.run(
-            [
-                'mv', self.boot_image_task.initrd_filename,
-                boot_path + '/initrd'
-            ]
+            ['mv', self.boot_image_task.initrd_filename, boot_path + '/initrd']
         )
 
     def _add_system_identifier_to_boot_image(self) -> None:
@@ -518,7 +502,8 @@ class InstallImageBuilder:
             iso_system.write(f'IMAGE="{self.squashed_diskname}\"\n')
 
     def _write_install_image_info_to_boot_image(self) -> None:
-        initrd_trigger = \
+        initrd_trigger = (
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
+        )
         with open(initrd_trigger, 'w') as vmx_system:
             vmx_system.write(f'IMAGE="{self.squashed_diskname}\"\n')

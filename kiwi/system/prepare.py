@@ -18,9 +18,7 @@
 import os
 import logging
 from contextlib import ExitStack
-from typing import (
-    List, Any, Optional
-)
+from typing import List, Any, Optional
 from textwrap import dedent
 
 # project
@@ -46,7 +44,7 @@ from kiwi.exceptions import (
     KiwiSystemInstallPackagesFailed,
     KiwiSystemDeletePackagesFailed,
     KiwiInstallPhaseFailed,
-    KiwiPackagesDeletePhaseFailed
+    KiwiPackagesDeletePhaseFailed,
 )
 
 log: Any = logging.getLogger('kiwi')
@@ -60,6 +58,7 @@ class SystemPrepare:
     :param str root_dir: Path to new root directory
     :param bool allow_existing: Allow using an existing root_dir
     """
+
     def __init__(
         self, xml_state: XMLState, root_dir: str, allow_existing: bool = False
     ):
@@ -81,25 +80,19 @@ class SystemPrepare:
             ''')
         else:
             self.issue_message = '{headline}: {reason}'
-        root = RootInit(
-            root_dir, allow_existing
-        )
+        root = RootInit(root_dir, allow_existing)
         root.create()
         image_uris = xml_state.get_derived_from_image_uri()
         delta_root = xml_state.build_type.get_delta_root()
         image_type = xml_state.build_type.get_image()
 
         if image_uris and image_type in ['docker', 'oci']:
-            self.root_import = RootImport.new(
-                root_dir, image_uris, image_type
-            )
+            self.root_import = RootImport.new(root_dir, image_uris, image_type)
             if delta_root:
                 self.root_import.overlay_data()
             else:
                 self.root_import.sync_data()
-        root_bind = RootBind(
-            root
-        )
+        root_bind = RootBind(root)
         root_bind.setup_intermediate_config()
         root_bind.mount_kernel_file_systems(delta_root)
         root_bind.mount_shared_directory()
@@ -117,8 +110,10 @@ class SystemPrepare:
         return self
 
     def setup_repositories(
-        self, clear_cache: bool = False,
-        signing_keys: List[str] = None, target_arch: Optional[str] = None
+        self,
+        clear_cache: bool = False,
+        signing_keys: List[str] = None,
+        target_arch: Optional[str] = None,
     ) -> PackageManagerBase:
         """
         Set up repositories for software installation and return a
@@ -136,8 +131,9 @@ class SystemPrepare:
         :rtype: PackageManager
         """
         repository_options = []
-        repository_sections = \
+        repository_sections = (
             self.xml_state.get_repository_sections_used_for_build()
+        )
         package_manager = self.xml_state.get_package_manager()
         release_version = self.xml_state.get_release_version()
         rpm_locale_list = self.xml_state.get_rpm_locale()
@@ -150,9 +146,7 @@ class SystemPrepare:
                 '_install_langs%{0}'.format(':'.join(rpm_locale_list))
             )
         if target_arch:
-            repository_options.append(
-                f'_target_arch%{target_arch}'
-            )
+            repository_options.append(f'_target_arch%{target_arch}')
         with Repository.new(
             self.root_bind, package_manager, repository_options
         ) as repo:
@@ -200,7 +194,7 @@ class SystemPrepare:
                 ):
                     log.warning(
                         'repository %s does not exist and will be skipped',
-                        repo_source
+                        repo_source,
                     )
                     continue
 
@@ -210,12 +204,20 @@ class SystemPrepare:
                     )
 
                 repo.add_repo(
-                    repo_alias, repo_source_translated,
-                    repo_type, repo_priority, repo_dist, repo_components,
-                    repo_user, repo_secret, uri.credentials_file_name(),
-                    repo_repository_gpgcheck, repo_package_gpgcheck,
-                    repo_sourcetype, repo_customization_script,
-                    repo_architectures
+                    repo_alias,
+                    repo_source_translated,
+                    repo_type,
+                    repo_priority,
+                    repo_dist,
+                    repo_components,
+                    repo_user,
+                    repo_secret,
+                    uri.credentials_file_name(),
+                    repo_repository_gpgcheck,
+                    repo_package_gpgcheck,
+                    repo_sourcetype,
+                    repo_customization_script,
+                    repo_architectures,
                 )
                 if clear_cache:
                     repo.delete_repo_cache(repo_alias)
@@ -224,7 +226,7 @@ class SystemPrepare:
             return PackageManager.new(
                 repository=repo,
                 package_manager_name=package_manager,
-                release_version=release_version
+                release_version=release_version,
             )
 
     def install_bootstrap(
@@ -241,8 +243,10 @@ class SystemPrepare:
             if the bootstrapping process fails either installing
             packages or including bootstrap archives
         """
-        if not self.xml_state.get_bootstrap_packages_sections() \
-           and not plus_packages:
+        if (
+            not self.xml_state.get_bootstrap_packages_sections()
+            and not plus_packages
+        ):
             log.warning('No <packages> sections marked as "bootstrap" found')
             log.info('Processing of bootstrap stage skipped')
             return
@@ -256,8 +260,12 @@ class SystemPrepare:
         bootstrap_collections = self.xml_state.get_bootstrap_collections()
         bootstrap_products = self.xml_state.get_bootstrap_products()
         bootstrap_archives = self.xml_state.get_bootstrap_archives()
-        bootstrap_archives_target_dirs = self.xml_state.get_bootstrap_archives_target_dirs()
-        bootstrap_packages_ignored = self.xml_state.get_bootstrap_ignore_packages()
+        bootstrap_archives_target_dirs = (
+            self.xml_state.get_bootstrap_archives_target_dirs()
+        )
+        bootstrap_packages_ignored = (
+            self.xml_state.get_bootstrap_ignore_packages()
+        )
         package_manager = self.xml_state.get_package_manager()
         # process package installations
         if collection_type == 'onlyRequired':
@@ -269,7 +277,7 @@ class SystemPrepare:
             bootstrap_packages,
             bootstrap_collections,
             bootstrap_products,
-            bootstrap_packages_ignored
+            bootstrap_packages_ignored,
         )
         manager.setup_repository_modules(
             self.xml_state.get_collection_modules()
@@ -277,7 +285,8 @@ class SystemPrepare:
         process = CommandProcess(
             command=manager.process_install_requests_bootstrap(
                 self.root_bind, self.xml_state.get_bootstrap_package_name()
-            ), log_topic='bootstrap'
+            ),
+            log_topic='bootstrap',
         )
         try:
             process.poll_show_progress(
@@ -285,14 +294,14 @@ class SystemPrepare:
                 match_method=process.create_match_method(
                     manager.match_package_installed
                 ),
-                with_stderr=True if package_manager == 'dnf5' else False
+                with_stderr=True if package_manager == 'dnf5' else False,
             )
         except Exception as issue:
             if manager.has_failed(process.returncode()):
                 raise KiwiBootStrapPhaseFailed(
                     self.issue_message.format(
                         headline='Bootstrap package installation failed',
-                        reason=f'{issue}: {manager.get_error_details()}'
+                        reason=f'{issue}: {manager.get_error_details()}',
                     )
                 )
         manager.post_process_install_requests_bootstrap(
@@ -308,7 +317,7 @@ class SystemPrepare:
                 raise KiwiBootStrapPhaseFailed(
                     self.issue_message.format(
                         headline='Bootstrap archive installation failed',
-                        reason=issue
+                        reason=issue,
                     )
                 )
 
@@ -327,7 +336,7 @@ class SystemPrepare:
         """
         log.info(
             'Installing system (chroot) for build type: %s',
-            self.xml_state.get_build_type_name()
+            self.xml_state.get_build_type_name(),
         )
         collection_type = self.xml_state.get_system_collection_type()
         log.info('--> collection type: %s', collection_type)
@@ -335,7 +344,9 @@ class SystemPrepare:
         system_collections = self.xml_state.get_system_collections()
         system_products = self.xml_state.get_system_products()
         system_archives = self.xml_state.get_system_archives()
-        system_archives_target_dirs = self.xml_state.get_system_archives_target_dirs()
+        system_archives_target_dirs = (
+            self.xml_state.get_system_archives_target_dirs()
+        )
         system_packages_ignored = self.xml_state.get_system_ignore_packages()
         package_manager = self.xml_state.get_package_manager()
         # process package installations
@@ -348,7 +359,7 @@ class SystemPrepare:
             system_packages,
             system_collections,
             system_products,
-            system_packages_ignored
+            system_packages_ignored,
         )
         if all_install_items:
             process = CommandProcess(
@@ -360,28 +371,27 @@ class SystemPrepare:
                     match_method=process.create_match_method(
                         manager.match_package_installed
                     ),
-                    with_stderr=True if package_manager == 'dnf5' else False
+                    with_stderr=True if package_manager == 'dnf5' else False,
                 )
             except Exception as issue:
                 if manager.has_failed(process.returncode()):
                     raise KiwiInstallPhaseFailed(
                         self.issue_message.format(
                             headline='System package installation failed',
-                            reason=issue
+                            reason=issue,
                         )
                     )
         # process archive installations
         if system_archives:
             try:
                 self._install_archives(
-                    system_archives,
-                    system_archives_target_dirs
+                    system_archives, system_archives_target_dirs
                 )
             except Exception as issue:
                 raise KiwiInstallPhaseFailed(
                     self.issue_message.format(
                         headline='System archive installation failed',
-                        reason=issue
+                        reason=issue,
                     )
                 )
 
@@ -405,13 +415,15 @@ class SystemPrepare:
             # to diff on deleted data
             Command.run(
                 [
-                    'rsync', '-a',
+                    'rsync',
+                    '-a',
                     f'{self.root_dir}_cow/',
-                    f'{self.root_dir}_cow_before_pinch'
+                    f'{self.root_dir}_cow_before_pinch',
                 ]
             )
-        to_become_deleted_packages = \
+        to_become_deleted_packages = (
             self.xml_state.get_to_become_deleted_packages(force)
+        )
         if to_become_deleted_packages:
             log.info(
                 '{0} system packages (chroot)'.format(
@@ -428,7 +440,7 @@ class SystemPrepare:
                         manager = PackageManager.new(
                             repository=repo,
                             package_manager_name=package_manager,
-                            release_version=release_version
+                            release_version=release_version,
                         )
                         stack.push(manager)
                     self.delete_packages(
@@ -437,8 +449,7 @@ class SystemPrepare:
             except Exception as issue:
                 raise KiwiPackagesDeletePhaseFailed(
                     self.issue_message.format(
-                        headline='System package deletion failed',
-                        reason=issue
+                        headline='System package deletion failed', reason=issue
                     )
                 )
 
@@ -456,9 +467,7 @@ class SystemPrepare:
         """
         log.info('Installing system packages (chroot)')
         package_manager = self.xml_state.get_package_manager()
-        all_install_items = self._setup_requests(
-            manager, packages
-        )
+        all_install_items = self._setup_requests(manager, packages)
         if all_install_items:
             process = CommandProcess(
                 command=manager.process_install_requests(), log_topic='system'
@@ -469,13 +478,12 @@ class SystemPrepare:
                     match_method=process.create_match_method(
                         manager.match_package_installed
                     ),
-                    with_stderr=True if package_manager == 'dnf5' else False
+                    with_stderr=True if package_manager == 'dnf5' else False,
                 )
             except Exception as issue:
                 raise KiwiSystemInstallPackagesFailed(
                     self.issue_message.format(
-                        headline='Package installation failed',
-                        reason=issue
+                        headline='Package installation failed', reason=issue
                     )
                 )
 
@@ -495,9 +503,7 @@ class SystemPrepare:
         :raises KiwiSystemDeletePackagesFailed: if installation process fails
         """
         package_manager = self.xml_state.get_package_manager()
-        all_delete_items = self._setup_requests(
-            manager, packages
-        )
+        all_delete_items = self._setup_requests(manager, packages)
         if all_delete_items:
             log.info(
                 '{0} system packages (chroot)'.format(
@@ -506,7 +512,7 @@ class SystemPrepare:
             )
             process = CommandProcess(
                 command=manager.process_delete_requests(force),
-                log_topic='system'
+                log_topic='system',
             )
             try:
                 process.poll_show_progress(
@@ -514,14 +520,13 @@ class SystemPrepare:
                     match_method=process.create_match_method(
                         manager.match_package_deleted
                     ),
-                    with_stderr=True if package_manager == 'dnf5' else False
+                    with_stderr=True if package_manager == 'dnf5' else False,
                 )
                 manager.post_process_delete_requests(self.root_bind)
             except Exception as issue:
                 raise KiwiSystemDeletePackagesFailed(
                     self.issue_message.format(
-                        headline='Package deletion failed',
-                        reason=issue
+                        headline='Package deletion failed', reason=issue
                     )
                 )
 
@@ -536,16 +541,13 @@ class SystemPrepare:
         :raises KiwiSystemUpdateFailed: if packages update fails
         """
         log.info('Update system (chroot)')
-        process = CommandProcess(
-            command=manager.update(), log_topic='update'
-        )
+        process = CommandProcess(command=manager.update(), log_topic='update')
         try:
             process.poll()
         except Exception as issue:
             raise KiwiSystemUpdateFailed(
                 self.issue_message.format(
-                    headline='System update failed',
-                    reason=issue
+                    headline='System update failed', reason=issue
                 )
             )
 
@@ -560,7 +562,7 @@ class SystemPrepare:
             with PackageManager.new(
                 repository=repo,
                 package_manager_name=package_manager,
-                release_version=release_version
+                release_version=release_version,
             ) as manager:
                 manager.clean_leftovers()
 
@@ -581,8 +583,9 @@ class SystemPrepare:
         if ca_certs:
             # Determine the correct distro specific update tool and cert store
             log.info('Updating CA certificate store')
-            target_distribution = \
+            target_distribution = (
                 self.xml_state.get_certificates_target_distribution()
+            )
             ca_update_info = Defaults.get_ca_update_map(target_distribution)
             if ca_update_info:
                 ca_chroot_path = os.path.normpath(
@@ -595,8 +598,9 @@ class SystemPrepare:
                     Path.create(ca_chroot_path)
                     has_new_certs = False
                     for cert_file in ca_certs:
-                        if os.path.exists(cert_file) \
-                           and not os.path.isdir(cert_file):
+                        if os.path.exists(cert_file) and not os.path.isdir(
+                            cert_file
+                        ):
                             log.info(
                                 f'--> Syncing: {cert_file} to {ca_chroot_path}'
                             )
@@ -612,14 +616,12 @@ class SystemPrepare:
                         log.info(
                             f'--> Updating CA certificate store with: {ca_tool}'
                         )
-                        Command.run(
-                            ['chroot', self.root_dir, ca_tool]
-                        )
+                        Command.run(['chroot', self.root_dir, ca_tool])
                 except Exception as issue:
                     raise KiwiBootStrapPhaseFailed(
                         self.issue_message.format(
                             headline='Failed to setup custom CA certificates',
-                            reason=issue
+                            reason=issue,
                         )
                     )
             else:
@@ -631,23 +633,22 @@ class SystemPrepare:
         log.info("Installing archives")
         for archive in archive_list:
             log.info("--> archive: %s", archive)
-            description_dir = \
-                self.xml_state.xml_data.description_dir
-            derived_description_dir = \
+            description_dir = self.xml_state.xml_data.description_dir
+            derived_description_dir = (
                 self.xml_state.xml_data.derived_description_dir
+            )
             archive_is_absolute = archive.startswith('/')
             if archive_is_absolute:
                 archive_file = archive
             else:
-                archive_file = '/'.join(
-                    [description_dir, archive]
-                )
+                archive_file = '/'.join([description_dir, archive])
             archive_exists = os.path.exists(archive_file)
-            if not archive_is_absolute \
-               and not archive_exists and derived_description_dir:
-                archive_file = '/'.join(
-                    [derived_description_dir, archive]
-                )
+            if (
+                not archive_is_absolute
+                and not archive_exists
+                and derived_description_dir
+            ):
+                archive_file = '/'.join([derived_description_dir, archive])
             target_dir = self.root_bind.root_dir
             if archive_target_dir_dict.get(archive):
                 target_dir = os.path.normpath(
@@ -678,11 +679,12 @@ class SystemPrepare:
             for package in sorted(ignored):
                 log.info('--> package excluded: {0}'.format(package))
                 manager.request_package_exclusion(package)
-        return \
-            manager.package_requests + \
-            manager.collection_requests + \
-            manager.product_requests + \
-            manager.exclude_requests
+        return (
+            manager.package_requests
+            + manager.collection_requests
+            + manager.product_requests
+            + manager.exclude_requests
+        )
 
     def _get_repo_customization_script(self, xml_repo: repository) -> str:
         script_path = xml_repo.get_customize()

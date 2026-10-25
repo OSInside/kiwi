@@ -32,6 +32,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
     """
     **Create vhd image format in fixed subformat**
     """
+
     def post_init(self, custom_args: Dict) -> None:
         """
         vhd disk format post initialization method
@@ -61,12 +62,9 @@ class DiskFormatVhdFixed(DiskFormatBase):
         Create vhd fixed disk format
         """
         Command.run(
-            [
-                'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', 'vpc'
-            ] + self.options + [
-                self.get_target_file_path_for_format(self.image_format)
-            ]
+            ['qemu-img', 'convert', '-f', 'raw', self.diskname, '-O', 'vpc']
+            + self.options
+            + [self.get_target_file_path_for_format(self.image_format)]
         )
         if self.tag:
             self._write_vhd_tag(self.tag)
@@ -84,12 +82,10 @@ class DiskFormatVhdFixed(DiskFormatBase):
             compression = False
         result.add(
             key='disk_format_image',
-            filename=self.get_target_file_path_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_file_path_for_format(self.image_format),
             use_for_bundle=True,
             compress=compression,
-            shasum=True
+            shasum=True,
         )
 
     def _pack_net_guid_tag(self, tag):
@@ -112,14 +108,13 @@ class DiskFormatVhdFixed(DiskFormatBase):
                     '([0-9a-f]{4})',
                     '-',
                     '([0-9a-f]{12})',
-                    '$'
+                    '$',
                 ]
-            ), tag
+            ),
+            tag,
         )
         if not tag_format:
-            raise KiwiVhdTagError(
-                f'disk tag {tag} does not match format'
-            )
+            raise KiwiVhdTagError(f'disk tag {tag} does not match format')
 
         # pack first nibble into 4 byte unsigned long type
         binary_tag_part_1 = struct.pack(
@@ -137,9 +132,13 @@ class DiskFormatVhdFixed(DiskFormatBase):
         binary_tag_part_4 = unhexlify(tag_format.group(4))
         # pack fifth nibble into hex
         binary_tag_part_5 = unhexlify(tag_format.group(5))
-        return binary_tag_part_1 + binary_tag_part_2 + \
-            binary_tag_part_3 + binary_tag_part_4 + \
-            binary_tag_part_5
+        return (
+            binary_tag_part_1
+            + binary_tag_part_2
+            + binary_tag_part_3
+            + binary_tag_part_4
+            + binary_tag_part_5
+        )
 
     def _write_vhd_tag(self, tag):
         """

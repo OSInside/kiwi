@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import (
-    Dict, Optional, List
-)
+from typing import Dict, Optional, List
 import logging
 from kiwi.logger_socket import PlainTextSocketHandler
 import sys
@@ -29,13 +27,10 @@ from kiwi.logger_filter import (
     InfoFilter,
     DebugFilter,
     ErrorFilter,
-    WarningFilter
+    WarningFilter,
 )
 
-from kiwi.exceptions import (
-    KiwiLogFileSetupFailed,
-    KiwiLogSocketSetupFailed
-)
+from kiwi.exceptions import KiwiLogFileSetupFailed, KiwiLogSocketSetupFailed
 
 
 class Logger(logging.Logger):
@@ -44,6 +39,7 @@ class Logger(logging.Logger):
 
     :param str name: name of the logger
     """
+
     def __init__(self, name: str):
         logging.Logger.__init__(self, name)
         self.log_handlers: Dict = {}
@@ -52,26 +48,26 @@ class Logger(logging.Logger):
         self._add_stream_handler(
             'info',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [InfoFilter(), LoggerSchedulerFilter()]
+            [InfoFilter(), LoggerSchedulerFilter()],
         )
         # log WARNING messages to stdout
         self._add_stream_handler(
             'warning',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [WarningFilter()]
+            [WarningFilter()],
         )
         # log DEBUG messages to stdout
         self._add_stream_handler(
             'debug',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [DebugFilter()]
+            [DebugFilter()],
         )
         # log ERROR messages to stderr
         self._add_stream_handler(
             'error',
             '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
             [ErrorFilter()],
-            sys.__stderr__
+            sys.__stderr__,
         )
         self.log_level = self.level
         self.log_flags: Dict[str, bool] = {}
@@ -140,11 +136,13 @@ class Logger(logging.Logger):
         for handler_type in self.log_handlers:
             message_format = None
             if handler_type == 'debug':
-                message_format = \
+                message_format = (
                     '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s'
+                )
             elif handler_type == 'warning' or handler_type == 'error':
-                message_format = \
+                message_format = (
                     '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s'
+                )
 
             if message_format:
                 self.log_handlers[handler_type].setFormatter(
@@ -169,16 +167,14 @@ class Logger(logging.Logger):
             handler.setFormatter(
                 logging.Formatter(
                     '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-                    '%H:%M:%S'
+                    '%H:%M:%S',
                 )
             )
             handler.addFilter(LoggerSchedulerFilter())
             self.addHandler(handler)
             self.log_handlers['file'] = handler
         except Exception as e:
-            raise KiwiLogFileSetupFailed(
-                f'{type(e).__name__}: {format(e)}'
-            )
+            raise KiwiLogFileSetupFailed(f'{type(e).__name__}: {format(e)}')
 
     def set_log_socket(self, filename: str) -> None:
         """
@@ -195,7 +191,7 @@ class Logger(logging.Logger):
             handler.setFormatter(
                 logging.Formatter(
                     '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-                    '%H:%M:%S'
+                    '%H:%M:%S',
                 )
             )
             handler.addFilter(LoggerSchedulerFilter())
@@ -240,21 +236,24 @@ class Logger(logging.Logger):
             return
         hashes = '#' * int(round(percent * bar_length))
         spaces = ' ' * (bar_length - len(hashes))
-        sys.stdout.write('\r{0}: [{1}] {2}%'.format(
-            prefix, hashes + spaces, int(round(percent * 100))
-        ))
+        sys.stdout.write(
+            '\r{0}: [{1}] {2}%'.format(
+                prefix, hashes + spaces, int(round(percent * 100))
+            )
+        )
         if current == 100:
             sys.stdout.write('\n')
         sys.stdout.flush()
 
     def _add_stream_handler(
-        self, handler_type, message_format, message_filter,
-        channel=sys.__stdout__
+        self,
+        handler_type,
+        message_format,
+        message_filter,
+        channel=sys.__stdout__,
     ):
         handler = logging.StreamHandler(channel)
-        handler.setFormatter(
-            logging.Formatter(message_format, '%H:%M:%S')
-        )
+        handler.setFormatter(logging.Formatter(message_format, '%H:%M:%S'))
         for rule in message_filter:
             handler.addFilter(rule)
         self.addHandler(handler)

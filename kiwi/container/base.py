@@ -21,7 +21,10 @@ from abc import ABC, abstractmethod
 class ContainerImageBase(ABC):
     @abstractmethod
     def create(
-        self, filename: str, base_image: str,
-        ensure_empty_tmpdirs: bool, compress_archive: bool = False
+        self,
+        filename: str,
+        base_image: str,
+        ensure_empty_tmpdirs: bool,
+        compress_archive: bool = False,
     ) -> str:
         pass  # pragma: no cover

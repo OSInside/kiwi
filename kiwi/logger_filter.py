@@ -22,6 +22,7 @@ class LoggerSchedulerFilter(logging.Filter):
     """
     **Extended standard logging Filter**
     """
+
     def filter(self, record: logging.LogRecord) -> bool:
         """
         Messages from apscheduler scheduler instances are filtered out
@@ -33,10 +34,7 @@ class LoggerSchedulerFilter(logging.Filter):
 
         :rtype: bool
         """
-        ignorables = [
-            'apscheduler.scheduler',
-            'apscheduler.executors.default'
-        ]
+        ignorables = ['apscheduler.scheduler', 'apscheduler.executors.default']
         return bool(record.name not in ignorables)
 
 
@@ -44,6 +42,7 @@ class InfoFilter(logging.Filter):
     """
     **Extended standard logging Filter**
     """
+
     def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level INFO can pass
@@ -62,6 +61,7 @@ class DebugFilter(logging.Filter):
     """
     **Extended standard debug logging Filter**
     """
+
     def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level DEBUG can pass
@@ -80,6 +80,7 @@ class ErrorFilter(logging.Filter):
     """
     **Extended standard error logging Filter**
     """
+
     def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level DEBUG can pass
@@ -98,6 +99,7 @@ class WarningFilter(logging.Filter):
     """
     **Extended standard warning logging Filter**
     """
+
     def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level WARNING can pass

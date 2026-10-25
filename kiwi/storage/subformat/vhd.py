@@ -26,6 +26,7 @@ class DiskFormatVhd(DiskFormatBase):
     """
     **Create vhd disk format**
     """
+
     def post_init(self, custom_args: Dict) -> None:
         """
         vhd disk format post initialization method
@@ -42,10 +43,7 @@ class DiskFormatVhd(DiskFormatBase):
         Create vhd disk format
         """
         Command.run(
-            [
-                'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', 'vpc'
-            ] + self.options + [
-                self.get_target_file_path_for_format(self.image_format)
-            ]
+            ['qemu-img', 'convert', '-f', 'raw', self.diskname, '-O', 'vpc']
+            + self.options
+            + [self.get_target_file_path_for_format(self.image_format)]
         )

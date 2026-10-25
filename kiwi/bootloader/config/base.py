@@ -29,9 +29,7 @@ from kiwi.defaults import Defaults
 from kiwi.utils.block import BlockID
 from kiwi.system.setup import SystemSetup
 
-from kiwi.exceptions import (
-    KiwiBootLoaderTargetError
-)
+from kiwi.exceptions import KiwiBootLoaderTargetError
 
 log = logging.getLogger('kiwi')
 
@@ -44,6 +42,7 @@ class BootLoaderConfigBase(ABC):
     :param string root_dir: root directory path name
     :param dict custom_args: custom bootloader arguments dictionary
     """
+
     def __init__(self, xml_state, root_dir, boot_dir=None, custom_args={}):
         self.root_dir = root_dir
         self.boot_dir = boot_dir or root_dir
@@ -103,8 +102,13 @@ class BootLoaderConfigBase(ABC):
 
     @abstractmethod
     def setup_disk_image_config(
-        self, boot_uuid=None, root_uuid=None, hypervisor=None,
-        kernel=None, initrd=None, boot_options={}
+        self,
+        boot_uuid=None,
+        root_uuid=None,
+        hypervisor=None,
+        kernel=None,
+        initrd=None,
+        boot_options={},
     ):
         """
         Create boot config file to boot from disk.
@@ -128,9 +132,7 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_install_image_config(
-        self, mbrid, hypervisor, kernel, initrd
-    ):
+    def setup_install_image_config(self, mbrid, hypervisor, kernel, initrd):
         """
         Create boot config file to boot from install media in EFI mode.
 
@@ -143,9 +145,7 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_live_image_config(
-        self, mbrid, hypervisor, kernel, initrd
-    ):
+    def setup_live_image_config(self, mbrid, hypervisor, kernel, initrd):
         """
         Create boot config file to boot live ISO image in EFI mode.
 
@@ -260,8 +260,9 @@ class BootLoaderConfigBase(ABC):
 
         :rtype: bool
         """
-        continue_on_timeout = \
+        continue_on_timeout = (
             self.xml_state.build_type.get_install_continue_on_timeout()
+        )
         if continue_on_timeout is None:
             continue_on_timeout = True
         return continue_on_timeout
@@ -304,9 +305,7 @@ class BootLoaderConfigBase(ABC):
         )
         if overlay_cmdline:
             cmdline += ' ' + overlay_cmdline
-        custom_root = self._get_root_cmdline_parameter(
-            boot_device
-        )
+        custom_root = self._get_root_cmdline_parameter(boot_device)
         if custom_root and custom_root not in cmdline:
             cmdline += ' ' + custom_root
         return cmdline.strip()
@@ -334,19 +333,13 @@ class BootLoaderConfigBase(ABC):
         :rtype: str
         """
         menu_entry_title = self.get_menu_entry_title(plain=True)
-        menu_type = namedtuple(
-            'menu_type', ['name', 'menu_id']
-        )
+        menu_type = namedtuple('menu_type', ['name', 'menu_id'])
         menu_list = [
-            menu_type(
-                name='Boot_from_Hard_Disk', menu_id='0'
-            ),
-            menu_type(
-                name='Install_' + menu_entry_title, menu_id='1'
-            ),
+            menu_type(name='Boot_from_Hard_Disk', menu_id='0'),
+            menu_type(name='Install_' + menu_entry_title, menu_id='1'),
             menu_type(
                 name='Failsafe_--_Install_' + menu_entry_title, menu_id='2'
-            )
+            ),
         ]
         boot_id = 0
         install_boot_name = self.xml_state.build_type.get_installboot()
@@ -465,26 +458,30 @@ class BootLoaderConfigBase(ABC):
         return title
 
     def _mount_system(
-        self, device_map, root_device, boot_device, efi_device=None,
-        volumes=None, root_volume_name=None, partitions=None
+        self,
+        device_map,
+        root_device,
+        boot_device,
+        efi_device=None,
+        volumes=None,
+        root_volume_name=None,
+        partitions=None,
     ):
-        self.root_mount = MountManager(
-            device=root_device
-        )
+        self.root_mount = MountManager(device=root_device)
         if 's390' in self.arch and self.bootloader == 'grub2_s390x_emu':
             self.boot_mount = MountManager(
                 device=boot_device,
-                mountpoint=self.root_mount.mountpoint + '/boot/zipl'
+                mountpoint=self.root_mount.mountpoint + '/boot/zipl',
             )
         else:
             self.boot_mount = MountManager(
                 device=boot_device,
-                mountpoint=self.root_mount.mountpoint + '/boot'
+                mountpoint=self.root_mount.mountpoint + '/boot',
             )
         if efi_device:
             self.efi_mount = MountManager(
                 device=efi_device,
-                mountpoint=self.root_mount.mountpoint + '/boot/efi'
+                mountpoint=self.root_mount.mountpoint + '/boot/efi',
             )
 
         custom_root_mount_args = []
@@ -501,12 +498,10 @@ class BootLoaderConfigBase(ABC):
             self.boot_mount.mount()
 
         if volumes:
-            for volume_path in Path.sort_by_hierarchy(
-                sorted(volumes.keys())
-            ):
+            for volume_path in Path.sort_by_hierarchy(sorted(volumes.keys())):
                 volume_mount = MountManager(
                     device=volumes[volume_path]['volume_device'],
-                    mountpoint=self.root_mount.mountpoint + '/' + volume_path
+                    mountpoint=self.root_mount.mountpoint + '/' + volume_path,
                 )
                 self.volumes_mount.append(volume_mount)
                 volume_mount.mount(
@@ -520,8 +515,8 @@ class BootLoaderConfigBase(ABC):
                         device=device_map[map_name].get_device(),
                         mountpoint=os.path.join(
                             self.root_mount.mountpoint,
-                            partitions[map_name].mountpoint.lstrip(os.sep)
-                        )
+                            partitions[map_name].mountpoint.lstrip(os.sep),
+                        ),
                     )
                     self.partitions_mount.append(partition_mount)
                     partition_mount.mount()
@@ -535,8 +530,7 @@ class BootLoaderConfigBase(ABC):
             # temporary files at call time and therefore /tmp needs to
             # be writable during the call time of the tools
             self.tmp_mount = MountManager(
-                device='/tmp',
-                mountpoint=self.root_mount.mountpoint + '/tmp'
+                device='/tmp', mountpoint=self.root_mount.mountpoint + '/tmp'
             )
             self.tmp_mount.bind_mount()
 
@@ -550,16 +544,13 @@ class BootLoaderConfigBase(ABC):
                 self.etc_kernel_mount.mount()
 
         self.device_mount = MountManager(
-            device='/dev',
-            mountpoint=self.root_mount.mountpoint + '/dev'
+            device='/dev', mountpoint=self.root_mount.mountpoint + '/dev'
         )
         self.proc_mount = MountManager(
-            device='/proc',
-            mountpoint=self.root_mount.mountpoint + '/proc'
+            device='/proc', mountpoint=self.root_mount.mountpoint + '/proc'
         )
         self.sys_mount = MountManager(
-            device='/sys',
-            mountpoint=self.root_mount.mountpoint + '/sys'
+            device='/sys', mountpoint=self.root_mount.mountpoint + '/sys'
         )
         self.device_mount.bind_mount()
         self.proc_mount.bind_mount()
@@ -606,9 +597,7 @@ class BootLoaderConfigBase(ABC):
         """
         cmdline = self.xml_state.build_type.get_kernelcmdline()
         if cmdline and 'root=' in cmdline:
-            log.warning(
-                'Kernel root device explicitly set via kernelcmdline'
-            )
+            log.warning('Kernel root device explicitly set via kernelcmdline')
             root_search = re.search(r'(root=(.*)[ ]+|root=(.*)$)', cmdline)
             if root_search:
                 return root_search.group(1)
@@ -638,9 +627,7 @@ class BootLoaderConfigBase(ABC):
                     root_location['type'], root_location['name']
                 )
         else:
-            log.warning(
-                'No explicit root= cmdline provided'
-            )
+            log.warning('No explicit root= cmdline provided')
 
     def _get_root_overlay_cmdline_parameter(self, boot_device, write_device):
         """
@@ -684,7 +671,7 @@ class BootLoaderConfigBase(ABC):
         return {
             'type': blkid_type,
             'name': location,
-            'node': f'/dev/disk/{persistency_type}/{location}'
+            'node': f'/dev/disk/{persistency_type}/{location}',
         }
 
     def __exit__(self, exc_type, exc_value, traceback):

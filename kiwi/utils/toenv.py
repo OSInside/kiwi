@@ -28,6 +28,7 @@ class ToEnv:
     """
     **Read env file and merge with os.environ**
     """
+
     def __init__(self, root_dir: str, envfile: str):
         self.data = {}
         env_file = f'{root_dir}/{envfile}'
@@ -54,6 +55,5 @@ class ToEnv:
     @staticmethod
     def _rip(csvfile: TextIOWrapper) -> Iterable[str]:
         for row in csvfile:
-            if not ToEnv._is_comment(row) \
-               and not ToEnv._is_whitespace(row):
+            if not ToEnv._is_comment(row) and not ToEnv._is_whitespace(row):
                 yield row

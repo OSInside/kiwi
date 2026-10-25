@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call
-)
+from unittest.mock import patch, call
 from pytest import raises
 import unittest.mock as mock
 
@@ -17,14 +15,14 @@ class TestPackageManagerMicroDnf:
         repository.runtime_config = mock.Mock(
             return_value={
                 'dnf_args': ['--config', '/root-dir/dnf.conf', '-y'],
-                'command_env': ['env']
+                'command_env': ['env'],
             }
         )
         repository.shared_dnf_dir = {
             'reposd-dir': 'repos',
             'cache-dir': 'cache',
             'pluginconf-dir': 'pluginconf',
-            'vars-dir': 'vars'
+            'vars-dir': 'vars',
         }
         self.manager = PackageManagerMicroDnf(repository)
 
@@ -50,44 +48,31 @@ class TestPackageManagerMicroDnf:
     @patch('kiwi.command.Command.run')
     def test_setup_repository_modules(self, mock_run):
         self.manager.setup_repository_modules(
-            {
-                'disable': ['mod_c'],
-                'enable': ['mod_a:stream', 'mod_b']
-            }
+            {'disable': ['mod_c'], 'enable': ['mod_a:stream', 'mod_b']}
         )
         microdnf_call_args = [
-            'microdnf', '--refresh', '--config', '/root-dir/dnf.conf',
-            '-y', '--installroot', '/root-dir', '--releasever=0',
-            '--noplugins', '--setopt=cachedir=cache',
+            'microdnf',
+            '--refresh',
+            '--config',
+            '/root-dir/dnf.conf',
+            '-y',
+            '--installroot',
+            '/root-dir',
+            '--releasever=0',
+            '--noplugins',
+            '--setopt=cachedir=cache',
             '--setopt=reposdir=repos',
-            '--setopt=varsdir=vars'
+            '--setopt=varsdir=vars',
         ]
         assert mock_run.call_args_list == [
+            call(microdnf_call_args + ['module', 'disable', 'mod_c'], ['env']),
+            call(microdnf_call_args + ['module', 'reset', 'mod_a'], ['env']),
             call(
-                microdnf_call_args + [
-                    'module', 'disable', 'mod_c'
-                ], ['env']
+                microdnf_call_args + ['module', 'enable', 'mod_a:stream'],
+                ['env'],
             ),
-            call(
-                microdnf_call_args + [
-                    'module', 'reset', 'mod_a'
-                ], ['env']
-            ),
-            call(
-                microdnf_call_args + [
-                    'module', 'enable', 'mod_a:stream'
-                ], ['env']
-            ),
-            call(
-                microdnf_call_args + [
-                    'module', 'reset', 'mod_b'
-                ], ['env']
-            ),
-            call(
-                microdnf_call_args + [
-                    'module', 'enable', 'mod_b'
-                ], ['env']
-            )
+            call(microdnf_call_args + ['module', 'reset', 'mod_b'], ['env']),
+            call(microdnf_call_args + ['module', 'enable', 'mod_b'], ['env']),
         ]
 
     @patch('kiwi.command.Command.call')
@@ -98,13 +83,22 @@ class TestPackageManagerMicroDnf:
         self.manager.process_install_requests_bootstrap()
         mock_call.assert_called_once_with(
             [
-                'microdnf', '--refresh', '--config', '/root-dir/dnf.conf',
-                '-y', '--installroot', '/root-dir', '--releasever=0',
-                '--noplugins', '--setopt=cachedir=cache',
+                'microdnf',
+                '--refresh',
+                '--config',
+                '/root-dir/dnf.conf',
+                '-y',
+                '--installroot',
+                '/root-dir',
+                '--releasever=0',
+                '--noplugins',
+                '--setopt=cachedir=cache',
                 '--setopt=reposdir=repos',
                 '--setopt=varsdir=vars',
-                'install', 'vim'
-            ], ['env']
+                'install',
+                'vim',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -115,9 +109,18 @@ class TestPackageManagerMicroDnf:
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'microdnf', '--config', '/dnf.conf',
-                '-y', '--releasever=0', '--exclude=skipme', 'install', 'vim'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'microdnf',
+                '--config',
+                '/dnf.conf',
+                '-y',
+                '--releasever=0',
+                '--exclude=skipme',
+                'install',
+                'vim',
+            ],
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -127,12 +130,16 @@ class TestPackageManagerMicroDnf:
         self.manager.process_delete_requests(True)
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'rpm', '-e',
-                '--nodeps', '--allmatches', '--noscripts', 'vim'
+                'chroot',
+                '/root-dir',
+                'rpm',
+                '-e',
+                '--nodeps',
+                '--allmatches',
+                '--noscripts',
+                'vim',
             ],
-            [
-                'env'
-            ]
+            ['env'],
         )
 
     @patch('kiwi.command.Command.call')
@@ -142,18 +149,22 @@ class TestPackageManagerMicroDnf:
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'microdnf',
-                '--config', '/dnf.conf', '-y',
-                '--releasever=0', 'remove', 'vim'
+                'chroot',
+                '/root-dir',
+                'microdnf',
+                '--config',
+                '/dnf.conf',
+                '-y',
+                '--releasever=0',
+                'remove',
+                'vim',
             ],
-            ['env']
+            ['env'],
         )
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.command.Command.call')
-    def test_process_delete_requests_package_missing(
-        self, mock_call, mock_run
-    ):
+    def test_process_delete_requests_package_missing(self, mock_call, mock_run):
         mock_run.side_effect = Exception
         self.manager.request_package('vim')
         with raises(KiwiRequestError):
@@ -167,9 +178,16 @@ class TestPackageManagerMicroDnf:
         self.manager.update()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'microdnf',
-                '--config', '/dnf.conf', '-y', '--releasever=0', 'upgrade'
-            ], ['env']
+                'chroot',
+                '/root-dir',
+                'microdnf',
+                '--config',
+                '/dnf.conf',
+                '-y',
+                '--releasever=0',
+                'upgrade',
+            ],
+            ['env'],
         )
 
     def test_process_only_required(self):
@@ -180,8 +198,7 @@ class TestPackageManagerMicroDnf:
         self.manager.process_only_required()
         assert self.manager.custom_args == ['--setopt=install_weak_deps=0']
         self.manager.process_plus_recommended()
-        assert \
-            '--setopt=install_weak_deps=0' not in self.manager.custom_args
+        assert '--setopt=install_weak_deps=0' not in self.manager.custom_args
 
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Installing  : foo')

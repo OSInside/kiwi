@@ -19,9 +19,7 @@ import os
 import logging
 from collections import namedtuple
 from kiwi.command import CommandCallT
-from typing import (
-    NamedTuple, List, Callable
-)
+from typing import NamedTuple, List, Callable
 
 # project
 from kiwi.utils.codec import Codec
@@ -47,6 +45,7 @@ class CommandProcess:
     :param subprocess command: instance of subprocess
     :param string log_topic: topic string for logging
     """
+
     def __init__(self, command: CommandCallT, log_topic='system') -> None:
         self.command = CommandIterator(command)
         self.log_topic = log_topic
@@ -61,13 +60,13 @@ class CommandProcess:
             if line:
                 log.debug('%s: %s', self.log_topic, line)
         if self.command.get_error_code() != 0:
-            raise KiwiCommandError(
-                self.command.get_error_output()
-            )
+            raise KiwiCommandError(self.command.get_error_output())
 
     def poll_show_progress(
-        self, items_to_complete: List[str], match_method: Callable,
-        with_stderr: bool = False
+        self,
+        items_to_complete: List[str],
+        match_method: Callable,
+        with_stderr: bool = False,
     ):
         """
         Iterate over process and show progress in percent
@@ -84,14 +83,10 @@ class CommandProcess:
             for line in lines:
                 if line:
                     log.debug('%s: %s', self.log_topic, line)
-                    self._update_progress(
-                        match_method, items_to_complete, line
-                    )
+                    self._update_progress(match_method, items_to_complete, line)
         self._stop_progress()
         if self.command.get_error_code() != 0:
-            raise KiwiCommandError(
-                self.command.get_error_output()
-            )
+            raise KiwiCommandError(self.command.get_error_output())
 
     def poll_and_watch(self):
         """
@@ -108,17 +103,13 @@ class CommandProcess:
 
         error_code = self.command.get_error_code()
         error_output = self.command.get_error_output()
-        result = namedtuple(
-            'result', ['stderr', 'returncode']
-        )
+        result = namedtuple('result', ['stderr', 'returncode'])
         if error_output:
             log.debug('--------------err start-------------')
             for line in error_output.split(os.linesep):
                 log.debug(line)
             log.debug('--------------err stop--------------')
-        return result(
-            stderr=error_output, returncode=error_code
-        )
+        return result(stderr=error_output, returncode=error_code)
 
     def create_match_method(self, method):
         """
@@ -130,34 +121,31 @@ class CommandProcess:
         :return: function pointer
         :rtype: object
         """
+
         def create_method(item_to_match, data):
             return method(item_to_match, data)
+
         return create_method
 
     def returncode(self):
         return self.command.get_error_code()
 
     def _init_progress(self):
-        Logger.progress(
-            0, 100, '[ INFO    ]: Processing'
-        )
+        Logger.progress(0, 100, '[ INFO    ]: Processing')
 
     def _stop_progress(self):
-        Logger.progress(
-            100, 100, '[ INFO    ]: Processing'
-        )
+        Logger.progress(100, 100, '[ INFO    ]: Processing')
 
-    def _update_progress(
-        self, match_method, items_to_complete, command_output
-    ):
+    def _update_progress(self, match_method, items_to_complete, command_output):
         items_count = len(items_to_complete)
         for item in items_to_complete:
             if match_method(item, command_output):
                 self.items_processed += 1
                 if self.items_processed <= items_count:
                     Logger.progress(
-                        self.items_processed, items_count,
-                        '[ INFO    ]: Processing'
+                        self.items_processed,
+                        items_count,
+                        '[ INFO    ]: Processing',
                     )
 
 
@@ -167,6 +155,7 @@ class CommandIterator:
 
     :param subprocess command: instance of subprocess
     """
+
     def __init__(self, command: CommandCallT) -> None:
         self.command = command
         self.command_error_output = bytes(b'')
@@ -204,10 +193,7 @@ class CommandIterator:
                 self.command_error_line += byte_read
                 self.command_error_output += byte_read
 
-        return PollT(
-            stdout_line=line_stdout,
-            stderr_line=line_stderr
-        )
+        return PollT(stdout_line=line_stdout, stderr_line=line_stderr)
 
     def get_error_output(self):
         """

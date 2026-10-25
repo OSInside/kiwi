@@ -21,9 +21,7 @@ from textwrap import dedent
 from typing import List
 
 # project
-from kiwi.storage.subformat.template.virtualbox_ovf import (
-    VirtualboxOvfTemplate
-)
+from kiwi.storage.subformat.template.virtualbox_ovf import VirtualboxOvfTemplate
 from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 from kiwi.command import Command
@@ -80,15 +78,17 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
         box_img = os.sep.join([temp_image_dir, 'box.vmdk'])
         Command.run(
             [
-                'mv', self.get_target_file_path_for_format(vmdk.image_format),
-                box_img
+                'mv',
+                self.get_target_file_path_for_format(vmdk.image_format),
+                box_img,
             ]
         )
         box_ovf = os.sep.join([temp_image_dir, 'box.ovf'])
         ovf_template = VirtualboxOvfTemplate()
         disk_image_capacity = self.vagrantconfig.get_virtualsize() or 42
-        xml_description_specification = self.xml_state \
-            .get_description_section().specification
+        xml_description_specification = (
+            self.xml_state.get_description_section().specification
+        )
         with open(box_ovf, "w") as ovf_file:
             ovf_file.write(
                 ovf_template.get_template().substitute(
@@ -96,7 +96,7 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
                         'root_uuid': self.xml_state.get_root_filesystem_uuid(),
                         'vm_name': self.xml_state.xml_data.name,
                         'disk_image_capacity': disk_image_capacity,
-                        'vm_description': xml_description_specification
+                        'vm_description': xml_description_specification,
                     }
                 )
             )
@@ -105,8 +105,10 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
     @staticmethod
     def _random_mac():
         return '%02x%02x%02x%02x%02x%02x'.upper() % (
-            0x00, 0x16, 0x3e,
-            random.randrange(0, 0x7e),
-            random.randrange(0, 0xff),
-            random.randrange(0, 0xff)
+            0x00,
+            0x16,
+            0x3E,
+            random.randrange(0, 0x7E),
+            random.randrange(0, 0xFF),
+            random.randrange(0, 0xFF),
         )

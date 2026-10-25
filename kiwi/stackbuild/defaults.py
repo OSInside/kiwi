@@ -16,9 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
-from typing import (
-    Dict, List
-)
+from typing import Dict, List
 
 # project
 from kiwi.defaults import Defaults
@@ -30,6 +28,7 @@ class StackBuildDefaults:
 
     Provides static methods for default values and state information
     """
+
     @staticmethod
     def get_stash_home() -> str:
         """
@@ -49,9 +48,7 @@ class StackBuildDefaults:
         Container names must start or end with a letter or number,
         and can contain only letters, numbers, and the dash (-) character.
         """
-        return bool(
-            re.match(r'^[0-9a-zA-Z][0-9a-zA-Z\-]*[0-9a-zA-Z]$', name)
-        )
+        return bool(re.match(r'^[0-9a-zA-Z][0-9a-zA-Z\-]*[0-9a-zA-Z]$', name))
 
     @staticmethod
     def get_stash_exclude_list() -> List:
@@ -63,11 +60,7 @@ class StackBuildDefaults:
 
         :rtype: list
         """
-        return [
-            'dev/*',
-            'sys/*',
-            'proc/*'
-        ]
+        return ['dev/*', 'sys/*', 'proc/*']
 
     @staticmethod
     def get_container_config(
@@ -88,11 +81,11 @@ class StackBuildDefaults:
             'entry_command': ['/bin/sh'],
             'labels': {
                 'io.osinside.kiwi.maintainer': maintainer,
-                'io.osinside.kiwi.meta': preparer
+                'io.osinside.kiwi.meta': preparer,
             },
             'history': {
                 'created_by': preparer,
                 'comment': 'KIWI Root Tree Stash',
-                'author': maintainer
-            }
+                'author': maintainer,
+            },
         }

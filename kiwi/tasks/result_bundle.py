@@ -25,17 +25,13 @@ import os
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
-from kiwi.system.result import (
-    Result, result_file_type
-)
+from kiwi.system.result import Result, result_file_type
 from kiwi.path import Path
 from kiwi.utils.compress import Compress
 from kiwi.privileges import Privileges
 from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiBundleError
-)
+from kiwi.exceptions import KiwiBundleError
 
 log = logging.getLogger('kiwi')
 
@@ -49,6 +45,7 @@ class ResultBundleTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Create result bundle from the image build results in the
@@ -72,12 +69,8 @@ class ResultBundleTask(CliTask):
                 'Bundle directory must be different from target directory'
             )
 
-        log.info(
-            'Bundle build results from %s', result_directory
-        )
-        result = Result.load(
-            result_directory + '/kiwi.result'
-        )
+        log.info('Bundle build results from %s', result_directory)
+        result = Result.load(result_directory + '/kiwi.result')
 
         if self.command_args['--bundle-format']:
             result.add_bundle_format(self.command_args['--bundle-format'])
@@ -148,15 +141,13 @@ class ResultBundleTask(CliTask):
                 bundle_file = ''.join(
                     [bundle_directory, '/', bundle_file_basename]
                 )
-                Command.run(
-                    [
-                        'cp', result_file.filename, bundle_file
-                    ]
-                )
+                Command.run(['cp', result_file.filename, bundle_file])
                 copied_files.append(bundle_file)
                 result_file_basename = os.path.basename(result_file.filename)
                 if result_file_basename != bundle_file_basename:
-                    symlink_orignal_name = f'{bundle_directory}/{result_file_basename}'
+                    symlink_orignal_name = (
+                        f'{bundle_directory}/{result_file_basename}'
+                    )
                     if os.path.islink(symlink_orignal_name):
                         os.unlink(symlink_orignal_name)
                     os.symlink(bundle_file, symlink_orignal_name)
@@ -172,9 +163,10 @@ class ResultBundleTask(CliTask):
                     log.info(f'--> {result_file}')
                     Command.run(
                         [
-                            'sed', '-ie',
+                            'sed',
+                            '-ie',
                             f's/{origin_file_basename}/{bundle_file_basename}/g',
-                            result_file
+                            result_file,
                         ]
                     )
                     os.unlink(f'{result_file}e')
@@ -190,10 +182,15 @@ class ResultBundleTask(CliTask):
                 bundle_file = ''.join(
                     [bundle_directory, '/', bundle_file_basename]
                 )
-                if result_file.compress and not self.command_args['--no-compress']:
+                if (
+                    result_file.compress
+                    and not self.command_args['--no-compress']
+                ):
                     log.info('--> Compressing')
                     compress = Compress(bundle_file)
-                    bundle_file = compress.xz(self.runtime_config.get_xz_options())
+                    bundle_file = compress.xz(
+                        self.runtime_config.get_xz_options()
+                    )
 
                 if self.command_args['--zsync-source'] and result_file.shasum:
                     # Files with a checksum are considered to be image files
@@ -205,12 +202,18 @@ class ResultBundleTask(CliTask):
                         log.info('--> Creating zsync control file')
                         Command.run(
                             [
-                                zsyncmake, '-e', '-u', os.sep.join(
+                                zsyncmake,
+                                '-e',
+                                '-u',
+                                os.sep.join(
                                     [
                                         self.command_args['--zsync-source'],
-                                        os.path.basename(bundle_file)
+                                        os.path.basename(bundle_file),
                                     ]
-                                ), '-o', bundle_file + '.zsync', bundle_file
+                                ),
+                                '-o',
+                                bundle_file + '.zsync',
+                                bundle_file,
                             ]
                         )
                     else:
@@ -228,7 +231,7 @@ class ResultBundleTask(CliTask):
                             '{0}  {1}{2}'.format(
                                 checksum.digest(),
                                 os.path.basename(bundle_file),
-                                os.linesep
+                                os.linesep,
                             )
                         )
 
@@ -238,20 +241,27 @@ class ResultBundleTask(CliTask):
                 bundle_file_format_name or image_name,
                 image_version,
                 image_description.specification,
-                list(glob.iglob(f'{bundle_directory}/*'))
+                list(glob.iglob(f'{bundle_directory}/*')),
             )
 
     def _get_bundle_file_basename(
-        self, result: Result, result_file: result_file_type,
-        bundle_file_format_name: str
+        self,
+        result: Result,
+        result_file: result_file_type,
+        bundle_file_format_name: str,
     ) -> str:
         image_version = result.xml_state.get_image_version()
         image_name = result.xml_state.xml_data.get_name()
         special_exts = ['.oci.tar.', '.docker.tar.', '.vagrant.']
         special_exts_uncompressed = ['.oci.tar', '.docker.tar']
-        if any(special_ext in result_file.filename for special_ext in special_exts):
+        if any(
+            special_ext in result_file.filename for special_ext in special_exts
+        ):
             extension = f'{".".join(result_file.filename.split(".")[-3:])}'
-        elif any(special_ext in result_file.filename for special_ext in special_exts_uncompressed):
+        elif any(
+            special_ext in result_file.filename
+            for special_ext in special_exts_uncompressed
+        ):
             extension = f'{".".join(result_file.filename.split(".")[-2:])}'
         elif '.tar.' in result_file.filename:
             extension = f'tar.{result_file.filename.split(".").pop()}'
@@ -262,35 +272,38 @@ class ResultBundleTask(CliTask):
                 [bundle_file_format_name, extension]
             )
         else:
-            bundle_file_basename = os.path.basename(
-                result_file.filename
-            )
+            bundle_file_basename = os.path.basename(result_file.filename)
             # The bundle id is only taken into account for image results
             # which contains the image version appended in its file name
             part_name = list(bundle_file_basename.partition(image_name))
             bundle_file_basename = ''.join(
                 [
-                    part_name[0], part_name[1],
+                    part_name[0],
+                    part_name[1],
                     part_name[2].replace(
                         image_version,
-                        image_version + '-' + self.command_args['--id']
-                    )
+                        image_version + '-' + self.command_args['--id'],
+                    ),
                 ]
             )
         return bundle_file_basename
 
     @staticmethod
     def _build_rpm_package(
-        bundle_directory: str, image_name: str, image_version: str,
-        description_text, filenames: List[str]
+        bundle_directory: str,
+        image_name: str,
+        image_version: str,
+        description_text,
+        filenames: List[str],
     ) -> None:
         source_links = []
         for source_file in filenames:
             source_links.append(
                 ' '.join(
                     [
-                        'ln', '%{_sourcedir}/' + os.path.basename(source_file),
-                        '%{buildroot}' + f'/var/tmp/{image_name}'
+                        'ln',
+                        '%{_sourcedir}/' + os.path.basename(source_file),
+                        '%{buildroot}' + f'/var/tmp/{image_name}',
                     ]
                 )
             )
@@ -333,7 +346,7 @@ class ResultBundleTask(CliTask):
             name=image_name,
             version=image_version,
             description=description_text,
-            source_links=os.linesep.join(source_links)
+            source_links=os.linesep.join(source_links),
         )
         with open(spec_file_name, 'w') as spec:
             spec.write(spec_data)
@@ -341,17 +354,17 @@ class ResultBundleTask(CliTask):
         log.info('Creating rpm package...')
         Command.run(
             [
-                'rpmbuild', '--nodeps', '--nocheck', '--rmspec',
-                '-bb', spec_file_name
+                'rpmbuild',
+                '--nodeps',
+                '--nocheck',
+                '--rmspec',
+                '-bb',
+                spec_file_name,
             ]
         )
         for source_file in filenames:
             os.unlink(source_file)
-        Command.run(
-            [
-                'bash', '-c', 'mv noarch/*.rpm . && rmdir noarch'
-            ]
-        )
+        Command.run(['bash', '-c', 'mv noarch/*.rpm . && rmdir noarch'])
 
     def _help(self):
         if self.command_args['help']:

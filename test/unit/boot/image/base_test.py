@@ -1,8 +1,6 @@
 import io
 from collections import namedtuple
-from unittest.mock import (
-    patch, Mock, MagicMock
-)
+from unittest.mock import patch, Mock, MagicMock
 from pytest import raises
 
 from kiwi.boot.image.base import BootImageBase
@@ -11,7 +9,7 @@ from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiConfigFileNotFound,
-    KiwiDiskBootImageError
+    KiwiDiskBootImageError,
 )
 
 
@@ -20,10 +18,8 @@ class TestBootImageBase:
     def setup(self, mock_exists):
         Defaults.set_platform_name('x86_64')
         self.boot_names_type = namedtuple(
-            'boot_names_type', [
-                'kernel_name', 'initrd_name',
-                'kernel_version', 'kernel_filename'
-            ]
+            'boot_names_type',
+            ['kernel_name', 'initrd_name', 'kernel_version', 'kernel_filename'],
         )
         self.kernel = Mock()
         kernel_info = Mock
@@ -33,15 +29,9 @@ class TestBootImageBase:
         self.kernel.get_kernel.return_value = kernel_info
         self.boot_xml_state = Mock()
         self.xml_state = Mock()
-        self.xml_state.get_initrd_system = Mock(
-            return_value='dracut'
-        )
-        self.xml_state.xml_data.get_name = Mock(
-            return_value='some-image'
-        )
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
+        self.xml_state.get_initrd_system = Mock(return_value='dracut')
+        self.xml_state.xml_data.get_name = Mock(return_value='some-image')
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
         self.xml_state.build_type.get_boot = Mock(
             return_value='oemboot/suse-13.2'
         )
@@ -98,8 +88,10 @@ class TestBootImageBase:
         assert self.xml_state.copy_oemconfig_section.called
 
     def test_get_boot_description_directory(self):
-        assert self.boot_image.get_boot_description_directory() == \
-            '/usr/share/kiwi/custom_boot/oemboot/suse-13.2'
+        assert (
+            self.boot_image.get_boot_description_directory()
+            == '/usr/share/kiwi/custom_boot/oemboot/suse-13.2'
+        )
 
     @patch('kiwi.boot.image.base.BootImageBase.get_boot_description_directory')
     def test_load_boot_xml_description(self, mock_boot_dir):
@@ -137,7 +129,7 @@ class TestBootImageBase:
         mock_iglob,
         mock_warning,
         mock_Path_which,
-        mock_Kernel
+        mock_Kernel,
     ):
         mock_CommandCapabilities_has_option_in_help.return_value = False
         mock_iglob.return_value = []
@@ -148,14 +140,14 @@ class TestBootImageBase:
             kernel_name='kernel_name',
             initrd_name='initrd-kernel_version',
             kernel_version='kernel_version',
-            kernel_filename='kernel_filename'
+            kernel_filename='kernel_filename',
         )
         self.xml_state.get_initrd_system.return_value = 'dracut'
         assert self.boot_image.get_boot_names() == self.boot_names_type(
             kernel_name='kernel_name',
             initrd_name='initramfs-kernel_version.img',
             kernel_version='kernel_version',
-            kernel_filename='kernel_filename'
+            kernel_filename='kernel_filename',
         )
 
     @patch('kiwi.boot.image.base.Kernel')
@@ -164,15 +156,19 @@ class TestBootImageBase:
     @patch('glob.iglob')
     @patch('os.path.islink')
     def test_get_boot_names_from_file(
-        self, mock_islink, mock_iglob, mock_warning, mock_Path_which,
-        mock_Kernel
+        self,
+        mock_islink,
+        mock_iglob,
+        mock_warning,
+        mock_Path_which,
+        mock_Kernel,
     ):
         mock_islink.return_value = False
         # the initrd of a kernel which is not installed anymore does
         # not tell the format, its name has no installed version
         mock_iglob.return_value = [
             '/boot/initrd.img-other_kernel_version',
-            '/boot/initrd-gone_version'
+            '/boot/initrd-gone_version',
         ]
         mock_Path_which.return_value = None
         mock_Kernel.return_value = self.kernel
@@ -184,7 +180,7 @@ class TestBootImageBase:
             kernel_name='kernel_name',
             initrd_name='initrd.img-kernel_version',
             kernel_version='kernel_version',
-            kernel_filename='kernel_filename'
+            kernel_filename='kernel_filename',
         )
 
     @patch('kiwi.boot.image.base.Kernel')
@@ -206,24 +202,22 @@ class TestBootImageBase:
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version',
                 kernel_version='kernel_version',
-                kernel_filename='kernel_filename'
+                kernel_filename='kernel_filename',
             )
             file_handle.read.return_value = 'outfile="/boot/initrd-${kernel}"'
             assert self.boot_image.get_boot_names() == self.boot_names_type(
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version',
                 kernel_version='kernel_version',
-                kernel_filename='kernel_filename'
+                kernel_filename='kernel_filename',
             )
 
     @patch('kiwi.boot.image.base.Kernel')
     @patch.object(
-        BootImageBase,
-        '_get_boot_image_output_file_format_from_existing_file'
+        BootImageBase, '_get_boot_image_output_file_format_from_existing_file'
     )
     @patch.object(
-        BootImageBase,
-        '_get_boot_image_output_file_format_from_dracut_code'
+        BootImageBase, '_get_boot_image_output_file_format_from_dracut_code'
     )
     @patch('kiwi.boot.image.base.CommandCapabilities.has_option_in_help')
     @patch('kiwi.boot.image.base.Command.run')
@@ -235,11 +229,15 @@ class TestBootImageBase:
         mock_CommandCapabilities_has_option_in_help,
         mock_get_boot_image_output_file_format_from_dracut_code,
         mock_get_boot_image_output_file_format_from_existing_file,
-        mock_Kernel
+        mock_Kernel,
     ):
         mock_Kernel.return_value = self.kernel
-        mock_get_boot_image_output_file_format_from_existing_file.return_value = None
-        mock_get_boot_image_output_file_format_from_dracut_code.return_value = None
+        mock_get_boot_image_output_file_format_from_existing_file.return_value = (
+            None
+        )
+        mock_get_boot_image_output_file_format_from_dracut_code.return_value = (
+            None
+        )
         self.xml_state.get_initrd_system.return_value = 'dracut'
         mock_CommandCapabilities_has_option_in_help.return_value = True
         with open('../data/dracut_config') as config:
@@ -251,14 +249,17 @@ class TestBootImageBase:
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version',
                 kernel_version='kernel_version',
-                kernel_filename='kernel_filename'
+                kernel_filename='kernel_filename',
             )
             mock_MountManager.assert_called_once_with(
                 device='tmpfs', mountpoint='system-directory/var/tmp'
             )
             mock_CommandCapabilities_has_option_in_help.assert_called_once_with(
-                'dracut', '--printconfig', ['--help'],
-                root='system-directory', raise_on_error=False
+                'dracut',
+                '--printconfig',
+                ['--help'],
+                root='system-directory',
+                raise_on_error=False,
             )
             mock_Command_run.assert_called_once_with(
                 ['chroot', 'system-directory', 'dracut', '--printconfig']

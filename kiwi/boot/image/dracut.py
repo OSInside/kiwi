@@ -18,9 +18,7 @@
 import os
 import logging
 from contextlib import ExitStack
-from typing import (
-    List, Optional, Dict
-)
+from typing import List, Optional, Dict
 
 # project
 from kiwi.command import Command
@@ -39,6 +37,7 @@ class BootImageDracut(BootImageBase):
     """
     **Implements creation of dracut boot(initrd) images.**
     """
+
     @staticmethod
     def has_initrd_support() -> bool:
         """
@@ -71,8 +70,10 @@ class BootImageDracut(BootImageBase):
         self.available_drivers = self._get_drivers()
 
     def include_file(
-        self, filename: str, install_media: bool = False,
-        delete_after_include: bool = False
+        self,
+        filename: str,
+        install_media: bool = False,
+        delete_after_include: bool = False,
     ) -> None:
         """
         Include file to dracut boot image
@@ -160,7 +161,8 @@ class BootImageDracut(BootImageBase):
             )
         if config.get('modules'):
             modules = [
-                module for module in config['modules']
+                module
+                for module in config['modules']
                 if self._module_available(module)
             ]
             dracut_config.append(
@@ -180,7 +182,8 @@ class BootImageDracut(BootImageBase):
             )
         if config.get('drivers'):
             drivers = [
-                driver for driver in config['drivers']
+                driver
+                for driver in config['drivers']
                 if self._driver_available(driver)
             ]
             dracut_config.append(
@@ -202,9 +205,7 @@ class BootImageDracut(BootImageBase):
 
         * Setup machine_id(s) to be generic and rebuild by dracut on boot
         """
-        setup = SystemSetup(
-            self.xml_state, self.boot_root_directory
-        )
+        setup = SystemSetup(self.xml_state, self.boot_root_directory)
         setup.setup_machine_id()
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
@@ -230,80 +231,93 @@ class BootImageDracut(BootImageBase):
             kernel_info = Kernel(self.boot_root_directory)
             kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
             boot_names = self.get_boot_names()
-            uki_base_name = \
-                f'{boot_names.initrd_name}.efi'
-            uki_base_name = uki_base_name.replace(
-                'initrd-', 'vmlinuz-'
-            )
+            uki_base_name = f'{boot_names.initrd_name}.efi'
+            uki_base_name = uki_base_name.replace('initrd-', 'vmlinuz-')
             included_files = self.included_files
-            modules_args = [
-                '--modules', ' {0} '.format(' '.join(self.modules))
-            ] if self.modules else []
-            modules_args += [
-                '--add', ' {0} '.format(' '.join(self.add_modules))
-            ] if self.add_modules else []
-            modules_args += [
-                '--omit', ' {0} '.format(' '.join(self.omit_modules))
-            ] if self.omit_modules else []
-            drivers_arg = [
-                '--drivers', ' {0} '.format(' '.join(self.add_drivers))
-            ] if self.add_drivers else []
-            drivers_arg += [
-                '--omit-drivers', ' {0} '.format(' '.join(self.omit_drivers))
-            ] if self.omit_drivers else []
+            modules_args = (
+                ['--modules', ' {0} '.format(' '.join(self.modules))]
+                if self.modules
+                else []
+            )
+            modules_args += (
+                ['--add', ' {0} '.format(' '.join(self.add_modules))]
+                if self.add_modules
+                else []
+            )
+            modules_args += (
+                ['--omit', ' {0} '.format(' '.join(self.omit_modules))]
+                if self.omit_modules
+                else []
+            )
+            drivers_arg = (
+                ['--drivers', ' {0} '.format(' '.join(self.add_drivers))]
+                if self.add_drivers
+                else []
+            )
+            drivers_arg += (
+                ['--omit-drivers', ' {0} '.format(' '.join(self.omit_drivers))]
+                if self.omit_drivers
+                else []
+            )
 
-            options = self.dracut_options + modules_args + drivers_arg + included_files
+            options = (
+                self.dracut_options
+                + modules_args
+                + drivers_arg
+                + included_files
+            )
             if kernel_details:
                 with ExitStack() as stack:
                     device_mount = MountManager(
                         device='/dev',
-                        mountpoint=self.boot_root_directory + '/dev'
+                        mountpoint=self.boot_root_directory + '/dev',
                     )
                     stack.push(device_mount)
                     device_mount.bind_mount()
                     proc_mount = MountManager(
                         device='/proc',
-                        mountpoint=self.boot_root_directory + '/proc'
+                        mountpoint=self.boot_root_directory + '/proc',
                     )
                     stack.push(proc_mount)
                     proc_mount.bind_mount()
                     dracut_call = Command.run(
                         [
-                            'chroot', self.boot_root_directory,
+                            'chroot',
+                            self.boot_root_directory,
                             'dracut',
                             '--no-hostonly',
                             '--no-hostonly-cmdline',
                             '--force',
                             '--verbose',
                             '--reproducible',
-                            '--kver', kernel_details.version,
+                            '--kver',
+                            kernel_details.version,
                             '--uefi',
-                            '--kernel-cmdline', cmdline
-                        ] + options + [
-                            uki_base_name
-                        ],
-                        stderr_to_stdout=True
+                            '--kernel-cmdline',
+                            cmdline,
+                        ]
+                        + options
+                        + [uki_base_name],
+                        stderr_to_stdout=True,
                     )
             log.debug(dracut_call.output)
             Command.run(
                 [
                     'mv',
-                    os.sep.join(
-                        [self.boot_root_directory, uki_base_name]
-                    ),
-                    f'{self.target_dir}/kiwi.efi'
+                    os.sep.join([self.boot_root_directory, uki_base_name]),
+                    f'{self.target_dir}/kiwi.efi',
                 ]
             )
             for filename in self.delete_after_include_files:
                 os.unlink(f'{self.boot_root_directory}/{filename}')
-            return os.path.normpath(
-                os.sep.join([self.target_dir, 'kiwi.efi'])
-            )
+            return os.path.normpath(os.sep.join([self.target_dir, 'kiwi.efi']))
         return ''
 
     def create_initrd(
-        self, mbrid: Optional[SystemIdentifier] = None,
-        basename: Optional[str] = None, install_initrd: bool = False
+        self,
+        mbrid: Optional[SystemIdentifier] = None,
+        basename: Optional[str] = None,
+        install_initrd: bool = False,
     ) -> None:
         """
         Create kiwi .profile environment to be included in dracut initrd.
@@ -324,48 +338,64 @@ class BootImageDracut(BootImageBase):
             else:
                 dracut_initrd_basename = self.initrd_base_name
             included_files = self.included_files
-            modules_args = [
-                '--modules', ' {0} '.format(' '.join(self.modules))
-            ] if self.modules else []
-            modules_args += [
-                '--add', ' {0} '.format(' '.join(self.add_modules))
-            ] if self.add_modules else []
-            modules_args += [
-                '--omit', ' {0} '.format(' '.join(self.omit_modules))
-            ] if self.omit_modules else []
-            drivers_arg = [
-                '--drivers', ' {0} '.format(' '.join(self.add_drivers))
-            ] if self.add_drivers else []
-            drivers_arg += [
-                '--omit-drivers', ' {0} '.format(' '.join(self.omit_drivers))
-            ] if self.omit_drivers else []
-            options = self.dracut_options + modules_args + drivers_arg + included_files
+            modules_args = (
+                ['--modules', ' {0} '.format(' '.join(self.modules))]
+                if self.modules
+                else []
+            )
+            modules_args += (
+                ['--add', ' {0} '.format(' '.join(self.add_modules))]
+                if self.add_modules
+                else []
+            )
+            modules_args += (
+                ['--omit', ' {0} '.format(' '.join(self.omit_modules))]
+                if self.omit_modules
+                else []
+            )
+            drivers_arg = (
+                ['--drivers', ' {0} '.format(' '.join(self.add_drivers))]
+                if self.add_drivers
+                else []
+            )
+            drivers_arg += (
+                ['--omit-drivers', ' {0} '.format(' '.join(self.omit_drivers))]
+                if self.omit_drivers
+                else []
+            )
+            options = (
+                self.dracut_options
+                + modules_args
+                + drivers_arg
+                + included_files
+            )
             if kernel_details:
                 with ExitStack() as stack:
                     device_mount = MountManager(
                         device='/dev',
-                        mountpoint=self.boot_root_directory + '/dev'
+                        mountpoint=self.boot_root_directory + '/dev',
                     )
                     stack.push(device_mount)
                     device_mount.bind_mount()
                     proc_mount = MountManager(
                         device='/proc',
-                        mountpoint=self.boot_root_directory + '/proc'
+                        mountpoint=self.boot_root_directory + '/proc',
                     )
                     stack.push(proc_mount)
                     proc_mount.bind_mount()
                     dracut_call = Command.run(
                         [
-                            'chroot', self.boot_root_directory,
-                            'dracut', '--verbose',
+                            'chroot',
+                            self.boot_root_directory,
+                            'dracut',
+                            '--verbose',
                             '--reproducible',
                             '--no-hostonly',
-                            '--no-hostonly-cmdline'
-                        ] + options + [
-                            dracut_initrd_basename,
-                            kernel_details.version
-                        ],
-                        stderr_to_stdout=True
+                            '--no-hostonly-cmdline',
+                        ]
+                        + options
+                        + [dracut_initrd_basename, kernel_details.version],
+                        stderr_to_stdout=True,
                     )
 
             log.debug(dracut_call.output)
@@ -375,23 +405,24 @@ class BootImageDracut(BootImageBase):
                     os.sep.join(
                         [self.boot_root_directory, dracut_initrd_basename]
                     ),
-                    self.target_dir
+                    self.target_dir,
                 ]
             )
             self.initrd_filename = os.sep.join(
                 [self.target_dir, dracut_initrd_basename]
             )
-            Command.run(
-                ['chmod', '644', self.initrd_filename]
-            )
+            Command.run(['chmod', '644', self.initrd_filename])
             for filename in self.delete_after_include_files:
                 os.unlink(f'{self.boot_root_directory}/{filename}')
 
     def _get_modules(self) -> List[str]:
         cmd = Command.run(
             [
-                'chroot', self.boot_root_directory,
-                'dracut', '--list-modules', '--no-kernel'
+                'chroot',
+                self.boot_root_directory,
+                'dracut',
+                '--list-modules',
+                '--no-kernel',
             ]
         )
         return cmd.output.splitlines()
@@ -405,8 +436,10 @@ class BootImageDracut(BootImageBase):
 
             cmd = Command.run(
                 [
-                    'chroot', self.boot_root_directory,
-                    'cat', f'/lib/modules/{kernel_info.version}/modules.dep'
+                    'chroot',
+                    self.boot_root_directory,
+                    'cat',
+                    f'/lib/modules/{kernel_info.version}/modules.dep',
                 ]
             )
             drivers = [
@@ -437,6 +470,4 @@ class BootImageDracut(BootImageBase):
         profile = Profile(self.xml_state)
         defaults = Defaults()
         defaults.to_profile(profile)
-        profile.create(
-            Defaults.get_profile_file(self.boot_root_directory)
-        )
+        profile.create(Defaults.get_profile_file(self.boot_root_directory))

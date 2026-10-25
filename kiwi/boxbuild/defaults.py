@@ -19,18 +19,13 @@ import os
 import pathlib
 import subprocess
 from subprocess import Popen
-from typing import (
-    List, Optional
-)
+from typing import List, Optional
 
 # project
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import (
-    KiwiBoxVirtioFsError,
-    KiwiBoxTargetPathError
-)
+from kiwi.exceptions import KiwiBoxVirtioFsError, KiwiBoxTargetPathError
 
 VIRTIOFSD_PROCESS_LIST: List[Popen[bytes]] = []
 HOST_SSH_PORT_FORWARDED_TO_BOX = 10000
@@ -42,6 +37,7 @@ class BoxBuildDefaults:
 
     Provides static methods for default values and state information
     """
+
     box_ssh_port_forwarded_to_host = 10022
     result_log_name = 'result.log'
     result_exitcode_name = 'result.code'
@@ -96,11 +92,7 @@ class BoxBuildDefaults:
 
     @staticmethod
     def get_qemu_generic_setup() -> List[str]:
-        return [
-            '-nographic',
-            '-nodefaults',
-            '-snapshot'
-        ]
+        return ['-nographic', '-nodefaults', '-snapshot']
 
     @staticmethod
     def get_qemu_network_setup() -> List[str]:
@@ -108,7 +100,7 @@ class BoxBuildDefaults:
             '-nic',
             'user,model=virtio,hostfwd=tcp::{0}-:22'.format(
                 BoxBuildDefaults.box_ssh_port_forwarded_to_host
-            )
+            ),
         ]
 
     @staticmethod
@@ -138,7 +130,7 @@ class BoxBuildDefaults:
             '-device',
             'virtio-9p-pci,id=fs{0},fsdev=fsdev{0},mount_tag={1}'.format(
                 index, mount_tag
-            )
+            ),
         ]
 
     @staticmethod
@@ -148,9 +140,7 @@ class BoxBuildDefaults:
         virtiofsd_lookup_paths = {
             'PATH': '/usr/libexec:/usr/lib/virtiofsd:/usr/lib/qemu/virtiofsd'
         }
-        virtiofsd = Path.which(
-            'virtiofsd', virtiofsd_lookup_paths
-        )
+        virtiofsd = Path.which('virtiofsd', virtiofsd_lookup_paths)
         if not virtiofsd:
             raise KiwiBoxVirtioFsError(
                 'virtiofsd not found in: {0}'.format(virtiofsd_lookup_paths)
@@ -160,13 +150,17 @@ class BoxBuildDefaults:
                 [
                     virtiofsd,
                     '--socket-path=/tmp/vhostqemu_{0}'.format(index),
-                    '--shared-dir', os.path.abspath(path),
-                    '--sandbox', 'namespace',
-                    '--cache', 'always',
+                    '--shared-dir',
+                    os.path.abspath(path),
+                    '--sandbox',
+                    'namespace',
+                    '--cache',
+                    'always',
                     '--allow-direct-io',
                     '--posix-acl',
-                    '--xattr'
-                ], close_fds=True
+                    '--xattr',
+                ],
+                close_fds=True,
             )
         except Exception as issue:
             raise KiwiBoxVirtioFsError(
@@ -179,15 +173,18 @@ class BoxBuildDefaults:
             '-device',
             'vhost-user-fs-pci,queue-size=1024,chardev=char{0},tag={1}'.format(
                 index, mount_tag
-            )
+            ),
         ]
 
     @staticmethod
     def get_qemu_console_setup() -> List[str]:
         return [
-            '-device', 'virtio-serial',
-            '-chardev', 'stdio,id=virtiocon0',
-            '-device', 'virtconsole,chardev=virtiocon0'
+            '-device',
+            'virtio-serial',
+            '-chardev',
+            'stdio,id=virtiocon0',
+            '-device',
+            'virtconsole,chardev=virtiocon0',
         ]
 
     @staticmethod
@@ -198,7 +195,7 @@ class BoxBuildDefaults:
             '-drive',
             'file={0},if=virtio,driver=qcow2,cache=off,snapshot={1}'.format(
                 image_file, 'on' if snapshot else 'off'
-            )
+            ),
         ]
 
     @staticmethod

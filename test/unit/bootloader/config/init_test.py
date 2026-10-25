@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.exceptions import KiwiBootLoaderConfigSetupError
@@ -30,8 +28,10 @@ class TestBootLoaderConfig:
     def test_bootloader_config_systemd_boot(self, mock_systemd_boot):
         xml_state = Mock()
         create_boot_loader_config(
-            name='systemd_boot', xml_state=xml_state,
-            root_dir='root_dir', boot_dir='boot_dir'
+            name='systemd_boot',
+            xml_state=xml_state,
+            root_dir='root_dir',
+            boot_dir='boot_dir',
         )
         mock_systemd_boot.assert_called_once_with(
             xml_state, 'root_dir', 'boot_dir', None
@@ -42,8 +42,10 @@ class TestBootLoaderConfig:
     def test_bootloader_config_zipl(self, mock_FirmWare, mock_zipl):
         xml_state = Mock()
         create_boot_loader_config(
-            name='zipl', xml_state=xml_state,
-            root_dir='root_dir', boot_dir='boot_dir'
+            name='zipl',
+            xml_state=xml_state,
+            root_dir='root_dir',
+            boot_dir='boot_dir',
         )
         mock_zipl.assert_called_once_with(
             xml_state, 'root_dir', 'boot_dir', None
@@ -55,6 +57,4 @@ class TestBootLoaderConfig:
         create_boot_loader_config(
             name='custom', xml_state=xml_state, root_dir='root_dir'
         )
-        mock_custom.assert_called_once_with(
-            xml_state, 'root_dir', None, None
-        )
+        mock_custom.assert_called_once_with(xml_state, 'root_dir', None, None)

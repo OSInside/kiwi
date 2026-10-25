@@ -1,10 +1,6 @@
 import sys
-from unittest.mock import (
-    patch, call
-)
-from pytest import (
-    raises, fixture
-)
+from unittest.mock import patch, call
+from pytest import raises, fixture
 import logging
 
 from ..test_helper import argv_kiwi_tests
@@ -31,9 +27,16 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.get_global_args')
     @patch('kiwi.runtime_config.RuntimeConfig')
     def setup(
-        self, mock_runtime_config, mock_global_args, mock_command_args,
-        mock_load_command, mock_color,
-        mock_set_log_socket, mock_setlog, mock_setLogFlag, mock_setLogLevel
+        self,
+        mock_runtime_config,
+        mock_global_args,
+        mock_command_args,
+        mock_load_command,
+        mock_color,
+        mock_set_log_socket,
+        mock_setlog,
+        mock_setLogFlag,
+        mock_setLogLevel,
     ):
         Defaults.set_platform_name('x86_64')
         mock_global_args.return_value = {
@@ -45,25 +48,26 @@ class TestCliTask:
             '--color-output': True,
             '--profile': ['vmxFlavour'],
             '--setenv': ['SOURCE_DATE_EPOCH=42'],
-            '--type': None
+            '--type': None,
         }
         mock_command_args.return_value = {
             'system': True,
             'prepare': True,
             '--description': 'description',
-            '--root': 'directory'
+            '--root': 'directory',
         }
 
         self.task = CliTask()
 
         mock_load_command.assert_called_once_with()
         assert mock_command_args.call_args_list == [
-            call(raise_if_no_command=False), call()
+            call(raise_if_no_command=False),
+            call(),
         ]
         mock_global_args.assert_called_once_with()
         assert mock_setLogLevel.call_args_list == [
             call(logging.DEBUG),
-            call(logging.CRITICAL, except_for=['file', 'socket'])
+            call(logging.CRITICAL, except_for=['file', 'socket']),
         ]
         mock_setLogFlag.assert_called_once_with('run-scripts-in-screen')
         mock_setlog.assert_called_once_with('stdout')
@@ -80,12 +84,12 @@ class TestCliTask:
             '--color-output': True,
             '--profile': ['vmxFlavour'],
             '--setenv': [],
-            '--type': None
+            '--type': None,
         }
         self.task = CliTask()
         assert mock_setLogLevel.call_args_list == [
             call(logging.DEBUG),
-            call(logging.DEBUG, only_for=['file', 'socket'])
+            call(logging.DEBUG, only_for=['file', 'socket']),
         ]
 
     @patch('kiwi.logger.Logger.setLogLevel')
@@ -98,9 +102,17 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.get_global_args')
     @patch('kiwi.runtime_config.RuntimeConfig')
     def setup_method(
-        self, cls, mock_runtime_config, mock_global_args, mock_command_args,
-        mock_load_command, mock_color,
-        mock_set_log_socket, mock_setlog, mock_setLogFlag, mock_setLogLevel
+        self,
+        cls,
+        mock_runtime_config,
+        mock_global_args,
+        mock_command_args,
+        mock_load_command,
+        mock_color,
+        mock_set_log_socket,
+        mock_setlog,
+        mock_setLogFlag,
+        mock_setLogLevel,
     ):
         self.setup()
 
@@ -110,8 +122,12 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.get_global_args')
     @patch('kiwi.runtime_config.RuntimeConfig')
     def test_setup_custom_log_level(
-        self, mock_runtime_config, mock_global_args, mock_command_args,
-        mock_load_command, mock_setLogLevel
+        self,
+        mock_runtime_config,
+        mock_global_args,
+        mock_command_args,
+        mock_load_command,
+        mock_setLogLevel,
     ):
         Defaults.set_platform_name('x86_64')
         mock_global_args.return_value = {
@@ -121,7 +137,7 @@ class TestCliTask:
             '--debug-run-scripts-in-screen': None,
             '--color-output': None,
             '--loglevel': '10',
-            '--setenv': []
+            '--setenv': [],
         }
         self.task = CliTask()
         mock_setLogLevel.assert_called_once_with(10)
@@ -132,8 +148,12 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.get_global_args')
     @patch('kiwi.runtime_config.RuntimeConfig')
     def test_setup_custom_log_level_invalid(
-        self, mock_runtime_config, mock_global_args, mock_command_args,
-        mock_load_command, mock_setLogLevel
+        self,
+        mock_runtime_config,
+        mock_global_args,
+        mock_command_args,
+        mock_load_command,
+        mock_setLogLevel,
     ):
         Defaults.set_platform_name('x86_64')
         mock_global_args.return_value = {
@@ -143,7 +163,7 @@ class TestCliTask:
             '--debug-run-scripts-in-screen': None,
             '--color-output': None,
             '--loglevel': 'bogus',
-            '--setenv': []
+            '--setenv': [],
         }
         self.task = CliTask()
         mock_setLogLevel.assert_called_once_with(20)
@@ -152,12 +172,30 @@ class TestCliTask:
         assert self.task.eleventuple_token(
             'a,b,,d,e,f,{1;2;3},x y z,jammy,false,metalink'
         ) == [
-            'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'], 'x y z',
-            'jammy', False, 'metalink'
+            'a',
+            'b',
+            '',
+            'd',
+            'e',
+            'f',
+            ['1', '2', '3'],
+            'x y z',
+            'jammy',
+            False,
+            'metalink',
         ]
         assert self.task.eleventuple_token('a,b,,d,e,f,{1;2;3}') == [
-            'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'],
-            None, None, None, None
+            'a',
+            'b',
+            '',
+            'd',
+            'e',
+            'f',
+            ['1', '2', '3'],
+            None,
+            None,
+            None,
+            None,
         ]
 
     def test_attr_token(self):
@@ -173,8 +211,10 @@ class TestCliTask:
 
     def test_load_xml_description_buildservice(self):
         self.task.load_xml_description('../data/description.buildservice')
-        assert self.task.config_file == \
-            '../data/description.buildservice/appliance.kiwi'
+        assert (
+            self.task.config_file
+            == '../data/description.buildservice/appliance.kiwi'
+        )
 
     def test_load_xml_description_raises(self):
         with raises(KiwiConfigFileNotFound):

@@ -24,6 +24,7 @@ class BootLoaderTemplateGrub2:
     """
     **grub2 configuraton file templates**
     """
+
     def __init__(self):
         self.header = dedent('''
             # kiwi generated one time grub2 config file
@@ -251,9 +252,12 @@ class BootLoaderTemplateGrub2:
         ''').strip() + os.linesep
 
     def get_iso_template(
-        self, failsafe: bool = True,
-        has_graphics: bool = True, has_serial: bool = False,
-        checkiso: bool = False, has_btrfs_relative_path: bool = False
+        self,
+        failsafe: bool = True,
+        has_graphics: bool = True,
+        has_serial: bool = False,
+        checkiso: bool = False,
+        has_btrfs_relative_path: bool = False,
     ):
         """
         Bootloader configuration template for live ISO media
@@ -291,9 +295,12 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_multiboot_iso_template(
-        self, failsafe: bool = True,
-        has_graphics: bool = True, has_serial: bool = False,
-        checkiso: bool = False, has_btrfs_relative_path: bool = False
+        self,
+        failsafe: bool = True,
+        has_graphics: bool = True,
+        has_serial: bool = False,
+        checkiso: bool = False,
+        has_btrfs_relative_path: bool = False,
     ):
         """
         Bootloader configuration template for live ISO media with
@@ -332,9 +339,12 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_install_template(
-        self, failsafe: bool = True,
-        has_graphics: bool = True, has_serial: bool = False,
-        with_timeout: bool = True, has_btrfs_relative_path: bool = False
+        self,
+        failsafe: bool = True,
+        has_graphics: bool = True,
+        has_serial: bool = False,
+        with_timeout: bool = True,
+        has_btrfs_relative_path: bool = False,
     ):
         """
         Bootloader configuration template for install media
@@ -371,9 +381,12 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_multiboot_install_template(
-        self, failsafe: bool = True,
-        has_graphics: bool = True, has_serial: bool = False,
-        with_timeout: bool = True, has_btrfs_relative_path: bool = False
+        self,
+        failsafe: bool = True,
+        has_graphics: bool = True,
+        has_serial: bool = False,
+        with_timeout: bool = True,
+        has_btrfs_relative_path: bool = False,
     ):
         """
         Bootloader configuration template for install media with

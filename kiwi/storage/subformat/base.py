@@ -27,10 +27,7 @@ from kiwi.path import Path
 from kiwi.xml_state import XMLState
 from kiwi.system.result import Result
 
-from kiwi.exceptions import (
-    KiwiFormatSetupError,
-    KiwiResizeRawDiskError
-)
+from kiwi.exceptions import KiwiFormatSetupError, KiwiResizeRawDiskError
 
 log = logging.getLogger('kiwi')
 
@@ -45,9 +42,13 @@ class DiskFormatBase:
     :param string target_dir: target directory path name
     :param dict custom_args: custom format options dictionary
     """
+
     def __init__(
-        self, xml_state: XMLState, root_dir: str, target_dir: str,
-        custom_args: dict = None
+        self,
+        xml_state: XMLState,
+        root_dir: str,
+        target_dir: str,
+        custom_args: dict = None,
     ):
         self.xml_state = xml_state
         self.root_dir = root_dir
@@ -110,8 +111,10 @@ class DiskFormatBase:
                 return False
         Command.run(
             [
-                'qemu-img', 'resize', self.diskname,
-                '+{0}'.format(size_bytes) if append else format(size_bytes)
+                'qemu-img',
+                'resize',
+                self.diskname,
+                '+{0}'.format(size_bytes) if append else format(size_bytes),
             ]
         )
         return True
@@ -168,11 +171,12 @@ class DiskFormatBase:
                 )
         return ''.join(
             [
-                self.target_dir, '/',
+                self.target_dir,
+                '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
                 '-' + self.xml_state.get_image_version(),
-                '.' + format_name
+                '.' + format_name,
             ]
         )
 
@@ -193,12 +197,10 @@ class DiskFormatBase:
             compression = False
         result.add(
             key='disk_format_image',
-            filename=self.get_target_file_path_for_format(
-                self.image_format
-            ),
+            filename=self.get_target_file_path_for_format(self.image_format),
             use_for_bundle=True,
             compress=compression,
-            shasum=True
+            shasum=True,
         )
 
     def __exit__(self, exc_type, exc_value, traceback):

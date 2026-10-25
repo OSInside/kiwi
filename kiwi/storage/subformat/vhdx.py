@@ -26,6 +26,7 @@ class DiskFormatVhdx(DiskFormatBase):
     """
     **Create vhdx image format in dynamic subformat**
     """
+
     def post_init(self, custom_args: Dict) -> None:
         """
         vhdx disk format post initialization method
@@ -44,10 +45,7 @@ class DiskFormatVhdx(DiskFormatBase):
         Create vhdx dynamic disk format
         """
         Command.run(
-            [
-                'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', 'vhdx'
-            ] + self.options + [
-                self.get_target_file_path_for_format(self.image_format)
-            ]
+            ['qemu-img', 'convert', '-f', 'raw', self.diskname, '-O', 'vhdx']
+            + self.options
+            + [self.get_target_file_path_for_format(self.image_format)]
         )

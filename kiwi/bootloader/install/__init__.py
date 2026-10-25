@@ -18,14 +18,9 @@
 import importlib
 from typing import Dict
 from kiwi.xml_state import XMLState
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from abc import ABCMeta, abstractmethod
 
-from ...exceptions import (
-    KiwiBootLoaderInstallSetupError
-)
+from ...exceptions import KiwiBootLoaderInstallSetupError
 
 
 class BootLoaderInstall(metaclass=ABCMeta):
@@ -37,24 +32,29 @@ class BootLoaderInstall(metaclass=ABCMeta):
     :param object device_provider: instance of :class:`DeviceProvider`
     :param dict custom_args: custom arguments dictionary
     """
+
     @abstractmethod
     def __init__(self) -> None:
         return None  # pragma: no cover
 
     @staticmethod
     def new(
-        name: str, xml_state: XMLState, root_dir: str, device_provider: object,
-        custom_args: Dict = None
+        name: str,
+        xml_state: XMLState,
+        root_dir: str,
+        device_provider: object,
+        custom_args: Dict = None,
     ):
         name_map = {
             'grub2': {'grub2': 'BootLoaderInstallGrub2'},
             'grub2_s390x_emu': {'grub2': 'BootLoaderInstallGrub2'},
             'systemd_boot': {'systemd_boot': 'BootLoaderInstallSystemdBoot'},
-            'zipl': {'zipl': 'BootLoaderInstallZipl'}
+            'zipl': {'zipl': 'BootLoaderInstallZipl'},
         }
         try:
-            (bootloader_namespace, bootloader_name) = \
-                list(name_map[name].items())[0]
+            bootloader_namespace, bootloader_name = list(
+                name_map[name].items()
+            )[0]
             bootloader_install = importlib.import_module(
                 'kiwi.bootloader.install.{}'.format(bootloader_namespace)
             )

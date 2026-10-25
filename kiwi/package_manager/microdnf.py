@@ -17,10 +17,7 @@
 #
 import re
 import logging
-from typing import (
-    List, Dict
-)
-
+from typing import List, Dict
 
 # project
 from kiwi.command import CommandCallT
@@ -48,6 +45,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         microdnf command environment from repository runtime
         configuration
     """
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -75,9 +73,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
 
         :param str name: dnf group name
         """
-        log.warning(
-            'Group(%s) handling not yet supported for microdnf', name
-        )
+        log.warning('Group(%s) handling not yet supported for microdnf', name)
 
     def request_product(self, name: str) -> None:
         """
@@ -117,40 +113,42 @@ class PackageManagerMicroDnf(PackageManagerBase):
                     ]
                 }
         """
-        microdnf_module_command = [
-            'microdnf'
-        ] + ['--refresh'] + self.dnf_args + [
-            '--installroot', self.root_dir,
-            f'--releasever={self.release_version}',
-            '--noplugins',
-            '--setopt=cachedir={0}'.format(
-                self.repository.shared_dnf_dir['cache-dir']
-            ),
-            '--setopt=reposdir={0}'.format(
-                self.repository.shared_dnf_dir['reposd-dir']
-            ),
-            '--setopt=varsdir={0}'.format(
-                self.repository.shared_dnf_dir['vars-dir']
-            )
-        ] + self.custom_args + [
-            'module'
-        ]
+        microdnf_module_command = (
+            ['microdnf']
+            + ['--refresh']
+            + self.dnf_args
+            + [
+                '--installroot',
+                self.root_dir,
+                f'--releasever={self.release_version}',
+                '--noplugins',
+                '--setopt=cachedir={0}'.format(
+                    self.repository.shared_dnf_dir['cache-dir']
+                ),
+                '--setopt=reposdir={0}'.format(
+                    self.repository.shared_dnf_dir['reposd-dir']
+                ),
+                '--setopt=varsdir={0}'.format(
+                    self.repository.shared_dnf_dir['vars-dir']
+                ),
+            ]
+            + self.custom_args
+            + ['module']
+        )
         for disable_module in collection_modules['disable']:
             Command.run(
-                microdnf_module_command + [
-                    'disable', disable_module
-                ], self.command_env
+                microdnf_module_command + ['disable', disable_module],
+                self.command_env,
             )
         for enable_module in collection_modules['enable']:
             Command.run(
-                microdnf_module_command + [
-                    'reset', enable_module.split(':')[0]
-                ], self.command_env
+                microdnf_module_command
+                + ['reset', enable_module.split(':')[0]],
+                self.command_env,
             )
             Command.run(
-                microdnf_module_command + [
-                    'enable', enable_module
-                ], self.command_env
+                microdnf_module_command + ['enable', enable_module],
+                self.command_env,
             )
 
     def process_install_requests_bootstrap(
@@ -166,26 +164,31 @@ class PackageManagerMicroDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        microdnf_command = [
-            'microdnf'
-        ] + ['--refresh'] + self.dnf_args + [
-            '--installroot', self.root_dir,
-            f'--releasever={self.release_version}',
-            '--noplugins',
-            '--setopt=cachedir={0}'.format(
-                self.repository.shared_dnf_dir['cache-dir']
-            ),
-            '--setopt=reposdir={0}'.format(
-                self.repository.shared_dnf_dir['reposd-dir']
-            ),
-            '--setopt=varsdir={0}'.format(
-                self.repository.shared_dnf_dir['vars-dir']
-            )
-        ] + self.custom_args + ['install'] + self.package_requests
-        self.cleanup_requests()
-        return Command.call(
-            microdnf_command, self.command_env
+        microdnf_command = (
+            ['microdnf']
+            + ['--refresh']
+            + self.dnf_args
+            + [
+                '--installroot',
+                self.root_dir,
+                f'--releasever={self.release_version}',
+                '--noplugins',
+                '--setopt=cachedir={0}'.format(
+                    self.repository.shared_dnf_dir['cache-dir']
+                ),
+                '--setopt=reposdir={0}'.format(
+                    self.repository.shared_dnf_dir['reposd-dir']
+                ),
+                '--setopt=varsdir={0}'.format(
+                    self.repository.shared_dnf_dir['vars-dir']
+                ),
+            ]
+            + self.custom_args
+            + ['install']
+            + self.package_requests
         )
+        self.cleanup_requests()
+        return Command.call(microdnf_command, self.command_env)
 
     def process_install_requests(self) -> CommandCallT:
         """
@@ -203,20 +206,18 @@ class PackageManagerMicroDnf(PackageManagerBase):
             # hard required by another package, it will break the transaction.
             for package in self.exclude_requests:
                 exclude_args.append('--exclude=' + package)
-        chroot_dnf_args = Path.move_to_root(
-            self.root_dir, self.dnf_args
+        chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
+        microdnf_command = (
+            ['chroot', self.root_dir, 'microdnf']
+            + chroot_dnf_args
+            + [f'--releasever={self.release_version}']
+            + self.custom_args
+            + exclude_args
+            + ['install']
+            + self.package_requests
         )
-        microdnf_command = [
-            'chroot', self.root_dir, 'microdnf'
-        ] + chroot_dnf_args + [
-            f'--releasever={self.release_version}'
-        ] + self.custom_args + exclude_args + [
-            'install'
-        ] + self.package_requests
         self.cleanup_requests()
-        return Command.call(
-            microdnf_command, self.command_env
-        )
+        return Command.call(microdnf_command, self.command_env)
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
@@ -248,24 +249,23 @@ class PackageManagerMicroDnf(PackageManagerBase):
             self.cleanup_requests()
             delete_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
-                [
-                    'chroot', self.root_dir, 'rpm', '-e'
-                ] + delete_options + delete_items,
-                self.command_env
+                ['chroot', self.root_dir, 'rpm', '-e']
+                + delete_options
+                + delete_items,
+                self.command_env,
             )
         else:
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
-            dnf_command = [
-                'chroot', self.root_dir, 'microdnf'
-            ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + self.custom_args + [
-                'remove'
-            ] + self.package_requests
-            self.cleanup_requests()
-            return Command.call(
-                dnf_command, self.command_env
+            dnf_command = (
+                ['chroot', self.root_dir, 'microdnf']
+                + chroot_dnf_args
+                + [f'--releasever={self.release_version}']
+                + self.custom_args
+                + ['remove']
+                + self.package_requests
             )
+            self.cleanup_requests()
+            return Command.call(dnf_command, self.command_env)
 
     def update(self) -> CommandCallT:
         """
@@ -277,14 +277,12 @@ class PackageManagerMicroDnf(PackageManagerBase):
         """
         chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
         return Command.call(
-            [
-                'chroot', self.root_dir, 'microdnf'
-            ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}'
-            ] + self.custom_args + [
-                'upgrade'
-            ],
-            self.command_env
+            ['chroot', self.root_dir, 'microdnf']
+            + chroot_dnf_args
+            + [f'--releasever={self.release_version}']
+            + self.custom_args
+            + ['upgrade'],
+            self.command_env,
         )
 
     def process_only_required(self) -> None:
@@ -322,7 +320,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         return bool(
             re.match(
                 '.*Installing  : {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 
@@ -342,7 +340,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         return bool(
             re.match(
                 '.*Removing: {0}.*'.format(re.escape(package_name)),
-                package_manager_output
+                package_manager_output,
             )
         )
 

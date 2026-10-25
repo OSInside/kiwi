@@ -9,7 +9,7 @@ from kiwi.xml_state import XMLState
 from kiwi.exceptions import (
     KiwiConfigFileFormatNotSupported,
     KiwiDescriptionInvalid,
-    KiwiIncludFileNotFoundError
+    KiwiIncludFileNotFoundError,
 )
 
 
@@ -44,9 +44,7 @@ class TestMarkupBase:
     def test_apply_xslt_stylesheets_broken_XML(self):
         markup = MarkupBase('../data/example_include_config.xml')
         with raises(KiwiDescriptionInvalid):
-            markup.apply_xslt_stylesheets(
-                '../data/example_include_config.xml'
-            )
+            markup.apply_xslt_stylesheets('../data/example_include_config.xml')
 
     def test_apply_xslt_stylesheets_deprecated(self):
         markup = MarkupBase('../data/example_deprecated_schema.xml')
@@ -74,5 +72,7 @@ class TestMarkupBase:
         description = XMLDescription(xml_description)
         xml_data = description.load()
         state = XMLState(xml_data)
-        assert state.xml_data.get_repository()[0].get_source().get_path() == \
-            'http://example.com'
+        assert (
+            state.xml_data.get_repository()[0].get_source().get_path()
+            == 'http://example.com'
+        )

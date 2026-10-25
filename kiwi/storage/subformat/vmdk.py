@@ -23,18 +23,17 @@ from kiwi.system.result import Result
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 from kiwi.storage.subformat.template.vmware_settings import (
-    VmwareSettingsTemplate
+    VmwareSettingsTemplate,
 )
 
-from kiwi.exceptions import (
-    KiwiTemplateError
-)
+from kiwi.exceptions import KiwiTemplateError
 
 
 class DiskFormatVmdk(DiskFormatBase):
     """
     Create vmdk disk format
     """
+
     def post_init(self, custom_args: Dict) -> None:
         """
         vmdk disk format post initialization method
@@ -51,12 +50,9 @@ class DiskFormatVmdk(DiskFormatBase):
         Create vmdk disk format and machine settings file
         """
         Command.run(
-            [
-                'qemu-img', 'convert', '-f', 'raw', self.diskname,
-                '-O', 'vmdk'
-            ] + self.options + [
-                self.get_target_file_path_for_format('vmdk')
-            ]
+            ['qemu-img', 'convert', '-f', 'raw', self.diskname, '-O', 'vmdk']
+            + self.options
+            + [self.get_target_file_path_for_format('vmdk')]
         )
         self._create_vmware_settings_file()
 
@@ -76,16 +72,14 @@ class DiskFormatVmdk(DiskFormatBase):
             filename=self.get_target_file_path_for_format('vmdk'),
             use_for_bundle=True,
             compress=compression,
-            shasum=True
+            shasum=True,
         )
         result.add(
             key='disk_format_machine_settings',
-            filename=self.get_target_file_path_for_format(
-                'vmx'
-            ),
+            filename=self.get_target_file_path_for_format('vmx'),
             use_for_bundle=True,
             compress=False,
-            shasum=False
+            shasum=False,
         )
 
     def _create_vmware_settings_file(self):
@@ -95,13 +89,13 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         displayname = self.xml_state.xml_data.get_displayname()
         template_record = {
-            'display_name':
-                displayname or self.xml_state.xml_data.get_name(),
-            'vmdk_file':
-                os.path.basename(self.get_target_file_path_for_format('vmdk')),
+            'display_name': displayname or self.xml_state.xml_data.get_name(),
+            'vmdk_file': os.path.basename(
+                self.get_target_file_path_for_format('vmdk')
+            ),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
-            'disk_id': '0'
+            'disk_id': '0',
         }
 
         # Basic setup
@@ -160,7 +154,7 @@ class DiskFormatVmdk(DiskFormatBase):
             network_setup,
             iso_setup,
             disk_controller,
-            iso_controller
+            iso_controller,
         )
         try:
             settings_file = self.get_target_file_path_for_format('vmx')
@@ -169,6 +163,4 @@ class DiskFormatVmdk(DiskFormatBase):
                 for custom_entry in custom_entries:
                     config.write(custom_entry + os.linesep)
         except Exception as e:
-            raise KiwiTemplateError(
-                f'{type(e).__name__}: {format(e)}'
-            )
+            raise KiwiTemplateError(f'{type(e).__name__}: {format(e)}')

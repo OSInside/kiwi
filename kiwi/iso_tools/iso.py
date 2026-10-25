@@ -25,6 +25,7 @@ class Iso:
     """
     **Implements helper methods around the creation of ISO filesystems**
     """
+
     def __init__(self, source_dir: str) -> None:
         """
         Create an instance of Iso helpers
@@ -48,17 +49,13 @@ class Iso:
             Command.run(
                 [
                     'tagmedia',
-                    '--digest', 'sha256',
+                    '--digest',
+                    'sha256',
                     '--check',
-                    '--pad', '0',
-                    isofile
+                    '--pad',
+                    '0',
+                    isofile,
                 ]
             )
         elif media_tagger == 'isomd5sum':
-            Command.run(
-                [
-                    'implantisomd5',
-                    '--force',
-                    isofile
-                ]
-            )
+            Command.run(['implantisomd5', '--force', isofile])

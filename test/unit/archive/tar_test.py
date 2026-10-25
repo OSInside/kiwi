@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, call
-)
+from unittest.mock import patch, call
 from pytest import raises
 import unittest.mock as mock
 
@@ -43,22 +41,35 @@ class TestArchiveTar:
         assert self.archive.create('source-dir') == 'foo.tar'
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir',
-                '--xattrs', '--xattrs-include=*',
-                '-c', '-f', 'foo.tar', 'bar', 'foo'
+                'tar',
+                '-C',
+                'source-dir',
+                '--xattrs',
+                '--xattrs-include=*',
+                '-c',
+                '-f',
+                'foo.tar',
+                'bar',
+                'foo',
             ]
         )
 
     @patch('kiwi.archive.tar.Command.run')
     def test_append_files(self, mock_command):
-        assert self.archive.append_files('source-dir', ['foo', 'bar']) \
-            == 'foo.tar'
+        assert (
+            self.archive.append_files('source-dir', ['foo', 'bar']) == 'foo.tar'
+        )
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir', '-r',
+                'tar',
+                '-C',
+                'source-dir',
+                '-r',
                 '--file=' + self.archive.filename,
-                '--xattrs', '--xattrs-include=*',
-                'foo', 'bar'
+                '--xattrs',
+                '--xattrs-include=*',
+                'foo',
+                'bar',
             ]
         )
 
@@ -66,15 +77,26 @@ class TestArchiveTar:
     @patch('os.listdir')
     def test_create_with_options(self, mock_os_dir, mock_command):
         mock_os_dir.return_value = ['foo', 'bar']
-        assert self.archive.create('source-dir', options=[
-            '--fake-option', 'fake_arg'
-        ]) == 'foo.tar'
+        assert (
+            self.archive.create(
+                'source-dir', options=['--fake-option', 'fake_arg']
+            )
+            == 'foo.tar'
+        )
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir',
-                '--fake-option', 'fake_arg',
-                '--xattrs', '--xattrs-include=*',
-                '-c', '-f', 'foo.tar', 'bar', 'foo'
+                'tar',
+                '-C',
+                'source-dir',
+                '--fake-option',
+                'fake_arg',
+                '--xattrs',
+                '--xattrs-include=*',
+                '-c',
+                '-f',
+                'foo.tar',
+                'bar',
+                'foo',
             ]
         )
 
@@ -90,11 +112,8 @@ class TestArchiveTar:
         calls = [
             call(['tar', '--version']),
             call(
-                [
-                    'tar', '-C', 'source-dir',
-                    '-c', '-f', 'foo.tar', 'bar', 'foo'
-                ]
-            )
+                ['tar', '-C', 'source-dir', '-c', '-f', 'foo.tar', 'bar', 'foo']
+            ),
         ]
         mock_command.assert_has_calls(calls)
         assert mock_command.call_count == 2
@@ -110,11 +129,21 @@ class TestArchiveTar:
             call(['tar', '--version']),
             call(
                 [
-                    'tar', '-C', 'source-dir', '--xattrs', '--xattrs-include=*',
-                    '-c', '-f', 'foo.tar',
-                    '--exclude', './foo', '--exclude', './bar', '.'
+                    'tar',
+                    '-C',
+                    'source-dir',
+                    '--xattrs',
+                    '--xattrs-include=*',
+                    '-c',
+                    '-f',
+                    'foo.tar',
+                    '--exclude',
+                    './foo',
+                    '--exclude',
+                    './bar',
+                    '.',
                 ]
-            )
+            ),
         ]
         mock_command.assert_has_calls(calls)
         assert mock_command.call_count == 2
@@ -126,13 +155,27 @@ class TestArchiveTar:
         assert self.archive.create_xz_compressed('source-dir') == 'foo.tar.xz'
         mock_command.assert_called_once_with(
             [
-                'bash', '-c',
-                ' '.join([
-                    'tar', '-C', 'source-dir', '--xattrs',
-                    '--xattrs-include=*', '-c', '--to-stdout',
-                    'bar', 'foo', '|', 'xz', '-f', '--threads=0',
-                    '>', 'foo.tar.xz'
-                ])
+                'bash',
+                '-c',
+                ' '.join(
+                    [
+                        'tar',
+                        '-C',
+                        'source-dir',
+                        '--xattrs',
+                        '--xattrs-include=*',
+                        '-c',
+                        '--to-stdout',
+                        'bar',
+                        'foo',
+                        '|',
+                        'xz',
+                        '-f',
+                        '--threads=0',
+                        '>',
+                        'foo.tar.xz',
+                    ]
+                ),
             ]
         )
 
@@ -142,18 +185,36 @@ class TestArchiveTar:
         self, mock_os_dir, mock_command
     ):
         mock_os_dir.return_value = ['foo', 'bar']
-        assert self.archive.create_xz_compressed(
-            'source-dir', xz_options=['-a', '-b']
-        ) == 'foo.tar.xz'
+        assert (
+            self.archive.create_xz_compressed(
+                'source-dir', xz_options=['-a', '-b']
+            )
+            == 'foo.tar.xz'
+        )
         mock_command.assert_called_once_with(
             [
-                'bash', '-c',
-                ' '.join([
-                    'tar', '-C', 'source-dir', '--xattrs',
-                    '--xattrs-include=*', '-c', '--to-stdout',
-                    'bar', 'foo', '|', 'xz', '-f', '-a', '-b',
-                    '>', 'foo.tar.xz'
-                ])
+                'bash',
+                '-c',
+                ' '.join(
+                    [
+                        'tar',
+                        '-C',
+                        'source-dir',
+                        '--xattrs',
+                        '--xattrs-include=*',
+                        '-c',
+                        '--to-stdout',
+                        'bar',
+                        'foo',
+                        '|',
+                        'xz',
+                        '-f',
+                        '-a',
+                        '-b',
+                        '>',
+                        'foo.tar.xz',
+                    ]
+                ),
             ]
         )
 
@@ -161,12 +222,21 @@ class TestArchiveTar:
     @patch('os.listdir')
     def test_create_gnu_gzip_compressed(self, mock_os_dir, mock_command):
         mock_os_dir.return_value = ['foo', 'bar']
-        assert self.archive.create_gnu_gzip_compressed('source-dir') \
+        assert (
+            self.archive.create_gnu_gzip_compressed('source-dir')
             == 'foo.tar.gz'
+        )
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir',
-                '--format=gnu', '-cSz', '-f', 'foo.tar.gz', 'bar', 'foo'
+                'tar',
+                '-C',
+                'source-dir',
+                '--format=gnu',
+                '-cSz',
+                '-f',
+                'foo.tar.gz',
+                'bar',
+                'foo',
             ]
         )
 
@@ -177,7 +247,14 @@ class TestArchiveTar:
         assert self.archive.create('source-dir', ['foo']) == 'foo.tar'
         mock_command.assert_called_once_with(
             [
-                'tar', '-C', 'source-dir', '--xattrs', '--xattrs-include=*',
-                '-c', '-f', 'foo.tar', 'bar'
+                'tar',
+                '-C',
+                'source-dir',
+                '--xattrs',
+                '--xattrs-include=*',
+                '-c',
+                '-f',
+                'foo.tar',
+                'bar',
             ]
         )

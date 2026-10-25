@@ -1,20 +1,13 @@
 import logging
-from unittest.mock import (
-    patch, mock_open, call, Mock
-)
-from pytest import (
-    fixture, raises
-)
+from unittest.mock import patch, mock_open, call, Mock
+from pytest import fixture, raises
 
 import unittest.mock as mock
 
 from kiwi.defaults import Defaults
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.disk import Disk
-from kiwi.exceptions import (
-    KiwiCustomPartitionConflictError,
-    KiwiCommandError
-)
+from kiwi.exceptions import KiwiCustomPartitionConflictError, KiwiCommandError
 
 
 class TestDisk:
@@ -26,8 +19,10 @@ class TestDisk:
     @patch('kiwi.storage.disk.Partitioner.new')
     @patch('kiwi.storage.disk.RuntimeConfig')
     def setup(
-        self, mock_RuntimeConfig, mock_partitioner,
-        mock_get_discoverable_partition_ids
+        self,
+        mock_RuntimeConfig,
+        mock_partitioner,
+        mock_get_discoverable_partition_ids,
     ):
         Defaults.set_platform_name('x86_64')
         runtime_config = Mock()
@@ -38,17 +33,11 @@ class TestDisk:
 
         self.partitioner = mock.Mock()
         self.partitioner.create = mock.Mock()
-        self.partitioner.get_id = mock.Mock(
-            return_value=1
-        )
+        self.partitioner.get_id = mock.Mock(return_value=1)
         mock_partitioner.return_value = self.partitioner
         self.storage_provider = mock.Mock()
-        self.storage_provider.is_loop = mock.Mock(
-            return_value=True
-        )
-        self.storage_provider.get_device = mock.Mock(
-            return_value='/dev/loop0'
-        )
+        self.storage_provider.is_loop = mock.Mock(return_value=True)
+        self.storage_provider.get_device = mock.Mock(return_value='/dev/loop0')
         self.disk = Disk('gpt', self.storage_provider)
 
     @patch('kiwi.storage.disk.Partitioner.new')
@@ -70,8 +59,10 @@ class TestDisk:
     @patch('kiwi.storage.disk.Partitioner.new')
     @patch('kiwi.storage.disk.RuntimeConfig')
     def test_dps_codes_not_applied_by_default(
-        self, mock_RuntimeConfig, mock_Partitioner,
-        mock_get_discoverable_partition_ids
+        self,
+        mock_RuntimeConfig,
+        mock_Partitioner,
+        mock_get_discoverable_partition_ids,
     ):
         mock_Partitioner.return_value = self.partitioner
         self.partitioner.reset_mock()
@@ -88,14 +79,18 @@ class TestDisk:
     @patch('kiwi.storage.disk.Partitioner.new')
     @patch('kiwi.storage.disk.RuntimeConfig')
     def test_dps_codes_applied_on_request(
-        self, mock_RuntimeConfig, mock_Partitioner,
-        mock_get_discoverable_partition_ids
+        self,
+        mock_RuntimeConfig,
+        mock_Partitioner,
+        mock_get_discoverable_partition_ids,
     ):
         mock_Partitioner.return_value = self.partitioner
         self.partitioner.reset_mock()
         mock_get_discoverable_partition_ids.return_value = {
-            'root': 'root-uuid', 'xbootldr': 'boot-uuid',
-            'esp': 'esp-uuid', 'swap': 'swap-uuid'
+            'root': 'root-uuid',
+            'xbootldr': 'boot-uuid',
+            'esp': 'esp-uuid',
+            'swap': 'swap-uuid',
         }
         disk = Disk('gpt', self.storage_provider, apply_dps_codes=True)
         disk.create_root_partition('100')
@@ -106,7 +101,7 @@ class TestDisk:
             call('1', 'root-uuid'),
             call('1', 'boot-uuid'),
             call('1', 'esp-uuid'),
-            call('1', 'swap-uuid')
+            call('1', 'swap-uuid'),
         ]
         # Applying the DPS type code resets the partition hex code, so
         # the hex code is set again afterwards. It has to be set on the
@@ -114,20 +109,23 @@ class TestDisk:
         # image description because that one is optional
         assert self.partitioner.set_flag.call_args_list == [
             call('1', 't.efi'),
-            call('1', 't.swap')
+            call('1', 't.swap'),
         ]
 
     @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Partitioner.new')
     @patch('kiwi.storage.disk.RuntimeConfig')
     def test_dps_codes_applied_to_root_variants_and_custom_partitions(
-        self, mock_RuntimeConfig, mock_Partitioner,
-        mock_get_discoverable_partition_ids
+        self,
+        mock_RuntimeConfig,
+        mock_Partitioner,
+        mock_get_discoverable_partition_ids,
     ):
         mock_Partitioner.return_value = self.partitioner
         self.partitioner.reset_mock()
         mock_get_discoverable_partition_ids.return_value = {
-            'root': 'root-uuid', 'var': 'var-uuid'
+            'root': 'root-uuid',
+            'var': 'var-uuid',
         }
         disk = Disk('gpt', self.storage_provider, apply_dps_codes=True)
         disk.create_root_lvm_partition('100')
@@ -145,7 +143,7 @@ class TestDisk:
                     partition_id=None,
                     mountpoint='/var',
                     filesystem='ext3',
-                    label='var'
+                    label='var',
                 ),
                 'data': ptable_entry_type(
                     mbsize='100',
@@ -155,20 +153,19 @@ class TestDisk:
                     partition_id=None,
                     mountpoint='/data',
                     filesystem='ext3',
-                    label='data'
-                )
+                    label='data',
+                ),
             }
         )
         assert self.partitioner.set_uuid.call_args_list == [
             call('1', 'root-uuid'),
             call('1', 'root-uuid'),
             call('1', 'root-uuid'),
-            call('1', 'var-uuid')
+            call('1', 'var-uuid'),
         ]
         assert call('1', 't.lvm') in self.partitioner.set_flag.call_args_list
         assert call('1', 't.raid') in self.partitioner.set_flag.call_args_list
-        assert call('1', 't.linux') in \
-            self.partitioner.set_flag.call_args_list
+        assert call('1', 't.linux') in self.partitioner.set_flag.call_args_list
 
     def test_create_root_partition(self):
         self.disk.create_root_partition('100', 1)
@@ -177,14 +174,14 @@ class TestDisk:
                 name='p.lxrootclone1',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxroot',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
-            )
+                partition_id=None,
+            ),
         ]
 
     def test_create_root_which_is_also_boot_partition(self):
@@ -193,7 +190,7 @@ class TestDisk:
             name='p.lxroot',
             mbsize='200',
             type_name='t.linux',
-            partition_id=None
+            partition_id=None,
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
@@ -205,7 +202,7 @@ class TestDisk:
             name='p.lxroot',
             mbsize='200',
             type_name='t.linux',
-            partition_id=None
+            partition_id=None,
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_RWPart'] == 1
@@ -217,14 +214,14 @@ class TestDisk:
                 name='p.lxrootclone1',
                 mbsize='100',
                 type_name='t.lvm',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxlvm',
                 mbsize='100',
                 type_name='t.lvm',
-                partition_id=None
-            )
+                partition_id=None,
+            ),
         ]
         assert self.disk.public_partition_id_map['kiwi_rootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
@@ -236,14 +233,14 @@ class TestDisk:
                 name='p.lxrootclone1',
                 mbsize='100',
                 type_name='t.raid',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxraid',
                 mbsize='100',
                 type_name='t.raid',
-                partition_id=None
-            )
+                partition_id=None,
+            ),
         ]
         assert self.disk.public_partition_id_map['kiwi_rootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
@@ -256,14 +253,14 @@ class TestDisk:
                 name='p.lxrootclone1',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxreadonly',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
-            )
+                partition_id=None,
+            ),
         ]
         assert self.disk.public_partition_id_map['kiwi_rootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_ROPart'] == 1
@@ -275,14 +272,14 @@ class TestDisk:
                 name='p.lxbootclone1',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxboot',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
-            )
+                partition_id=None,
+            ),
         ]
         assert self.disk.public_partition_id_map['kiwi_bootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
@@ -334,7 +331,7 @@ class TestDisk:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
-                label='var'
+                label='var',
             )
         }
         self.disk.create_custom_partitions(table_entries)
@@ -343,20 +340,20 @@ class TestDisk:
                 name='p.lxvarclone1',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxvarclone2',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
+                partition_id=None,
             ),
             call(
                 name='p.lxvar',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=None
-            )
+                partition_id=None,
+            ),
         ]
         assert self.disk.public_partition_id_map['kiwi_varPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_varPartClone2'] == 1
@@ -373,7 +370,7 @@ class TestDisk:
                 partition_id=42,
                 mountpoint='/var',
                 filesystem='ext3',
-                label='var'
+                label='var',
             )
         }
         self.disk.create_custom_partitions(table_entries)
@@ -382,20 +379,20 @@ class TestDisk:
                 name='p.lxvarclone43',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=43
+                partition_id=43,
             ),
             call(
                 name='p.lxvarclone44',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=44
+                partition_id=44,
             ),
             call(
                 name='p.lxvar',
                 mbsize='100',
                 type_name='t.linux',
-                partition_id=42
-            )
+                partition_id=42,
+            ),
         ]
         assert self.disk.public_partition_id_map['kiwi_varPartClone43'] == 1
         assert self.disk.public_partition_id_map['kiwi_varPartClone44'] == 1
@@ -411,7 +408,7 @@ class TestDisk:
                 partition_id=None,
                 mountpoint='/',
                 filesystem='ext3',
-                label='root'
+                label='root',
             )
         }
         with raises(KiwiCustomPartitionConflictError):
@@ -442,9 +439,7 @@ class TestDisk:
     @patch('kiwi.storage.disk.Command.run')
     def test_device_map_linux_dev_sda(self, mock_command):
         self.storage_provider.is_loop.return_value = False
-        self.storage_provider.get_device = mock.Mock(
-            return_value='/dev/sda'
-        )
+        self.storage_provider.get_device = mock.Mock(return_value='/dev/sda')
         self.disk.create_efi_partition('100')
         self.disk.map_partitions()
         assert self.disk.partition_map == {'efi': '/dev/sda1'}
@@ -453,9 +448,7 @@ class TestDisk:
     @patch('kiwi.storage.disk.Command.run')
     def test_device_map_linux_dev_c0d0(self, mock_command):
         self.storage_provider.is_loop.return_value = False
-        self.storage_provider.get_device = mock.Mock(
-            return_value='/dev/c0d0'
-        )
+        self.storage_provider.get_device = mock.Mock(return_value='/dev/c0d0')
         self.disk.create_efi_partition('100')
         self.disk.map_partitions()
         assert self.disk.partition_map == {'efi': '/dev/c0d0p1'}
@@ -498,9 +491,7 @@ class TestDisk:
         with patch('builtins.open', m_open, create=True):
             self.disk.wipe()
 
-        m_open.return_value.write.assert_called_once_with(
-            'y\n\nw\nq\n'
-        )
+        m_open.return_value.write.assert_called_once_with('y\n\nw\nq\n')
         with self._caplog.at_level(logging.DEBUG):
             mock_command.assert_called_once_with(
                 ['bash', '-c', 'cat tempfile | fdasd -f /dev/loop0']
@@ -509,9 +500,7 @@ class TestDisk:
     @patch('kiwi.storage.disk.Command.run')
     def test_map_partitions_loop_partx(self, mock_command):
         self.disk.map_partitions()
-        mock_command.assert_called_once_with(
-            ['partx', '--add', '/dev/loop0']
-        )
+        mock_command.assert_called_once_with(['partx', '--add', '/dev/loop0'])
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
@@ -527,9 +516,7 @@ class TestDisk:
     def test_map_partitions_other(self, mock_command):
         self.storage_provider.is_loop.return_value = False
         self.disk.map_partitions()
-        mock_command.assert_called_once_with(
-            ['partprobe', '/dev/loop0']
-        )
+        mock_command.assert_called_once_with(['partprobe', '/dev/loop0'])
 
     @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Command.run')
@@ -583,7 +570,7 @@ class TestDisk:
             disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         assert mock_command.call_args_list == [
             call(['dmsetup', 'remove', '/dev/mapper/loop0p1']),
-            call(['kpartx', '-d', '/dev/loop0'])
+            call(['kpartx', '-d', '/dev/loop0']),
         ]
 
     def test_get_public_partition_id_map(self):
@@ -602,12 +589,12 @@ class TestDisk:
         self.partitioner.set_start_sector.assert_called_once_with(4096)
 
     def test_parse_size(self):
-        (size, _) = self.disk._parse_size('100')
+        size, _ = self.disk._parse_size('100')
         assert size == '100'
-        (size, clone_size) = self.disk._parse_size('all_free')
+        size, clone_size = self.disk._parse_size('all_free')
         assert size == 'all_free'
         assert clone_size == 'all_free'
-        (size, clone_size) = self.disk._parse_size('clone:100:all_free')
+        size, clone_size = self.disk._parse_size('clone:100:all_free')
         assert size == '100'
         assert clone_size == 'all_free'
 
@@ -617,8 +604,12 @@ class TestDisk:
         with open('../data/systemd-id128.out') as ids:
             command.output = ids.read()
         mock_Command_run.return_value = command
-        assert self.disk.get_discoverable_partition_ids()['root'] == \
-            '4f68bce3e8cd4db196e7fbcaf984b709'
+        assert (
+            self.disk.get_discoverable_partition_ids()['root']
+            == '4f68bce3e8cd4db196e7fbcaf984b709'
+        )
         mock_Command_run.side_effect = KiwiCommandError('issue')
-        assert self.disk.get_discoverable_partition_ids().get('root') == \
-            '4f68bce3e8cd4db196e7fbcaf984b709'
+        assert (
+            self.disk.get_discoverable_partition_ids().get('root')
+            == '4f68bce3e8cd4db196e7fbcaf984b709'
+        )

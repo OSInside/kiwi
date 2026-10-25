@@ -26,6 +26,7 @@ class FileSystemEroFs(FileSystemBase):
     """
     **Implements creation of erofs filesystem**
     """
+
     def create_on_file(
         self, filename, label: str = None, exclude: List[str] = None
     ):
@@ -58,9 +59,8 @@ class FileSystemEroFs(FileSystemBase):
             call_args.append(label)
 
         Command.run(
-            [
-                'mkfs.erofs'
-            ] + call_args + exclude_options + [
-                self.filename, self.root_dir
-            ]
+            ['mkfs.erofs']
+            + call_args
+            + exclude_options
+            + [self.filename, self.root_dir]
         )

@@ -34,10 +34,7 @@ from kiwi.utils.os_release import OsRelease
 from kiwi.utils.sparse import SparseFile
 
 from kiwi.system.kernel import Kernel
-from kiwi.exceptions import (
-    KiwiTemplateError,
-    KiwiBootLoaderTargetError
-)
+from kiwi.exceptions import KiwiTemplateError, KiwiBootLoaderTargetError
 
 import kiwi.defaults as defaults
 
@@ -81,7 +78,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             boot_options.get('efi_device'),
             boot_options.get('system_volumes'),
             boot_options.get('system_root_volume'),
-            boot_options.get('system_partitions')
+            boot_options.get('system_partitions'),
         )
         dracut_setup = self.xml_state.get_dracut_config('setup')
         self._run_bootctl(self.root_mount.mountpoint)
@@ -91,15 +88,14 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                 log.info('Creating UKI EFI binary')
                 Command.run(
                     [
-                        'mv', boot_image.create_uki(self.cmdline),
-                        f'{self.root_mount.mountpoint}/boot/efi/EFI/Linux/'
+                        'mv',
+                        boot_image.create_uki(self.cmdline),
+                        f'{self.root_mount.mountpoint}/boot/efi/EFI/Linux/',
                     ]
                 )
         else:
             log.info('Creating loader entry')
-            self.set_loader_entry(
-                self.root_mount.mountpoint, self.target.disk
-            )
+            self.set_loader_entry(self.root_mount.mountpoint, self.target.disk)
 
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
@@ -117,7 +113,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         BootLoaderSystemdBoot._write_config_file(
             BootLoaderTemplateSystemdBoot().get_entry_template(),
             root_dir + f'/boot/efi/loader/entries/{default_entry}',
-            self._get_template_parameters(default_entry)
+            self._get_template_parameters(default_entry),
         )
 
     def _create_embedded_fat_efi_image(self, path: str):
@@ -126,13 +122,11 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         Installs systemd-boot required EFI layout into the image
         """
         fat_image_mbsize = int(
-            self.xml_state.build_type
-                .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
+            self.xml_state.build_type.get_efifatimagesize()
+            or defaults.EFI_FAT_IMAGE_SIZE
         )
         SparseFile.create(path, f'{fat_image_mbsize}M')
-        Command.run(
-            ['sgdisk', '-n', ':1.0', '-t', '1:EF00', path]
-        )
+        Command.run(['sgdisk', '-n', ':1.0', '-t', '1:EF00', path])
         with LoopDevice(path) as loop_provider:
             loop_provider.create(overwrite=False)
             with Disk('gpt', loop_provider) as disk:
@@ -146,22 +140,19 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                 with ExitStack() as stack:
                     efi_mount = MountManager(
                         device=disk.partition_map['efi'],
-                        mountpoint=f'{self.root_dir}/boot/efi'
+                        mountpoint=f'{self.root_dir}/boot/efi',
                     )
                     stack.push(efi_mount)
                     device_mount = MountManager(
-                        device='/dev',
-                        mountpoint=f'{self.root_dir}/dev'
+                        device='/dev', mountpoint=f'{self.root_dir}/dev'
                     )
                     stack.push(device_mount)
                     proc_mount = MountManager(
-                        device='/proc',
-                        mountpoint=f'{self.root_dir}/proc'
+                        device='/proc', mountpoint=f'{self.root_dir}/proc'
                     )
                     stack.push(proc_mount)
                     sys_mount = MountManager(
-                        device='/sys',
-                        mountpoint=f'{self.root_dir}/sys'
+                        device='/sys', mountpoint=f'{self.root_dir}/sys'
                     )
                     stack.push(sys_mount)
                     efi_mount.mount()
@@ -174,9 +165,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                     ['dd', f'if={disk.partition_map["efi"]}', f'of={path}.img']
                 )
 
-        Command.run(
-            ['mv', f'{path}.img', path]
-        )
+        Command.run(['mv', f'{path}.img', path])
 
     def _run_bootctl(self, root_dir: str) -> None:
         """
@@ -187,10 +176,14 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         ).get_boot_names()
         Command.run(
             [
-                'chroot', root_dir, 'bootctl', 'install',
+                'chroot',
+                root_dir,
+                'bootctl',
+                'install',
                 '--esp-path=/boot/efi',
                 '--no-variables',
-                '--entry-token', 'os-id'
+                '--entry-token',
+                'os-id',
             ]
         )
         self._write_kernel_cmdline_file(root_dir)
@@ -202,13 +195,11 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             os_dir = f'{root_dir}/boot/efi/os'
             Path.create(entry_dir)
             Path.create(os_dir)
-            self.custom_args['kernel'] = \
+            self.custom_args['kernel'] = (
                 f'os/{os.path.basename(kernel_info.kernel_filename)}'
-            self.custom_args['initrd'] = \
-                f'os/{kernel_info.initrd_name}'
-            Command.run(
-                ['cp', kernel_info.kernel_filename, os_dir]
             )
+            self.custom_args['initrd'] = f'os/{kernel_info.initrd_name}'
+            Command.run(['cp', kernel_info.kernel_filename, os_dir])
             Command.run(
                 ['cp', f'{root_dir}/boot/{kernel_info.initrd_name}', os_dir]
             )
@@ -217,7 +208,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         BootLoaderSystemdBoot._write_config_file(
             BootLoaderTemplateSystemdBoot().get_loader_template(),
             root_dir + '/boot/efi/loader/loader.conf',
-            self._get_template_parameters()
+            self._get_template_parameters(),
         )
 
     def _get_template_parameters(
@@ -230,7 +221,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             'boot_timeout': self.timeout,
             'bootpath': self.get_boot_path(),
             'title': self.get_menu_entry_title(),
-            'default_entry': default_entry
+            'default_entry': default_entry,
         }
 
     @staticmethod

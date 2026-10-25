@@ -26,6 +26,7 @@ class FileSystemXfs(FileSystemBase):
     """
     **Implements creation of xfs filesystem**
     """
+
     # Minimize speculative preallocation when a sparse data sync is requested.
     #
     # rsync --sparse only seeks forward across a sequence of null bytes, it
@@ -36,8 +37,11 @@ class FileSystemXfs(FileSystemBase):
     sparse_install_mount_options = ['allocsize=4k']
 
     def create_on_device(
-        self, label: str = None, size: int = 0,
-        unit: str = defaults.UNIT.kb, uuid: str = None
+        self,
+        label: str = None,
+        size: int = 0,
+        unit: str = defaults.UNIT.kb,
+        uuid: str = None,
     ):
         """
         Create xfs filesystem on block device
@@ -67,13 +71,12 @@ class FileSystemXfs(FileSystemBase):
                     self._fs_size(
                         size=self._map_size(
                             size, from_unit=unit, to_unit=defaults.UNIT.kb
-                        ), unit=defaults.UNIT.kb
+                        ),
+                        unit=defaults.UNIT.kb,
                     )
                 )
             )
-        Command.run(
-            ['mkfs.xfs', '-f'] + call_args + [device]
-        )
+        Command.run(['mkfs.xfs', '-f'] + call_args + [device])
         # Materialize log on disk.  Recent mkfs.xfs versions (v 5.5+) do not
         # write zeros into the log, but FALLOC_FL_ZERO_RANGE that space.
         # This leads to sparse holes in the underlying image file.  Image
@@ -85,18 +88,12 @@ class FileSystemXfs(FileSystemBase):
         # and ultimately gives up ("XFS (nvme0n1p1): log mount/recovery
         # failed: error -117").  Jumping to cycle count 2 forces real,
         # non-zero writes throughout the log and sidesteps the problem.
-        Command.run(
-            ['xfs_db', '-x', '-c', 'logformat -c 2', device]
-        )
+        Command.run(['xfs_db', '-x', '-c', 'logformat -c 2', device])
 
     def set_uuid(self):
         """
         Create new random filesystem UUID
         """
         device = self.device_provider.get_device()
-        Command.run(
-            ['xfs_repair', '-L', device]
-        )
-        Command.run(
-            ['xfs_admin', '-U', 'generate', device]
-        )
+        Command.run(['xfs_repair', '-L', device])
+        Command.run(['xfs_admin', '-U', 'generate', device])

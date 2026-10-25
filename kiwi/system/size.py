@@ -29,6 +29,7 @@ class SystemSize:
 
     :param str source_dir: source directory path name
     """
+
     def __init__(self, source_dir: str):
         self.source_dir = source_dir
 
@@ -54,8 +55,9 @@ class SystemSize:
             if requested_filesystem.startswith('ext'):
                 size *= 1.5
                 file_count = self.accumulate_files()
-                inode_mbytes = \
+                inode_mbytes = (
                     file_count * Defaults.get_default_inode_size() / 1048576
+                )
                 size += 2 * inode_mbytes
             elif requested_filesystem == 'btrfs':
                 size *= 1.5
@@ -77,19 +79,15 @@ class SystemSize:
         exclude_options: List[str] = []
         for nodev in Defaults.get_exclude_list_for_non_physical_devices():
             exclude_options.append('--exclude')
-            exclude_options.append(
-                os.sep.join([self.source_dir, nodev])
-            )
+            exclude_options.append(os.sep.join([self.source_dir, nodev]))
         if exclude:
             for item in exclude:
                 exclude_options.append('--exclude')
                 exclude_options.append(item)
         du_call = Command.run(
-            [
-                'du', '-s', '--apparent-size', '--block-size', '1'
-            ] + exclude_options + [
-                self.source_dir
-            ]
+            ['du', '-s', '--apparent-size', '--block-size', '1']
+            + exclude_options
+            + [self.source_dir]
         )
         return int(int(du_call.output.split('\t')[0]) / 1048576)
 
@@ -101,12 +99,6 @@ class SystemSize:
 
         :rtype: int
         """
-        bash_comand = [
-            'find', self.source_dir, '|', 'wc', '-l'
-        ]
-        wc_call = Command.run(
-            [
-                'bash', '-c', ' '.join(bash_comand)
-            ]
-        )
+        bash_comand = ['find', self.source_dir, '|', 'wc', '-l']
+        wc_call = Command.run(['bash', '-c', ' '.join(bash_comand)])
         return int(wc_call.output.rstrip('\n'))

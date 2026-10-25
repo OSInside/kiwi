@@ -1,6 +1,4 @@
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.storage.mapped_device import MappedDevice
@@ -14,9 +12,7 @@ class TestMappedDevice:
         mock_path.return_value = True
         self.device_provider = Mock()
         self.device_provider.is_loop = Mock()
-        self.device = MappedDevice(
-            '/dev/foo', self.device_provider
-        )
+        self.device = MappedDevice('/dev/foo', self.device_provider)
 
     @patch('os.path.exists')
     def setup_method(self, cls, mock_path):

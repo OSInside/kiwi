@@ -1,7 +1,5 @@
 from pytest import fixture
-from unittest.mock import (
-    patch, call, mock_open
-)
+from unittest.mock import patch, call, mock_open
 import unittest.mock as mock
 
 from kiwi.repository.dnf4 import RepositoryDnf4
@@ -27,25 +25,30 @@ class TestRepositoryDnf4:
 
         with patch('builtins.open', create=True):
             self.repo = RepositoryDnf4(
-                root_bind, [
-                    'exclude_docs', '_install_langs%en_US:de_DE',
-                    '_target_arch%x86_64'
-                ]
+                root_bind,
+                [
+                    'exclude_docs',
+                    '_install_langs%en_US:de_DE',
+                    '_target_arch%x86_64',
+                ],
             )
 
         assert runtime_dnf_config.__setitem__.call_args_list == [
-            call('main', {
-                'cachedir': '/shared-dir/dnf/cache',
-                'reposdir': '/shared-dir/dnf/repos',
-                'varsdir': '/shared-dir/dnf/vars',
-                'pluginconfpath': '/shared-dir/dnf/pluginconf',
-                'keepcache': '1',
-                'debuglevel': '2',
-                'best': '1',
-                'obsoletes': '1',
-                'plugins': '1',
-                'gpgcheck': '0'
-            })
+            call(
+                'main',
+                {
+                    'cachedir': '/shared-dir/dnf/cache',
+                    'reposdir': '/shared-dir/dnf/repos',
+                    'varsdir': '/shared-dir/dnf/vars',
+                    'pluginconfpath': '/shared-dir/dnf/pluginconf',
+                    'keepcache': '1',
+                    'debuglevel': '2',
+                    'best': '1',
+                    'obsoletes': '1',
+                    'plugins': '1',
+                    'gpgcheck': '0',
+                },
+            )
         ]
 
     @patch('kiwi.repository.dnf4.Temporary.unmanaged_file')
@@ -84,8 +87,10 @@ class TestRepositoryDnf4:
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
         assert self.repo.command_env['http_proxy'] == 'http://proxy:3128'
-        assert self.repo.runtime_dnf_config['main']['proxy'] == \
-            'http://dnf-proxy:3128'
+        assert (
+            self.repo.runtime_dnf_config['main']['proxy']
+            == 'http://dnf-proxy:3128'
+        )
 
     @patch('kiwi.repository.dnf4.ConfigParser')
     def test_use_default_location(self, mock_config):
@@ -96,25 +101,28 @@ class TestRepositoryDnf4:
             self.repo.use_default_location()
 
         assert runtime_dnf_config.__setitem__.call_args_list == [
-            call('main', {
-                'cachedir': '../data/var/cache/dnf',
-                'reposdir': '../data/etc/yum.repos.d',
-                'varsdir': '../data/etc/dnf/vars',
-                'pluginconfpath': '../data/etc/dnf/plugins',
-                'keepcache': '1',
-                'debuglevel': '2',
-                'best': '1',
-                'obsoletes': '1',
-                'plugins': '1',
-                'gpgcheck': '0'
-            })
+            call(
+                'main',
+                {
+                    'cachedir': '../data/var/cache/dnf',
+                    'reposdir': '../data/etc/yum.repos.d',
+                    'varsdir': '../data/etc/dnf/vars',
+                    'pluginconfpath': '../data/etc/dnf/plugins',
+                    'keepcache': '1',
+                    'debuglevel': '2',
+                    'best': '1',
+                    'obsoletes': '1',
+                    'plugins': '1',
+                    'gpgcheck': '0',
+                },
+            )
         ]
 
     def test_runtime_config(self):
-        assert self.repo.runtime_config()['dnf_args'] == \
-            self.repo.dnf_args
-        assert self.repo.runtime_config()['command_env'] == \
-            self.repo.command_env
+        assert self.repo.runtime_config()['dnf_args'] == self.repo.dnf_args
+        assert (
+            self.repo.runtime_config()['command_env'] == self.repo.command_env
+        )
 
     @patch('kiwi.repository.dnf4.ConfigParser')
     @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
@@ -123,8 +131,13 @@ class TestRepositoryDnf4:
     @patch('os.path.isdir')
     @patch('kiwi.repository.dnf4.Path')
     def test_add_repo(
-        self, mock_Path, mock_os_path_isdir, mock_Command_run, mock_exists,
-        mock_buildservice, mock_config
+        self,
+        mock_Path,
+        mock_os_path_isdir,
+        mock_Command_run,
+        mock_exists,
+        mock_buildservice,
+        mock_config,
     ):
         mock_os_path_isdir.return_value = False
         repo_config = mock.Mock()
@@ -134,8 +147,11 @@ class TestRepositoryDnf4:
 
         with patch('builtins.open', create=True) as mock_open:
             self.repo.add_repo(
-                'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
-                customization_script='custom_script'
+                'foo',
+                'kiwi_iso_mount/uri',
+                'rpm-md',
+                42,
+                customization_script='custom_script',
             )
 
             repo_config.add_section.assert_called_once_with('foo')
@@ -151,8 +167,10 @@ class TestRepositoryDnf4:
             )
             mock_Command_run.assert_called_once_with(
                 [
-                    'bash', '--norc', 'custom_script',
-                    '/shared-dir/dnf/repos/foo.repo'
+                    'bash',
+                    '--norc',
+                    'custom_script',
+                    '/shared-dir/dnf/repos/foo.repo',
                 ]
             )
             mock_Path.create.assert_called_once_with('/shared-dir/dnf/repos')
@@ -170,7 +188,7 @@ class TestRepositoryDnf4:
                 call('bar', 'name', 'bar'),
                 call('bar', 'metalink', 'https://metalink'),
                 call('bar', 'repo_gpgcheck', '0'),
-                call('bar', 'gpgcheck', '0')
+                call('bar', 'gpgcheck', '0'),
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/bar.repo', 'w'
@@ -198,7 +216,7 @@ class TestRepositoryDnf4:
                 call('foo', 'priority', '42'),
                 call('foo', 'repo_gpgcheck', '0'),
                 call('foo', 'gpgcheck', '0'),
-                call('foo', 'module_hotfixes', '1')
+                call('foo', 'module_hotfixes', '1'),
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/foo.repo', 'w'
@@ -217,7 +235,7 @@ class TestRepositoryDnf4:
         self.repo.setup_package_database_configuration()
         assert mock_RpmDataBase.call_args_list == [
             call('../data', 'macros.kiwi-image-config'),
-            call('../data')
+            call('../data'),
         ]
         rpmdb.set_macro_from_string.assert_called_once_with(
             '_install_langs%en_US:de_DE'
@@ -227,9 +245,13 @@ class TestRepositoryDnf4:
         mock_Path_create.assert_called_once_with('../data/var/lib')
         mock_Command_run.assert_called_once_with(
             [
-                'ln', '-s', '--no-target-directory',
-                '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
-            ], raise_on_error=False
+                'ln',
+                '-s',
+                '--no-target-directory',
+                '../../usr/lib/sysimage/rpm',
+                '../data/var/lib/rpm',
+            ],
+            raise_on_error=False,
         )
 
     @patch('kiwi.repository.dnf4.RpmDataBase')
@@ -245,7 +267,7 @@ class TestRepositoryDnf4:
         self.repo.setup_package_database_configuration()
         assert mock_RpmDataBase.call_args_list == [
             call('../data', 'macros.kiwi-image-config'),
-            call('../data')
+            call('../data'),
         ]
         rpmdb.set_macro_from_string.assert_called_once_with(
             '_install_langs%en_US:de_DE'
@@ -255,9 +277,13 @@ class TestRepositoryDnf4:
         mock_Path_create.assert_called_once_with('../data/var/lib')
         mock_Command_run.assert_called_once_with(
             [
-                'ln', '-s', '--no-target-directory',
-                '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
-            ], raise_on_error=False
+                'ln',
+                '-s',
+                '--no-target-directory',
+                '../../usr/lib/sysimage/rpm',
+                '../data/var/lib/rpm',
+            ],
+            raise_on_error=False,
         )
 
     @patch('kiwi.repository.dnf4.ConfigParser')
@@ -274,8 +300,12 @@ class TestRepositoryDnf4:
 
         with patch('builtins.open', create=True) as mock_open:
             self.repo.add_repo(
-                'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
-                repo_gpgcheck=False, pkg_gpgcheck=True
+                'foo',
+                'kiwi_iso_mount/uri',
+                'rpm-md',
+                42,
+                repo_gpgcheck=False,
+                pkg_gpgcheck=True,
             )
 
             repo_config.add_section.assert_called_once_with('foo')
@@ -284,7 +314,7 @@ class TestRepositoryDnf4:
                 call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
                 call('foo', 'priority', '42'),
                 call('foo', 'repo_gpgcheck', '0'),
-                call('foo', 'gpgcheck', '1')
+                call('foo', 'gpgcheck', '1'),
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/foo.repo', 'w'
@@ -298,50 +328,36 @@ class TestRepositoryDnf4:
         self.repo.import_trusted_keys(signing_keys)
         assert rpmdb.import_signing_key_to_image.call_args_list == [
             call('key-file-a.asc'),
-            call('key-file-b.asc')
+            call('key-file-b.asc'),
         ]
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
         self.repo.delete_repo('foo')
-        mock_wipe.assert_called_once_with(
-            '/shared-dir/dnf/repos/foo.repo'
-        )
+        mock_wipe.assert_called_once_with('/shared-dir/dnf/repos/foo.repo')
 
     @patch('kiwi.path.Path.wipe')
     @patch('os.walk')
     def test_cleanup_unused_repos(self, mock_walk, mock_path):
-        mock_walk.return_value = [
-            ('/foo', ('bar', 'baz'), ('spam', 'eggs'))
-        ]
+        mock_walk.return_value = [('/foo', ('bar', 'baz'), ('spam', 'eggs'))]
         self.repo.repo_names = ['eggs']
         self.repo.cleanup_unused_repos()
-        mock_path.assert_called_once_with(
-            '/shared-dir/dnf/repos/spam'
-        )
+        mock_path.assert_called_once_with('/shared-dir/dnf/repos/spam')
 
     @patch('kiwi.path.Path.wipe')
     @patch('kiwi.path.Path.create')
     def test_delete_all_repos(self, mock_create, mock_wipe):
         self.repo.delete_all_repos()
-        mock_wipe.assert_called_once_with(
-            '/shared-dir/dnf/repos'
-        )
-        mock_create.assert_called_once_with(
-            '/shared-dir/dnf/repos'
-        )
+        mock_wipe.assert_called_once_with('/shared-dir/dnf/repos')
+        mock_create.assert_called_once_with('/shared-dir/dnf/repos')
 
     @patch('kiwi.path.Path.wipe')
     @patch('kiwi.repository.dnf4.glob.iglob')
     def test_delete_repo_cache(self, mock_glob, mock_wipe):
         mock_glob.return_value = ['foo_cache']
         self.repo.delete_repo_cache('foo')
-        mock_glob.assert_called_once_with(
-            '/shared-dir/dnf/cache/foo*'
-        )
-        mock_wipe.assert_called_once_with(
-            'foo_cache'
-        )
+        mock_glob.assert_called_once_with('/shared-dir/dnf/cache/foo*')
+        mock_wipe.assert_called_once_with('foo_cache')
 
     @patch('os.path.isfile')
     @patch('os.unlink')

@@ -26,14 +26,12 @@ from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.system.result import Result
-from kiwi.storage.subformat.template.ova_compose import (
-    OvaComposeTemplate
-)
+from kiwi.storage.subformat.template.ova_compose import OvaComposeTemplate
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
     KiwiCommandNotFound,
-    KiwiTemplateError
+    KiwiTemplateError,
 )
 
 
@@ -41,6 +39,7 @@ class DiskFormatOva(DiskFormatBase):
     """
     **Create ova disk format, based on vmdk**
     """
+
     def post_init(self, custom_args: dict) -> None:
         """
         vmdk disk format post initialization method
@@ -57,12 +56,8 @@ class DiskFormatOva(DiskFormatBase):
             raise KiwiFormatSetupError(f'Unsupported ovftype {ovftype}')
         self.image_format = 'ova'
         # ensure streamOptimized format is enabled
-        custom_args.update(
-            {'subformat=streamOptimized': None}
-        )
-        self.firmware = FirmWare(
-            self.xml_state
-        )
+        custom_args.update({'subformat=streamOptimized': None})
+        self.firmware = FirmWare(self.xml_state)
         self.vmdk = DiskFormatVmdk(
             self.xml_state, self.root_dir, self.target_dir, custom_args
         )
@@ -81,9 +76,7 @@ class DiskFormatOva(DiskFormatBase):
                 Building OVA images requires the ova-compose tool which
                 is usually provided by the open-vmdk package.
             ''')
-            raise KiwiCommandNotFound(
-                tool_not_found_message
-            )
+            raise KiwiCommandNotFound(tool_not_found_message)
 
         # Create the vmdk disk image and vmx config
         self.vmdk.create_image_format()
@@ -99,9 +92,12 @@ class DiskFormatOva(DiskFormatBase):
         Command.run(
             [
                 ova_compose,
-                '--input-file', compose_meta,
-                '--output-file', ova,
-                '--format', 'ova'
+                '--input-file',
+                compose_meta,
+                '--output-file',
+                ova,
+                '--format',
+                'ova',
             ]
         )
 
@@ -115,10 +111,8 @@ class DiskFormatOva(DiskFormatBase):
             key='disk_format_image',
             filename=self.get_target_file_path_for_format('ova'),
             use_for_bundle=True,
-            compress=self.runtime_config.get_bundle_compression(
-                default=False
-            ),
-            shasum=True
+            compress=self.runtime_config.get_bundle_compression(default=False),
+            shasum=True,
         )
 
     def _create_ova_compose_meta_file(self) -> None:
@@ -131,17 +125,17 @@ class DiskFormatOva(DiskFormatBase):
         displayname = self.xml_state.xml_data.get_displayname()
         efi_mode = self.firmware.efi_mode()
         template_record = {
-            'display_name':
-                displayname or self.xml_state.xml_data.get_name(),
-            'vmdk_file':
-                os.path.basename(self.get_target_file_path_for_format('vmdk')),
+            'display_name': displayname or self.xml_state.xml_data.get_name(),
+            'vmdk_file': os.path.basename(
+                self.get_target_file_path_for_format('vmdk')
+            ),
             'virtual_hardware_version': '9',
             'guest_os': 'suse-64',
             'disk_id': '0',
             'memory_size': 4096,
             'number_of_cpus': 2,
             'firmware': 'efi' if efi_mode else 'bios',
-            'secure_boot': 'true' if efi_mode == 'uefi' else 'false'
+            'secure_boot': 'true' if efi_mode == 'uefi' else 'false',
         }
 
         # Basic setup - extract memory, guest OS, and CPU configuration
@@ -186,7 +180,7 @@ class DiskFormatOva(DiskFormatBase):
                 network_setup[network_entry.get_interface() or '0'] = {
                     'driver': network_entry.get_driver(),
                     'connection_type': network_entry.get_mode(),
-                    'mac': network_entry.get_mac() or 'generated'
+                    'mac': network_entry.get_mac() or 'generated',
                 }
 
         # Build settings template and write settings file
@@ -198,13 +192,11 @@ class DiskFormatOva(DiskFormatBase):
             disk_controller=disk_controller,
             iso_controller=iso_controller,
             disk_id=disk_id,
-            iso_id=iso_id
+            iso_id=iso_id,
         )
         try:
             settings_file = self.get_target_file_path_for_format('meta')
             with open(settings_file, 'w') as config:
                 config.write(settings_template.substitute(template_record))
         except Exception as issue:
-            raise KiwiTemplateError(
-                f'{type(issue).__name__}: {format(issue)}'
-            )
+            raise KiwiTemplateError(f'{type(issue).__name__}: {format(issue)}')

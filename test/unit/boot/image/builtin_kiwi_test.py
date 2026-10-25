@@ -1,7 +1,5 @@
 import sys
-from unittest.mock import (
-    patch, call, Mock, MagicMock
-)
+from unittest.mock import patch, call, Mock, MagicMock
 from pytest import raises
 
 import kiwi
@@ -21,27 +19,20 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
     def setup(self, mock_boot_path, mock_exists, mock_Temporary):
-        mock_Temporary.return_value.new_dir.return_value.name = \
+        mock_Temporary.return_value.new_dir.return_value.name = (
             'boot-root-directory'
+        )
         mock_boot_path.return_value = '../data'
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         description = XMLDescription('../data/example_config.xml')
-        self.xml_state = XMLState(
-            description.load()
-        )
+        self.xml_state = XMLState(description.load())
         self.setup = Mock()
         self.profile = Mock()
         self.profile.dot_profile = dict()
-        kiwi.boot.image.builtin_kiwi.SystemSetup = Mock(
-            return_value=self.setup
-        )
-        kiwi.boot.image.builtin_kiwi.Profile = Mock(
-            return_value=self.profile
-        )
-        self.boot_image = BootImageKiwi(
-            self.xml_state, 'some-target-dir'
-        )
+        kiwi.boot.image.builtin_kiwi.SystemSetup = Mock(return_value=self.setup)
+        kiwi.boot.image.builtin_kiwi.Profile = Mock(return_value=self.profile)
+        self.boot_image = BootImageKiwi(self.xml_state, 'some-target-dir')
 
     @patch('kiwi.boot.image.builtin_kiwi.Temporary')
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
@@ -59,12 +50,11 @@ class TestBootImageKiwi:
     def test_prepare(self, mock_SystemPrepare, mock_Temporary, mock_boot_path):
         system_prepare = Mock()
         manager = MagicMock()
-        system_prepare.setup_repositories = Mock(
-            return_value=manager
-        )
+        system_prepare.setup_repositories = Mock(return_value=manager)
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
-        mock_Temporary.return_value.new_dir.return_value.name = \
+        mock_Temporary.return_value.new_dir.return_value.name = (
             'boot-root-directory'
+        )
         mock_boot_path.return_value = '../data'
         self.boot_image.prepare()
         system_prepare.setup_repositories.assert_called_once_with(
@@ -97,8 +87,9 @@ class TestBootImageKiwi:
     def test_prepare_no_boot_description_found(
         self, mock_Temporary, mock_os_path
     ):
-        mock_Temporary.return_value.new_dir.return_value.name = \
+        mock_Temporary.return_value.new_dir.return_value.name = (
             'boot-root-directory'
+        )
         mock_os_path.return_value = False
         with raises(KiwiConfigFileNotFound):
             self.boot_image.post_init()
@@ -112,14 +103,21 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.os.chmod')
     @patch('kiwi.boot.image.builtin_kiwi.Temporary')
     def test_create_initrd(
-        self, mock_Temporary, mock_os_chmod,
-        mock_prepared, mock_sync, mock_wipe, mock_create,
-        mock_compress, mock_cpio
+        self,
+        mock_Temporary,
+        mock_os_chmod,
+        mock_prepared,
+        mock_sync,
+        mock_wipe,
+        mock_create,
+        mock_compress,
+        mock_cpio,
     ):
         data = Mock()
         mock_sync.return_value = data
-        mock_Temporary.return_value.new_dir.return_value.name = \
+        mock_Temporary.return_value.new_dir.return_value.name = (
             'temp-boot-directory'
+        )
         mock_prepared.return_value = True
         self.boot_image.boot_root_directory = 'boot-root-directory'
         mbrid = Mock()
@@ -132,41 +130,42 @@ class TestBootImageKiwi:
         mock_sync.assert_called_once_with(
             'boot-root-directory/', 'temp-boot-directory'
         )
-        mock_os_chmod.assert_called_once_with(
-            'temp-boot-directory', 0o755
+        mock_os_chmod.assert_called_once_with('temp-boot-directory', 0o755)
+        data.sync_data.assert_called_once_with(
+            options=[
+                '--archive',
+                '--hard-links',
+                '--xattrs',
+                '--acls',
+                '--one-file-system',
+                '--inplace',
+            ]
         )
-        data.sync_data.assert_called_once_with(options=['--archive', '--hard-links', '--xattrs', '--acls', '--one-file-system', '--inplace'])
         mock_cpio.assert_called_once_with(
             ''.join(
-                [
-                    self.boot_image.target_dir,
-                    '/LimeJeOS.x86_64-1.13.2.initrd'
-                ]
+                [self.boot_image.target_dir, '/LimeJeOS.x86_64-1.13.2.initrd']
             )
         )
         mock_compress.assert_called_once_with(
             ''.join(
-                [
-                    self.boot_image.target_dir,
-                    '/LimeJeOS.x86_64-1.13.2.initrd'
-                ]
+                [self.boot_image.target_dir, '/LimeJeOS.x86_64-1.13.2.initrd']
             )
         )
-        mock_wipe.assert_called_once_with(
-            'temp-boot-directory/boot'
-        )
-        mock_create.assert_called_once_with(
-            'temp-boot-directory/boot'
-        )
-        mbrid.write.assert_called_once_with(
-            'temp-boot-directory/boot/mbrid'
-        )
+        mock_wipe.assert_called_once_with('temp-boot-directory/boot')
+        mock_create.assert_called_once_with('temp-boot-directory/boot')
+        mbrid.write.assert_called_once_with('temp-boot-directory/boot/mbrid')
         cpio.create.assert_called_once_with(
             source_dir='temp-boot-directory',
             exclude=[
-                '/var/cache/kiwi', '/image', '/usr/lib/grub*',
-                '/usr/share/doc', '/usr/share/man', '/home', '/media', '/srv'
-            ]
+                '/var/cache/kiwi',
+                '/image',
+                '/usr/lib/grub*',
+                '/usr/share/doc',
+                '/usr/share/man',
+                '/home',
+                '/media',
+                '/srv',
+            ],
         )
         compress.xz.assert_called_once_with(
             ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']
@@ -174,9 +173,7 @@ class TestBootImageKiwi:
         mock_cpio.reset_mock()
         mock_compress.reset_mock()
         self.boot_image.create_initrd(mbrid, 'foo')
-        mock_cpio.assert_called_once_with(
-            self.boot_image.target_dir + '/foo'
-        )
+        mock_cpio.assert_called_once_with(self.boot_image.target_dir + '/foo')
         mock_compress.assert_called_once_with(
             self.boot_image.target_dir + '/foo'
         )

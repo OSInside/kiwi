@@ -1,7 +1,5 @@
 from pytest import raises
-from unittest.mock import (
-    patch, Mock
-)
+from unittest.mock import patch, Mock
 
 from kiwi.defaults import Defaults
 from kiwi.storage.subformat.oci import DiskFormatOci
@@ -13,9 +11,7 @@ class TestDiskFormatOci:
     def setup(self):
         Defaults.set_platform_name('x86_64')
         xml_data = Mock()
-        xml_data.get_name = Mock(
-            return_value='some-disk-image'
-        )
+        xml_data.get_name = Mock(return_value='some-disk-image')
         self.xml_state = Mock()
         self.uri = Uri(
             'docker-archive:/home/ms/alpine.tar', repo_type='container'
@@ -24,9 +20,7 @@ class TestDiskFormatOci:
         self.xml_state.get_derived_from_image_uri = Mock(
             return_value=[self.uri]
         )
-        self.xml_state.get_image_version = Mock(
-            return_value='1.2.3'
-        )
+        self.xml_state.get_image_version = Mock(return_value='1.2.3')
         self.disk_format = DiskFormatOci(
             self.xml_state, 'root_dir', 'target_dir'
         )
@@ -64,7 +58,7 @@ class TestDiskFormatOci:
         mock_ContainerImage,
         mock_Defaults,
         mock_Command_run,
-        mock_Temporary_new_dir
+        mock_Temporary_new_dir,
     ):
         mock_Temporary_new_dir.return_value.name = 'root_dir'
         result = Mock()
@@ -72,8 +66,7 @@ class TestDiskFormatOci:
         mock_Result.return_value = result
         self.disk_format.bundle_format = 'some'
         self.disk_format.base_container_uris = []
-        mock_Defaults.get_imported_root_image.return_value \
-            = 'some-base'
+        mock_Defaults.get_imported_root_image.return_value = 'some-base'
 
         # test raw format
         self.disk_format.create_image_format()
@@ -81,18 +74,19 @@ class TestDiskFormatOci:
         mock_Path.assert_called_once_with('root_dir/disk')
         mock_Command_run.assert_called_once_with(
             [
-                'cp', '-a',
+                'cp',
+                '-a',
                 'target_dir/some-disk-image.x86_64-1.2.3.raw',
-                'root_dir/disk/some_custom_name.raw'
+                'root_dir/disk/some_custom_name.raw',
             ]
         )
         mock_ContainerImage.new.assert_called_once_with(
-            'docker', 'root_dir',
-            self.xml_state.get_container_config.return_value
+            'docker',
+            'root_dir',
+            self.xml_state.get_container_config.return_value,
         )
         mock_ContainerImage.new.return_value.create.assert_called_once_with(
-            'target_dir/some-disk-image.x86_64-1.2.3.docker.tar',
-            '', True, True
+            'target_dir/some-disk-image.x86_64-1.2.3.docker.tar', '', True, True
         )
 
     @patch('kiwi.storage.subformat.oci.Command.run')
@@ -120,14 +114,13 @@ class TestDiskFormatOci:
         mock_Defaults,
         mock_RootImport,
         mock_Temporary_new_dir,
-        mock_Command_run
+        mock_Command_run,
     ):
         result = Mock()
         result.get_name_for_pattern.return_value = 'some_custom_name'
         mock_Result.return_value = result
         self.disk_format.bundle_format = 'some'
-        mock_Defaults.get_imported_root_image.return_value \
-            = 'some-base'
+        mock_Defaults.get_imported_root_image.return_value = 'some-base'
         tmpdir = Mock()
         tmpdir.name = 'tmpdir'
         mock_Temporary_new_dir.return_value = tmpdir
@@ -135,9 +128,7 @@ class TestDiskFormatOci:
         # test raw format
         self.disk_format.create_image_format()
 
-        mock_RootInit.assert_called_once_with(
-            'tmpdir', allow_existing=True
-        )
+        mock_RootInit.assert_called_once_with('tmpdir', allow_existing=True)
         mock_RootInit.return_value.create.assert_called_once_with()
         mock_RootImport.new.assert_called_once_with(
             'tmpdir', [self.uri], 'docker'
@@ -146,9 +137,10 @@ class TestDiskFormatOci:
         mock_Path.assert_called_once_with('tmpdir/disk')
         mock_Command_run.assert_called_once_with(
             [
-                'cp', '-a',
+                'cp',
+                '-a',
                 'target_dir/some-disk-image.x86_64-1.2.3.raw',
-                'tmpdir/disk/some_custom_name.raw'
+                'tmpdir/disk/some_custom_name.raw',
             ]
         )
         mock_Checksum.return_value.matches.assert_called_once_with(
@@ -159,7 +151,9 @@ class TestDiskFormatOci:
         )
         mock_ContainerImage.new.return_value.create.assert_called_once_with(
             'target_dir/some-disk-image.x86_64-1.2.3.docker.tar',
-            'some-base', True, True
+            'some-base',
+            True,
+            True,
         )
 
         # test qcow2 format
@@ -173,9 +167,10 @@ class TestDiskFormatOci:
         disk_format.create_image_format.assert_called_once_with()
         mock_Command_run.assert_called_once_with(
             [
-                'cp', '-a',
+                'cp',
+                '-a',
                 disk_format.get_target_file_path_for_format.return_value,
-                'tmpdir/disk/some_custom_name.qcow2'
+                'tmpdir/disk/some_custom_name.qcow2',
             ]
         )
 
@@ -193,5 +188,5 @@ class TestDiskFormatOci:
             filename='target_dir/some-disk-image.x86_64-1.2.3.docker.tar',
             key='disk_format_image',
             shasum=True,
-            use_for_bundle=True
+            use_for_bundle=True,
         )

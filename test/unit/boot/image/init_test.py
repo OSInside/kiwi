@@ -1,6 +1,4 @@
-from unittest.mock import (
-    Mock, patch
-)
+from unittest.mock import Mock, patch
 from pytest import raises
 
 from kiwi.exceptions import KiwiBootImageSetupError
@@ -10,9 +8,7 @@ from kiwi.boot.image import BootImage
 class TestBootImage:
     def setup(self):
         self.xml_state = Mock()
-        self.xml_state.get_initrd_system = Mock(
-            return_value='kiwi'
-        )
+        self.xml_state.get_initrd_system = Mock(return_value='kiwi')
 
     def setup_method(self, cls):
         self.setup()

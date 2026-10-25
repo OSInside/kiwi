@@ -8,10 +8,7 @@ import pytest
 
 from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiCommandError,
-    KiwiCommandNotFound
-)
+from kiwi.exceptions import KiwiCommandError, KiwiCommandNotFound
 
 
 class TestCommand:
@@ -57,16 +54,23 @@ class TestCommand:
     @patch('kiwi.path.Path.which')
     def test_run_does_not_raise_error_if_command_not_found(self, mock_which):
         mock_which.return_value = None
-        result = Command.run(['command', 'args'], os.environ, raise_on_command_not_found=False)
+        result = Command.run(
+            ['command', 'args'], os.environ, raise_on_command_not_found=False
+        )
         assert result is None
 
     @patch('kiwi.path.Path.which')
     @patch('os.path.exists')
     @patch('subprocess.Popen')
-    def test_run_does_not_call_which_for_abspaths(self, mock_popen, mock_exists, mock_which):
+    def test_run_does_not_call_which_for_abspaths(
+        self, mock_popen, mock_exists, mock_which
+    ):
         mock_exists.return_value = True
         proc = mock.MagicMock()
-        proc.communicate.return_value = (str.encode("stdout"), str.encode("stderr"))
+        proc.communicate.return_value = (
+            str.encode("stdout"),
+            str.encode("stderr"),
+        )
         proc.returncode = 0
         mock_popen.return_value = proc
 
@@ -90,14 +94,8 @@ class TestCommand:
     @patch('subprocess.Popen')
     def test_run(self, mock_popen, mock_exists, mock_access):
         mock_exists.return_value = True
-        command_run = namedtuple(
-            'command', ['output', 'error', 'returncode']
-        )
-        run_result = command_run(
-            output='stdout',
-            error='stderr',
-            returncode=0
-        )
+        command_run = namedtuple('command', ['output', 'error', 'returncode'])
+        run_result = command_run(output='stdout', error='stderr', returncode=0)
         mock_process = mock.Mock()
         mock_process.communicate = mock.Mock(
             return_value=[str.encode('stdout'), str.encode('stderr')]

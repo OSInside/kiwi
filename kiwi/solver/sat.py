@@ -27,7 +27,7 @@ import kiwi.defaults as defaults
 from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobError,
-    KiwiSatSolverJobProblems
+    KiwiSatSolverJobProblems,
 )
 
 log = logging.getLogger('kiwi')
@@ -39,6 +39,7 @@ class Sat:
 
     The class uses SUSE's libsolv sat plugin
     """
+
     def __init__(self):
         """
         An instance of Sat auto loads the python solv plugin which is a
@@ -64,12 +65,12 @@ class Sat:
         dist_types = {
             'deb-x86_64': {
                 'pool_dist': self.solv.Pool.DISTTYPE_DEB,
-                'arch': 'amd64'
+                'arch': 'amd64',
             },
             'deb-aarch64': {
                 'pool_dist': self.solv.Pool.DISTTYPE_DEB,
-                'arch': 'arm64'
-            }
+                'arch': 'arm64',
+            },
         }
         dist_type = dist_types.get(f'{dist}-{arch}')
         if dist_type:
@@ -77,9 +78,7 @@ class Sat:
                 raise KiwiSatSolverPluginError(
                     f'Failed to set dist type for distribution: {dist!r}'
                 )
-        self.pool.setarch(
-            dist_type['arch'] if dist_type else arch
-        )
+        self.pool.setarch(dist_type['arch'] if dist_type else arch)
         return dist_type
 
     def add_repository(self, solver_repository):
@@ -130,16 +129,12 @@ class Sat:
         solver_problems = solver.solve(
             self._setup_jobs(job_names, skip_missing)
         )
-        solver_problem_info = self._evaluate_solver_problems(
-            solver_problems
-        )
+        solver_problem_info = self._evaluate_solver_problems(solver_problems)
         if solver_problem_info:
             raise KiwiSatSolverJobProblems(solver_problem_info)
 
         solver_transaction = solver.transaction()
-        return self._evaluate_solver_result(
-            solver_transaction
-        )
+        return self._evaluate_solver_result(solver_transaction)
 
     def _evaluate_solver_problems(self, solver_problems):
         """
@@ -158,8 +153,10 @@ class Sat:
             problems = ElementTree.Element('problems')
             for problem in solver_problems:
                 problem_detail = ElementTree.SubElement(
-                    problems, 'problem', id=format(problem.id),
-                    message=problem.findproblemrule().info().problemstr()
+                    problems,
+                    'problem',
+                    id=format(problem.id),
+                    message=problem.findproblemrule().info().problemstr(),
                 )
                 for solution in problem.solutions():
                     solution_detail = ElementTree.SubElement(
@@ -171,9 +168,7 @@ class Sat:
                         )
                         solution_option.text = option.str()
 
-            xml_data_unformatted = ElementTree.tostring(
-                problems, 'utf-8'
-            )
+            xml_data_unformatted = ElementTree.tostring(problems, 'utf-8')
             xml_data_domtree = minidom.parseString(xml_data_unformatted)
             return xml_data_domtree.toprettyxml(indent="    ")
 
@@ -189,9 +184,8 @@ class Sat:
         :rtype: dict
         """
         result_type = namedtuple(
-            'result_type', [
-                'uri', 'installsize_bytes', 'arch', 'version', 'checksum'
-            ]
+            'result_type',
+            ['uri', 'installsize_bytes', 'arch', 'version', 'checksum'],
         )
         result = {}
         for solvable in solver_transaction.newpackages():
@@ -201,15 +195,9 @@ class Sat:
                 installsize_bytes=solvable.lookup_num(
                     self.solv.SOLVABLE_INSTALLSIZE
                 ),
-                arch=solvable.lookup_str(
-                    self.solv.SOLVABLE_ARCH
-                ),
-                version=solvable.lookup_str(
-                    self.solv.SOLVABLE_EVR
-                ),
-                checksum=solvable.lookup_checksum(
-                    self.solv.SOLVABLE_CHECKSUM
-                )
+                arch=solvable.lookup_str(self.solv.SOLVABLE_ARCH),
+                version=solvable.lookup_str(self.solv.SOLVABLE_EVR),
+                checksum=solvable.lookup_checksum(self.solv.SOLVABLE_CHECKSUM),
             )
         return result
 
