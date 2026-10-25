@@ -132,6 +132,11 @@ test: setup
 		--cov-report=term-missing --cov-fail-under=100 \
 		--cov-config .coveragerc'
 
+black: setup
+	poetry run black \
+		--skip-string-normalization \
+		--line-length 80 kiwi test/unit/
+
 build: clean check test
 	# build the sdist source tarball
 	poetry build --format=sdist

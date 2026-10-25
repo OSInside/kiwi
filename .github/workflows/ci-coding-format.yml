@@ -1,0 +1,33 @@
+name: CI-Coding-Format-Applied
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+
+jobs:
+  unit_tests:
+    name: Check if python black coding format was applied
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Python${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+      - name: Run black
+        run: |
+          make black
+          git diff --no-ext-diff --quiet --exit-code || bash -c 'echo "Coding format not applied, please run make black and commit the result"; false'
+        env:
+          PY_VER: ${{ matrix.python-version }}

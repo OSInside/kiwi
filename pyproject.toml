@@ -122,6 +122,7 @@ pdoc = ">=12.0.0"
 python-dateutil = "*"
 generateDS = "==2.29.24"
 bumpversion = "*"
+black = ">=22.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]
