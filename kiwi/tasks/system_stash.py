@@ -85,7 +85,8 @@ class SystemStashTask(CliTask):
                 or xml_state.xml_data.get_name()
             )
             if not StackBuildDefaults.is_container_name_valid(image_name):
-                message = dedent('''\n
+                message = dedent(
+                    '''\n
                     Image name {0!r} cannot be used as container name
 
                     Container names must start or end with a letter or number,
@@ -99,7 +100,8 @@ class SystemStashTask(CliTask):
                       --container-name <name>
 
                     option
-                ''')
+                '''
+                )
                 raise KiwiStackBuildContainerNameInvalid(
                     message.format(image_name, kiwi_description)
                 )

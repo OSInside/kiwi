@@ -46,14 +46,25 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
 
         :rtype: str
         """
-        extra_settings = dedent('''
+        extra_settings = (
+            dedent(
+                '''
             config.vm.base_mac = "{mac_address}"
-        ''').strip().format(mac_address=self._random_mac())
+        '''
+            )
+            .strip()
+            .format(mac_address=self._random_mac())
+        )
 
         if not self.xml_state.get_vagrant_config_virtualbox_guest_additions():
-            extra_settings += os.linesep + dedent('''
+            extra_settings += (
+                os.linesep
+                + dedent(
+                    '''
             config.vm.synced_folder ".", "/vagrant", type: "rsync"
-            ''').strip()
+            '''
+                ).strip()
+            )
 
         return extra_settings
 

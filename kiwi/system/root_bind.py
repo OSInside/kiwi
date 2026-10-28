@@ -250,7 +250,8 @@ class RootBind:
             )
             checksum = Checksum(config_file)
             if not checksum.matches(shasum.digest(), sha_file):
-                message = textwrap.dedent('''\n
+                message = textwrap.dedent(
+                    '''\n
                     Modifications to intermediate config file detected
 
                     The file: {0}
@@ -269,7 +270,8 @@ class RootBind:
                     If you need a custom version of that file please
                     provide it as an overlay file in your image
                     description
-                ''')
+                '''
+                )
                 log.warning(message.format(config_file))
 
         del self.cleanup_files[:]

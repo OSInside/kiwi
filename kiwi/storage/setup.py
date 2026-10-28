@@ -310,12 +310,14 @@ class DiskSetup:
                         disk_add_mbytes *= partition_clone
                     disk_partition_mbytes += disk_add_mbytes
                 else:
-                    message = dedent('''\n
+                    message = dedent(
+                        '''\n
                         Requested partition size {0}MB for {1!r} is too small
 
                         The minimum byte value to store the data below
                         the {1!r} path was calculated to be {2}MB
-                    ''')
+                    '''
+                    )
                     raise KiwiPartitionTooSmallError(
                         message.format(
                             partition_mbsize,
@@ -367,12 +369,14 @@ class DiskSetup:
                         + Defaults.get_min_volume_mbytes(self.filesystem)
                     )
                 else:
-                    message = dedent('''\n
+                    message = dedent(
+                        '''\n
                         Requested volume size {0}MB for {1!r} is too small
 
                         The minimum byte value to store the data below
                         the {1!r} path was calculated to be {2}MB
-                    ''')
+                    '''
+                    )
                     raise KiwiVolumeTooSmallError(
                         message.format(
                             req_size,

@@ -27,7 +27,9 @@ class BootLoaderTemplateZipl:
     def __init__(self):
         self.cr = '\n'
 
-        self.main_conf = dedent('''
+        self.main_conf = (
+            dedent(
+                '''
             [defaultboot]
             defaultauto
             prompt=1
@@ -39,20 +41,33 @@ class BootLoaderTemplateZipl:
             ${targetgeometry}
             timeout=${boot_timeout}
             secure=auto
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.entry_secure = dedent('''
+        self.entry_secure = (
+            dedent(
+                '''
             title ${title}
             options ${boot_options}
             linux ${secure_image_file}
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.entry_standard = dedent('''
+        self.entry_standard = (
+            dedent(
+                '''
             title ${title}
             options ${boot_options}
             linux ${kernel_file}
             initrd ${initrd_file}
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
     def get_loader_template(self) -> Template:
         """

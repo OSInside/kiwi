@@ -1767,13 +1767,15 @@ class XMLState:
         if container_config_section and container_config_section.get_tag():
             container_config_section.set_tag(tag)
         else:
-            message = dedent('''\n
+            message = dedent(
+                '''\n
                 No <containerconfig> section and/or tag attribute configured
 
                 In order to set the tag {0} as new container tag,
                 an initial containerconfig section including a tag
                 setup is required
-            ''')
+            '''
+            )
             log.warning(message.format(tag))
 
     def add_container_config_label(self, label_name: str, value: str) -> None:
@@ -1786,10 +1788,12 @@ class XMLState:
         :param str value: the value of the label
         """
         if self.get_build_type_name() not in ['docker', 'oci']:
-            message = dedent('''\n
+            message = dedent(
+                '''\n
                 Labels can only be configured for container image types
                 docker and oci.
-            ''')
+            '''
+            )
             log.warning(message)
             return
 
@@ -3048,13 +3052,15 @@ class XMLState:
         if self.build_type.get_derived_from():
             self.build_type.set_derived_from(uri)
         else:
-            message = dedent('''\n
+            message = dedent(
+                '''\n
                 No derived_from attribute configured in image <type>
 
                 In order to set the uri {0} as base container reference
                 an initial derived_from attribute must be set in the
                 type section
-            ''')
+            '''
+            )
             log.warning(message.format(uri))
 
     def set_root_partition_uuid(self, uuid: str) -> None:

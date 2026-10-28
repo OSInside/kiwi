@@ -413,7 +413,8 @@ class SystemSetup:
                     raise_on_error=False,
                 )
                 if res.returncode != 0:
-                    message = dedent(f'''\n
+                    message = dedent(
+                        f'''\n
                         keyboard setup skipped because `systemd-firstboot --keymap` failed (code {res.returncode}):
                         {res.error}
 
@@ -426,7 +427,8 @@ class SystemSetup:
                         then you can use a distribution-specific method to set the keymap in a config.sh script.
 
                         You can try `localectl list-keymaps` to see if a particular distro supports systemd keymap management.
-                    ''')
+                    '''
+                    )
                     raise KiwiCommandError(message)
             elif os.path.exists(self.root_dir + '/etc/sysconfig/keyboard'):
                 Shell.run_common_function(

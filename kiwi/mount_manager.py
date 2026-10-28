@@ -185,7 +185,8 @@ class MountManager:
                         )
                     else:
                         open_files_info = 'For further details install: lsof'
-                    message = dedent('''\n
+                    message = dedent(
+                        '''\n
                         Failed to umount: {0}.
 
                         Your build host system is in an inconsistent state.
@@ -199,7 +200,8 @@ class MountManager:
                         produced results are valid.
 
                         {1}
-                    ''')
+                    '''
+                    )
                     raise KiwiUmountBusyError(
                         message.format(self.mountpoint, open_files_info)
                     )

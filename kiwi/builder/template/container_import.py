@@ -27,21 +27,36 @@ class BuilderTemplateSystemdUnit:
     """
 
     def __init__(self):
-        self.unit = dedent('''
+        self.unit = (
+            dedent(
+                '''
             # kiwi generated unit file
             [Unit]
             Description=Import Local Container(s)
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.service = dedent('''
+        self.service = (
+            dedent(
+                '''
             [Service]
             Type=oneshot
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.install = dedent('''
+        self.install = (
+            dedent(
+                '''
             [Install]
             WantedBy=multi-user.target
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
     def get_container_import_template(
         self,

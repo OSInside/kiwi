@@ -25,11 +25,13 @@ class TestBootImageKiwi:
             command_type(
                 output='foo\nfoobar\nmodule'
             ),  # for dracut --list-modules
-            command_type(output='''
+            command_type(
+                output='''
             kernel/drivers/net/ethernet/intel/driver2/driver2.ko: kernel/drivers/net/driver1.ko
             kernel/drivers/gpu/drm/i915/driver3.ko: kernel/drivers/video/other_driver/core/other_driver.ko
             kernel/drivers/usb/host/driver1.ko:
-            '''),  # for cat modules.dep
+            '''
+            ),  # for cat modules.dep
         ]
         description = XMLDescription('../data/example_config.xml')
         self.xml_state = XMLState(description.load())
@@ -393,12 +395,14 @@ class TestBootImageKiwi:
 
         mock_command.reset_mock()
         command_type = namedtuple('command', ['output'])
-        mock_command.return_value = command_type(output='''
+        mock_command.return_value = command_type(
+            output='''
             kernel/drivers/net/ethernet/intel/driver2/driver2.ko: kernel/drivers/net/driver1.ko
             kernel/drivers/gpu/drm/i915/driver3.ko: kernel/drivers/video/fbdev/core/fb.ko
             kernel/drivers/usb/host/driver1.ko:
             kernel/drivers/vhost/driver_4.ko:
-            ''')
+            '''
+        )
 
         drivers = self.boot_image._get_drivers()
 

@@ -133,7 +133,8 @@ class TestIntegrityDevice:
     @patch('kiwi.storage.integrity_device.BlockID')
     def test_create_integrity_metadata(self, mock_BlockID, mock_Command_run):
         mock_BlockID.return_value.get_filesystem.return_value = 'xfs'
-        mock_Command_run.return_value.output = dedent('''\n
+        mock_Command_run.return_value.output = dedent(
+            '''\n
             Info for integrity device /dev/mapper/loop0p4.
             superblock_version 4
             log2_interleave_sectors 15
@@ -143,7 +144,8 @@ class TestIntegrityDevice:
             sector_size 512
             log2_blocks_per_bitmap 15
             flags fix_padding
-        ''')
+        '''
+        )
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
@@ -162,7 +164,8 @@ class TestIntegrityDevice:
         self, mock_BlockID, mock_Command_run
     ):
         mock_BlockID.return_value.get_filesystem.return_value = 'xfs'
-        mock_Command_run.return_value.output = dedent('''\n
+        mock_Command_run.return_value.output = dedent(
+            '''\n
             Info for integrity device /dev/mapper/loop0p4.
             superblock_version 4
             log2_interleave_sectors 15
@@ -172,7 +175,8 @@ class TestIntegrityDevice:
             sector_size 512
             log2_blocks_per_bitmap 15
             flags fix_padding
-        ''')
+        '''
+        )
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value

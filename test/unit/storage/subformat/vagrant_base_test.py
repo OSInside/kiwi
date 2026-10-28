@@ -71,16 +71,20 @@ class TestDiskFormatVagrantBase:
         self.disk_format.image_format = 'vagrant.libvirt.box'
         self.disk_format.provider = 'libvirt'
 
-        metadata_json = dedent('''
+        metadata_json = dedent(
+            '''
             {
               "provider": "libvirt"
             }
-        ''').strip()
+        '''
+        ).strip()
 
-        expected_vagrantfile = dedent('''
+        expected_vagrantfile = dedent(
+            '''
             Vagrant.configure("2") do |config|
             end
-        ''').strip()
+        '''
+        ).strip()
 
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
 

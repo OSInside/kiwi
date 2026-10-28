@@ -27,7 +27,8 @@ class TestSchema:
         self._caplog = caplog
 
     def setup(self):
-        test_xml = bytes(b"""<?xml version="1.0" encoding="utf-8"?>
+        test_xml = bytes(
+            b"""<?xml version="1.0" encoding="utf-8"?>
             <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
@@ -44,8 +45,10 @@ class TestSchema:
                 <repository type="rpm-md">
                     <source path="repo"/>
                 </repository>
-            </image>""")
-        test_xml_extension = bytes(b"""<?xml version="1.0" encoding="utf-8"?>
+            </image>"""
+        )
+        test_xml_extension = bytes(
+            b"""<?xml version="1.0" encoding="utf-8"?>
             <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
@@ -67,7 +70,8 @@ class TestSchema:
                         <my_plugin:title name="cool stuff"/>
                     </my_plugin:my_feature>
                 </extension>
-            </image>""")
+            </image>"""
+        )
         test_xml_extension_not_unique = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>
             <image schemaversion="7.4" name="bob">

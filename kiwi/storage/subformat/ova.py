@@ -70,12 +70,14 @@ class DiskFormatOva(DiskFormatBase):
         # Check for required mkova tool
         ova_compose = Path.which(filename='ova-compose', access_mode=os.X_OK)
         if not ova_compose:
-            tool_not_found_message = dedent('''\n
+            tool_not_found_message = dedent(
+                '''\n
                 Required ova-compose not found in PATH on the build host
 
                 Building OVA images requires the ova-compose tool which
                 is usually provided by the open-vmdk package.
-            ''')
+            '''
+            )
             raise KiwiCommandNotFound(tool_not_found_message)
 
         # Create the vmdk disk image and vmx config

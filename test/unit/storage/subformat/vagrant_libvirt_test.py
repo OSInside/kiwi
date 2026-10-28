@@ -60,12 +60,14 @@ class TestDiskFormatVagrantLibVirt:
     def test_get_additional_vagrant_config_settings(self):
         assert (
             self.disk_format.get_additional_vagrant_config_settings()
-            == dedent('''
+            == dedent(
+                '''
                 config.vm.synced_folder ".", "/vagrant", type: "rsync"
                 config.vm.provider :libvirt do |libvirt|
                   libvirt.driver = "kvm"
                 end
-            ''').strip()
+            '''
+            ).strip()
         )
 
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
@@ -81,11 +83,15 @@ class TestDiskFormatVagrantLibVirt:
         with patch('builtins.open', m_open, create=True):
             self.disk_format.create_image_format()
 
-        assert m_open.return_value.write.call_args_list[1] == call(dedent('''
+        assert m_open.return_value.write.call_args_list[1] == call(
+            dedent(
+                '''
                 Vagrant.configure("2") do |config|
                   config.vm.synced_folder ".", "/vagrant", type: "rsync"
                   config.vm.provider :libvirt do |libvirt|
                     libvirt.driver = "kvm"
                   end
                 end
-            ''').strip())
+            '''
+            ).strip()
+        )

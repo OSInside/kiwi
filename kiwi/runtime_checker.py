@@ -75,14 +75,16 @@ class RuntimeChecker:
         filesystem that supports all important features like
         extended permissions(fscaps), ACLs or xattrs.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Target root/image directory is lacking filesystem features
 
             The filesystem {0} in the target path {1}
             does not support important features like extended permissions,
             ACLs or xattrs. The image build may fail or the resulting
             image misbehave.
-        ''')
+        '''
+        )
         target_dir = Path.first_exists(target_dir)
         stat = Command.run(['stat', '-f', '-c', '%T', target_dir])
         if stat:
@@ -108,7 +110,8 @@ class RuntimeChecker:
         did not happen for example on nested includes, it can happen
         that they stay in the document as sort of waste.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             One ore more <include> statements are unresolvable
 
             The following include references could not be resolved.
@@ -118,7 +121,8 @@ class RuntimeChecker:
             files are not supported:
 
             {0}
-        ''')
+        '''
+        )
         include_files = (
             self.xml_state.get_include_section_reference_file_names()
         )
@@ -132,7 +136,8 @@ class RuntimeChecker:
         Verify that all repos marked with the imageinclude attribute
         can be resolved into a http based web URL
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             The use of imageinclude="true" in the repository definition
             for the Repository: {0}
             requires the repository to by publicly available. The source
@@ -140,7 +145,8 @@ class RuntimeChecker:
             your local system. Therefore it can't be included into the
             system image repository configuration. Please define a publicly
             available repository in your image XML description.
-        ''')
+        '''
+        )
 
         repository_sections = self.xml_state.get_repository_sections()
         for xml_repo in repository_sections:
@@ -163,11 +169,13 @@ class RuntimeChecker:
 
         :param string target_dir: path name
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Target directory %s conflicts with kiwi's shared cache
             directory %s. This is going to create a busy loop mount.
             Please choose another target directory.
-        ''')
+        '''
+        )
 
         shared_cache_location = Defaults.get_shared_cache_location()
 
@@ -189,7 +197,8 @@ class RuntimeChecker:
         volume management capabilities there are no extra filesystem
         labels which can be applied per volume
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Custom volume label setup used without LVM
 
             The optional volume label in a systemdisk setup is only
@@ -205,7 +214,8 @@ class RuntimeChecker:
             <systemdisk ... preferlvm="true">
                 <volume .../>
             </systemdisk>
-        ''')
+        '''
+        )
         volume_management = self.xml_state.get_volume_management()
         if volume_management != 'lvm':
             for volume in self.xml_state.get_volumes():
@@ -223,7 +233,8 @@ class RuntimeChecker:
         of by-partuuid in combination with partition tables that
         actually supports it properly.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             devicepersistency={0!r} used with non UUID capable partition table
 
             PTUUID and PARTUUID exists in the GUID (GPT) partition table.
@@ -240,7 +251,8 @@ class RuntimeChecker:
             and therefore supporting consistent by-partuuid device names:
 
             <type ... firmware="efi|uefi">
-        ''')
+        '''
+        )
         persistency_type = self.xml_state.build_type.get_devicepersistency()
         if persistency_type and persistency_type == 'by-partuuid':
             supported_table_types = ['gpt']
@@ -260,7 +272,8 @@ class RuntimeChecker:
         only be set if it is created as a LVM volume. In any other
         case the name does not apply to the system
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
              Specified swap space name: {0} will not be used
 
              The specified oem-swapname is used without the LVM volume
@@ -274,7 +287,8 @@ class RuntimeChecker:
              description:
 
              <oem-swapname>{0}</oem-swapname>
-        ''')
+        '''
+        )
         volume_management = self.xml_state.get_volume_management()
         if volume_management != 'lvm':
             oemconfig = self.xml_state.get_build_type_oemconfig_section()
@@ -284,13 +298,15 @@ class RuntimeChecker:
                 )
 
     def check_volume_setup_defines_reserved_labels(self) -> None:
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Reserved label name used in LVM volume setup
 
             The label setup for volume {0} uses the reserved label {1}.
             Reserved labels used by KIWI internally are {2}. Please
             choose another label name for this volume.
-        ''')
+        '''
+        )
         reserved_labels = [
             self.xml_state.build_type.get_rootfs_label() or 'ROOT',
             'SWAP',
@@ -317,13 +333,15 @@ class RuntimeChecker:
         take the rest space available on the system. It's only
         allowed to specify one all size volume
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Multiple all size volumes found but only one is allowed
 
             The volume size specification 'all' makes this volume to
             take the rest space available on the system. It's only
             allowed to specify one all size volume
-        ''')
+        '''
+        )
         systemdisk_section = self.xml_state.get_build_type_system_disk_section()
         if systemdisk_section:
             all_size_volume_count = 0
@@ -344,7 +362,8 @@ class RuntimeChecker:
         setup and searches if there is a configuration for the '/'
         mountpoint which would cause the image build to fail
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Volume setup for "/" found. The size of the root volume
             must be specified via the @root volume name like the
             following example shows:
@@ -353,7 +372,8 @@ class RuntimeChecker:
 
             A custom name or mountpoint for the root volume is not
             allowed.
-        ''')
+        '''
+        )
         for volume in self.xml_state.get_volumes():
             if volume.mountpoint == '/':
                 raise KiwiRuntimeError(message)
@@ -365,7 +385,8 @@ class RuntimeChecker:
         searches for those tools to be installed in the build system and
         fails if it can't find them
         """
-        message_tool_not_found = dedent('''\n
+        message_tool_not_found = dedent(
+            '''\n
             Required tool {name} not found in caller environment
 
             Creation of OCI or Docker images requires the tools {name} and
@@ -373,11 +394,15 @@ class RuntimeChecker:
             you can find the tools at:
 
             http://download.opensuse.org/repositories/Virtualization:/containers
-        ''')
-        message_version_unsupported = dedent('''\n
+        '''
+        )
+        message_version_unsupported = dedent(
+            '''\n
             {name} tool found with unknown version
-        ''')
-        message_unknown_tool = dedent('''\n
+        '''
+        )
+        message_unknown_tool = dedent(
+            '''\n
             Unknown tool: {0}.
 
             Please configure KIWI with an appropriate value (umoci or buildah).
@@ -385,7 +410,8 @@ class RuntimeChecker:
 
             oci:
                 - archive_tool: umoci | buildah
-        ''')
+        '''
+        )
 
         expected_version = (0, 1, 0)
 
@@ -412,13 +438,15 @@ class RuntimeChecker:
             self._check_multitag_support()
 
     def _check_multitag_support(self) -> None:
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Using additionaltags attribute requires skopeo tool to be
             capable to handle it, it must include the '--additional-tag'
             option for copy subcommand (check it running 'skopeo copy
             --help').\n
             It is known to be present since v0.1.30
-        ''')
+        '''
+        )
         if 'additional_names' in self.xml_state.get_container_config():
             if not CommandCapabilities.has_option_in_help(
                 'skopeo',
@@ -436,12 +464,14 @@ class RuntimeChecker:
         up the provided option names if they exist in the cryptsetup
         version used on the build host
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Option {0!r} not found in cryptsetup
 
             The Option {0!r} could not be found in the help output
             of the cryptsetup tool.
-        ''')
+        '''
+        )
         luksformat = self.xml_state.build_type.get_luksformat()
         if luksformat:
             for option in luksformat[0].get_option():
@@ -457,17 +487,21 @@ class RuntimeChecker:
         must be fulfilled to run the container on Microsoft Windows
         """
         launcher_pattern = r'[^\\]+(\.[Ee][Xx][Ee])$'
-        message_container_launcher_invalid = dedent('''\n
+        message_container_launcher_invalid = dedent(
+            '''\n
             Invalid WSL launcher name: {0}
 
             WSL launcher name must match the pattern: {1}
-        ''')
+        '''
+        )
         id_pattern = r'^[a-zA-Z0-9]+$'
-        message_container_id_invalid = dedent('''\n
+        message_container_id_invalid = dedent(
+            '''\n
             Invalid WSL container application id: {0}
 
             WSL container id must match the pattern: {1}
-        ''')
+        '''
+        )
         build_type = self.xml_state.get_build_type_name()
         container_config = self.xml_state.get_container_config()
         container_history = container_config.get('history') or {}
@@ -495,7 +529,8 @@ class RuntimeChecker:
         which explicitly specify the boot attribute wants to use
         the custom kiwi initrd system and not dracut.
         """
-        message_kiwi_initrd_system_not_selected = dedent('''\n
+        message_kiwi_initrd_system_not_selected = dedent(
+            '''\n
             Missing initrd_system selection for boot attribute
 
             The selected boot="'{0}'" boot description indicates
@@ -508,7 +543,8 @@ class RuntimeChecker:
             If this is not want you want and dracut should be used
             as initrd system, please delete the boot attribute
             as it is obsolete in this case.
-        ''')
+        '''
+        )
         initrd_system = self.xml_state.get_initrd_system()
         boot_image_reference = self.xml_state.build_type.get_boot()
         if initrd_system != 'kiwi' and boot_image_reference:
@@ -523,7 +559,8 @@ class RuntimeChecker:
         If a kiwi initrd is used, a lookup to the specified boot
         description is done and fails early if it does not exist
         """
-        message_no_boot_reference = dedent('''\n
+        message_no_boot_reference = dedent(
+            '''\n
             Boot description missing for '{0}' type
 
             The selected '{1}' initrd_system requires a boot description
@@ -533,14 +570,17 @@ class RuntimeChecker:
 
             A collection of custom boot descriptions can be found
             in the kiwi-boot-descriptions package
-        ''')
-        message_boot_description_not_found = dedent('''\n
+        '''
+        )
+        message_boot_description_not_found = dedent(
+            '''\n
             Boot description '{0}' not found
 
             The selected boot description could not be found on
             the build host. A collection of custom boot descriptions
             can be found in the kiwi-boot-descriptions package
-        ''')
+        '''
+        )
         image_types_supporting_custom_boot_description = ['oem', 'pxe']
         build_type = self.xml_state.get_build_type_name()
         initrd_system = self.xml_state.get_initrd_system()
@@ -575,7 +615,8 @@ class RuntimeChecker:
         initrd and the kernel used in the system image must be the
         same in order to avoid an inconsistent boot setup
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Possible kernel mismatch between kiwi initrd and system image
 
             The selected '{0}' boot image kernel is '{1}'. However this
@@ -593,7 +634,8 @@ class RuntimeChecker:
                <packages type="image"/>
                    <package name="desired-kernel" bootinclude="true"/>
                </packages>
-        ''')
+        '''
+        )
         boot_image_reference = self.xml_state.build_type.get_boot()
         boot_kernel_package_name = None
         if boot_image_reference:
@@ -660,7 +702,8 @@ class RuntimeChecker:
         Therefore this runtime check maintains a min_version constraint
         for which we know this KIWI builder to be compatible with.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Incompatible dracut-kiwi module(s) found
 
             The image was build with KIWI version={0}. The system
@@ -670,7 +713,8 @@ class RuntimeChecker:
             which are >= than the versions listed below.
 
             {1}
-        ''')
+        '''
+        )
         kiwi_dracut_modules = {
             '55kiwi-dump': dracut_module_type('dracut-kiwi-oem-dump', '9.20.1'),
             '55kiwi-live': dracut_module_type('dracut-kiwi-live', '9.20.1'),
@@ -727,7 +771,8 @@ class RuntimeChecker:
         required package is part of the package list in the
         image description.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Required dracut module package missing in package list
 
             One of the packages '{0}' is required
@@ -736,7 +781,8 @@ class RuntimeChecker:
             <packages type="image"> section:
 
             <package name="ONE_FROM_ABOVE"/>
-        ''')
+        '''
+        )
         meta = Defaults.get_runtime_checker_metadata()
         required_dracut_packages = meta['package_names']['dracut_oem_dump']
         initrd_system = self.xml_state.get_initrd_system()
@@ -765,7 +811,8 @@ class RuntimeChecker:
         runtime check examines if the required package is part of
         the package list in the image description.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Required dracut module package missing in package list
 
             One of the packages '{0}' is required
@@ -773,7 +820,8 @@ class RuntimeChecker:
             add the following in the <packages type="image"> section:
 
             <package name="ONE_FROM_ABOVE"/>
-        ''')
+        '''
+        )
         meta = Defaults.get_runtime_checker_metadata()
         required_dracut_packages = meta['package_names']['dracut_oem_repart']
         initrd_system = self.xml_state.get_initrd_system()
@@ -801,7 +849,8 @@ class RuntimeChecker:
         examines if the required package is part of the package
         list in the image description.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Required dracut module package missing in package list
 
             One of the packages '{0}' is required
@@ -809,7 +858,8 @@ class RuntimeChecker:
             add the following in your <packages type="image"> section:
 
             <package name="ONE_FROM_ABOVE"/>
-        ''')
+        '''
+        )
         meta = Defaults.get_runtime_checker_metadata()
         required_dracut_packages = meta['package_names']['dracut_live']
         type_name = self.xml_state.get_build_type_name()
@@ -832,7 +882,8 @@ class RuntimeChecker:
         runtime check examines if the required package is part of
         the package list in the image description.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Required dracut module package missing in package list
 
             The package '{0}' is required
@@ -841,7 +892,8 @@ class RuntimeChecker:
             <packages type="image"> section:
 
             <package name="ONE_FROM_ABOVE"/>
-        ''')
+        '''
+        )
         initrd_system = self.xml_state.get_initrd_system()
         meta = Defaults.get_runtime_checker_metadata()
         required_dracut_packages = meta['package_names']['dracut_overlay']
@@ -865,7 +917,8 @@ class RuntimeChecker:
         configuration is checked if the information uniquely identifies
         the image as such
         """
-        xen_message = dedent('''\n
+        xen_message = dedent(
+            '''\n
             Inconsistent Xen setup found:
 
             The use of the 'xen_server' or 'xen_loader' attributes indicates
@@ -876,8 +929,10 @@ class RuntimeChecker:
 
             Please cleanup your image description. Setup only one
             of 'xen_server' or 'xen_loader'.
-        ''')
-        ec2_message = dedent('''\n
+        '''
+        )
+        ec2_message = dedent(
+            '''\n
             Inconsistent Amazon EC2 setup found:
 
             The firmware setup indicates the target system for this image
@@ -887,7 +942,8 @@ class RuntimeChecker:
 
             Please cleanup your image description. Delete the 'xen_server'
             attribute for images used with Amazon EC2.
-        ''')
+        '''
+        )
         if self.xml_state.is_xen_server() and self.xml_state.is_xen_guest():
             firmware = self.xml_state.build_type.get_firmware()
             ec2_firmware_names = Defaults.get_ec2_capable_firmware_names()
@@ -902,12 +958,14 @@ class RuntimeChecker:
         the required tools to run this check must be installed
         on the image build host
         """
-        message_tool_not_found = dedent('''\n
+        message_tool_not_found = dedent(
+            '''\n
             Required tool {name} not found in caller environment
 
             The attribute 'mediacheck' is set to 'true' which requires
             the above tool to be installed on the build system
-        ''')
+        '''
+        )
         if self.xml_state.build_type.get_mediacheck() is True:
             tool = 'tagmedia'
             media_tagger = RuntimeConfig().get_iso_media_tag_tool()
@@ -923,7 +981,8 @@ class RuntimeChecker:
         The checkmedia/tagmedia tools in versions < v6.6 only
         supports plain MBR partition tables.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             ISO media tag tool tagmedia < v6.6 does not support {table} partition tables
 
             The attribute 'mediacheck' is set to 'true' and the selected
@@ -931,7 +990,8 @@ class RuntimeChecker:
             Attributes influencing the partition table type are
             firmware, efiparttable and targettype. Please check your
             image description for the setup of these attributes.
-        ''')
+        '''
+        )
         if self.xml_state.build_type.get_mediacheck() is True:
             media_tagger = RuntimeConfig().get_iso_media_tag_tool()
             firmware = FirmWare(self.xml_state)
@@ -953,14 +1013,16 @@ class RuntimeChecker:
         Kiwi requires a <version> element to be specified as part
         of at least one <preferences> section.
         """
-        message_missing_version = dedent('''\n
+        message_missing_version = dedent(
+            '''\n
             No version is defined in any of the <preferences>
             sections. Please add
 
                 <version>image_version<version/>
 
             inside the <preferences> section.
-        ''')
+        '''
+        )
 
         if not self.xml_state.get_image_version():
             raise KiwiRuntimeError(message_missing_version)
@@ -970,7 +1032,8 @@ class RuntimeChecker:
         Verify that the selected image type is unique within
         the range of the configured types and profiles.
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Conflicting image type setup detected
 
             The selected image type '{0}' in the {1} profile
@@ -980,7 +1043,8 @@ class RuntimeChecker:
             To solve this conflict please move the image type
             setup into its own profile and select them using
             the --profile option at call time.
-        ''')
+        '''
+        )
         image_type_sections = []
         type_dict: Dict[str, List[Any]] = {}
         for preferences in self.xml_state.get_preferences_sections():
@@ -1012,12 +1076,14 @@ class RuntimeChecker:
         Verify that the efifatimagesize does not exceed the max
         El Torito load size of 65535 * 512 bytes
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             El Torito max load size exceeded
 
             The configured efifatimagesize of '{0}MB' exceeds
             the El Torito max load size of 65535 * 512 bytes (~31MB).
-        ''')
+        '''
+        )
         fat_image_mbsize = int(
             self.xml_state.build_type.get_efifatimagesize()
             or defaults.EFI_FAT_IMAGE_SIZE
@@ -1031,13 +1097,15 @@ class RuntimeChecker:
         section, check if the selected loader supports custom
         environment blobs
         """
-        message = dedent('''\n
+        message = dedent(
+            '''\n
             Selected loader does not support custom environments
 
             The selected bootloader {} does not support custom
             environment settings. Please drop the <environment>
             setting from <bootloadersettings> for this loader
-        ''')
+        '''
+        )
         env_supported_loaders = ['grub2', 'grub2_s390x_emu', 'custom']
         bootloader = self.xml_state.get_build_type_bootloader_name()
         variable_list = (

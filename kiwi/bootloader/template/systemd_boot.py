@@ -27,22 +27,37 @@ class BootLoaderTemplateSystemdBoot:
     def __init__(self):
         self.cr = '\n'
 
-        self.loader = dedent('''
+        self.loader = (
+            dedent(
+                '''
             # kiwi generated loader config file
             console-mode max
             editor  no
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.timeout = dedent('''
+        self.timeout = (
+            dedent(
+                '''
             timeout ${boot_timeout}
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.entry = dedent('''
+        self.entry = (
+            dedent(
+                '''
             title ${title}
             options ${boot_options}
             linux ${kernel_file}
             initrd ${initrd_file}
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
     def get_loader_template(self) -> Template:
         """

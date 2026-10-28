@@ -1000,13 +1000,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         chrp_dir = os.path.normpath(os.sep.join([self.boot_dir, 'ppc']))
         Path.create(chrp_dir)
         chrp_bootinfo_file = os.sep.join([chrp_dir, 'bootinfo.txt'])
-        chrp_config = dedent('''
+        chrp_config = (
+            dedent(
+                '''
             <chrp-boot>
             <description>{os_name}</description>
             <os-name>{os_name}</os-name>
             <boot-script>boot &device;:1,\\boot\\grub2\\powerpc-ieee1275\\{chrp_loader}</boot-script>
             </chrp-boot>
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
         with open(chrp_bootinfo_file, 'w') as chrp_bootinfo:
             chrp_bootinfo.write(
                 chrp_config.format(

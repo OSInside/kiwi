@@ -69,7 +69,8 @@ class SystemPrepare:
 
         log.info('Setup root directory: %s', root_dir)
         if not log.getLogLevel() == logging.DEBUG and not log.get_logfile():
-            self.issue_message = dedent('''
+            self.issue_message = dedent(
+                '''
                 {headline}: {reason}
 
                 Further details to clarify the error might have been
@@ -77,7 +78,8 @@ class SystemPrepare:
                 and did not get exposed to the caller. Thus if the above
                 message is not clear on the error please call kiwi with
                 the --debug or --logfile option.
-            ''')
+            '''
+            )
         else:
             self.issue_message = '{headline}: {reason}'
         root = RootInit(root_dir, allow_existing)

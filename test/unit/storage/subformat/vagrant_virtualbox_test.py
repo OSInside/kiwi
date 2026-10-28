@@ -83,10 +83,12 @@ class TestDiskFormatVagrantVirtualBox:
             None
         )
 
-        expected_res = dedent('''
+        expected_res = dedent(
+            '''
             config.vm.base_mac = "00163E010101"
             config.vm.synced_folder ".", "/vagrant", type: "rsync"
-        ''').strip()
+        '''
+        ).strip()
         assert (
             self.disk_format.get_additional_vagrant_config_settings()
             == expected_res
@@ -111,23 +113,27 @@ class TestDiskFormatVagrantVirtualBox:
         with patch('builtins.open', m_open, create=True):
             self.disk_format.create_image_format()
 
-        vagrantfile = dedent('''
+        vagrantfile = dedent(
+            '''
             Vagrant.configure("2") do |config|
               config.vm.base_mac = "00163E010101"
               config.vm.synced_folder ".", "/vagrant", type: "rsync"
             end
-        ''').strip()
+        '''
+        ).strip()
         assert m_open.return_value.write.call_args_list[1] == call(vagrantfile)
 
         # without guest additions
         self.xml_state.get_vagrant_config_virtualbox_guest_additions.return_value = (
             True
         )
-        vagrantfile = dedent('''
+        vagrantfile = dedent(
+            '''
             Vagrant.configure("2") do |config|
               config.vm.base_mac = "00163E010101"
             end
-        ''').strip()
+        '''
+        ).strip()
 
         m_open.reset_mock()
         with patch('builtins.open', m_open, create=True):

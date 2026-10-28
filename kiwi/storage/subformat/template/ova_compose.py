@@ -27,21 +27,31 @@ class OvaComposeTemplate:
     def __init__(self):
         self.cr = '\n'
 
-        self.header = dedent('''
+        self.header = (
+            dedent(
+                '''
             system:
                 name: "${display_name}"
                 type: vmx-${virtual_hardware_version}
                 os_vmw: "${guest_os}"
                 firmware: "${firmware}"
                 secure_boot: ${secure_boot}
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.network = dedent('''
+        self.network = (
+            dedent(
+                '''
             networks:
                 vm_network:
                     name: "VM Network"
                     description: "The VM Network"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
     def _get_controller(
         self, controller: str | None, device_id: str

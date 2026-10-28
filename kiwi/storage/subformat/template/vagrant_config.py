@@ -70,13 +70,20 @@ class VagrantConfigTemplate:
     def __init__(self):
         self.indent = '  '
 
-        self.header = dedent('''
+        self.header = (
+            dedent(
+                '''
             Vagrant.configure("2") do |config|
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.end = dedent('''
+        self.end = dedent(
+            '''
             end
-        ''').strip()
+        '''
+        ).strip()
 
     def get_template(self, custom_settings=None):
         """

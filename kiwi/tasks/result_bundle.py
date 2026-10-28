@@ -308,7 +308,8 @@ class ResultBundleTask(CliTask):
                 )
             )
         spec_file_name = os.path.join(bundle_directory, f'{image_name}.spec')
-        spec_data = dedent('''
+        spec_data = dedent(
+            '''
             %global _sourcedir %(pwd)
             %global _rpmdir .
 
@@ -342,7 +343,8 @@ class ResultBundleTask(CliTask):
             /var/tmp/{name}
 
             %changelog
-        ''').format(
+        '''
+        ).format(
             name=image_name,
             version=image_version,
             description=description_text,

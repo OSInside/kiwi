@@ -27,7 +27,9 @@ class VmwareSettingsTemplate:
     def __init__(self):
         self.cr = '\n'
 
-        self.header = dedent('''
+        self.header = (
+            dedent(
+                '''
             #!/usr/bin/env vmware
             # kiwi generated VMware settings file
             config.version = "8"
@@ -36,79 +38,147 @@ class VmwareSettingsTemplate:
             virtualHW.version = "${virtual_hardware_version}"
             displayName = "${display_name}"
             guestOS = "${guest_os}"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.ide_disk = dedent('''
+        self.ide_disk = (
+            dedent(
+                '''
             ide${disk_id}:0.present = "true"
             ide${disk_id}:0.fileName= "${vmdk_file}"
             ide${disk_id}:0.redo = ""
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.scsi_disk = dedent('''
+        self.scsi_disk = (
+            dedent(
+                '''
             scsi${disk_id}.present = "true"
             scsi${disk_id}.sharedBus = "none"
             scsi${disk_id}.virtualDev = "${scsi_controller_name}"
             scsi${disk_id}:0.present = "true"
             scsi${disk_id}:0.fileName = "${vmdk_file}"
             scsi${disk_id}:0.deviceType = "scsi-hardDisk"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.network = dedent('''
+        self.network = (
+            dedent(
+                '''
             ethernet{nic_id}.present = "true"
             ethernet{nic_id}.allow64bitVmxnet = "true"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.network_mac_static = dedent('''
+        self.network_mac_static = (
+            dedent(
+                '''
             ethernet{nic_id}.addressType = "static"
             ethernet{nic_id}.address = "{mac_address}"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.network_mac_generated = dedent('''
+        self.network_mac_generated = (
+            dedent(
+                '''
             ethernet{nic_id}.addressType = "generated"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.network_driver = dedent('''
+        self.network_driver = (
+            dedent(
+                '''
             ethernet{nic_id}.virtualDev = "{network_driver}"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.network_connection_type = dedent('''
+        self.network_connection_type = (
+            dedent(
+                '''
             ethernet{nic_id}.connectionType = "{mode}"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.memory = dedent('''
+        self.memory = (
+            dedent(
+                '''
             memsize = "${memory_size}"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.number_of_cpus = dedent('''
+        self.number_of_cpus = (
+            dedent(
+                '''
             numvcpus = "${number_of_cpus}"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.ide_iso = dedent('''
+        self.ide_iso = (
+            dedent(
+                '''
             ide${iso_id}:0.present = "true"
             ide${iso_id}:0.deviceType = "cdrom-raw"
             ide${iso_id}:0.autodetect = "true"
             ide${iso_id}:0.startConnected = "true"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.scsi_iso = dedent('''
+        self.scsi_iso = (
+            dedent(
+                '''
             scsi${iso_id}:0.present = "true"
             scsi${iso_id}:0.deviceType = "cdrom-raw"
             scsi${iso_id}:0.autodetect = "true"
             scsi${iso_id}:0.startConnected = "true"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.usb = dedent('''
+        self.usb = (
+            dedent(
+                '''
             usb.present = "true"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
-        self.defaults = dedent('''
+        self.defaults = (
+            dedent(
+                '''
             priority.grabbed = "normal"
             priority.ungrabbed = "normal"
             powerType.powerOff = "soft"
             powerType.powerOn  = "soft"
             powerType.suspend  = "soft"
             powerType.reset    = "soft"
-        ''').strip() + self.cr
+        '''
+            ).strip()
+            + self.cr
+        )
 
     def get_template(
         self,

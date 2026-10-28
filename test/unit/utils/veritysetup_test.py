@@ -74,7 +74,8 @@ class TestVeritySetup:
     @patch('kiwi.utils.veritysetup.Command.run')
     def test_format_full(self, mock_Command_run):
         verity_call = Mock()
-        verity_call.output = dedent('''\n
+        verity_call.output = dedent(
+            '''\n
             VERITY header information for mysquash.img
             UUID:
             Hash type:			1
@@ -84,7 +85,8 @@ class TestVeritySetup:
             Hash algorithm:     sha256
             Salt:               fb074d1db50...
             Root hash:          e2728628377...
-        ''')
+        '''
+        )
         mock_Command_run.return_value = verity_call
         assert self.veritysetup_full.format() == self.verity_dict
         mock_Command_run.assert_called_once_with(

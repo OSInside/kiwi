@@ -83,9 +83,11 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
 
         :rtype: str
         """
-        return dedent('''
+        return dedent(
+            '''
             config.vm.synced_folder ".", "/vagrant", type: "rsync"
             config.vm.provider :libvirt do |libvirt|
               libvirt.driver = "kvm"
             end
-        ''').strip()
+        '''
+        ).strip()

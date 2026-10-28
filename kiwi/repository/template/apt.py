@@ -26,21 +26,33 @@ class PackageManagerTemplateAptGet:
     """
 
     def __init__(self) -> None:
-        self.host_header = dedent('''
+        self.host_header = (
+            dedent(
+                '''
             # kiwi generated apt-get config file
             Dir "/";
             Dir::State "${apt_shared_base}/";
             Dir::State::status "/var/lib/dpkg/status.kiwi";
             Dir::Cache "${apt_shared_base}/";
             Dir::Etc   "${apt_shared_base}/";
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.image_header = dedent('''
+        self.image_header = (
+            dedent(
+                '''
             # kiwi generated apt-get config file
             Dir "/";
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.apt = dedent('''
+        self.apt = (
+            dedent(
+                '''
             APT
             {
                 Get
@@ -51,15 +63,23 @@ class PackageManagerTemplateAptGet:
                     AllowUnauthenticated "${unauthenticated}";
                 }
             };
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.dpkg_exclude_docs = dedent('''
+        self.dpkg_exclude_docs = (
+            dedent(
+                '''
             DPkg::Options {
                 "--path-exclude=/usr/share/man/*";
                 "--path-exclude=/usr/share/doc/*";
                 "--path-include=/usr/share/doc/*/copyright";
             };
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
     def get_host_template(self, exclude_docs: bool = False) -> Template:
         """

@@ -26,7 +26,9 @@ class BootLoaderTemplateGrub2:
     """
 
     def __init__(self):
-        self.header = dedent('''
+        self.header = (
+            dedent(
+                '''
             # kiwi generated one time grub2 config file
             search ${search_params}
             set default=${default_boot}
@@ -38,46 +40,87 @@ class BootLoaderTemplateGrub2:
             if [ -n "$${iso_path}" ]; then
                 isoboot="iso-scan/filename=$${iso_path}"
             fi
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.header_btrfs_relative_path = dedent('''
+        self.header_btrfs_relative_path = (
+            dedent(
+                '''
             set btrfs_relative_path="y"
             export btrfs_relative_path
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.timeout = dedent('''
+        self.timeout = (
+            dedent(
+                '''
             set timeout=${boot_timeout}
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.timeout_style = dedent('''
+        self.timeout_style = (
+            dedent(
+                '''
             set timeout_style=${boot_timeout_style}
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.header_gfxmode = dedent('''
+        self.header_gfxmode = (
+            dedent(
+                '''
             if [ "$${grub_platform}" = "efi" ]; then
                 echo "Please press 't' to show the boot menu on this console"
             fi
             set gfxmode=${gfxmode}
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.header_serial = dedent('''
+        self.header_serial = (
+            dedent(
+                '''
             ${serial_line_setup}
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.header_terminal_setup = dedent('''
+        self.header_terminal_setup = (
+            dedent(
+                '''
             terminal_input ${terminal_input}
             terminal_output ${terminal_output}
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.fonts = dedent('''
+        self.fonts = (
+            dedent(
+                '''
             set font=($$root)${bootpath}/${boot_directory_name}/fonts/unicode.pf2
             set ascii_font=${boot_directory_name}/themes/${theme}/ascii.pf2
             set sans_bold_14_font=${boot_directory_name}/themes/${theme}/DejaVuSans-Bold14.pf2
             set sans_10_font=${boot_directory_name}/themes/${theme}/DejaVuSans10.pf2
             set sans_12_font=${boot_directory_name}/themes/${theme}/DejaVuSans12.pf2
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.header_theme = self.fonts + dedent('''
+        self.header_theme = (
+            self.fonts
+            + dedent(
+                '''
             if [ -f $${font} ];then
                 loadfont $${font}
             fi
@@ -97,9 +140,15 @@ class BootLoaderTemplateGrub2:
                 set theme=($$root)${bootpath}/${boot_directory_name}/themes/${theme}/theme.txt
                 export theme
             fi
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.header_theme_iso = self.fonts + dedent('''
+        self.header_theme_iso = (
+            self.fonts
+            + dedent(
+                '''
             if [ -f $${font} ];then
                 loadfont $${font}
             fi
@@ -118,24 +167,39 @@ class BootLoaderTemplateGrub2:
             if [ -f ($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt ];then
                 set theme=($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt
             fi
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_entry_boot_snapshots = dedent('''
+        self.menu_entry_boot_snapshots = (
+            dedent(
+                '''
             if [ -f "/.snapshots/grub-snapshot.cfg" ]; then
                 source "/.snapshots/grub-snapshot.cfg"
             fi
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_entry_console_switch = dedent('''
+        self.menu_entry_console_switch = (
+            dedent(
+                '''
             if [ "$${grub_platform}" = "efi" ]; then
                 hiddenentry "Text mode" --hotkey "t" {
                     set textmode=true
                     terminal_output console
                 }
             fi
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_entry_multiboot = dedent('''
+        self.menu_entry_multiboot = (
+            dedent(
+                '''
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading hypervisor...
@@ -145,9 +209,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_entry = dedent('''
+        self.menu_entry = (
+            dedent(
+                '''
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
@@ -155,9 +224,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_entry_failsafe_multiboot = dedent('''
+        self.menu_entry_failsafe_multiboot = (
+            dedent(
+                '''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading hypervisor...
@@ -167,9 +241,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_entry_failsafe = dedent('''
+        self.menu_entry_failsafe = (
+            dedent(
+                '''
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
@@ -177,9 +256,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_install_entry_multiboot = dedent('''
+        self.menu_install_entry_multiboot = (
+            dedent(
+                '''
             menuentry "Install -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading hypervisor...
@@ -189,9 +273,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_install_entry = dedent('''
+        self.menu_install_entry = (
+            dedent(
+                '''
             menuentry "Install ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
@@ -199,9 +288,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_mediacheck_entry_multiboot = dedent('''
+        self.menu_mediacheck_entry_multiboot = (
+            dedent(
+                '''
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading hypervisor...
@@ -211,9 +305,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_mediacheck_entry = dedent('''
+        self.menu_mediacheck_entry = (
+            dedent(
+                '''
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
@@ -221,9 +320,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_install_entry_failsafe_multiboot = dedent('''
+        self.menu_install_entry_failsafe_multiboot = (
+            dedent(
+                '''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading hypervisor...
@@ -233,9 +337,14 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 module ${bootpath}/${initrd_file} dummy
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_install_entry_failsafe = dedent('''
+        self.menu_install_entry_failsafe = (
+            dedent(
+                '''
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
@@ -243,13 +352,21 @@ class BootLoaderTemplateGrub2:
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
-        self.menu_iso_harddisk_entry = dedent('''
+        self.menu_iso_harddisk_entry = (
+            dedent(
+                '''
             menuentry "Boot from Hard Disk" --class os --unrestricted {
                 exit
             }
-        ''').strip() + os.linesep
+        '''
+            ).strip()
+            + os.linesep
+        )
 
     def get_iso_template(
         self,
