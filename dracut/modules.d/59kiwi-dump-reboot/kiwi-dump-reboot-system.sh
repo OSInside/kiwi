@@ -42,6 +42,7 @@ function boot_installed_system {
         for option in ${cmdline}; do
             case ${option} in
                 rd.kiwi.*) ;; # skip all rd.kiwi options, they might do harm
+                iso-scan/filename=*) ;; # install ISO file, not for the system
                 *)  boot_options="${boot_options}${option} ";;
             esac
         done
