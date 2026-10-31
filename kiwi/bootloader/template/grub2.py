@@ -284,7 +284,7 @@ class BootLoaderTemplateGrub2:
             menuentry "Install ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} cdinst=1 $${isoboot} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -348,7 +348,7 @@ class BootLoaderTemplateGrub2:
             menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
+                linux ($$root)${bootpath}/${kernel_file} cdinst=1 $${isoboot} ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
