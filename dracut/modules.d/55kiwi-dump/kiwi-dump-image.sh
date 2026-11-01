@@ -1102,6 +1102,110 @@ function check_image_integrity {
     fi
 }
 
+function get_isoscan_devices {
+    # """
+    # print the kernel names of the block device stack, e.g.
+    # partition, LVM, RAID and disk, which holds the filesystem
+    # with the ISO file loop mounted via iso-scan/filename
+    # """
+    local isoscan_device=/run/initramfs/isoscandev
+    local device
+    if [[ -e "${isoscan_device}" ]];then
+        device=$(readlink -f "${isoscan_device}")
+        lsblk -p -n -r -s -o KNAME "${device}"
+    fi
+}
+
+function target_holds_isoscan_file {
+    # """
+    # check if the given install target disk holds the
+    # ISO file loop mounted via iso-scan/filename
+    # """
+    local target=$1
+    local target_device
+    local device
+    target_device=$(readlink -f "${target}")
+    for device in $(get_isoscan_devices);do
+        if [[ "${device}" = "${target_device}" ]];then
+            return 0
+        fi
+    done
+    return 1
+}
+
+function move_isoscan_file_to_ram {
+    # """
+    # The install ISO file loop mounted via iso-scan/filename is
+    # stored on the install target disk. Dumping the image would
+    # overwrite the ISO file while reading from it. Thus copy the
+    # ISO file into main memory, release the target disk and
+    # continue the installation from the copy
+    # """
+    declare root=${root}
+    local target=$1
+    local iso_device="${root#install:}"
+    local isoscan_mount=/run/initramfs/isoscan
+    local iso_ram_mount=/run/initramfs/isoram
+    local iso_ram_file="${iso_ram_mount}/install.iso"
+    local iso_file
+    local iso_loop
+    local iso_size_bytes
+    local iso_size_kb
+    local mem_available_kb
+    local mem_required_kb
+    # keep some main memory for the installation process
+    local mem_reserve_kb=524288
+    local message
+    iso_file="${isoscan_mount}/$(getarg iso-scan/filename)"
+    iso_loop=$(readlink -f "${iso_device}")
+    if [[ ! -f "${iso_file}" ]] || [[ ! "${iso_loop}" =~ ^/dev/loop ]];then
+        report_and_quit "Install ISO file not found on ${isoscan_mount}"
+    fi
+    iso_size_bytes=$(lsblk -n -b -d -o SIZE "${iso_loop}")
+    iso_size_kb=$((iso_size_bytes / 1024 + 1024))
+    mem_required_kb=$((iso_size_kb + mem_reserve_kb))
+    mem_available_kb=$(awk '/^MemAvailable:/ { print $2 }' /proc/meminfo)
+    if [[ "${mem_required_kb}" -gt "${mem_available_kb:-0}" ]];then
+        message="Install ISO file is stored on target disk ${target}."
+        message="${message} Not enough memory to copy it away, required:"
+        message="${message} ${mem_required_kb}kB available:"
+        message="${message} ${mem_available_kb}kB"
+        report_and_quit "${message}"
+    fi
+
+    info "Install ISO file is stored on target disk ${target}"
+    info "Copying ${iso_file} into main memory..."
+    mkdir -p "${iso_ram_mount}"
+    if ! mount -t tmpfs -o "size=${iso_size_kb}k,mode=0755" \
+        tmpfs "${iso_ram_mount}"
+    then
+        report_and_quit "Failed to create tmpfs for install ISO copy"
+    fi
+    if ! cp "${iso_file}" "${iso_ram_file}";then
+        report_and_quit "Failed to copy install ISO file into main memory"
+    fi
+
+    # release the target disk
+    udev_pending
+    if ! losetup -d "${iso_loop}";then
+        report_and_quit "Failed to detach install ISO loop ${iso_loop}"
+    fi
+    udev_pending
+    if ! umount "${isoscan_mount}";then
+        report_and_quit "Failed to release ${isoscan_mount} on ${target}"
+    fi
+    rm -f /run/initramfs/isoscandev
+
+    # attach the ISO copy, udev recreates the install media label link
+    if ! losetup -f -r "${iso_ram_file}";then
+        report_and_quit "Failed to attach install ISO copy ${iso_ram_file}"
+    fi
+    udev_pending
+    if [[ ! -e "${iso_device}" ]];then
+        report_and_quit "Install ISO device ${iso_device} not found"
+    fi
+}
+
 function get_local_image_source_files {
     declare root=${root}
     local iso_device="${root#install:}"
@@ -1203,6 +1307,12 @@ image_target=$(get_selected_disk)
 
 if getargbool 0 rd.kiwi.oem.disk.consistency; then
     validate_disk_selection "${image_target}"
+fi
+
+if ! getargbool 0 rd.kiwi.install.pxe && \
+    target_holds_isoscan_file "${image_target}"
+then
+    move_isoscan_file_to_ram "${image_target}"
 fi
 
 if getargbool 0 rd.kiwi.install.pxe; then

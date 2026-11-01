@@ -114,6 +114,29 @@ class TestBootLoaderTemplateGrub2:
             terminal_output='console',
         )
 
+    def test_get_install_template_supports_iso_scan(self):
+        template = self.grub2.get_install_template().substitute(
+            search_params='--file --set=root /boot/0xd305fb7d',
+            default_boot='0',
+            kernel_file='boot/linux.vmx',
+            initrd_file='boot/initrd.vmx',
+            boot_options='splash',
+            failsafe_boot_options='splash',
+            gfxmode='800x600',
+            theme='SLE',
+            boot_timeout='10',
+            boot_timeout_style='menu',
+            title='LimeJeOS-SLE12-Community [ VMX ]',
+            bootpath='/boot',
+            boot_directory_name='grub2',
+            efi_image_name='bootx64.efi',
+            terminal_input='console',
+            terminal_output='console',
+        )
+        assert 'isoboot="iso-scan/filename=${iso_path}"' in template
+        # install and failsafe install entry
+        assert template.count('cdinst=1 ${isoboot} splash') == 2
+
     def test_get_install_template_relative_btrfs(self):
         assert self.grub2.get_install_template(
             has_serial=True, has_btrfs_relative_path=True
