@@ -24,7 +24,7 @@ import logging
 import glob
 import shutil
 from collections import OrderedDict
-from typing import List
+from typing import Dict, List
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
@@ -35,6 +35,7 @@ from kiwi.exceptions import KiwiFileNotFound
 from kiwi.firmware import FirmWare
 from kiwi.path import Path
 from kiwi.system.identifier import SystemIdentifier
+from kiwi.system.kernel import Kernel
 from kiwi.utils.sparse import SparseFile
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
@@ -46,6 +47,7 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubModulesError,
     KiwiBootLoaderGrubSecureBootError,
     KiwiBootLoaderGrubFontError,
+    KiwiBootLoaderGrubMenuEntryError,
     KiwiDiskGeometryError,
     KiwiCommandNotFound,
 )
@@ -368,6 +370,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self._fix_grub_loader_entries_boot_cmdline()
         self._fix_grub_loader_entries_linux_and_initrd_paths()
 
+        # Select the menu entry of the first kernel flavor as default
+        self._setup_kernel_flavor_default_entry(config_file)
+
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
                 self.efi_mount.mountpoint, self.early_boot_script_efi
@@ -409,13 +414,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'boot_timeout_style': self.timeout_style or 'menu',
             'serial_line_setup': self.serial_line_setup or '',
-            'title': self.get_menu_entry_install_title(),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
             'efi_image_name': Defaults.get_efi_image_name(self.arch),
             'terminal_input': self.terminal_input,
             'terminal_output': self.terminal_output,
         }
+        parameters.update(
+            self._get_kernel_flavor_parameters(
+                self.get_menu_entry_install_title(), kernel, initrd
+            )
+        )
+        kernel_count = len(self.get_kernel_flavors())
         custom_template_path = self._get_custom_template()
         if custom_template_path:
             log.info('--> Using custom boot template')
@@ -430,6 +440,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 has_serial,
                 self.continue_on_timeout,
                 self._has_btrfs_relative_path(),
+                kernel_count=kernel_count,
             )
         else:
             log.info('--> Using standard boot install template')
@@ -439,6 +450,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 has_serial,
                 self.continue_on_timeout,
                 self._has_btrfs_relative_path(),
+                kernel_count=kernel_count,
             )
         try:
             self.config = template.substitute(parameters)
@@ -486,13 +498,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'boot_timeout': self.timeout,
             'boot_timeout_style': self.timeout_style or 'menu',
             'serial_line_setup': self.serial_line_setup or '',
-            'title': self.get_menu_entry_title(plain=True),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
             'efi_image_name': Defaults.get_efi_image_name(self.arch),
             'terminal_input': self.terminal_input,
             'terminal_output': self.terminal_output,
         }
+        parameters.update(
+            self._get_kernel_flavor_parameters(
+                self.get_menu_entry_title(plain=True), kernel, initrd
+            )
+        )
+        kernel_count = len(self.get_kernel_flavors())
         custom_template_path = self._get_custom_template()
         if custom_template_path:
             log.info('--> Using custom boot template')
@@ -507,6 +524,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 has_serial,
                 self.mediacheck_boot,
                 self._has_btrfs_relative_path(),
+                kernel_count=kernel_count,
             )
         else:
             log.info('--> Using standard boot template')
@@ -516,6 +534,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 has_serial,
                 self.mediacheck_boot,
                 self._has_btrfs_relative_path(),
+                kernel_count=kernel_count,
             )
         try:
             self.config = template.substitute(parameters)
@@ -525,6 +544,41 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._copy_grub_config_to_efi_path(
                 self.boot_dir, self.early_boot_script_efi, 'iso'
             )
+
+    def _get_kernel_flavor_parameters(
+        self, title: str, kernel: str, initrd: str
+    ) -> Dict[str, str]:
+        """
+        Template parameters of the boot menu entry of the kernel of
+        each kernel flavor, see get_kernel_flavors()
+
+        The parameters of the first flavor are title, kernel_file and
+        initrd_file, those of each further flavor have the index of
+        the flavor appended, see BootLoaderTemplateGrub2. The file
+        names of a flavor are provided by
+        Defaults.get_iso_kernel_flavor_file_name()
+
+        :param str title: menu entry title
+        :param str kernel: kernel file name
+        :param str initrd: initrd file name
+
+        :return: template parameters
+
+        :rtype: dict
+        """
+        parameters = {}
+        for index, flavor in enumerate(self.get_kernel_flavors()):
+            suffix = f'_{index}' if index else ''
+            parameters[f'title{suffix}'] = self.get_kernel_flavor_title(
+                title, flavor
+            )
+            parameters[f'kernel_file{suffix}'] = (
+                Defaults.get_iso_kernel_flavor_file_name(kernel, index, flavor)
+            )
+            parameters[f'initrd_file{suffix}'] = (
+                Defaults.get_iso_kernel_flavor_file_name(initrd, index, flavor)
+            )
+        return parameters
 
     def setup_install_boot_images(
         self, mbrid: SystemIdentifier, lookup_path: str = None
@@ -1727,6 +1781,123 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         ):
             return True
         return False
+
+    def _setup_kernel_flavor_default_entry(self, config_file: str) -> None:
+        """
+        Select the menu entry of the latest kernel of the first kernel
+        flavor as the default menu entry, see get_kernel_flavors()
+
+        grub2-mkconfig creates the menu entries for all installed
+        kernels in its own order. The default entry is selected by
+        the saved_entry variable of the grub environment, which is
+        taken into account with GRUB_DEFAULT=saved, the default kiwi
+        sets up, see _setup_default_grub()
+
+        :param str config_file: path of the grub config file
+
+        :raises KiwiBootLoaderGrubMenuEntryError:
+            if no menu entry of the kernel was found
+        """
+        kernel_flavors = (
+            self.xml_state.get_build_type_bootloader_kernel_flavors()
+        )
+        if not kernel_flavors:
+            return
+        kernel_info = Kernel(self.root_mount.mountpoint).get_kernel(
+            raise_on_not_found=True, flavor=kernel_flavors[0]
+        )
+        kernel_version = kernel_info.version if kernel_info else ''
+        menu_entry_id = self._get_menu_entry_id(
+            config_file, kernel_version
+        ) or self._get_loader_entry_id(kernel_version)
+        if not menu_entry_id:
+            raise KiwiBootLoaderGrubMenuEntryError(
+                f'No menu entry for kernel {kernel_version} of flavor '
+                f'{kernel_flavors[0]} found in {config_file}'
+            )
+        grub_default_file = f'{self.root_mount.mountpoint}/etc/default/grub'
+        if os.path.exists(grub_default_file):
+            grub_default = SysConfig(grub_default_file).get('GRUB_DEFAULT')
+            if grub_default and grub_default.strip('"\'') != 'saved':
+                log.warning(
+                    f'GRUB_DEFAULT={grub_default} is set, the default '
+                    f'entry of kernel flavor {kernel_flavors[0]} is only '
+                    'selected with GRUB_DEFAULT=saved'
+                )
+        self._setup_loader_variables([f'saved_entry={menu_entry_id}'])
+
+    @staticmethod
+    def _get_menu_entry_id(config_file: str, kernel_version: str) -> str:
+        """
+        Provide the id of the menu entry of the given kernel version
+        in the given grub config file
+
+        The id of an entry in a submenu is prefixed by the id of the
+        submenu, separated by >. An entry in a submenu, which belongs
+        to the kernel version only, is preferred over a top level
+        entry, which grub2-mkconfig creates for the latest kernel no
+        matter its version. Recovery entries are not taken into account
+
+        :param str config_file: path of the grub config file
+        :param str kernel_version: kernel version
+
+        :return: menu entry id or empty string if not found
+
+        :rtype: str
+        """
+        menu_ids: List[str] = []
+        top_level_entry_id = ''
+        with open(config_file) as config:
+            for line in config:
+                line = line.strip()
+                if line == '}':
+                    if menu_ids:
+                        menu_ids.pop()
+                elif line.endswith('{'):
+                    menu_id = re.search(
+                        r'^(?:menuentry|submenu)\s.*'
+                        r'\$menuentry_id_option\s+\'([^\']+)\'',
+                        line,
+                    )
+                    menu_ids.append(menu_id.group(1) if menu_id else '')
+                elif re.match(r'(linux|linuxefi|linux16)\s', line):
+                    entry_ids = [menu_id for menu_id in menu_ids if menu_id]
+                    kernel_name = os.path.basename(line.split()[1])
+                    if (
+                        entry_ids
+                        and 'recovery' not in entry_ids[-1]
+                        and re.fullmatch(
+                            rf'[^-]+-{re.escape(kernel_version)}', kernel_name
+                        )
+                    ):
+                        if len(entry_ids) > 1:
+                            return '>'.join(entry_ids)
+                        top_level_entry_id = top_level_entry_id or entry_ids[0]
+        return top_level_entry_id
+
+    def _get_loader_entry_id(self, kernel_version: str) -> str:
+        """
+        Provide the id of the boot loader specification entry of the
+        given kernel version, which is the entry file name without
+        its extension. Such entries are used by grub if the menu
+        entries are not part of the grub config file
+
+        :param str kernel_version: kernel version
+
+        :return: loader entry id or empty string if not found
+
+        :rtype: str
+        """
+        kernel = Kernel(self.root_mount.mountpoint)
+        for loader_entry in sorted(
+            glob.iglob(
+                f'{self.root_mount.mountpoint}/boot/loader/entries/*.conf'
+            )
+        ):
+            loader_entry_name = os.path.basename(loader_entry)
+            if kernel.get_version_in_name(loader_entry_name) == kernel_version:
+                return loader_entry_name[: -len('.conf')]
+        return ''
 
     def _setup_loader_variables(self, variable_list: List[str]):
         """

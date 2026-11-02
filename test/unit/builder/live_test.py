@@ -70,6 +70,9 @@ class TestLiveImageBuilder:
             return_value='0xffffffff'
         )
         self.xml_state.build_type.get_flags = Mock(return_value=None)
+        self.xml_state.get_build_type_bootloader_kernel_flavors = Mock(
+            return_value=[]
+        )
         self.xml_state.build_type.get_squashfscompression = Mock(
             return_value='lzo'
         )
@@ -598,9 +601,11 @@ class TestLiveImageBuilder:
         bootloader_config.write.assert_called_once_with()
 
         self.boot_image_task.prepare.assert_called_once_with()
-        self.boot_image_task.create_initrd.assert_called_once_with(self.mbrid)
+        self.boot_image_task.create_initrd.assert_called_once_with(
+            self.mbrid, basename=None, flavor='', delete_included_files=True
+        )
         self.kernel.copy_kernel.assert_called_once_with(
-            'temp_media_dir/boot/x86_64/loader', '/linux'
+            'temp_media_dir/boot/x86_64/loader', '/linux', flavor=''
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
             'temp_media_dir/boot/x86_64/loader', '/xen.gz'
@@ -726,3 +731,98 @@ class TestLiveImageBuilder:
         mock_unlink.return_value = True
         with raises(KiwiLiveBootImageError):
             self.live_image.create()
+
+    @patch('kiwi.builder.live.Temporary')
+    @patch('kiwi.builder.live.shutil')
+    @patch('kiwi.builder.live.Command.run')
+    @patch('os.unlink')
+    @patch('os.path.exists')
+    @patch('os.chmod')
+    def test_kernel_and_initrd_of_kernel_flavors(
+        self,
+        mock_chmod,
+        mock_exists,
+        mock_unlink,
+        mock_Command_run,
+        mock_shutil,
+        mock_Temporary,
+    ):
+        # An initrd is created for the kernel of each flavor, the
+        # files of the first flavor keep the standard names
+        self.live_image.kernel_flavors = ['rt', 'default']
+        self.live_image.media_dir = Mock()
+        self.live_image.media_dir.name = 'temp_media_dir'
+        self.boot_image_task.initrd_base_name = 'image.initrd'
+
+        def create_initrd(mbrid, basename, flavor, delete_included_files):
+            self.boot_image_task.initrd_filename = f'target_dir/{basename}'
+
+        self.boot_image_task.create_initrd.side_effect = create_initrd
+        self.firmware.efi_mode.return_value = None
+        mock_exists.return_value = True
+        self.live_image.create_live_iso_boot_images(Mock())
+        assert self.boot_image_task.create_initrd.call_args_list == [
+            call(
+                self.mbrid,
+                basename='image.initrd-rt',
+                flavor='rt',
+                delete_included_files=False,
+            ),
+            call(
+                self.mbrid,
+                basename='image.initrd-default',
+                flavor='default',
+                delete_included_files=True,
+            ),
+        ]
+        self.live_image._setup_live_iso_kernel_and_initrd()
+        assert self.kernel.copy_kernel.call_args_list == [
+            call('temp_media_dir/boot/x86_64/loader', '/linux', flavor='rt'),
+            call(
+                'temp_media_dir/boot/x86_64/loader',
+                '/linux-default',
+                flavor='default',
+            ),
+        ]
+        assert mock_shutil.move.call_args_list == [
+            call(
+                'target_dir/image.initrd-rt',
+                'temp_media_dir/boot/x86_64/loader/initrd',
+            ),
+            call(
+                'target_dir/image.initrd-default',
+                'temp_media_dir/boot/x86_64/loader/initrd-default',
+            ),
+        ]
+        # With systemd-boot the initrd is placed into the boot
+        # directory of the root tree, named after the kernel
+        self.live_image.bootloader = 'systemd_boot'
+        self.boot_image_task.get_boot_names.side_effect = lambda flavor: Mock(
+            initrd_name=f'initrd-1.2.3-{flavor}'
+        )
+        self.live_image.create_live_iso_boot_images(Mock())
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'mv',
+                    'target_dir/image.initrd-rt',
+                    'root_dir/boot/initrd-1.2.3-rt',
+                ]
+            ),
+            call(
+                [
+                    'mv',
+                    'target_dir/image.initrd-default',
+                    'root_dir/boot/initrd-1.2.3-default',
+                ]
+            ),
+        ]
+
+    def test_setup_live_iso_kernel_of_flavor_not_found(self):
+        self.live_image.kernel_flavors = ['rt']
+        self.live_image.media_dir = Mock()
+        self.live_image.media_dir.name = 'temp_media_dir'
+        self.kernel.get_kernel.return_value = None
+        with raises(KiwiLiveBootImageError) as issue:
+            self.live_image._setup_live_iso_kernel_and_initrd()
+        assert 'No kernel of flavor rt in boot image tree' in str(issue.value)

@@ -1,5 +1,6 @@
 # vim: set fileencoding=utf-8
 from unittest.mock import patch
+from pytest import fixture
 
 import os
 
@@ -9,8 +10,13 @@ from kiwi.xml_description import XMLDescription
 
 
 class TestProfile:
+    @fixture(autouse=True)
+    def setup_profile_file(self, tmp_path):
+        # each test writes its profile to a directory of its own,
+        # tests running in parallel share the working directory
+        self.profile_file = str(tmp_path / 'tmpfile.profile')
+
     def setup(self):
-        self.profile_file = 'tmpfile.profile'
         description = XMLDescription('../data/example_dot_profile_config.xml')
         self.profile = Profile(XMLState(description.load()))
         live_description = XMLDescription(

@@ -47,6 +47,15 @@ class BootLoaderTemplateSystemdBoot:
             + self.cr
         )
 
+        self.default = (
+            dedent(
+                '''
+            default ${default_entry}
+        '''
+            ).strip()
+            + self.cr
+        )
+
         self.entry = (
             dedent(
                 '''
@@ -59,9 +68,12 @@ class BootLoaderTemplateSystemdBoot:
             + self.cr
         )
 
-    def get_loader_template(self) -> Template:
+    def get_loader_template(self, with_default_entry: bool = False) -> Template:
         """
         Bootloader main configuration template
+
+        :param bool with_default_entry:
+            select the default entry by the default_entry parameter
 
         :return: instance of :class:`Template`
 
@@ -69,6 +81,8 @@ class BootLoaderTemplateSystemdBoot:
         """
         template_data = self.loader
         template_data += self.timeout
+        if with_default_entry:
+            template_data += self.default
         return Template(template_data)
 
     def get_entry_template(self) -> Template:

@@ -56,11 +56,12 @@ class TestRootBind:
     def teardown_method(self, cls):
         self.teardown()
 
+    @patch('kiwi.mount_manager.Path.create')
     @patch('kiwi.system.root_bind.MountManager.bind_mount')
     @patch('kiwi.system.root_bind.RootBind.cleanup')
     @patch('os.path.exists')
     def test_kernel_file_systems_raises_error(
-        self, mock_exists, mock_cleanup, mock_mount
+        self, mock_exists, mock_cleanup, mock_mount, mock_Path_create
     ):
         mock_exists.return_value = True
         mock_mount.side_effect = KiwiMountKernelFileSystemsError('mount-error')

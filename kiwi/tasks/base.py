@@ -88,6 +88,7 @@ class CliTask:
             'check_partuuid_persistency_type_used_with_mbr': [],
             'check_efi_fat_image_has_correct_size': [],
             'check_bootloader_env_compatible_with_loader': [],
+            'check_kernel_flavor_supported': [],
         }
         self.checks_after_command_args: Dict[str, List[str]] = {
             'check_repositories_configured': [],

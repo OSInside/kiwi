@@ -1517,6 +1517,12 @@ grub_template="filename":
   | terminal_setup        | the bootloader console mode, set by the      |
   |                       | `console` attribute                          |
   +-----------------------+----------------------------------------------+
+  | title_N,              | title, kernel and initrd file name of the    |
+  | kernel_file_N,        | further kernel flavors, numbered from 1, set |
+  | initrd_file_N         | by the `kernel_flavor` attribute. title,     |
+  |                       | kernel_file and initrd_file belong to the    |
+  |                       | first flavor in this case                    |
+  +-----------------------+----------------------------------------------+
 
 serial_line="string":
   Specifies the bootloader serial line setup. The setup is effective if
@@ -1553,6 +1559,62 @@ use_disk_password="true|false":
   When `/boot` is encrypted, makes the bootloader store the
   password in its configuration file (in cleartext). This is
   useful for full disk encryption images.
+
+kernel_flavor="flavor,...":
+  Specifies one or more kernel flavors as a comma-separated list,
+  for example, `kernel_flavor="rt,default"`. {kiwi} creates an initrd
+  and a boot menu entry for the latest installed kernel of each
+  flavor. The menu entries follow the order of the list, and the
+  entry of the first flavor is the default entry. In the example
+  above, the entry of the `rt` kernel is selected by default.
+  If not specified, the boot menu entry is created for the
+  latest installed kernel only.
+
+  The flavor is the end of the kernel version following the release,
+  separated by `-` or `+`. For example, `6.4.0-150600.23.25-rt` is
+  of flavor `rt`, `6.1.0-21-rt-amd64` is of flavor `rt-amd64`, and
+  `5.14.0-427.13.1.el9_4.x86_64+rt` is of flavor `rt`. A kernel of
+  each flavor must be installed in the image. The menu entry
+  titles are extended by the flavor name, for example `Title (rt)`.
+
+  The special flavor `none` stands for kernels whose version does not
+  end with a flavor name, for example `7.2.15-100.fc43.x86_64` of the
+  Fedora `kernel` package. The version of such a kernel ends with its
+  release, a part with a dot or a part without letters, after the last
+  `-` or `+`. To boot the Fedora `kernel` by default and provide a menu
+  entry for `kernel-rt` as well, set `kernel_flavor="none,rt"`. The menu
+  entry title of the `none` flavor is not extended.
+
+  The attribute is available for the `grub2`, `grub2_s390x_emu`,
+  `systemd_boot` and `zipl` loaders and is handled as follows:
+
+  grub2 (disk images):
+    The menu entries are created by `grub2-mkconfig` for all installed
+    kernels. {kiwi} selects the entry of the first flavor as the
+    default entry by setting the `saved_entry` variable in the grub
+    environment. This requires `GRUB_DEFAULT=saved`, which is the
+    {kiwi} default.
+
+  grub2 (live and install ISO images):
+    The ISO image contains the kernel and initrd of each flavor. The
+    files of the first flavor are named `linux` and `initrd`, those
+    of further flavors have the flavor appended, for example `linux-default`.
+    The boot menu provides one boot entry (live) or install entry
+    (install) per flavor. Failsafe and mediacheck entries use the
+    kernel of the first flavor, as does the system booted after
+    the installation.
+
+  systemd_boot:
+    A loader entry is written for each flavor, and the entry of the
+    first flavor is set as the default in `loader.conf`.
+
+  zipl:
+    A loader entry is written for each flavor, and the entry of the
+    first flavor is set as the default section.
+
+  The attribute requires the `dracut` initrd system. It is not
+  supported in combination with a UKI (`<dracut uefi="true"/>`), or
+  with zipl secure execution (`<securelinux>`).
 
 <preferences><type><bootloader><securelinux>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

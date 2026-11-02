@@ -52,6 +52,9 @@ class TestInstallImageBuilder:
         kiwi.builder.install.Kernel = mock.Mock(return_value=self.kernel)
         self.xml_state = mock.Mock()
         self.xml_state.get_initrd_system = mock.Mock(return_value='kiwi')
+        self.xml_state.get_build_type_bootloader_kernel_flavors = mock.Mock(
+            return_value=[]
+        )
         self.xml_state.xml_data.get_name = mock.Mock(
             return_value='result-image'
         )
@@ -224,11 +227,11 @@ class TestInstallImageBuilder:
             'temp_esp'
         )
         self.boot_image_task.create_initrd.assert_called_once_with(
-            self.mbrid, 'initrd_kiwi_install', install_initrd=True
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True, flavor=''
         )
         self.boot_image_task.cleanup.assert_called_once_with()
         self.kernel.copy_kernel.assert_called_once_with(
-            'temp_media_dir/boot/x86_64/loader', '/linux'
+            'temp_media_dir/boot/x86_64/loader', '/linux', flavor=''
         )
         self.kernel.copy_xen_hypervisor.assert_called_once_with(
             'temp_media_dir/boot/x86_64/loader', '/xen.gz'
@@ -401,7 +404,7 @@ class TestInstallImageBuilder:
             call('pxe=1 custom_kernel_options\n'),
         ]
         self.kernel.copy_kernel.assert_called_once_with(
-            'tmpdir', 'pxeboot.result-image.x86_64-1.2.3.kernel'
+            'tmpdir', 'pxeboot.result-image.x86_64-1.2.3.kernel', flavor=''
         )
         mock_symlink.assert_called_once_with(
             'pxeboot.result-image.x86_64-1.2.3.kernel',
@@ -411,7 +414,7 @@ class TestInstallImageBuilder:
             'tmpdir', '/pxeboot.result-image.x86_64-1.2.3.xen.gz'
         )
         self.boot_image_task.create_initrd.assert_called_once_with(
-            self.mbrid, 'initrd_kiwi_install', install_initrd=True
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True, flavor=''
         )
         self.boot_image_task.cleanup.assert_called_once_with()
         assert mock_command.call_args_list[1] == call(
@@ -474,3 +477,77 @@ class TestInstallImageBuilder:
         self.boot_image_task.set_static_modules.assert_called_once_with(
             ['module1', 'module2']
         )
+
+    @patch('kiwi.builder.install.Command.run')
+    @patch('kiwi.builder.install.shutil.copy')
+    @patch('os.symlink')
+    @patch('os.chmod')
+    def test_kernel_and_initrd_of_kernel_flavors(
+        self, mock_chmod, mock_symlink, mock_shutil_copy, mock_Command_run
+    ):
+        # An install initrd is created for the kernel of each flavor,
+        # the files of the first flavor keep the standard names. The
+        # installed system is booted with the kernel of the first flavor
+        self.install_image.kernel_flavors = ['rt', 'default']
+        self.install_image.initrd_system = 'kiwi'
+        self.install_image.media_dir = Mock()
+        self.install_image.media_dir.name = 'temp_media_dir'
+        self.xml_state.is_xen_server = Mock(return_value=False)
+        self.install_image._create_iso_install_kernel_and_initrd()
+        assert self.kernel.copy_kernel.call_args_list == [
+            call('temp_media_dir/boot/x86_64/loader', '/linux', flavor='rt'),
+            call(
+                'temp_media_dir/boot/x86_64/loader',
+                '/linux-default',
+                flavor='default',
+            ),
+        ]
+        assert self.boot_image_task.create_initrd.call_args_list == [
+            call(
+                self.mbrid,
+                'initrd_kiwi_install',
+                install_initrd=True,
+                flavor='rt',
+            ),
+            call(
+                self.mbrid,
+                'initrd_kiwi_install',
+                install_initrd=True,
+                flavor='default',
+            ),
+        ]
+        assert mock_Command_run.call_args_list == [
+            call(['mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd']),
+            call(
+                [
+                    'mv',
+                    'initrd',
+                    'temp_media_dir/boot/x86_64/loader/initrd-default',
+                ]
+            ),
+        ]
+        self.install_image._copy_system_image_initrd_to_iso_image()
+        self.boot_image_task.get_boot_names.assert_called_once_with('rt')
+
+        # pxe uses the kernel of the first flavor
+        self.kernel.copy_kernel.reset_mock()
+        self.boot_image_task.create_initrd.reset_mock()
+        self.install_image.pxe_dir = Mock()
+        self.install_image.pxe_dir.name = 'tmpdir'
+        self.install_image._create_pxe_install_kernel_and_initrd()
+        self.kernel.get_kernel.assert_called_with(flavor='rt')
+        self.kernel.copy_kernel.assert_called_once_with(
+            'tmpdir', 'pxeboot.result-image.x86_64-1.2.3.kernel', flavor='rt'
+        )
+        self.boot_image_task.create_initrd.assert_called_once_with(
+            self.mbrid, 'initrd_kiwi_install', install_initrd=True, flavor='rt'
+        )
+
+    def test_create_iso_install_kernel_of_flavor_not_found(self):
+        self.install_image.kernel_flavors = ['rt']
+        self.install_image.media_dir = Mock()
+        self.install_image.media_dir.name = 'temp_media_dir'
+        self.kernel.get_kernel.return_value = None
+        with raises(KiwiInstallBootImageError) as issue:
+            self.install_image._create_iso_install_kernel_and_initrd()
+        assert 'No kernel of flavor rt in boot image tree' in str(issue.value)

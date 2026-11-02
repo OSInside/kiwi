@@ -106,6 +106,17 @@ class TestBootImageBase:
         kernel.get_kernel.return_value = None
         with raises(KiwiDiskBootImageError):
             self.boot_image.get_boot_names()
+        kernel.get_kernel.assert_called_once_with(flavor='')
+
+    @patch('kiwi.boot.image.base.Kernel')
+    def test_get_boot_names_of_flavor_raises(self, mock_Kernel):
+        kernel = Mock()
+        mock_Kernel.return_value = kernel
+        kernel.get_kernel.return_value = None
+        with raises(KiwiDiskBootImageError) as issue:
+            self.boot_image.get_boot_names(flavor='rt')
+        assert 'No kernel of flavor rt in boot image tree' in str(issue.value)
+        kernel.get_kernel.assert_called_once_with(flavor='rt')
 
     @patch('kiwi.boot.image.base.Kernel')
     def test_get_boot_names_with_initrd_system_set_to_none(self, mock_Kernel):

@@ -318,6 +318,8 @@ class BootImageDracut(BootImageBase):
         mbrid: Optional[SystemIdentifier] = None,
         basename: Optional[str] = None,
         install_initrd: bool = False,
+        flavor: str = '',
+        delete_included_files: bool = True,
     ) -> None:
         """
         Create kiwi .profile environment to be included in dracut initrd.
@@ -327,12 +329,26 @@ class BootImageDracut(BootImageBase):
         :param SystemIdentifier mbrid: unused
         :param str basename: base initrd file name
         :param bool install_initrd: unused
+        :param str flavor:
+            create the initrd for the latest kernel of this flavor,
+            for the latest kernel if not set
+        :param bool delete_included_files:
+            delete the files included with delete_after_include once
+            the initrd is created. Keep them if another initrd which
+            includes them is created afterwards, e.g for the kernel
+            of another flavor
         """
         if self.is_prepared():
-            log.info('Creating generic dracut initrd archive')
+            log.info(
+                'Creating generic dracut initrd archive{0}'.format(
+                    f' for kernel flavor {flavor}' if flavor else ''
+                )
+            )
             self._create_profile_environment()
             kernel_info = Kernel(self.boot_root_directory)
-            kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
+            kernel_details = kernel_info.get_kernel(
+                raise_on_not_found=True, flavor=flavor
+            )
             if basename:
                 dracut_initrd_basename = basename
             else:
@@ -412,8 +428,9 @@ class BootImageDracut(BootImageBase):
                 [self.target_dir, dracut_initrd_basename]
             )
             Command.run(['chmod', '644', self.initrd_filename])
-            for filename in self.delete_after_include_files:
-                os.unlink(f'{self.boot_root_directory}/{filename}')
+            if delete_included_files:
+                for filename in self.delete_after_include_files:
+                    os.unlink(f'{self.boot_root_directory}/{filename}')
 
     def _get_modules(self) -> List[str]:
         cmd = Command.run(

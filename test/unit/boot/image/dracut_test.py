@@ -1,4 +1,6 @@
+import logging
 from unittest.mock import patch, call, Mock
+from pytest import fixture
 from collections import namedtuple
 
 from kiwi.defaults import Defaults
@@ -9,6 +11,10 @@ from kiwi.boot.image.base import boot_names_type
 
 
 class TestBootImageKiwi:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.dracut.Kernel')
     @patch('kiwi.boot.image.base.os.path.exists')
@@ -346,6 +352,24 @@ class TestBootImageKiwi:
         mock_os_unlink.assert_called_once_with(
             'system-directory/system-directory/etc/foo'
         )
+        kernel.get_kernel.assert_called_once_with(
+            raise_on_not_found=True, flavor=''
+        )
+        kernel.get_kernel.reset_mock()
+        mock_os_unlink.reset_mock()
+        with self._caplog.at_level(logging.INFO):
+            self.boot_image.create_initrd(
+                flavor='rt', delete_included_files=False
+            )
+        assert (
+            'Creating generic dracut initrd archive for kernel flavor rt'
+            in self._caplog.text
+        )
+        kernel.get_kernel.assert_called_once_with(
+            raise_on_not_found=True, flavor='rt'
+        )
+        # the included file is kept for the initrd of another flavor
+        assert not mock_os_unlink.called
         mock_command.reset_mock()
         self.boot_image.create_initrd(basename='foo')
         assert mock_command.call_args_list == [

@@ -36,6 +36,7 @@ volume-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G|all)"}
 partition-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G)"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.:]+(,[a-zA-Z0-9_\-\.:]+)*"}
+kernel-flavor-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
 arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64)(,(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64))*"}
 portnum-type = xsd:token {pattern = "(\d+|\d+/(udp|tcp))"}
 grub_console_output = xsd:token {pattern = "(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (console|gfxterm|serial|vga_text|mda_text|morse|spkmodem))*"}
@@ -3143,6 +3144,23 @@ div {
             sch:param [ name = "attr" value = "targettype" ]
             sch:param [ name = "types" value = "grub2_s390x_emu zipl" ]
         ]
+    k.bootloader.kernel_flavor.attribute =
+        ## Specifies one or more kernel flavors as a comma separated
+        ## list, e.g kernel_flavor="rt,default". A boot menu entry is
+        ## created for the latest installed kernel of each flavor, in
+        ## the order of the list. The entry of the first flavor is the
+        ## default entry. The flavor is the end of the kernel version,
+        ## following the release, e.g rt for 6.4.0-150600.10-rt or
+        ## rt-amd64 for 6.1.0-21-rt-amd64. The flavor none stands for
+        ## kernels whose version does not end with a flavor, e.g
+        ## 7.2.15-100.fc43.x86_64 of the Fedora kernel package. If not
+        ## specified, the boot menu entry is created for the latest
+        ## installed kernel
+        attribute kernel_flavor { kernel-flavor-list }
+        >> sch:pattern [ id = "kernel_flavor" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "kernel_flavor" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu systemd_boot zipl" ]
+        ]
     k.bootloader.use_disk_password.attribute =
         ## When /boot is encrypted, make the boot loader store the
         ## password in its configuration file (in cleartext). This
@@ -3159,7 +3177,8 @@ div {
         k.bootloader.timeout_style.attribute? &
         k.bootloader.targettype.attribute? &
         k.bootloader.use_disk_password.attribute? &
-        k.bootloader.grub_template.attribute?
+        k.bootloader.grub_template.attribute? &
+        k.bootloader.kernel_flavor.attribute?
 
     k.bootloader =
         ## The bootloader section is used to select the bootloader

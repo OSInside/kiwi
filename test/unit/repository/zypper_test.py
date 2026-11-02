@@ -1,4 +1,4 @@
-from pytest import raises
+from pytest import raises, fixture
 from unittest.mock import patch, call, MagicMock, Mock
 import io
 import os
@@ -6,6 +6,19 @@ import os
 from kiwi.defaults import Defaults
 from kiwi.repository.zypper import RepositoryZypper
 from kiwi.exceptions import KiwiCommandError
+
+
+@fixture(autouse=True)
+def no_shared_zypper_dirs_on_host():
+    """
+    RepositoryZypper creates the shared zypper directories below the
+    root directory of the tests, which is the test data directory.
+    Directories must not be created there, tests running in parallel
+    share it. A module level fixture is used as it is in place before
+    the setup method of the test class runs
+    """
+    with patch('kiwi.repository.zypper.Path.create'):
+        yield
 
 
 class TestRepositoryZypper:

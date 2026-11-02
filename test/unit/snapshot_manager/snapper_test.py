@@ -1,6 +1,6 @@
 import datetime
 from unittest.mock import patch, call, Mock, mock_open
-from pytest import raises
+from pytest import raises, fixture
 
 from lxml import etree
 from xml.dom import minidom
@@ -8,6 +8,18 @@ from xml.dom import minidom
 from kiwi.snapshot_manager.snapper import SnapshotManagerSnapper
 
 from kiwi.exceptions import KiwiSnapshotManagerSetupError
+
+
+@fixture(autouse=True)
+def no_mountpoints_on_host():
+    """
+    The bind mounts of the chroot environment snapper runs in create
+    their mountpoints below the root directory, which is relative to
+    the working directory tests running in parallel share. Mountpoints
+    must not be created there
+    """
+    with patch('kiwi.mount_manager.Path.create'):
+        yield
 
 
 class TestSnapshotManagerSnapper:

@@ -65,6 +65,7 @@ class SystemCreateTask(CliTask):
                     abs_root_path
                 ],
                 'check_target_dir_on_unsupported_filesystem': [abs_root_path],
+                'check_kernel_flavors_installed': [abs_root_path],
             }
         )
 

@@ -85,6 +85,13 @@ class LiveImageBuilder:
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.live_type = xml_state.build_type.get_flags()
+        # a boot menu entry and an initrd is created for the kernel of
+        # each flavor, the empty flavor stands for the latest kernel
+        self.kernel_flavors = (
+            xml_state.get_build_type_bootloader_kernel_flavors() or ['']
+        )
+        # initrd file per kernel flavor, see create_live_iso_boot_images()
+        self.initrd_files: Dict[str, str] = {}
         self.volume_id = (
             xml_state.build_type.get_volid() or Defaults.get_volume_id()
         )
@@ -485,22 +492,35 @@ class LiveImageBuilder:
             config={'modules': live_dracut_modules},
             config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf',
         )
-        self.boot_image.create_initrd(self.mbrid)
+        for flavor in self.kernel_flavors:
+            # files included with delete_after_include are deleted
+            # once the initrd of the last flavor is created
+            self.boot_image.create_initrd(
+                self.mbrid,
+                basename=(
+                    f'{self.boot_image.initrd_base_name}-{flavor}'
+                    if flavor
+                    else None
+                ),
+                flavor=flavor,
+                delete_included_files=flavor == self.kernel_flavors[-1],
+            )
+            self.initrd_files[flavor] = self.boot_image.initrd_filename
+            if self.bootloader == 'systemd_boot':
+                # make sure the initrd name follows the dracut
+                # naming conventions
+                boot_names = self.boot_image.get_boot_names(flavor)
+                if self.boot_image.initrd_filename:
+                    Command.run(
+                        [
+                            'mv',
+                            self.boot_image.initrd_filename,
+                            self.root_dir
+                            + ''.join(['/boot/', boot_names.initrd_name]),
+                        ]
+                    )
         # Clean up leftover dracut config file (which can break installs)
         os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
-        if self.bootloader == 'systemd_boot':
-            # make sure the initrd name follows the dracut
-            # naming conventions
-            boot_names = self.boot_image.get_boot_names()
-            if self.boot_image.initrd_filename:
-                Command.run(
-                    [
-                        'mv',
-                        self.boot_image.initrd_filename,
-                        self.root_dir
-                        + ''.join(['/boot/', boot_names.initrd_name]),
-                    ]
-                )
 
         # create EFI FAT image
         if self.firmware.efi_mode():
@@ -567,16 +587,26 @@ class LiveImageBuilder:
         )
         Path.create(boot_path)
 
-        # Move kernel files to iso filesystem structure
+        # Move kernel files to iso filesystem structure, see
+        # Defaults.get_iso_kernel_flavor_file_name() for their names
         kernel = Kernel(self.boot_image.boot_root_directory)
-        if kernel.get_kernel():
-            kernel.copy_kernel(boot_path, '/linux')
-        else:
-            raise KiwiLiveBootImageError(
-                'No kernel in boot image tree {0} found'.format(
-                    self.boot_image.boot_root_directory
+        for index, flavor in enumerate(self.kernel_flavors):
+            if kernel.get_kernel(flavor=flavor):
+                kernel.copy_kernel(
+                    boot_path,
+                    '/'
+                    + Defaults.get_iso_kernel_flavor_file_name(
+                        'linux', index, flavor
+                    ),
+                    flavor=flavor,
                 )
-            )
+            else:
+                raise KiwiLiveBootImageError(
+                    'No kernel{0} in boot image tree {1} found'.format(
+                        f' of flavor {flavor}' if flavor else '',
+                        self.boot_image.boot_root_directory,
+                    )
+                )
         if self.xml_state.is_xen_server():
             if kernel.get_xen_hypervisor():
                 kernel.copy_xen_hypervisor(boot_path, '/xen.gz')
@@ -587,14 +617,22 @@ class LiveImageBuilder:
                     )
                 )
 
-        # Move initrd to iso filesystem structure
-        if os.path.exists(self.boot_image.initrd_filename):
-            os.chmod(self.boot_image.initrd_filename, 0o644)
-            shutil.move(self.boot_image.initrd_filename, boot_path + '/initrd')
-        else:
-            raise KiwiLiveBootImageError(
-                'No boot image {0} in boot image tree {1} found'.format(
-                    self.boot_image.initrd_filename,
-                    self.boot_image.boot_root_directory,
+        # Move initrd(s) to iso filesystem structure
+        for index, flavor in enumerate(self.kernel_flavors):
+            initrd_file = self.initrd_files.get(flavor) or ''
+            if os.path.exists(initrd_file):
+                os.chmod(initrd_file, 0o644)
+                shutil.move(
+                    initrd_file,
+                    boot_path
+                    + '/'
+                    + Defaults.get_iso_kernel_flavor_file_name(
+                        'initrd', index, flavor
+                    ),
                 )
-            )
+            else:
+                raise KiwiLiveBootImageError(
+                    'No boot image {0} in boot image tree {1} found'.format(
+                        initrd_file, self.boot_image.boot_root_directory
+                    )
+                )

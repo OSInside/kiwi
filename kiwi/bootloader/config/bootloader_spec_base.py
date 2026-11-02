@@ -251,19 +251,22 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         """
         raise NotImplementedError
 
-    def get_entry_name(self) -> str:
+    def get_entry_name(self, flavor: str = '') -> str:
         """
         Construct entry filename of the form
         [OS_release_ID]-[kernel-version].conf or use the
         naming policy of an existing entries file
 
         The entry belongs to the kernel of the latest version, the one
-        kiwi creates the initrd for. An entry file produced by the
+        kiwi creates the initrd for, optionally of the given kernel
+        flavor only, see Kernel.get_kernel(). An entry file produced by the
         distribution logic/policy is preferred over the kiwi naming
         policy: the entry of that kernel if there is one, otherwise the
         name of the entry of another installed kernel with the version
         replaced. An entry name without a kernel version is used as it
         is if no entry refers to a kernel
+
+        :param str flavor: kernel flavor name
 
         :return: file basename
 
@@ -271,7 +274,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         """
         os_release = OsRelease(self.root_dir)
         kernel = Kernel(self.root_dir)
-        kernel_info = kernel.get_kernel(raise_on_not_found=True)
+        kernel_info = kernel.get_kernel(raise_on_not_found=True, flavor=flavor)
         kernel_name = kernel_info.version if kernel_info else ''
         entry_filename = f'{os_release.get("ID")}-{kernel_name}.conf'
         other_kernel_entry = ''

@@ -111,14 +111,22 @@ class TestPackageManagerApt:
     @patch('pathlib.Path')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
+    @patch('kiwi.package_manager.apt.Temporary.new_file')
+    @patch('kiwi.package_manager.apt.Temporary.new_dir')
     def test_process_install_requests_bootstrap_failed(
-        self, mock_Command_run, mock_Command_call, mock_pathlib_Path
+        self,
+        mock_Temporary_new_dir,
+        mock_Temporary_new_file,
+        mock_Command_run,
+        mock_Command_call,
+        mock_pathlib_Path,
     ):
         self.manager.request_package('apt')
-        mock_Command_call.side_effect = Exception
+        mock_Command_call.side_effect = Exception('update failed')
         with patch('builtins.open', create=True):
-            with raises(KiwiDebianBootstrapError):
+            with raises(KiwiDebianBootstrapError) as issue:
                 self.manager.process_install_requests_bootstrap()
+        assert 'update failed' in str(issue.value)
 
     @patch('pathlib.Path')
     @patch('kiwi.command.Command.run')

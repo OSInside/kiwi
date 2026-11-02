@@ -88,6 +88,8 @@ USR_RUNTIME_CONFIG_FILE = '/usr/share/kiwi/kiwi.yml'
 USR_RUNTIME_CONFIG_DIR = '/usr/share/kiwi/kiwi.yml.d'
 PLATFORM_MACHINE = platform.machine()
 EFI_FAT_IMAGE_SIZE = 20
+# kernel flavor name of the kernels without flavor, see Kernel.is_flavor
+KERNEL_FLAVOR_NONE = 'none'
 
 # optional package manager environment variables
 PACKAGE_MANAGER_ENV_VARS = '/.kiwi.package_manager.env'
@@ -1955,6 +1957,30 @@ class Defaults:
         :rtype: str
         """
         return os.sep.join(['boot', Defaults.get_platform_name()])
+
+    @staticmethod
+    def get_iso_kernel_flavor_file_name(
+        name: str, index: int, flavor: str
+    ) -> str:
+        """
+        Provides the name of the kernel or initrd file of the kernel
+        of the given flavor in the boot directory of ISO images
+
+        The files of the first flavor, which provides the default boot
+        menu entry, keep the given name, e.g linux. This is also the
+        name the install image boots the installed system from with
+        kexec. The files of each further flavor have the flavor
+        appended, e.g linux-rt
+
+        :param str name: base file name, e.g linux or initrd
+        :param int index: index of the flavor in the kernel flavor list
+        :param str flavor: kernel flavor name
+
+        :return: file name
+
+        :rtype: str
+        """
+        return f'{name}-{flavor}' if index else name
 
     @staticmethod
     def get_iso_tool_category():

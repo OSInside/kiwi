@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 from string import Template
 from textwrap import dedent
 
@@ -375,6 +376,7 @@ class BootLoaderTemplateGrub2:
         has_serial: bool = False,
         checkiso: bool = False,
         has_btrfs_relative_path: bool = False,
+        kernel_count: int = 1,
     ):
         """
         Bootloader configuration template for live ISO media
@@ -382,6 +384,9 @@ class BootLoaderTemplateGrub2:
         :param bool failsafe: with failsafe true|false
         :param bool has_graphics: supports graphics terminal
         :param bool has_serial: supports serial terminal
+        :param int kernel_count:
+            number of kernels to create a boot menu entry for,
+            see _get_kernel_menu_entries()
 
         :return: instance of :class:`Template`
 
@@ -400,7 +405,9 @@ class BootLoaderTemplateGrub2:
         if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
-        template_data += self.menu_entry
+        template_data += self._get_kernel_menu_entries(
+            self.menu_entry, kernel_count
+        )
         if failsafe:
             template_data += self.menu_entry_failsafe
         if checkiso:
@@ -418,6 +425,7 @@ class BootLoaderTemplateGrub2:
         has_serial: bool = False,
         checkiso: bool = False,
         has_btrfs_relative_path: bool = False,
+        kernel_count: int = 1,
     ):
         """
         Bootloader configuration template for live ISO media with
@@ -426,6 +434,9 @@ class BootLoaderTemplateGrub2:
         :param bool failsafe: with failsafe true|false
         :param bool has_graphics: supports graphics terminal
         :param bool has_serial: supports serial terminal
+        :param int kernel_count:
+            number of kernels to create a boot menu entry for,
+            see _get_kernel_menu_entries()
 
         :return: instance of :class:`Template`
 
@@ -444,7 +455,9 @@ class BootLoaderTemplateGrub2:
         if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
-        template_data += self.menu_entry_multiboot
+        template_data += self._get_kernel_menu_entries(
+            self.menu_entry_multiboot, kernel_count
+        )
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
         if checkiso:
@@ -462,6 +475,7 @@ class BootLoaderTemplateGrub2:
         has_serial: bool = False,
         with_timeout: bool = True,
         has_btrfs_relative_path: bool = False,
+        kernel_count: int = 1,
     ):
         """
         Bootloader configuration template for install media
@@ -469,6 +483,9 @@ class BootLoaderTemplateGrub2:
         :param bool failsafe: with failsafe true|false
         :param bool has_graphics: supports graphics terminal
         :param bool has_serial: supports serial terminal
+        :param int kernel_count:
+            number of kernels to create a boot menu entry for,
+            see _get_kernel_menu_entries()
 
         :return: instance of :class:`Template`
 
@@ -489,7 +506,9 @@ class BootLoaderTemplateGrub2:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
-        template_data += self.menu_install_entry
+        template_data += self._get_kernel_menu_entries(
+            self.menu_install_entry, kernel_count
+        )
         if failsafe:
             template_data += self.menu_install_entry_failsafe
         template_data += self.menu_entry_boot_snapshots
@@ -504,6 +523,7 @@ class BootLoaderTemplateGrub2:
         has_serial: bool = False,
         with_timeout: bool = True,
         has_btrfs_relative_path: bool = False,
+        kernel_count: int = 1,
     ):
         """
         Bootloader configuration template for install media with
@@ -512,6 +532,9 @@ class BootLoaderTemplateGrub2:
         :param bool failsafe: with failsafe true|false
         :param bool has_graphics: supports graphics terminal
         :param bool has_serial: supports serial terminal
+        :param int kernel_count:
+            number of kernels to create a boot menu entry for,
+            see _get_kernel_menu_entries()
 
         :return: instance of :class:`Template`
 
@@ -532,10 +555,38 @@ class BootLoaderTemplateGrub2:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
-        template_data += self.menu_install_entry_multiboot
+        template_data += self._get_kernel_menu_entries(
+            self.menu_install_entry_multiboot, kernel_count
+        )
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
         template_data += self.menu_entry_boot_snapshots
         if has_graphics:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
+
+    @staticmethod
+    def _get_kernel_menu_entries(menu_entry: str, kernel_count: int) -> str:
+        """
+        Provide the given menu entry once for each kernel
+
+        The entry of the first kernel uses the title, kernel_file and
+        initrd_file parameters. The entry of each further kernel uses
+        the parameters of the same name with the index of the kernel
+        appended, e.g title_1, kernel_file_1 and initrd_file_1
+
+        :param str menu_entry: menu entry template
+        :param int kernel_count: number of kernels
+
+        :return: menu entries template data
+
+        :rtype: str
+        """
+        menu_entries = menu_entry
+        for index in range(1, kernel_count):
+            menu_entries += re.sub(
+                r'\$\{(title|kernel_file|initrd_file)\}',
+                rf'${{\g<1>_{index}}}',
+                menu_entry,
+            )
+        return menu_entries

@@ -1278,6 +1278,26 @@ class XMLState:
             return bootloader.get_targettype()
         return None
 
+    def get_build_type_bootloader_kernel_flavors(self) -> List[str]:
+        """
+        Return the kernel flavors to create a boot menu entry for,
+        in the order of the menu entries. The first flavor provides
+        the default menu entry. A flavor listed more than once is
+        only taken into account once
+
+        :return: list of kernel flavor names, empty if not configured
+
+        :rtype: list
+        """
+        kernel_flavors: List[str] = []
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader and bootloader.get_kernel_flavor():
+            for flavor in bootloader.get_kernel_flavor().split(','):
+                flavor = flavor.strip()
+                if flavor and flavor not in kernel_flavors:
+                    kernel_flavors.append(flavor)
+        return kernel_flavors
+
     def get_build_type_bootloader_settings_section(self) -> Any:
         """
         First bootloadersettings section from the build

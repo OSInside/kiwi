@@ -334,3 +334,44 @@ class TestBootLoaderTemplateGrub2:
             terminal_input='console',
             terminal_output='console',
         )
+
+    def test_get_kernel_menu_entries(self):
+        # the main entry of the live and the install entry of the
+        # install templates is repeated once per kernel
+        parameters = dict(
+            search_params='--fs-uuid --set=root 0815',
+            default_boot='0',
+            kernel_file='linux',
+            initrd_file='initrd',
+            kernel_file_1='linux-default',
+            initrd_file_1='initrd-default',
+            boot_options='splash',
+            failsafe_boot_options='splash',
+            gfxmode='800x600',
+            theme='SLE',
+            boot_timeout='10',
+            boot_timeout_style='menu',
+            serial_line_setup='',
+            title='Bob (rt)',
+            title_1='Bob (default)',
+            bootpath='/boot',
+            boot_directory_name='grub2',
+            hypervisor='xen.gz',
+            efi_image_name='bootx64.efi',
+            terminal_input='console',
+            terminal_output='console',
+        )
+        for get_template, entry_title in [
+            (self.grub2.get_iso_template, 'menuentry "Bob'),
+            (self.grub2.get_multiboot_iso_template, 'menuentry "Bob'),
+            (self.grub2.get_install_template, 'menuentry "Install Bob'),
+            (
+                self.grub2.get_multiboot_install_template,
+                'menuentry "Install -- Bob',
+            ),
+        ]:
+            config = get_template(kernel_count=2).substitute(parameters)
+            assert config.count(f'{entry_title} (rt)"') == 1
+            assert config.count(f'{entry_title} (default)"') == 1
+            assert config.count('/linux-default') == 1
+            assert config.count('/initrd-default') == 1

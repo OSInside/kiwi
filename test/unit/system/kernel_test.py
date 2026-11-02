@@ -65,6 +65,19 @@ class TestKernel:
             ['cp', 'kernel', 'target-dir/kernel-42.kernel']
         )
 
+    @patch('kiwi.system.kernel.Kernel.get_kernel')
+    @patch('kiwi.command.Command.run')
+    def test_copy_kernel_of_flavor(self, mock_run, mock_get_kernel):
+        result = mock.MagicMock()
+        result.version = '42-rt'
+        result.filename = 'kernel'
+        mock_get_kernel.return_value = result
+        self.kernel.copy_kernel('target-dir', flavor='rt')
+        mock_get_kernel.assert_called_once_with(flavor='rt')
+        mock_run.assert_called_once_with(
+            ['cp', 'kernel', 'target-dir/kernel-42-rt.kernel']
+        )
+
     @patch('kiwi.system.kernel.Kernel.get_xen_hypervisor')
     @patch('kiwi.command.Command.run')
     def test_copy_xen_hypervisor(self, mock_run, mock_get_xen):
@@ -157,6 +170,76 @@ class TestKernelSelection:
             '6.4.0-1-default',
         ]
         assert kernel.get_kernel().version == '6.4.0-2-default'
+
+    def test_is_flavor(self):
+        assert Kernel.is_flavor('6.4.0-150600.23.25-default', 'default')
+        assert Kernel.is_flavor('6.4.0-150600.23.25-64kb', '64kb')
+        assert Kernel.is_flavor('6.1.0-21-rt-amd64', 'rt-amd64')
+        assert Kernel.is_flavor('5.14.0-427.13.1.el9_4.x86_64+rt', 'rt')
+        # a flavor which only ends another flavor does not match
+        assert not Kernel.is_flavor('6.1.0-21-rt-amd64', 'amd64')
+        assert not Kernel.is_flavor('6.4.0-150600.23.25-default', 'rt')
+        assert not Kernel.is_flavor('6.4.0-150600.23.25-64kb', 'kb')
+        assert not Kernel.is_flavor('6.9.4-200.fc40.x86_64', 'x86_64')
+        # the flavor is no regular expression
+        assert not Kernel.is_flavor('6.4.0-1-default', 'def.ult')
+        # the flavor none matches the versions without flavor
+        assert Kernel.is_flavor('7.2.15-100.fc43.x86_64', 'none')
+        assert Kernel.is_flavor('6.10.1-arch1-1', 'none')
+        assert not Kernel.is_flavor('7.2.15-100.fc43.x86_64+rt', 'none')
+        assert not Kernel.is_flavor('6.4.0-150600.23.25-default', 'none')
+        assert not Kernel.is_flavor('6.4.0-150600.23.25-64kb', 'none')
+
+    def test_has_flavor(self):
+        assert Kernel.has_flavor('6.4.0-150600.23.25-default')
+        assert Kernel.has_flavor('6.4.0-150600.23.25-64kb')
+        assert Kernel.has_flavor('6.1.0-21-rt-amd64')
+        assert Kernel.has_flavor('5.14.0-427.13.1.el9_4.x86_64+rt')
+        assert not Kernel.has_flavor('7.2.15-100.fc43.x86_64')
+        assert not Kernel.has_flavor('5.14.0-427.13.1.el9_4.x86_64')
+        assert not Kernel.has_flavor('6.10.1-arch1-1')
+        assert not Kernel.has_flavor('6.10')
+
+    def test_get_kernel_of_flavor_none(self, tmp_path):
+        # Fedora kernel and kernel-rt packages, the kernel package
+        # provides no flavor
+        self._install(
+            tmp_path,
+            '7.2.15-100.fc43.x86_64',
+            'vmlinuz',
+        )
+        self._install(
+            tmp_path,
+            '7.2.17-100.fc43.x86_64+rt',
+            'vmlinuz',
+        )
+        kernel = Kernel(str(tmp_path))
+        assert kernel.get_kernel().version == '7.2.17-100.fc43.x86_64+rt'
+        assert kernel.get_kernel(flavor='none').version == (
+            '7.2.15-100.fc43.x86_64'
+        )
+        assert kernel.get_kernel(flavor='rt').version == (
+            '7.2.17-100.fc43.x86_64+rt'
+        )
+
+    def test_get_kernel_of_flavor(self, tmp_path):
+        # The latest kernel of a flavor is found, no matter if a
+        # kernel of another flavor is later
+        self._install(tmp_path, '6.4.0-3-rt', 'boot/vmlinuz-6.4.0-3-rt')
+        self._install(tmp_path, '6.4.0-5-rt', 'boot/vmlinuz-6.4.0-5-rt')
+        self._install(
+            tmp_path, '6.4.0-9-default', 'boot/vmlinuz-6.4.0-9-default'
+        )
+        kernel = Kernel(str(tmp_path))
+        assert kernel.get_kernel().version == '6.4.0-9-default'
+        assert kernel.get_kernel(flavor='rt').version == '6.4.0-5-rt'
+        assert kernel.get_kernel(flavor='default').filename == (
+            f'{tmp_path}/boot/vmlinuz-6.4.0-9-default'
+        )
+        assert kernel.get_kernel(flavor='64kb') is None
+        with raises(KiwiKernelLookupError) as issue:
+            kernel.get_kernel(raise_on_not_found=True, flavor='64kb')
+        assert 'No kernel of flavor 64kb found' in str(issue.value)
 
     def test_get_version_in_name(self, tmp_path):
         self._install(tmp_path, '6.1', 'vmlinuz')
