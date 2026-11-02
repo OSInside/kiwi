@@ -46,7 +46,7 @@
     </preferences>
     <preferences profiles="Standard">
         <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" console="serial" timeout="10" kernel_flavor="default,kvmsmall"/>
         </type>
     </preferences>
     <preferences profiles="Secure">
@@ -108,6 +108,7 @@
         <package name="dhcp-client"/>
         <package name="which"/>
         <package name="kernel-default"/>
+        <package name="kernel-kvmsmall"/>
         <package name="kernel-firmware-all"/>
         <package name="timezone"/>
         <package name="dracut-kiwi-live"/>

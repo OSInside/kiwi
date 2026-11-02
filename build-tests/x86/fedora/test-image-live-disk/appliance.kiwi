@@ -52,6 +52,7 @@
                 <volume name="home" parent="/"/>
                 <volume name="var" parent="/"/>
             </systemdisk>
+            <size unit="G">2</size>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -79,6 +80,7 @@
                 <volume name="home" parent="/"/>
                 <volume name="var" parent="/"/>
             </systemdisk>
+            <size unit="G">2</size>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -87,14 +89,16 @@
     </preferences>
     <preferences profiles="Disk">
         <type image="oem" filesystem="ext4" installiso="true" installboot="install" firmware="uefi" kernelcmdline="console=tty1 console=ttyS0">
-            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial"/>
+            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial" kernel_flavor="none,debug"/>
             <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
+                <oem-systemsize>4096</oem-systemsize>
                 <oem-unattended>true</oem-unattended>
                 <oem-swap>true</oem-swap>
+                <oem-resize>true</oem-resize>
                 <oem-swapsize>200</oem-swapsize>
                 <oem-multipath-scan>false</oem-multipath-scan>
             </oemconfig>
+            <size unit="G">2</size>
         </type>
     </preferences>
     <users>
@@ -109,6 +113,7 @@
         <package name="grub2"/>
         <package name="grubby"/>
         <package name="kernel"/>
+        <package name="kernel-debug"/>
         <package name="plymouth-theme-charge"/>
         <package name="grub2-breeze-theme"/>
         <package name="selinux-policy-targeted"/>
