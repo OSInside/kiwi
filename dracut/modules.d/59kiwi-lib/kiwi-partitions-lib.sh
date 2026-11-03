@@ -247,10 +247,24 @@ function get_last_partition_device {
 
 function get_last_partition_id {
     # """
-    # Get index of last partition from the current table
+    # Get number of the last partition from the current table.
+    # Partition numbers can have gaps, e.g for custom partitions
+    # with a given number, thus the highest number is read from
+    # the table. If partx cannot read the table, e.g dasd on s390,
+    # the partitions are counted instead
     # """
     local disk=$1
     local index=0
+    local partition_id
+    for partition_id in $(partx -g -o NR "${disk}" 2>/dev/null);do
+        if [ "${partition_id}" -gt "${index}" ];then
+            index=${partition_id}
+        fi
+    done
+    if [ "${index}" -gt 0 ];then
+        echo "${index}"
+        return
+    fi
     for partnode in $(lsblk -p -l -o NAME,TYPE "${disk}" |\
         grep -E "part|md$" | cut -f1 -d ' '
     );do
@@ -431,16 +445,37 @@ function create_hybrid_gpt {
     fi
 }
 
+function get_active_partition_id {
+    # """
+    # Get number of the partition with the bootable flag
+    # set in an msdos table. Nothing is provided if there is
+    # no such partition or no msdos table. sfdisk names the
+    # partitions it lists by the disk and the partition number
+    # """
+    local disk_device=$1
+    local partition_device
+    if [ "$(get_partition_table_type "${disk_device}")" = "dos" ];then
+        partition_device=$(
+            sfdisk --activate "${disk_device}" 2>/dev/null | head -n 1
+        )
+        if [[ "${partition_device}" =~ ([0-9]+)$ ]];then
+            echo "${BASH_REMATCH[1]}"
+        fi
+    fi
+}
+
 function finalize_partition_table {
     # """
     # finalize partition table with flags which
-    # could have got lost during repartition
+    # could have got lost during repartition. The
+    # given boot partition is the one which was active
+    # prior repartition, see get_active_partition_id()
     # """
-    declare kiwi_BootPart=${kiwi_BootPart}
     declare kiwi_gpt_hybrid_mbr=${kiwi_gpt_hybrid_mbr}
     local disk_device=$1
-    if [ -n "${kiwi_BootPart}" ];then
-        activate_boot_partition "${disk_device}" "${kiwi_BootPart}"
+    local boot_partition_id=$2
+    if [ -n "${boot_partition_id}" ];then
+        activate_boot_partition "${disk_device}" "${boot_partition_id}"
     fi
     if [ "${kiwi_gpt_hybrid_mbr}" = "true" ];then
         create_hybrid_gpt "${disk_device}"
