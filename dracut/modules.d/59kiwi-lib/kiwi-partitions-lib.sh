@@ -201,25 +201,52 @@ function create_dasd_partitions {
 }
 
 function get_partition_node_name {
+    # """
+    # Get unix node of the partition with the given number.
+    # Partition numbers can have gaps, the number is therefore
+    # not the position of the partition in the table but read
+    # from the partition, see get_partition_number()
+    # """
     local disk=$1
     local partid=$2
-    local index=1
-    local part
+    local name
+    local kname
+    local type
     udev_pending
-    # backwards compat for lsblk before 2.38:
-    # if START column not supported, fall back to default sort
-    for partnode in $(
-        { lsblk -p -l -o NAME,TYPE,START -x START "${disk}" 2>/dev/null ||\
-        lsblk -p -l -o NAME,TYPE "${disk}"; } |\
-        grep -E "part|md$" | cut -f1 -d ' '
-    );do
-        if [ "${index}" = "${partid}" ];then
-            echo "${partnode}"
+    while read -r name kname type;do
+        if [[ "${type}" =~ ^(part|md)$ ]] && \
+            [ "$(get_partition_number "${kname}")" = "${partid}" ]
+        then
+            echo "${name}"
             return 0
         fi
-        index=$((index + 1))
-    done
+    done < <(lsblk -p -l -n -o NAME,KNAME,TYPE "${disk}")
     return 1
+}
+
+function get_partition_number {
+    # """
+    # Get the number of the given partition, by its kernel
+    # device name. The kernel provides the number for its
+    # partitions in sysfs. A device mapper partition, e.g of a
+    # multipath map, has the number in its device mapper uuid,
+    # which is of the form part<number>-<uuid of the disk map>
+    # """
+    local kname
+    local sysfs_device
+    local partition_number
+    local dm_uuid
+    kname=$(basename "$1")
+    sysfs_device=/sys/class/block/${kname}
+    if [ -e "${sysfs_device}/partition" ];then
+        read -r partition_number < "${sysfs_device}/partition"
+        echo "${partition_number}"
+    elif [ -e "${sysfs_device}/dm/uuid" ];then
+        read -r dm_uuid < "${sysfs_device}/dm/uuid"
+        if [[ "${dm_uuid}" =~ ^part([0-9]+)- ]];then
+            echo "${BASH_REMATCH[1]}"
+        fi
+    fi
 }
 
 function get_partition_name {
@@ -265,12 +292,7 @@ function get_last_partition_id {
         echo "${index}"
         return
     fi
-    for partnode in $(lsblk -p -l -o NAME,TYPE "${disk}" |\
-        grep -E "part|md$" | cut -f1 -d ' '
-    );do
-        index=$((index + 1))
-    done
-    echo "${index}"
+    lsblk -p -l -o NAME,TYPE "${disk}" | grep -cE "part|md$"
 }
 
 function wait_for_storage_device {
