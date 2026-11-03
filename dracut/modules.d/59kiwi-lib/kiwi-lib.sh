@@ -78,20 +78,82 @@ function get_mapped_multipath_disk {
     done
 }
 
-function lookup_disk_device_from_root {
+function get_root_device {
+    # """
+    # Get unix node of the root device from the root= setup
+    # """
     declare root=${root}
-    declare kiwi_RaidDev=${kiwi_RaidDev}
-    declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
     local root_device=${root#block:}
-    local disk_device
-    local wwn
-    kiwi_oemmultipath_scan=$(bool "${kiwi_oemmultipath_scan}")
     if [ -z "${root_device}" ];then
         die "No root device found"
     fi
     if [ -L "${root_device}" ];then
         root_device=/dev/$(basename "$(readlink "${root_device}")")
     fi
+    echo "${root_device}"
+}
+
+function lookup_partition_device_from_root {
+    # """
+    # Get unix node of the partition which stores the root
+    # filesystem. The root filesystem is either on the partition
+    # itself or on a device mapping on top of it, e.g LUKS, RAID
+    # or LVM. The device mappings are looked up through the
+    # active root device, call this before they get deactivated
+    # """
+    local root_device
+    local name
+    local type
+    root_device=$(get_root_device)
+    while read -r name type;do
+        if [ "${type}" = "part" ];then
+            echo "${name}"
+            return
+        fi
+    done < <(lsblk -p -n -r -s -o NAME,TYPE "${root_device}")
+}
+
+function lookup_raid_device_from_root {
+    # """
+    # Get unix node of the md raid device the root filesystem
+    # is stored on, if this raid is created on top of a partition.
+    # This is the raid kiwi creates at build time. A raid created
+    # from whole disks, e.g by a firmware raid controller, holds
+    # the partitions itself and is not provided. The device
+    # mappings are looked up through the active root device, call
+    # this before they get deactivated
+    # """
+    local root_device
+    local raid_device
+    local name
+    local type
+    root_device=$(get_root_device)
+    while read -r name type;do
+        case "${type}" in
+            raid*)
+                raid_device=${name}
+            ;;
+            part)
+                # first partition below the root device, a raid
+                # found before it is created on top of it
+                if [ -n "${raid_device}" ];then
+                    echo "${raid_device}"
+                fi
+                return
+            ;;
+        esac
+    done < <(lsblk -p -n -r -s -o NAME,TYPE "${root_device}")
+}
+
+function lookup_disk_device_from_root {
+    declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
+    local root_device
+    local disk_device
+    local raid_device
+    local wwn
+    kiwi_oemmultipath_scan=$(bool "${kiwi_oemmultipath_scan}")
+    root_device=$(get_root_device)
+    raid_device=$(lookup_raid_device_from_root)
     for disk_device in $(
         lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
             grep -E "disk|raid" | cut -f1 -d ' '
@@ -106,7 +168,7 @@ function lookup_disk_device_from_root {
         # this is the case the md raid device comes from a fake raid
         # controller and we need to prefer the md device over the storage
         # disks
-        if type mdadm &> /dev/null && [ -z "${kiwi_RaidDev}" ]; then
+        if type mdadm &> /dev/null && [ -z "${raid_device}" ]; then
             if mdadm --detail -Y "${disk_device}" &>/dev/null; then
                 echo "${disk_device}"
                 return

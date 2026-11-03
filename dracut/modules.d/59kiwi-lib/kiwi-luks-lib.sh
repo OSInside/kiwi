@@ -8,10 +8,11 @@ type ask_for_password >/dev/null 2>&1 || . /lib/dracut-crypt-lib.sh
 type run_progress_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
 
 function luks_system {
-    declare kiwi_RootPart=${kiwi_RootPart}
-    local disk=$1
-    local device
-    device=$(get_partition_node_name "${disk}" "${kiwi_RootPart}")
+    # """
+    # Check if the given root partition, see
+    # lookup_partition_device_from_root(), is a LUKS device
+    # """
+    local device=$1
     if cryptsetup isLuks "${device}" &>/dev/null;then
         return 0
     fi
@@ -23,8 +24,12 @@ function deactivate_luks {
 }
 
 function reencrypt_luks {
-    declare kiwi_RootPart=${kiwi_RootPart}
-    local disk=$1
+    # """
+    # Reencrypt the given root partition, see
+    # lookup_partition_device_from_root(), if its LUKS
+    # header is still the one of the image
+    # """
+    local device=$1
     local keyslot=/root/.luks.slot
     local header_checksum_origin=/root/.luks.header
     local header_checksum_cur=/root/.luks.header.cur
@@ -35,8 +40,6 @@ function reencrypt_luks {
     local load_text="Reencrypting..."
     local title_text="LUKS"
     local shasum
-    local device
-    device=$(get_partition_node_name "${disk}" "${kiwi_RootPart}")
     read -r header_checksum_origin < "${header_checksum_origin}"
     read -r keyslot < "${keyslot}"
 

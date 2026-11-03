@@ -201,25 +201,52 @@ function create_dasd_partitions {
 }
 
 function get_partition_node_name {
+    # """
+    # Get unix node of the partition with the given number.
+    # Partition numbers can have gaps, the number is therefore
+    # not the position of the partition in the table but read
+    # from the partition, see get_partition_number()
+    # """
     local disk=$1
     local partid=$2
-    local index=1
-    local part
+    local name
+    local kname
+    local type
     udev_pending
-    # backwards compat for lsblk before 2.38:
-    # if START column not supported, fall back to default sort
-    for partnode in $(
-        { lsblk -p -l -o NAME,TYPE,START -x START "${disk}" 2>/dev/null ||\
-        lsblk -p -l -o NAME,TYPE "${disk}"; } |\
-        grep -E "part|md$" | cut -f1 -d ' '
-    );do
-        if [ "${index}" = "${partid}" ];then
-            echo "${partnode}"
+    while read -r name kname type;do
+        if [[ "${type}" =~ ^(part|md)$ ]] && \
+            [ "$(get_partition_number "${kname}")" = "${partid}" ]
+        then
+            echo "${name}"
             return 0
         fi
-        index=$((index + 1))
-    done
+    done < <(lsblk -p -l -n -o NAME,KNAME,TYPE "${disk}")
     return 1
+}
+
+function get_partition_number {
+    # """
+    # Get the number of the given partition, by its kernel
+    # device name. The kernel provides the number for its
+    # partitions in sysfs. A device mapper partition, e.g of a
+    # multipath map, has the number in its device mapper uuid,
+    # which is of the form part<number>-<uuid of the disk map>
+    # """
+    local kname
+    local sysfs_device
+    local partition_number
+    local dm_uuid
+    kname=$(basename "$1")
+    sysfs_device=/sys/class/block/${kname}
+    if [ -e "${sysfs_device}/partition" ];then
+        read -r partition_number < "${sysfs_device}/partition"
+        echo "${partition_number}"
+    elif [ -e "${sysfs_device}/dm/uuid" ];then
+        read -r dm_uuid < "${sysfs_device}/dm/uuid"
+        if [[ "${dm_uuid}" =~ ^part([0-9]+)- ]];then
+            echo "${BASH_REMATCH[1]}"
+        fi
+    fi
 }
 
 function get_partition_name {
@@ -247,16 +274,25 @@ function get_last_partition_device {
 
 function get_last_partition_id {
     # """
-    # Get index of last partition from the current table
+    # Get number of the last partition from the current table.
+    # Partition numbers can have gaps, e.g for custom partitions
+    # with a given number, thus the highest number is read from
+    # the table. If partx cannot read the table, e.g dasd on s390,
+    # the partitions are counted instead
     # """
     local disk=$1
     local index=0
-    for partnode in $(lsblk -p -l -o NAME,TYPE "${disk}" |\
-        grep -E "part|md$" | cut -f1 -d ' '
-    );do
-        index=$((index + 1))
+    local partition_id
+    for partition_id in $(partx -g -o NR "${disk}" 2>/dev/null);do
+        if [ "${partition_id}" -gt "${index}" ];then
+            index=${partition_id}
+        fi
     done
-    echo "${index}"
+    if [ "${index}" -gt 0 ];then
+        echo "${index}"
+        return
+    fi
+    lsblk -p -l -o NAME,TYPE "${disk}" | grep -cE "part|md$"
 }
 
 function wait_for_storage_device {
@@ -431,16 +467,37 @@ function create_hybrid_gpt {
     fi
 }
 
+function get_active_partition_id {
+    # """
+    # Get number of the partition with the bootable flag
+    # set in an msdos table. Nothing is provided if there is
+    # no such partition or no msdos table. sfdisk names the
+    # partitions it lists by the disk and the partition number
+    # """
+    local disk_device=$1
+    local partition_device
+    if [ "$(get_partition_table_type "${disk_device}")" = "dos" ];then
+        partition_device=$(
+            sfdisk --activate "${disk_device}" 2>/dev/null | head -n 1
+        )
+        if [[ "${partition_device}" =~ ([0-9]+)$ ]];then
+            echo "${BASH_REMATCH[1]}"
+        fi
+    fi
+}
+
 function finalize_partition_table {
     # """
     # finalize partition table with flags which
-    # could have got lost during repartition
+    # could have got lost during repartition. The
+    # given boot partition is the one which was active
+    # prior repartition, see get_active_partition_id()
     # """
-    declare kiwi_BootPart=${kiwi_BootPart}
     declare kiwi_gpt_hybrid_mbr=${kiwi_gpt_hybrid_mbr}
     local disk_device=$1
-    if [ -n "${kiwi_BootPart}" ];then
-        activate_boot_partition "${disk_device}" "${kiwi_BootPart}"
+    local boot_partition_id=$2
+    if [ -n "${boot_partition_id}" ];then
+        activate_boot_partition "${disk_device}" "${boot_partition_id}"
     fi
     if [ "${kiwi_gpt_hybrid_mbr}" = "true" ];then
         create_hybrid_gpt "${disk_device}"

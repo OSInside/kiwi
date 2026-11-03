@@ -11,9 +11,7 @@ type luks_system >/dev/null 2>&1 || . /lib/kiwi-luks-lib.sh
 # Functions
 #--------------------------------------
 function initialize {
-    declare root=${root}
     local profile=/.profile
-    local partition_ids=/config.partids
 
     if test ! -f ${profile}; then
         warn "No profile setup found"
@@ -30,22 +28,22 @@ function initialize {
     # Used in the systemd dialog unit
     env >/dialog_profile
 
-    if ! test -f ${partition_ids}; then
-        warn "No partition id setup found, rebuilding..."
-        {
-            disk=$(lookup_disk_device_from_root)
-            export disk
+    # Lookup the partition setup while the device mappings on
+    # top of the partitions are still active. They are looked
+    # up through the root device and get deactivated for the
+    # repartition
+    disk=$(lookup_disk_device_from_root)
+    export disk
 
-            echo "kiwi_RootPart=\"$(get_last_partition_id "${disk}")\""
-        } > ${partition_ids}
+    root_partition=$(lookup_partition_device_from_root)
+    export root_partition
 
-        import_file ${partition_ids}
-    else
-        import_file ${partition_ids}
+    raid_device=$(lookup_raid_device_from_root)
+    export raid_device
 
-        disk=$(lookup_disk_device_from_root)
-        export disk
-    fi
+    # the bootable flag gets lost if its partition is recreated
+    boot_partition_id=$(get_active_partition_id "${disk}")
+    export boot_partition_id
 
     last_device=$(get_last_partition_device "${disk}")
     export last_device
@@ -61,44 +59,22 @@ function initialize {
     export disk_root_mbytes
 }
 
-function get_last_partition_id_from_config_file {
-    # """
-    # Read the partition id with the biggest value from
-    # config.partids. This method will be replaced by
-    # get_last_partition_id() in the future. As of today
-    # there is still code in 59kiwi-lib which reads
-    # the imported variables from config.partids. This
-    # code needs to be refactored first before we can
-    # get rid of config.partids
-    # """
-    local partition_ids=/config.partids
-    local partid=1
-    local partid_cur
-    while read -r partname; do
-        partid_cur=$(echo "${partname}" | cut -f2 -d= | tr -d \")
-        if [ "${partid_cur}" -gt "${partid}" ];then
-            partid="${partid_cur}"
-        fi
-    done < "${partition_ids}"
-    echo "${partid}"
-}
-
 function deactivate_device_mappings {
     if lvm_system;then
         deactivate_volume_group
     fi
-    if mdraid_system;then
-        deactivate_mdraid
+    if mdraid_system "${raid_device}";then
+        deactivate_mdraid "${raid_device}"
     fi
-    if luks_system "${disk}";then
+    if luks_system "${root_partition}";then
         deactivate_luks
     fi
 }
 
 function finalize_disk_repart {
     local kiwi_ResizePart
-    kiwi_ResizePart=$(get_last_partition_id_from_config_file)
-    finalize_partition_table "${disk}"
+    kiwi_ResizePart=$(get_last_partition_id "${disk}")
+    finalize_partition_table "${disk}" "${boot_partition_id}"
     set_root_map \
         "$(get_partition_node_name "${disk}" "${kiwi_ResizePart}")"
 }
@@ -132,7 +108,7 @@ function repart_standard_disk {
     local root_part_size
     local part_name
     kiwi_oemrootMB=$(get_target_rootpart_size)
-    kiwi_ResizePart=$(get_last_partition_id_from_config_file)
+    kiwi_ResizePart=$(get_last_partition_id "${disk}")
     part_name=$(get_partition_name "${disk}" "${kiwi_ResizePart}")
     if [ -z "${kiwi_oemrootMB}" ];then
         local disk_have_root_system_mbytes=$((
@@ -166,7 +142,7 @@ function repart_standard_disk {
         d ${kiwi_ResizePart}
         n ${part_name} ${kiwi_ResizePart} . ${root_part_size}
     "
-    if mdraid_system; then
+    if mdraid_system "${raid_device}"; then
        command_query="
           d ${kiwi_ResizePart}
           n ${part_name} ${kiwi_ResizePart} . ${root_part_size}
@@ -176,8 +152,8 @@ function repart_standard_disk {
     if ! create_partitions "${disk}" "${command_query}";then
         die "Failed to create partition table"
     fi
-    if mdraid_system; then
-        update_devicesize_mdraid
+    if mdraid_system "${raid_device}"; then
+        update_devicesize_mdraid "${raid_device}"
     fi
     # finalize table changes
     finalize_disk_repart
@@ -198,7 +174,7 @@ function repart_lvm_disk {
     local lvm_part_size
     local part_name
     kiwi_oemrootMB=$(get_target_rootpart_size)
-    kiwi_ResizePart=$(get_last_partition_id_from_config_file)
+    kiwi_ResizePart=$(get_last_partition_id "${disk}")
     part_name=$(get_partition_name "${disk}" "${kiwi_ResizePart}")
     if [ -z "${kiwi_oemrootMB}" ];then
         local disk_have_root_system_mbytes=$((
@@ -298,6 +274,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 setup_debug
 
 # abort for iso/live mode
+declare root=${root}
 case "${root}" in
     install:* | live:*)
         return
@@ -308,9 +285,9 @@ esac
 initialize
 
 # reencrypt luks device
-if luks_system "${disk}";then
+if luks_system "${root_partition}";then
     if getargbool 0 rd.kiwi.oem.luks.reencrypt; then
-        reencrypt_luks "${disk}"
+        reencrypt_luks "${root_partition}"
     fi
 fi
 
@@ -338,15 +315,15 @@ else
 fi
 
 # resize luks if present
-if luks_system "${disk}";then
+if luks_system "${root_partition}";then
     activate_luks "$(get_root_map)"
     resize_luks
 fi
 
 # resize raid if present
-if mdraid_system;then
-    activate_mdraid
-    resize_mdraid
+if mdraid_system "${raid_device}";then
+    activate_mdraid "${raid_device}"
+    resize_mdraid "${raid_device}"
 fi
 
 # resize volumes and filesystems

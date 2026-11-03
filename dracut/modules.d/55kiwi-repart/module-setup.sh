@@ -19,7 +19,6 @@ installkernel() {
 # called by dracut
 install() {
     declare moddir=${moddir}
-    test -f /config.partids && inst_simple /config.partids
     test -f /.profile && inst_simple /.profile
     inst_hook pre-mount 20 "${moddir}/kiwi-repart-disk.sh"
     dracut_need_initqueue

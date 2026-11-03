@@ -1459,6 +1459,14 @@ class DiskBuilder:
         return device_map
 
     def _write_partition_id_config_to_boot_image(self, disk: Disk) -> None:
+        """
+        Write the partition name to partition number map to
+        config.partids in the boot system. With dracut the boot
+        system is the system image, applications can use the
+        file there, e.g for partition clones. The dracut initrd
+        code looks up the partitions at boot time and does not
+        use the file, it is only included into the kiwi initrd
+        """
         log.info('Creating config.partids in boot system')
         filename = ''.join(
             [self.boot_image.boot_root_directory, '/config.partids']
@@ -1469,7 +1477,8 @@ class DiskBuilder:
                 partids.write(
                     '{0}="{1}"{2}'.format(id_name, id_value, os.linesep)
                 )
-        self.boot_image.include_file(os.sep + os.path.basename(filename))
+        if self.initrd_system == 'kiwi':
+            self.boot_image.include_file(os.sep + os.path.basename(filename))
 
     def _write_raid_config_to_boot_image(
         self, raid_root: Optional[RaidDevice]

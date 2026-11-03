@@ -1103,8 +1103,8 @@ class TestDiskBuilder:
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
+        # config.partids is written but not used by the dracut initrd
         assert self.boot_image_task.include_file.call_args_list == [
-            call('/config.partids'),
             call('/recovery.partition.size'),
             call(filename='/etc/veritytab', delete_after_include=True),
         ]
