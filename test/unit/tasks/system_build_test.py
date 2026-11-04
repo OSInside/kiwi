@@ -122,6 +122,10 @@ class TestSystemBuildTask:
         self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi.assert_called_once_with(
             self.abs_target_dir + '/build/image-root'
         )
+        self.runtime_checker.check_kernel_flavors_installed.assert_called_once_with(
+            self.abs_target_dir + '/build/image-root'
+        )
+        self.runtime_checker.check_kernel_flavor_supported.assert_called_once_with()
         self.runtime_checker.check_mediacheck_installed.assert_called_once_with()
         self.runtime_checker.check_checkmedia_used_with_msdos_table.assert_called_once_with()
         self.runtime_checker.check_dracut_module_for_live_iso_in_package_list.assert_called_once_with()

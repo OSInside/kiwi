@@ -502,10 +502,11 @@ class TestSystemPrepare:
         self.system.clean_package_manager_leftovers()
         manager.clean_leftovers.assert_called_once_with()
 
+    @patch('kiwi.system.prepare.Path')
     @patch('os.path.isdir', return_value=True)
     @patch('os.path.exists', return_value=True)
     def test_setup_ca_certificates_name_exists_but_is_dir(
-        self, mock_os_path_exists, mock_os_path_isdir
+        self, mock_os_path_exists, mock_os_path_isdir, mock_Path
     ):
         with self._caplog.at_level(logging.WARNING):
             self.system.setup_ca_certificates()

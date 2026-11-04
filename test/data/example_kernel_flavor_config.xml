@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.5" name="kernel-flavor">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            Disk image with boot menu entries for more than one kernel flavor
+        </specification>
+    </description>
+    <profiles>
+        <profile name="flavor" description="kernel flavors with dracut initrd"/>
+        <profile name="flavorKiwiInitrd" description="kernel flavors with kiwi initrd"/>
+        <profile name="flavorUKI" description="kernel flavors with UKI"/>
+        <profile name="noFlavor" description="no kernel flavors"/>
+    </profiles>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+    </preferences>
+    <preferences profiles="flavor">
+        <type image="oem" filesystem="ext4" firmware="efi">
+            <bootloader name="grub2" kernel_flavor="rt,default,rt"/>
+        </type>
+    </preferences>
+    <preferences profiles="flavorKiwiInitrd">
+        <type image="oem" filesystem="ext4" initrd_system="kiwi" boot="oemboot/example-distribution">
+            <bootloader name="grub2" kernel_flavor="rt"/>
+        </type>
+    </preferences>
+    <preferences profiles="flavorUKI">
+        <type image="oem" filesystem="ext4" firmware="efi">
+            <bootloader name="systemd_boot" kernel_flavor="rt"/>
+            <initrd action="setup">
+                <dracut uefi="true"/>
+            </initrd>
+        </type>
+    </preferences>
+    <preferences profiles="noFlavor">
+        <type image="oem" filesystem="ext4" firmware="efi">
+            <bootloader name="grub2"/>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://some/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="kernel-default"/>
+        <package name="kernel-rt"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>

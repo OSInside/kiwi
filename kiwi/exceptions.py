@@ -79,6 +79,13 @@ class KiwiBootLoaderGrubInstallError(KiwiError):
     """
 
 
+class KiwiBootLoaderGrubMenuEntryError(KiwiError):
+    """
+    Exception raised if the menu entry of a kernel to be selected
+    as the default entry was not found in the grub configuration.
+    """
+
+
 class KiwiBootLoaderGrubModulesError(KiwiError):
     """
     Exception raised if the synchronisation of modules from the

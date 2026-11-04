@@ -1415,6 +1415,30 @@ class TestXMLState:
         assert self.state.get_build_type_bootloader_timeout_style() is None
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_kernel_flavors(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        self.bootloader.get_kernel_flavor.return_value = 'rt,,default,rt'
+        assert self.state.get_build_type_bootloader_kernel_flavors() == [
+            'rt',
+            'default',
+        ]
+        self.bootloader.get_kernel_flavor.return_value = None
+        assert self.state.get_build_type_bootloader_kernel_flavors() == []
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_kernel_flavors() == []
+
+    def test_get_build_type_bootloader_kernel_flavors_from_description(self):
+        description = XMLDescription('../data/example_kernel_flavor_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['flavor'])
+        assert state.get_build_type_bootloader_kernel_flavors() == [
+            'rt',
+            'default',
+        ]
+        state = XMLState(xml_data, ['noFlavor'])
+        assert state.get_build_type_bootloader_kernel_flavors() == []
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_targettype(self, mock_bootloader):
         mock_bootloader.return_value = [self.bootloader]
         assert (

@@ -22,6 +22,7 @@ class TestBootLoaderSystemdBoot:
             uefi=False, modules=[], drivers=[]
         )
         self.state.build_type.get_efifatimagesize.return_value = None
+        self.state.get_build_type_bootloader_kernel_flavors.return_value = []
         self.bootloader = BootLoaderSystemdBoot(self.state, 'root_dir')
         self.bootloader.custom_args['kernel'] = None
         self.bootloader.custom_args['initrd'] = None
@@ -149,6 +150,106 @@ class TestBootLoaderSystemdBoot:
 
     @patch('kiwi.bootloader.config.systemd_boot.OsRelease')
     @patch('kiwi.bootloader.config.systemd_boot.Kernel')
+    @patch('kiwi.bootloader.config.systemd_boot.BootImageBase')
+    @patch('kiwi.bootloader.config.systemd_boot.Path.create')
+    @patch('kiwi.bootloader.config.systemd_boot.Command.run')
+    @patch.object(BootLoaderSystemdBoot, '_write_config_file')
+    @patch.object(BootLoaderSystemdBoot, '_write_kernel_cmdline_file')
+    def test_setup_loader_with_kernel_flavors(
+        self,
+        mock_write_kernel_cmdline_file,
+        mock_write_config_file,
+        mock_Command_run,
+        mock_Path_create,
+        mock_BootImageBase,
+        mock_Kernel,
+        mock_OsRelease,
+    ):
+        self.state.get_build_type_bootloader_kernel_flavors.return_value = [
+            'rt',
+            'default',
+        ]
+        versions = {'rt': '6.4.0-3-rt', 'default': '6.4.0-9-default'}
+
+        def get_kernel(raise_on_not_found, flavor):
+            return Mock(version=versions[flavor])
+
+        def get_boot_names(flavor):
+            return Mock(
+                kernel_filename=f'system_root_mount/boot/vmlinuz-{versions[flavor]}',
+                initrd_name=f'initrd-{versions[flavor]}',
+            )
+
+        mock_Kernel.return_value.get_kernel.side_effect = get_kernel
+        mock_BootImageBase.return_value.get_boot_names.side_effect = (
+            get_boot_names
+        )
+        mock_OsRelease.return_value.get.return_value = 'opensuse'
+        self.bootloader.timeout = 10
+        self.bootloader.setup_loader('disk')
+        assert mock_Command_run.call_args_list[1:] == [
+            call(
+                [
+                    'cp',
+                    'system_root_mount/boot/vmlinuz-6.4.0-3-rt',
+                    'system_root_mount/boot/efi/os',
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    'system_root_mount/boot/initrd-6.4.0-3-rt',
+                    'system_root_mount/boot/efi/os',
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    'system_root_mount/boot/vmlinuz-6.4.0-9-default',
+                    'system_root_mount/boot/efi/os',
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    'system_root_mount/boot/initrd-6.4.0-9-default',
+                    'system_root_mount/boot/efi/os',
+                ]
+            ),
+        ]
+        # the loader config selects the entry of the first flavor
+        loader_template, loader_file, loader_parameters = (
+            mock_write_config_file.call_args_list[0][0]
+        )
+        assert loader_file == 'system_root_mount/boot/efi/loader/loader.conf'
+        assert loader_template.substitute(loader_parameters).endswith(
+            'timeout 10\ndefault opensuse-6.4.0-3-rt.conf\n'
+        )
+        entries = [
+            (entry_call[0][1], entry_call[0][0].substitute(entry_call[0][2]))
+            for entry_call in mock_write_config_file.call_args_list[1:]
+        ]
+        assert entries == [
+            (
+                'system_root_mount/boot/efi/loader/entries/'
+                'opensuse-6.4.0-3-rt.conf',
+                'title title (rt)\n'
+                'options \n'
+                'linux os/vmlinuz-6.4.0-3-rt\n'
+                'initrd os/initrd-6.4.0-3-rt\n',
+            ),
+            (
+                'system_root_mount/boot/efi/loader/entries/'
+                'opensuse-6.4.0-9-default.conf',
+                'title title (default)\n'
+                'options \n'
+                'linux os/vmlinuz-6.4.0-9-default\n'
+                'initrd os/initrd-6.4.0-9-default\n',
+            ),
+        ]
+
+    @patch('kiwi.bootloader.config.systemd_boot.OsRelease')
+    @patch('kiwi.bootloader.config.systemd_boot.Kernel')
     @patch.object(BootLoaderSystemdBoot, '_write_config_file')
     def test_set_loader_entry(
         self, mock_write_config_file, mock_Kernel, mock_OsRelease
@@ -162,7 +263,7 @@ class TestBootLoaderSystemdBoot:
         self.bootloader.set_loader_entry('root_dir', 'disk')
         mock_Kernel.assert_called_once_with('root_dir')
         mock_Kernel.return_value.get_kernel.assert_called_once_with(
-            raise_on_not_found=True
+            raise_on_not_found=True, flavor=''
         )
         assert (
             mock_write_config_file.call_args[0][1]
@@ -215,15 +316,12 @@ class TestBootLoaderSystemdBoot:
         with raises(KiwiTemplateError):
             self.bootloader._write_config_file(template, 'some-file', {})
 
-    def test_write_kernel_cmdline_file(self):
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            self.bootloader._write_kernel_cmdline_file('system_root_mount')
-            mock_open.assert_called_once_with(
-                'system_root_mount/etc/kernel/cmdline', 'w'
-            )
-            file_handle.write.assert_called_once_with(self.bootloader.cmdline)
+    def test_write_kernel_cmdline_file(self, tmp_path):
+        self.bootloader.cmdline = 'root=LABEL=root console=ttyS0'
+        self.bootloader._write_kernel_cmdline_file(str(tmp_path))
+        assert (tmp_path / 'etc' / 'kernel' / 'cmdline').read_text() == (
+            'root=LABEL=root console=ttyS0'
+        )
 
     @patch('kiwi.bootloader.config.systemd_boot.Path.create')
     @patch('kiwi.bootloader.config.systemd_boot.SparseFile.create')

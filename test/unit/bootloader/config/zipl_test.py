@@ -31,6 +31,7 @@ class TestBootLoaderZipl:
         self.state.xml_data.get_name.return_value = 'image-name'
         self.state.get_image_version.return_value = 'image-version'
         self.state.build_type.get_efifatimagesize.return_value = None
+        self.state.get_build_type_bootloader_kernel_flavors.return_value = []
         self.bootloader = BootLoaderZipl(self.state, 'root_dir')
         self.bootloader.cmdline = 'options'
         self.bootloader.custom_args['kernel'] = None
@@ -226,6 +227,90 @@ class TestBootLoaderZipl:
             call('system_root_mount/bootpath/kernel-filename'),
             call('system_root_mount/bootpath/initrd-name'),
         ]
+
+    @patch('kiwi.bootloader.config.zipl.BootImageBase')
+    @patch('kiwi.bootloader.config.zipl.Command.run')
+    @patch('kiwi.bootloader.config.zipl.Temporary.new_file')
+    @patch('kiwi.bootloader.config.zipl.Path.create')
+    @patch.object(BootLoaderSpecBase, 'get_entry_name')
+    @patch.object(BootLoaderZipl, '_get_disk_geometry')
+    @patch.object(BootLoaderZipl, '_get_partition_start')
+    def test_setup_loader_with_kernel_flavors(
+        self,
+        mock_get_partition_start,
+        mock_get_disk_geometry,
+        mock_get_entry_name,
+        mock_Path_create,
+        mock_Temporary_new_file,
+        mock_Command_run,
+        mock_BootImageBase,
+    ):
+        self.state.get_host_key_certificates.return_value = []
+        self.state.get_build_type_bootloader_kernel_flavors.return_value = [
+            'rt',
+            'default',
+        ]
+        versions = {'rt': '6.4.0-3-rt', 'default': '6.4.0-9-default'}
+        mock_get_entry_name.side_effect = (
+            lambda flavor: f'opensuse-{versions[flavor]}.conf'
+        )
+
+        def get_boot_names(flavor):
+            return Mock(
+                kernel_filename=f'system_root_mount/boot/image-{versions[flavor]}',
+                initrd_name=f'initrd-{versions[flavor]}',
+            )
+
+        mock_BootImageBase.return_value.get_boot_names.side_effect = (
+            get_boot_names
+        )
+        mock_get_partition_start.return_value = '42'
+        mock_get_disk_geometry.return_value = '123,53,9'
+        self.bootloader.timeout = 10
+        temporary = Mock()
+        temporary.name = 'system_root_mount/kiwi_zipl.conf_'
+        mock_Temporary_new_file.return_value.__enter__.return_value = temporary
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader.setup_loader('disk')
+        assert [open_call[0][0] for open_call in mock_open.call_args_list] == [
+            'system_root_mount/kiwi_zipl.conf_',
+            'system_root_mount/boot/loader/entries/opensuse-6.4.0-3-rt.conf',
+            'system_root_mount/boot/loader/entries/'
+            'opensuse-6.4.0-9-default.conf',
+        ]
+        zipl_config, rt_entry, default_entry = [
+            write_call[0][0] for write_call in file_handle.write.call_args_list
+        ]
+        # the section of the first flavor entry is the default section
+        assert zipl_config.endswith(
+            'timeout=10\nsecure=auto\ndefault=title (rt)\n'
+        )
+        assert rt_entry == (
+            'title title (rt)\n'
+            'options options\n'
+            'linux bootpath/image-6.4.0-3-rt\n'
+            'initrd bootpath/initrd-6.4.0-3-rt\n'
+        )
+        assert default_entry == (
+            'title title (default)\n'
+            'options options\n'
+            'linux bootpath/image-6.4.0-9-default\n'
+            'initrd bootpath/initrd-6.4.0-9-default\n'
+        )
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot',
+                'system_root_mount',
+                'zipl',
+                '--noninteractive',
+                '--config',
+                '/kiwi_zipl.conf_',
+                '--blsdir',
+                '/boot/loader/entries',
+                '--verbose',
+            ]
+        )
 
     @patch.object(BootLoaderZipl, '_get_disk_geometry')
     @patch.object(BootLoaderZipl, '_get_partition_start')

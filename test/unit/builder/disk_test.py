@@ -75,6 +75,9 @@ class TestDiskBuilder:
         self.kernel.copy_kernel = Mock()
         self.kernel.copy_xen_hypervisor = Mock()
         kiwi.builder.disk.Kernel = Mock(return_value=self.kernel)
+        # no directory of the root tree is created on the test host
+        kiwi.builder.disk.Path = Mock()
+        kiwi.builder.disk.MountManager = MagicMock()
         self.disk_setup = Mock()
         self.disk_setup.get_disksize_mbytes.return_value = 1024
         self.disk_setup.boot_partition_size.return_value = 0
@@ -1121,6 +1124,112 @@ class TestDiskBuilder:
         filesystem.__enter__.return_value.create_verification_metadata.assert_called_once_with(
             '/dev/root-device'
         )
+
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.LoopDevice')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('random.randrange')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.VeritySetup')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    @patch('os.access')
+    def test_create_disk_standard_root_with_kernel_flavors(
+        self,
+        mock_os_access,
+        mock_Temporary_new_file,
+        mock_VeritySetup,
+        mock_ImageSystem,
+        mock_SystemSetup,
+        mock_os_path_getsize,
+        mock_path,
+        mock_grub_dir,
+        mock_command,
+        mock_rand,
+        mock_fs,
+        mock_LoopDevice,
+        mock_create_boot_loader_config,
+        mock_Disk,
+    ):
+        # An initrd is created for the kernel of each flavor, also
+        # when it is created again with the veritytab included
+        mock_os_access.side_effect = lambda path, mode: path != 'diskroot/boot/'
+        system = Mock()
+        system.mountpoint.return_value = 'diskroot'
+        mock_ImageSystem.return_value.__enter__.return_value = system
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(return_value='boot_cmdline')
+        mock_create_boot_loader_config.return_value.__enter__.return_value = (
+            bootloader_config
+        )
+        mock_LoopDevice.return_value.__enter__.return_value = Mock()
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
+        self.boot_image_task.get_boot_names.side_effect = (
+            lambda flavor: self.boot_names_type(
+                kernel_name=f'vmlinuz-1.2.3-{flavor}',
+                initrd_name=f'initrd-1.2.3-{flavor}',
+            )
+        )
+        mock_path.return_value = True
+        mock_rand.return_value = 15
+        mock_fs.return_value = MagicMock()
+        self.firmware.get_legacy_bios_partition_size.return_value = 2
+        self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_embed_verity_metadata = True
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.bootloader = 'systemd_boot'
+        self.disk_builder.kernel_flavors = ['rt', 'default']
+        self.setup.script_exists.return_value = False
+
+        with patch('builtins.open', mock_open(), create=True):
+            self.disk_builder.create_disk()
+
+        # files included with delete_after_include are kept until
+        # the initrd of the last flavor is created
+        mbrid = self.disk_builder.mbrid
+        assert self.boot_image_task.create_initrd.call_args_list == [
+            call(mbrid, flavor='rt', delete_included_files=False),
+            call(mbrid, flavor='default', delete_included_files=True),
+            call(mbrid, flavor='rt', delete_included_files=False),
+            call(mbrid, flavor='default', delete_included_files=True),
+        ]
+        initrd_commands = [
+            command
+            for command in mock_command.call_args_list
+            if 'initrd' in ' '.join(command[0][0])
+        ]
+        assert initrd_commands == [
+            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3-rt']),
+            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3-default']),
+            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3-rt']),
+            call(['mv', 'initrd', 'root_dir/boot/initrd-1.2.3-default']),
+            call(
+                [
+                    'cp',
+                    'root_dir/boot/initrd-1.2.3-rt',
+                    'diskroot/boot/efi/os/initrd-1.2.3-rt',
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    'root_dir/boot/initrd-1.2.3-default',
+                    'diskroot/boot/efi/os/initrd-1.2.3-default',
+                ]
+            ),
+        ]
 
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')

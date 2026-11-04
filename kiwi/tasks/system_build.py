@@ -258,7 +258,10 @@ class SystemBuildTask(CliTask):
 
         log.info('Creating system image')
         self.run_checks(
-            {'check_dracut_module_versions_compatible_to_kiwi': [image_root]}
+            {
+                'check_dracut_module_versions_compatible_to_kiwi': [image_root],
+                'check_kernel_flavors_installed': [image_root],
+            }
         )
         image_builder = ImageBuilder.new(
             self.xml_state,

@@ -62,7 +62,6 @@ class BootLoaderZipl(BootLoaderSpecBase):
             raise KiwiBootLoaderTargetError(
                 'zipl is only supported with the disk image target'
             )
-        boot_path = self.get_boot_path()
         boot_options = self.custom_args['boot_options']
         self._mount_system(
             boot_options.get('device_map'),
@@ -74,18 +73,15 @@ class BootLoaderZipl(BootLoaderSpecBase):
             boot_options.get('system_partitions'),
         )
         root_dir = self.root_mount.mountpoint
-        kernel_info = BootImageBase(
-            self.xml_state, root_dir, root_dir
-        ).get_boot_names()
         self.custom_args['secure_linux'] = False
-        self.custom_args['kernel'] = (
-            f'{boot_path}/{os.path.basename(kernel_info.kernel_filename)}'
-        )
-        self.custom_args['initrd'] = f'{boot_path}/{kernel_info.initrd_name}'
 
         host_key_certificates = self.xml_state.get_host_key_certificates()
-        cc_boot_image = f'{self.custom_args["kernel"]}.cc'
         if host_key_certificates:
+            # The secure execution image is created from the kernel and
+            # initrd of the latest kernel. Kernel flavors are not
+            # supported in this setup, see RuntimeChecker
+            self._set_boot_files(root_dir)
+            cc_boot_image = f'{self.custom_args["kernel"]}.cc'
             with Temporary(
                 path=self.root_mount.mountpoint, prefix='kiwi_zipl_parmfile_'
             ).new_file() as hkd_parm_file:
@@ -233,13 +229,25 @@ class BootLoaderZipl(BootLoaderSpecBase):
             self.custom_args['kernel'] = ''
             self.custom_args['initrd'] = ''
 
+        # The entry of the first kernel flavor is the default entry.
+        # zipl names the section of an entry by its title
+        kernel_flavors = (
+            self.xml_state.get_build_type_bootloader_kernel_flavors()
+        )
+        default_entry = ''
+        if kernel_flavors:
+            default_entry = self.get_kernel_flavor_title(
+                self.get_menu_entry_title(), kernel_flavors[0]
+            )
         with Temporary(
             path=self.root_mount.mountpoint, prefix='kiwi_zipl.conf_'
         ).new_file() as runtime_zipl_config_file:
             BootLoaderZipl._write_config_file(
-                BootLoaderTemplateZipl().get_loader_template(),
+                BootLoaderTemplateZipl().get_loader_template(
+                    with_default_entry=bool(kernel_flavors)
+                ),
                 runtime_zipl_config_file.name,
-                self._get_template_parameters(),
+                self._get_template_parameters(default_entry),
             )
             self.set_loader_entry(self.root_mount.mountpoint, self.target.disk)
             self._install_zipl(root_dir, runtime_zipl_config_file.name)
@@ -247,19 +255,40 @@ class BootLoaderZipl(BootLoaderSpecBase):
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
         Setup/update loader entries of the form
-        {boot_path}/loader/entries/{get_entry_name}
+        {boot_path}/loader/entries/{get_entry_name}, one entry for
+        the kernel of each kernel flavor, see get_kernel_flavors()
 
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
         """
-        entry_name = self.get_entry_name()
-        BootLoaderZipl._write_config_file(
-            BootLoaderTemplateZipl().get_entry_template(
-                self.custom_args['secure_linux']
-            ),
-            root_dir + f'{self.entries_dir}/{entry_name}',
-            self._get_template_parameters(entry_name),
+        for flavor in self.get_kernel_flavors():
+            if not self.custom_args['secure_linux']:
+                self._set_boot_files(root_dir, flavor)
+            entry_name = self.get_entry_name(flavor)
+            BootLoaderZipl._write_config_file(
+                BootLoaderTemplateZipl().get_entry_template(
+                    self.custom_args['secure_linux']
+                ),
+                root_dir + f'{self.entries_dir}/{entry_name}',
+                self._get_template_parameters(entry_name, flavor),
+            )
+
+    def _set_boot_files(self, root_dir: str, flavor: str = '') -> None:
+        """
+        Set the kernel and initrd file of the kernel of the given
+        flavor as the files of the loader entry
+
+        :param str root_dir: path to root directory tree
+        :param str flavor: kernel flavor, see Kernel.get_kernel()
+        """
+        boot_path = self.get_boot_path()
+        kernel_info = BootImageBase(
+            self.xml_state, root_dir, root_dir
+        ).get_boot_names(flavor)
+        self.custom_args['kernel'] = (
+            f'{boot_path}/{os.path.basename(kernel_info.kernel_filename)}'
         )
+        self.custom_args['initrd'] = f'{boot_path}/{kernel_info.initrd_name}'
 
     def _install_zipl(self, root_dir: str, zipl_config: str) -> None:
         """
@@ -280,7 +309,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
         Command.run(zipl)
 
     def _get_template_parameters(
-        self, default_entry: str = ''
+        self, default_entry: str = '', flavor: str = ''
     ) -> Dict[str, str]:
         disk_type = self.disk_type or 'SCSI'
         disk_type = disk_type if disk_type != 'GPT' else 'SCSI'
@@ -303,7 +332,9 @@ class BootLoaderZipl(BootLoaderSpecBase):
             'targetblocksize': format(blocksize),
             'targetoffset': self._get_partition_start(),
             'targetgeometry': geometry,
-            'title': self.get_menu_entry_title(),
+            'title': self.get_kernel_flavor_title(
+                self.get_menu_entry_title(), flavor
+            ),
             'default_entry': default_entry,
         }
 

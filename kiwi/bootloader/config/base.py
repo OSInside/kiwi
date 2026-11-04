@@ -20,12 +20,13 @@ import os
 import re
 import logging
 from collections import namedtuple
+from typing import List
 
 # project
 from kiwi.mount_manager import MountManager
 from kiwi.storage.setup import DiskSetup
 from kiwi.path import Path
-from kiwi.defaults import Defaults
+from kiwi.defaults import Defaults, KERNEL_FLAVOR_NONE
 from kiwi.utils.block import BlockID
 from kiwi.system.setup import SystemSetup
 
@@ -321,6 +322,10 @@ class BootLoaderConfigBase(ABC):
         * [1] Install
         * [2] Failsafe Install
 
+        With kernel flavors there is one install entry per flavor,
+        the failsafe install entry follows the last one. The install
+        entry of the first flavor is the one selected by install
+
         The installboot attribute controlls which of these are used
         by default. If not specified the boot from hard disk entry
         will be the default. Depending on the specified loader type
@@ -333,12 +338,14 @@ class BootLoaderConfigBase(ABC):
         :rtype: str
         """
         menu_entry_title = self.get_menu_entry_title(plain=True)
+        failsafe_install_id = format(1 + len(self.get_kernel_flavors()))
         menu_type = namedtuple('menu_type', ['name', 'menu_id'])
         menu_list = [
             menu_type(name='Boot_from_Hard_Disk', menu_id='0'),
             menu_type(name='Install_' + menu_entry_title, menu_id='1'),
             menu_type(
-                name='Failsafe_--_Install_' + menu_entry_title, menu_id='2'
+                name='Failsafe_--_Install_' + menu_entry_title,
+                menu_id=failsafe_install_id,
             ),
         ]
         boot_id = 0
@@ -440,6 +447,37 @@ class BootLoaderConfigBase(ABC):
         if plain:
             return title
         return title + ' [ ' + type_name.upper() + ' ]'
+
+    def get_kernel_flavors(self) -> List[str]:
+        """
+        Kernel flavors to create a boot menu entry for, in the order
+        of the menu entries. The first flavor provides the default
+        menu entry. If no kernel flavor is configured, the empty
+        flavor stands for the latest kernel, see Kernel.get_kernel()
+
+        :return: list of kernel flavor names
+
+        :rtype: list
+        """
+        return self.xml_state.get_build_type_bootloader_kernel_flavors() or ['']
+
+    def get_kernel_flavor_title(self, title: str, flavor: str) -> str:
+        """
+        Menu entry title for the kernel of the given flavor
+
+        :param str title: menu entry title
+        :param str flavor:
+            kernel flavor name, the title is used as it is for
+            the empty flavor and for the kernels without flavor,
+            see Kernel.is_flavor()
+
+        :return: title text
+
+        :rtype: str
+        """
+        if flavor and flavor != KERNEL_FLAVOR_NONE:
+            return f'{title} ({flavor})'
+        return title
 
     def get_menu_entry_install_title(self):
         """

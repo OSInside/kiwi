@@ -21,6 +21,7 @@ from typing import NamedTuple, Optional, List, Tuple, Union
 
 # project
 from kiwi.command import Command
+from kiwi.defaults import KERNEL_FLAVOR_NONE
 
 from kiwi.exceptions import KiwiKernelLookupError
 
@@ -37,9 +38,10 @@ class Kernel:
     **Implementes kernel lookup and extraction from given root tree**
 
     If more than one kernel is installed in the root tree, the
-    kernel of the latest version is used. The version of a kernel
-    is the name of its modules directory, which is also the version
-    the initrd gets created for, see get_kernel_versions()
+    kernel of the latest version is used, optionally of a given
+    flavor only, see is_flavor(). The version of a kernel is the
+    name of its modules directory, which is also the version the
+    initrd gets created for, see get_kernel_versions()
 
     :param str root_dir: root directory path name
     :param list kernel_names: list of kernel names to search for
@@ -53,13 +55,16 @@ class Kernel:
         self.kernel_names = self._setup_kernel_names_for_lookup()
 
     def get_kernel(
-        self, raise_on_not_found: bool = False
+        self, raise_on_not_found: bool = False, flavor: str = ''
     ) -> Optional[kernel_type]:
         """
         Lookup kernel files and provide filename and version
 
         :param bool raise_on_not_found: sets the method to raise an exception
             if the kernel is not found
+        :param str flavor: only look for kernels of this flavor,
+            see is_flavor(). Kernels of any flavor are taken into
+            account if not set
 
         :raises KiwiKernelLookupError: if raise_on_not_found flag is active
             and kernel is not found
@@ -68,7 +73,9 @@ class Kernel:
         file is therefore the kernel of the latest version which is
         installed. Its version is taken from the kernel name, which is
         relative to the root tree: a path of the root tree itself does
-        not affect it
+        not affect it. With a flavor, the kernels of other flavors are
+        skipped and the kernel of the latest version of that flavor is
+        found
 
         :return: tuple with filename, kernelname and version
 
@@ -85,6 +92,8 @@ class Kernel:
                     version_match = re.match(kernel_pattern, kernel_name)
                     if version_match:
                         version = version_match.group(1)
+                        if flavor and not Kernel.is_flavor(version, flavor):
+                            break
                         return kernel_type(
                             name=os.path.basename(
                                 os.path.realpath(kernel_file)
@@ -93,12 +102,76 @@ class Kernel:
                             version=version,
                         )
         if raise_on_not_found:
+            if flavor:
+                raise KiwiKernelLookupError(
+                    'No kernel of flavor {0} found in {1}, '
+                    'installed kernel versions: {2}'.format(
+                        flavor, self.root_dir, self.get_kernel_versions()
+                    )
+                )
             raise KiwiKernelLookupError(
                 'No kernel found in {0}, searched for {1}'.format(
                     self.root_dir, self.kernel_names
                 )
             )
         return None
+
+    @staticmethod
+    def is_flavor(version: str, flavor: str) -> bool:
+        """
+        Check if the given kernel version belongs to the given flavor
+
+        The flavor is the end of the version, separated by - or +
+        from the release which precedes it. The release is the last
+        part of the version before the flavor which contains a digit.
+        A flavor which only ends another flavor is therefore not the
+        flavor of the version, e.g:
+
+        * 6.4.0-150600.23.25-default is of flavor default
+        * 6.1.0-21-rt-amd64 is of flavor rt-amd64, but not amd64
+        * 5.14.0-427.13.1.el9_4.x86_64+rt is of flavor rt
+
+        The flavor none is the flavor of a kernel version which does
+        not end with a flavor at all, see has_flavor(), e.g:
+
+        * 7.2.15-100.fc43.x86_64 is of flavor none
+
+        :param str version: kernel version
+        :param str flavor: kernel flavor name
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        if flavor == KERNEL_FLAVOR_NONE:
+            return not Kernel.has_flavor(version)
+        return bool(
+            re.fullmatch(rf'.*[0-9][^-+]*[-+]{re.escape(flavor)}', version)
+        )
+
+    @staticmethod
+    def has_flavor(version: str) -> bool:
+        """
+        Check if the given kernel version ends with a flavor
+
+        The flavor is a name after the last - or + of the version.
+        A part which contains no letter is a release number and a
+        part which contains a dot is the release itself, e.g:
+
+        * 6.4.0-150600.23.25-default ends with the flavor default
+        * 6.4.0-150600.23.25-64kb ends with the flavor 64kb
+        * 7.2.15-100.fc43.x86_64 ends with its release
+        * 6.10.1-arch1-1 ends with a release number
+
+        :param str version: kernel version
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        parts = re.split(r'[-+]', version)
+        last_part = parts[-1] if len(parts) > 1 else ''
+        return bool(re.search(r'[a-zA-Z]', last_part)) and '.' not in last_part
 
     def get_kernel_versions(self) -> List[str]:
         """
@@ -193,7 +266,9 @@ class Kernel:
             return xen_hypervisor_type(filename=xen_hypervisor, name='xen.gz')
         return None
 
-    def copy_kernel(self, target_dir: str, file_name: str = None) -> None:
+    def copy_kernel(
+        self, target_dir: str, file_name: str = None, flavor: str = ''
+    ) -> None:
         """
         Copy kernel to specified target
 
@@ -202,8 +277,9 @@ class Kernel:
 
         :param str target_dir: target path name
         :param str filename: base filename in target
+        :param str flavor: copy the kernel of this flavor, see get_kernel()
         """
-        kernel = self.get_kernel()
+        kernel = self.get_kernel(flavor=flavor)
         if kernel:
             if not file_name:
                 file_name = 'kernel-' + kernel.version + '.kernel'

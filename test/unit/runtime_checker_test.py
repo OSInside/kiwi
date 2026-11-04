@@ -447,6 +447,62 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_bootloader_env_compatible_with_loader()
 
+    def test_check_kernel_flavor_supported(self):
+        description = XMLDescription('../data/example_kernel_flavor_config.xml')
+        xml_data = description.load()
+        for profile in ['flavor', 'noFlavor']:
+            RuntimeChecker(
+                XMLState(xml_data, [profile])
+            ).check_kernel_flavor_supported()
+        with raises(KiwiRuntimeError) as issue:
+            RuntimeChecker(
+                XMLState(xml_data, ['flavorKiwiInitrd'])
+            ).check_kernel_flavor_supported()
+        assert 'require the dracut initrd system' in str(issue.value)
+        with raises(KiwiRuntimeError) as issue:
+            RuntimeChecker(
+                XMLState(xml_data, ['flavorUKI'])
+            ).check_kernel_flavor_supported()
+        assert 'not supported with UKI' in str(issue.value)
+        xml_state = XMLState(xml_data, ['flavor'])
+        xml_state.get_build_type_bootloader_name = Mock(return_value='zipl')
+        xml_state.get_host_key_certificates = Mock(
+            return_value=[{'hkd_cert': ['host.crt']}]
+        )
+        with raises(KiwiRuntimeError) as issue:
+            RuntimeChecker(xml_state).check_kernel_flavor_supported()
+        assert 'not supported with zipl secure execution' in str(issue.value)
+        # secure execution through grub is not affected
+        xml_state.get_build_type_bootloader_name = Mock(
+            return_value='grub2_s390x_emu'
+        )
+        RuntimeChecker(xml_state).check_kernel_flavor_supported()
+
+    def test_check_kernel_flavors_installed(self, tmp_path):
+        description = XMLDescription('../data/example_kernel_flavor_config.xml')
+        xml_data = description.load()
+        runtime_checker = RuntimeChecker(XMLState(xml_data, ['flavor']))
+        with raises(KiwiRuntimeError) as issue:
+            runtime_checker.check_kernel_flavors_installed(str(tmp_path))
+        assert 'kernel flavor(s): rt, default' in str(issue.value)
+        assert 'kernel versions are:\nnone' in str(issue.value)
+        for version in ['6.4.0-1-default', '6.4.0-1-64kb']:
+            modules_dir = tmp_path / 'lib' / 'modules' / version
+            modules_dir.mkdir(parents=True)
+            (modules_dir / 'vmlinuz').touch()
+        with raises(KiwiRuntimeError) as issue:
+            runtime_checker.check_kernel_flavors_installed(str(tmp_path))
+        assert 'kernel flavor(s): rt\n' in str(issue.value)
+        assert '6.4.0-1-64kb, 6.4.0-1-default' in str(issue.value)
+        modules_dir = tmp_path / 'lib' / 'modules' / '6.4.0-2-rt'
+        modules_dir.mkdir(parents=True)
+        (modules_dir / 'vmlinuz').touch()
+        runtime_checker.check_kernel_flavors_installed(str(tmp_path))
+        # nothing to check without kernel flavors
+        RuntimeChecker(
+            XMLState(xml_data, ['noFlavor'])
+        ).check_kernel_flavors_installed(str(tmp_path / 'none'))
+
     def test_check_package_in_list(self):
         assert RuntimeChecker._package_in_list(['a', 'b'], ['b']) == 'b'
         assert RuntimeChecker._package_in_list(['a', 'b'], ['c']) == ''

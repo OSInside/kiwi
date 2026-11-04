@@ -19,7 +19,7 @@ import os
 import logging
 from string import Template
 from contextlib import ExitStack
-from typing import Dict
+from typing import Dict, Tuple
 
 # project
 from kiwi.path import Path
@@ -42,6 +42,19 @@ log = logging.getLogger('kiwi')
 
 
 class BootLoaderSystemdBoot(BootLoaderSpecBase):
+    def post_init(self, custom_args: Dict = {}) -> None:
+        """
+        Post init for systemd-boot
+
+        In addition to the bootloader spec setup, initialize the
+        record of the kernel and initrd files on the ESP
+
+        :param dict custom_args: custom bootloader arguments
+        """
+        super().post_init(custom_args)
+        # kernel and initrd file on the ESP per kernel flavor
+        self.boot_files: Dict[str, Tuple[str, str]] = {}
+
     def create_loader_image(self, target: str) -> None:
         """
         Handle EFI images
@@ -99,22 +112,19 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
 
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
-        Setup/update loader entries
+        Setup/update loader entries, one entry for the kernel of
+        each kernel flavor, see get_kernel_flavors()
 
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
         """
-        os_release = OsRelease(root_dir)
-        # The entry belongs to the kernel of the latest version, the
-        # one kiwi creates the initrd for
-        kernel_info = Kernel(root_dir).get_kernel(raise_on_not_found=True)
-        kernel_name = kernel_info.version if kernel_info else ''
-        default_entry = f'{os_release.get("ID")}-{kernel_name}.conf'
-        BootLoaderSystemdBoot._write_config_file(
-            BootLoaderTemplateSystemdBoot().get_entry_template(),
-            root_dir + f'/boot/efi/loader/entries/{default_entry}',
-            self._get_template_parameters(default_entry),
-        )
+        for flavor in self.get_kernel_flavors():
+            entry_name = self._get_entry_name(root_dir, flavor)
+            BootLoaderSystemdBoot._write_config_file(
+                BootLoaderTemplateSystemdBoot().get_entry_template(),
+                root_dir + f'/boot/efi/loader/entries/{entry_name}',
+                self._get_template_parameters(entry_name, flavor),
+            )
 
     def _create_embedded_fat_efi_image(self, path: str):
         """
@@ -171,9 +181,6 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         """
         Setup ESP for systemd-boot using bootctl
         """
-        kernel_info = BootImageBase(
-            self.xml_state, root_dir, root_dir
-        ).get_boot_names()
         Command.run(
             [
                 'chroot',
@@ -188,39 +195,78 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         )
         self._write_kernel_cmdline_file(root_dir)
 
-        # copy kernel and initrd
+        # copy kernel and initrd of each kernel flavor
         dracut_setup = self.xml_state.get_dracut_config('setup')
         if not dracut_setup.uefi:
             entry_dir = f'{root_dir}/boot/efi/loader/entries'
             os_dir = f'{root_dir}/boot/efi/os'
             Path.create(entry_dir)
             Path.create(os_dir)
-            self.custom_args['kernel'] = (
-                f'os/{os.path.basename(kernel_info.kernel_filename)}'
-            )
-            self.custom_args['initrd'] = f'os/{kernel_info.initrd_name}'
-            Command.run(['cp', kernel_info.kernel_filename, os_dir])
-            Command.run(
-                ['cp', f'{root_dir}/boot/{kernel_info.initrd_name}', os_dir]
-            )
+            for flavor in self.get_kernel_flavors():
+                kernel_info = BootImageBase(
+                    self.xml_state, root_dir, root_dir
+                ).get_boot_names(flavor)
+                self.boot_files[flavor] = (
+                    f'os/{os.path.basename(kernel_info.kernel_filename)}',
+                    f'os/{kernel_info.initrd_name}',
+                )
+                Command.run(['cp', kernel_info.kernel_filename, os_dir])
+                Command.run(
+                    ['cp', f'{root_dir}/boot/{kernel_info.initrd_name}', os_dir]
+                )
 
-        # create loader.conf
+        # create loader.conf, the entry of the first kernel flavor
+        # is the default entry
+        kernel_flavors = (
+            self.xml_state.get_build_type_bootloader_kernel_flavors()
+        )
+        default_entry = 'main.conf'
+        if kernel_flavors:
+            default_entry = self._get_entry_name(root_dir, kernel_flavors[0])
         BootLoaderSystemdBoot._write_config_file(
-            BootLoaderTemplateSystemdBoot().get_loader_template(),
+            BootLoaderTemplateSystemdBoot().get_loader_template(
+                with_default_entry=bool(kernel_flavors)
+            ),
             root_dir + '/boot/efi/loader/loader.conf',
-            self._get_template_parameters(),
+            self._get_template_parameters(default_entry),
         )
 
+    def _get_entry_name(self, root_dir: str, flavor: str = '') -> str:
+        """
+        Name of the loader entry of the kernel of the given flavor
+
+        The entry belongs to the kernel of the latest version of the
+        flavor, the one kiwi creates the initrd for
+
+        :param str root_dir: path to root directory tree
+        :param str flavor: kernel flavor, see Kernel.get_kernel()
+
+        :return: entry file basename
+
+        :rtype: str
+        """
+        os_release = OsRelease(root_dir)
+        kernel_info = Kernel(root_dir).get_kernel(
+            raise_on_not_found=True, flavor=flavor
+        )
+        kernel_name = kernel_info.version if kernel_info else ''
+        return f'{os_release.get("ID")}-{kernel_name}.conf'
+
     def _get_template_parameters(
-        self, default_entry: str = 'main.conf'
+        self, default_entry: str = 'main.conf', flavor: str = ''
     ) -> Dict[str, str]:
+        kernel_file, initrd_file = self.boot_files.get(
+            flavor, (self.custom_args['kernel'], self.custom_args['initrd'])
+        )
         return {
-            'kernel_file': self.custom_args['kernel'] or 'vmlinuz',
-            'initrd_file': self.custom_args['initrd'] or 'initrd',
+            'kernel_file': kernel_file or 'vmlinuz',
+            'initrd_file': initrd_file or 'initrd',
             'boot_options': self.cmdline,
             'boot_timeout': self.timeout,
             'bootpath': self.get_boot_path(),
-            'title': self.get_menu_entry_title(),
+            'title': self.get_kernel_flavor_title(
+                self.get_menu_entry_title(), flavor
+            ),
             'default_entry': default_entry,
         }
 

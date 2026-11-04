@@ -222,6 +222,15 @@ class TestBootLoaderConfigBase:
         assert self.bootloader.get_install_image_boot_default() == '2'
         mock_installboot.return_value = 'install'
         assert self.bootloader.get_install_image_boot_default() == '1'
+        # one install entry per kernel flavor, failsafe follows them
+        with patch.object(
+            self.bootloader.xml_state,
+            'get_build_type_bootloader_kernel_flavors',
+            return_value=['rt', 'default'],
+        ):
+            assert self.bootloader.get_install_image_boot_default() == '1'
+            mock_installboot.return_value = 'failsafe-install'
+            assert self.bootloader.get_install_image_boot_default() == '3'
 
     @patch('kiwi.xml_parse.type_.get_installboot')
     @patch('kiwi.xml_parse.type_.get_installprovidefailsafe')
@@ -301,6 +310,26 @@ class TestBootLoaderConfigBase:
     def test_get_menu_entry_install_title(self, mock_displayname):
         mock_displayname.return_value = None
         assert self.bootloader.get_menu_entry_install_title() == 'LimeJeOS'
+
+    def test_get_kernel_flavors(self):
+        assert self.bootloader.get_kernel_flavors() == ['']
+        with patch.object(
+            self.bootloader.xml_state,
+            'get_build_type_bootloader_kernel_flavors',
+            return_value=['rt', 'default'],
+        ):
+            assert self.bootloader.get_kernel_flavors() == ['rt', 'default']
+
+    def test_get_kernel_flavor_title(self):
+        assert self.bootloader.get_kernel_flavor_title('title', '') == 'title'
+        assert (
+            self.bootloader.get_kernel_flavor_title('title', 'rt')
+            == 'title (rt)'
+        )
+        # kernels without flavor keep the title
+        assert self.bootloader.get_kernel_flavor_title('title', 'none') == (
+            'title'
+        )
 
     @patch('kiwi.bootloader.config.base.MountManager')
     def test_mount_system_s390(self, mock_MountManager):

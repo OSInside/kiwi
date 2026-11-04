@@ -225,9 +225,13 @@ class BootImageBase:
         """
         pass
 
-    def get_boot_names(self) -> boot_names_type:
+    def get_boot_names(self, flavor: str = '') -> boot_names_type:
         """
         Provides kernel and initrd names for the boot image
+
+        :param str flavor:
+            names of the latest kernel of this flavor, of the latest
+            kernel if not set, see Kernel.get_kernel()
 
         :return:
             Contains boot_names_type tuple
@@ -244,7 +248,7 @@ class BootImageBase:
         :rtype: boot_names_type
         """
         kernel = Kernel(self.boot_root_directory)
-        kernel_info = kernel.get_kernel()
+        kernel_info = kernel.get_kernel(flavor=flavor)
         if not kernel_info:
             if self.xml_state.get_initrd_system() == 'none':
                 return boot_names_type(
@@ -253,8 +257,10 @@ class BootImageBase:
                     kernel_version='none',
                     kernel_filename='none',
                 )
+            flavor_info = f' of flavor {flavor}' if flavor else ''
             raise KiwiDiskBootImageError(
-                f'No kernel in boot image tree {self.boot_root_directory} found'
+                f'No kernel{flavor_info} in boot image tree '
+                f'{self.boot_root_directory} found'
             )
         dracut_output_format = self._get_boot_image_output_file_format(
             kernel_info.version
@@ -290,6 +296,8 @@ class BootImageBase:
         mbrid: Optional[SystemIdentifier] = None,
         basename: Optional[str] = None,
         install_initrd: bool = False,
+        flavor: str = '',
+        delete_included_files: bool = True,
     ) -> None:
         """
         Implements creation of the initrd
@@ -297,6 +305,14 @@ class BootImageBase:
         :param SystemIdentifier mbrid: instance of SystemIdentifier
         :param str basename: base initrd file name
         :param bool install_initrd: installation media initrd
+        :param str flavor:
+            create the initrd for the latest kernel of this flavor,
+            for the latest kernel if not set
+        :param bool delete_included_files:
+            delete the files included with delete_after_include once
+            the initrd is created. Keep them if another initrd which
+            includes them is created afterwards, e.g for the kernel
+            of another flavor
 
         Implementation in specialized boot image class
         """

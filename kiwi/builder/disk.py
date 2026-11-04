@@ -167,6 +167,11 @@ class DiskBuilder:
         self.dracut_omit_modules = xml_state.get_dracut_config('omit').modules
         self.dracut_add_drivers = xml_state.get_dracut_config('add').drivers
         self.dracut_omit_drivers = xml_state.get_dracut_config('omit').drivers
+        # an initrd is created for the kernel of each flavor, the
+        # empty flavor stands for the latest kernel
+        self.kernel_flavors = (
+            xml_state.get_build_type_bootloader_kernel_flavors() or ['']
+        )
         self.mdraid = xml_state.build_type.get_mdraid()
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
         self.force_mbr = xml_state.build_type.get_force_mbr()
@@ -896,12 +901,8 @@ class DiskBuilder:
             if self.disk_resize_requested:
                 self.boot_image.include_module('kiwi-repart')
 
-        # create initrd
-        if self.boot_image.has_initrd_support() and not self.dracut_setup.uefi:
-            self.boot_image.create_initrd(self.mbrid)
-
-        # create second stage metadata to system image
-        self._copy_first_boot_files_to_system_image()
+        # create initrd(s) and second stage metadata to system image
+        self._create_boot_files()
 
         with self._bootloader_instance(disk) as bootloader_config:
             # write bootloader meta data to system image
@@ -961,17 +962,7 @@ class DiskBuilder:
                         and self.boot_image.has_initrd_support()
                         and not self.dracut_setup.uefi
                     ):
-                        self.boot_image.create_initrd(self.mbrid)
-                        self._copy_first_boot_files_to_system_image()
-                        boot_names = self.boot_image.get_boot_names()
-                        if os.access(f'{root}/boot/', os.W_OK):
-                            Command.run(
-                                [
-                                    'cp',
-                                    f'{self.root_dir}/boot/{boot_names.initrd_name}',
-                                    f'{root}/boot/{boot_names.initrd_name}',
-                                ]
-                            )
+                        self._update_boot_files(root)
 
                     disk_system = SystemSetup(
                         self.xml_state, image_system.mountpoint()
@@ -1003,13 +994,15 @@ class DiskBuilder:
                         and not os.access(f'{root}/boot/', os.W_OK)
                         and self.bootloader == 'systemd_boot'
                     ):
-                        Command.run(
-                            [
-                                'cp',
-                                f'{self.root_dir}/boot/{boot_names.initrd_name}',
-                                f'{root}/boot/efi/os/{boot_names.initrd_name}',
-                            ]
-                        )
+                        for flavor in self.kernel_flavors:
+                            boot_names = self.boot_image.get_boot_names(flavor)
+                            Command.run(
+                                [
+                                    'cp',
+                                    f'{self.root_dir}/boot/{boot_names.initrd_name}',
+                                    f'{root}/boot/efi/os/{boot_names.initrd_name}',
+                                ]
+                            )
 
                     # cleanup build metadata
                     if os.access(f'{root}/', os.W_OK):
@@ -2152,8 +2145,54 @@ class DiskBuilder:
                 log.info('Setting root filesystem into read-only mode')
                 system.set_property_readonly_root()
 
-    def _copy_first_boot_files_to_system_image(self) -> None:
-        boot_names = self.boot_image.get_boot_names()
+    def _create_boot_files(self) -> None:
+        """
+        Create the initrd for the kernel of each kernel flavor and
+        copy the boot files to the system image. Files included into
+        the initrd with delete_after_include are deleted once the
+        initrd of the last flavor is created
+        """
+        for flavor in self.kernel_flavors:
+            if (
+                self.boot_image.has_initrd_support()
+                and not self.dracut_setup.uefi
+            ):
+                self.boot_image.create_initrd(
+                    self.mbrid,
+                    flavor=flavor,
+                    delete_included_files=flavor == self.kernel_flavors[-1],
+                )
+            self._copy_first_boot_files_to_system_image(flavor)
+
+    def _update_boot_files(self, root: str) -> None:
+        """
+        Create the initrd for the kernel of each kernel flavor again
+        and update it in the system image and, if writable, in the
+        given mounted disk image system. Files included into the
+        initrd with delete_after_include are deleted once the initrd
+        of the last flavor is created
+
+        :param str root: mountpoint of the disk image system
+        """
+        for flavor in self.kernel_flavors:
+            self.boot_image.create_initrd(
+                self.mbrid,
+                flavor=flavor,
+                delete_included_files=flavor == self.kernel_flavors[-1],
+            )
+            self._copy_first_boot_files_to_system_image(flavor)
+            boot_names = self.boot_image.get_boot_names(flavor)
+            if os.access(f'{root}/boot/', os.W_OK):
+                Command.run(
+                    [
+                        'cp',
+                        f'{self.root_dir}/boot/{boot_names.initrd_name}',
+                        f'{root}/boot/{boot_names.initrd_name}',
+                    ]
+                )
+
+    def _copy_first_boot_files_to_system_image(self, flavor: str = '') -> None:
+        boot_names = self.boot_image.get_boot_names(flavor)
         if self.initrd_system == 'kiwi':
             log.info('Copy boot files to system image')
             kernel = Kernel(self.boot_image.boot_root_directory)

@@ -271,10 +271,13 @@ class TestVolumeManagerBase:
     def test_get_mountpoint(self):
         assert self.volume_manager.get_mountpoint() is None
 
+    @patch('kiwi.mount_manager.Path.create')
     @patch('kiwi.volume_manager.base.DataSync')
     @patch('kiwi.volume_manager.base.MountManager.is_mounted')
     @patch('kiwi.volume_manager.base.VolumeManagerBase.mount_volumes')
-    def test_sync_data(self, mock_mount_volumes, mock_mounted, mock_sync):
+    def test_sync_data(
+        self, mock_mount_volumes, mock_mounted, mock_sync, mock_Path_create
+    ):
         data_sync = Mock()
         mock_sync.return_value = data_sync
         mock_mounted.return_value = False

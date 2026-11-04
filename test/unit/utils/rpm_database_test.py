@@ -44,15 +44,19 @@ class TestRpmDataBase:
         self.rpmdb.rpmdb_image.write_config.assert_called_once_with()
         self.rpmdb.rpmdb_host.get_query.assert_called_once_with('_dbpath')
 
+    @patch('kiwi.utils.rpm_database.Path.create')
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
-    def test_link_database_to_host_path(self, mock_exists, mock_Command_run):
+    def test_link_database_to_host_path(
+        self, mock_exists, mock_Command_run, mock_Path_create
+    ):
         self.rpmdb.rpmdb_image.expand_query.return_value = '/var/lib/rpm'
         self.rpmdb.rpmdb_host.expand_query.return_value = (
             '/usr/lib/sysimage/rpm'
         )
         mock_exists.return_value = False
         self.rpmdb.link_database_to_host_path()
+        mock_Path_create.assert_called_once_with('root_dir/usr/lib/sysimage')
         assert mock_Command_run.call_args_list == [
             call(
                 [

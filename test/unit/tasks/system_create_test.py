@@ -79,6 +79,9 @@ class TestSystemCreateTask:
         self.runtime_checker.check_dracut_module_versions_compatible_to_kiwi.assert_called_once_with(
             self.abs_root_dir
         )
+        self.runtime_checker.check_kernel_flavors_installed.assert_called_once_with(
+            self.abs_root_dir
+        )
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()

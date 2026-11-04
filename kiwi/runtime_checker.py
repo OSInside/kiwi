@@ -32,6 +32,7 @@ from kiwi.system.uri import Uri
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.path import Path
+from kiwi.system.kernel import Kernel
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.exceptions import KiwiRuntimeError
@@ -1113,6 +1114,96 @@ class RuntimeChecker:
         )
         if variable_list and bootloader not in env_supported_loaders:
             raise KiwiRuntimeError(message.format(bootloader))
+
+    def check_kernel_flavor_supported(self) -> None:
+        """
+        If kernel flavors are configured in the bootloader section,
+        check that the image setup can provide a boot menu entry for
+        the kernel of each flavor. This requires an initrd for each
+        kernel, which is only created with the dracut initrd system,
+        and separate kernel and initrd files, which are not used if
+        the kernel and the initrd are combined into one UKI binary
+        """
+        message_initrd_system = dedent(
+            '''\n
+            Kernel flavors require the dracut initrd system
+
+            The bootloader kernel_flavor setting creates an initrd
+            for the kernel of each flavor. This is only supported
+            with the dracut initrd system but the selected initrd
+            system is {}
+        '''
+        )
+        message_uki = dedent(
+            '''\n
+            Kernel flavors are not supported with UKI
+
+            The bootloader kernel_flavor setting creates a boot menu
+            entry for the kernel of each flavor. This is not supported
+            in combination with a UKI binary as configured by the
+            <dracut uefi="true"/> setting
+        '''
+        )
+        message_secure_execution = dedent(
+            '''\n
+            Kernel flavors are not supported with zipl secure execution
+
+            The bootloader kernel_flavor setting creates a boot menu
+            entry for the kernel of each flavor. This is not supported
+            in combination with the zipl secure execution image as
+            configured by the <securelinux> setting
+        '''
+        )
+        if self.xml_state.get_build_type_bootloader_kernel_flavors():
+            if (
+                self.xml_state.get_build_type_bootloader_name() == 'zipl'
+                and self.xml_state.get_host_key_certificates()
+            ):
+                raise KiwiRuntimeError(message_secure_execution)
+            initrd_system = self.xml_state.get_initrd_system()
+            if initrd_system != 'dracut':
+                raise KiwiRuntimeError(
+                    message_initrd_system.format(initrd_system)
+                )
+            if self.xml_state.get_dracut_config('setup').uefi:
+                raise KiwiRuntimeError(message_uki)
+
+    def check_kernel_flavors_installed(self, root_dir: str) -> None:
+        """
+        If kernel flavors are configured in the bootloader section,
+        check that a kernel of each flavor is installed in the
+        given root tree
+
+        :param str root_dir: root directory path name
+        """
+        message = dedent(
+            '''\n
+            No kernel installed for kernel flavor(s): {0}
+
+            The bootloader kernel_flavor setting requires a kernel
+            of each flavor to be installed. Please add the package
+            providing the kernel of the missing flavor(s) to the
+            image description. The installed kernel versions are:
+            {1}
+        '''
+        )
+        kernel_flavors = (
+            self.xml_state.get_build_type_bootloader_kernel_flavors()
+        )
+        if kernel_flavors:
+            kernel = Kernel(root_dir)
+            missing_flavors = [
+                flavor
+                for flavor in kernel_flavors
+                if not kernel.get_kernel(flavor=flavor)
+            ]
+            if missing_flavors:
+                raise KiwiRuntimeError(
+                    message.format(
+                        ', '.join(missing_flavors),
+                        ', '.join(kernel.get_kernel_versions()) or 'none',
+                    )
+                )
 
     @staticmethod
     def _package_in_list(

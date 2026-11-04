@@ -119,6 +119,8 @@ class BootImageKiwi(BootImageBase):
         mbrid: Optional[SystemIdentifier] = None,
         basename: Optional[str] = None,
         install_initrd: bool = False,
+        flavor: str = '',
+        delete_included_files: bool = True,
     ) -> None:
         """
         Create initrd from prepared boot system tree and compress the result
@@ -126,6 +128,10 @@ class BootImageKiwi(BootImageBase):
         :param SystemIdentifier mbrid: instance of ImageIdentifier
         :param str basename: base initrd file name
         :param bool install_initrd: installation media initrd
+        :param str flavor:
+            unused, kernel flavors are only supported with the
+            dracut initrd system
+        :param bool delete_included_files: unused
 
         """
         if self.is_prepared():

@@ -1,7 +1,9 @@
 import io
 import os
+import re
 import logging
 from collections import namedtuple
+from textwrap import dedent
 from unittest.mock import patch, call, MagicMock, Mock
 from pytest import raises, fixture
 import pytest
@@ -13,6 +15,7 @@ from kiwi.defaults import grub_loader_type
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
+from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.utils.sysconfig import SysConfig
 from kiwi.xml_state import DracutT
 
@@ -23,6 +26,7 @@ from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderGrubDataError,
     KiwiBootLoaderGrubFontError,
+    KiwiBootLoaderGrubMenuEntryError,
     KiwiBootLoaderGrubModulesError,
     KiwiDiskGeometryError,
     KiwiCommandNotFound,
@@ -871,6 +875,7 @@ class TestBootLoaderConfigGrub2:
     def test_setup_live_image_config_custom_template(self, mock_exists):
         bootloader = Mock()
         bootloader.get_grub_template.return_value = "example.template"
+        bootloader.get_kernel_flavor.return_value = None
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
         mock_exists.return_value = True
         self.bootloader.multiboot = False
@@ -887,6 +892,7 @@ class TestBootLoaderConfigGrub2:
     ):
         bootloader = Mock()
         bootloader.get_grub_template.return_value = "example.template"
+        bootloader.get_kernel_flavor.return_value = None
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
         mock_exists.return_value = False
         self.bootloader.multiboot = False
@@ -896,6 +902,7 @@ class TestBootLoaderConfigGrub2:
     def test_setup_live_image_config_custom_template_not_set(self):
         bootloader = Mock()
         bootloader.get_grub_template.return_value = ""
+        bootloader.get_kernel_flavor.return_value = None
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
         self.bootloader.multiboot = False
         self.bootloader.setup_live_image_config(self.mbrid)
@@ -905,6 +912,7 @@ class TestBootLoaderConfigGrub2:
     def test_setup_install_image_config_custom_template(self, mock_exists):
         bootloader = Mock()
         bootloader.get_grub_template.return_value = "example.template"
+        bootloader.get_kernel_flavor.return_value = None
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
         mock_exists.return_value = True
         self.bootloader.multiboot = False
@@ -921,6 +929,7 @@ class TestBootLoaderConfigGrub2:
     ):
         bootloader = Mock()
         bootloader.get_grub_template.return_value = "example.template"
+        bootloader.get_kernel_flavor.return_value = None
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
         mock_exists.return_value = False
         self.bootloader.multiboot = False
@@ -930,6 +939,7 @@ class TestBootLoaderConfigGrub2:
     def test_setup_install_image_config_custom_template_not_set(self):
         bootloader = Mock()
         bootloader.get_grub_template.return_value = ""
+        bootloader.get_kernel_flavor.return_value = None
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
         self.bootloader.multiboot = False
         self.bootloader.setup_install_image_config(self.mbrid)
@@ -945,7 +955,7 @@ class TestBootLoaderConfigGrub2:
         )
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_multiboot_iso_template.assert_called_once_with(
-            True, False, False, None, False
+            True, False, False, None, False, kernel_count=1
         )
 
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
@@ -959,11 +969,71 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.multiboot = False
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_iso_template.assert_called_once_with(
-            True, True, True, None, True
+            True, True, True, None, True, kernel_count=1
         )
         mock_copy_grub_config_to_efi_path.assert_called_once_with(
             'root_dir', 'earlyboot.cfg', 'iso'
         )
+
+    @staticmethod
+    def _get_menu_entries(config):
+        """
+        Titles of the menu entries in the given grub config, each
+        along with the names of the kernel and initrd file it loads
+        """
+        menu_entries = []
+        for line in config.splitlines():
+            line = line.strip()
+            title = re.match(r'(?:menuentry|hiddenentry) "([^"]+)"', line)
+            if title:
+                menu_entries.append((title.group(1),))
+            elif re.match(r'(linux|initrd|module) ', line):
+                menu_entries[-1] += (os.path.basename(line.split()[1]),)
+        return menu_entries
+
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    def test_setup_live_image_config_with_kernel_flavors(
+        self, mock_copy_grub_config_to_efi_path
+    ):
+        self.bootloader.grub2 = BootLoaderTemplateGrub2()
+        self.bootloader.multiboot = False
+        self.bootloader.xml_state.get_build_type_bootloader_kernel_flavors = (
+            Mock(return_value=['rt', 'default'])
+        )
+        self.bootloader.setup_live_image_config(self.mbrid)
+        # the entry of the first flavor is the default entry, failsafe
+        # uses the kernel of the first flavor
+        assert 'set default=0' in self.bootloader.config
+        assert self._get_menu_entries(self.bootloader.config) == [
+            ('If OK, run snapper rollback and reboot.',),
+            ('Bob (rt)', 'linux', 'initrd'),
+            ('Bob (default)', 'linux-default', 'initrd-default'),
+            ('Failsafe -- Bob (rt)', 'linux', 'initrd'),
+            ('Boot from Hard Disk',),
+        ]
+
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    def test_setup_install_image_config_with_kernel_flavors(
+        self, mock_copy_grub_config_to_efi_path
+    ):
+        self.bootloader.grub2 = BootLoaderTemplateGrub2()
+        self.bootloader.multiboot = True
+        self.bootloader.xml_state.get_build_type_bootloader_kernel_flavors = (
+            Mock(return_value=['rt', 'default'])
+        )
+        self.bootloader.xml_state.build_type.get_installboot = Mock(
+            return_value='failsafe-install'
+        )
+        self.bootloader.setup_install_image_config(self.mbrid)
+        # the failsafe install entry follows the install entries
+        assert 'set default=3' in self.bootloader.config
+        assert self._get_menu_entries(self.bootloader.config) == [
+            ('If OK, run snapper rollback and reboot.',),
+            ('Boot from Hard Disk',),
+            ('Install -- Bob (rt)', 'linux', 'initrd'),
+            ('Install -- Bob (default)', 'linux-default', 'initrd-default'),
+            ('Failsafe -- Install Bob (rt)', 'linux', 'initrd'),
+        ]
 
     def test_setup_install_image_config_multiboot(self):
         self.bootloader.terminal_input = 'serial'
@@ -971,8 +1041,165 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.multiboot = True
         self.bootloader.setup_install_image_config(self.mbrid)
         self.grub2.get_multiboot_install_template.assert_called_once_with(
-            True, True, True, True, True
+            True, True, True, True, True, kernel_count=1
         )
+
+    grub_config_with_submenu = dedent(
+        '''
+        }
+        set default="${saved_entry}"
+        function load_video {
+          insmod all_video
+        }
+        menuentry 'openSUSE' --class opensuse $menuentry_id_option 'gnulinux-simple-UUID' {
+        \tload_video
+        \tlinux\t/boot/vmlinuz-6.4.0-9-default root=UUID=x
+        \tinitrd\t/boot/initrd-6.4.0-9-default
+        }
+        submenu 'Advanced options for openSUSE' $menuentry_id_option 'gnulinux-advanced-UUID' {
+        \tmenuentry 'openSUSE, with Linux 6.4.0-9-default' $menuentry_id_option 'gnulinux-6.4.0-9-default-advanced-UUID' {
+        \t\tlinux\t/boot/vmlinuz-6.4.0-9-default root=UUID=x
+        \t}
+        \tmenuentry 'openSUSE, with Linux 6.4.0-3-rt (recovery mode)' $menuentry_id_option 'gnulinux-6.4.0-3-rt-recovery-UUID' {
+        \t\tlinux\t/boot/vmlinuz-6.4.0-3-rt root=UUID=x single
+        \t}
+        \tmenuentry 'openSUSE, with Linux 6.4.0-3-rt' $menuentry_id_option 'gnulinux-6.4.0-3-rt-advanced-UUID' {
+        \t\tlinuxefi\t/vmlinuz-6.4.0-3-rt root=UUID=x
+        \t}
+        }
+        '''
+    )
+
+    grub_config_without_submenu = dedent(
+        '''
+        menuentry 'openSUSE' $menuentry_id_option 'gnulinux-simple-UUID' {
+        \tlinux\t/boot/vmlinuz-6.4.0-9-default root=UUID=x
+        }
+        menuentry 'openSUSE, with Linux 6.4.0-3-rt' $menuentry_id_option 'gnulinux-6.4.0-3-rt-advanced-UUID' {
+        \tlinux\t/boot/vmlinuz-6.4.0-3-rt root=UUID=x
+        }
+        menuentry 'openSUSE, with Linux 6.4.0-1-rt' $menuentry_id_option 'gnulinux-6.4.0-1-rt-advanced-UUID' {
+        \tlinux\t/boot/vmlinuz-6.4.0-1-rt root=UUID=x
+        }
+        '''
+    )
+
+    def test_get_menu_entry_id(self, tmp_path):
+        config_file = tmp_path / 'grub.cfg'
+        config_file.write_text(self.grub_config_with_submenu)
+        # the entry of the version in the submenu is preferred over
+        # the top level entry and recovery entries are skipped
+        assert BootLoaderConfigGrub2._get_menu_entry_id(
+            str(config_file), '6.4.0-3-rt'
+        ) == ('gnulinux-advanced-UUID>gnulinux-6.4.0-3-rt-advanced-UUID')
+        assert BootLoaderConfigGrub2._get_menu_entry_id(
+            str(config_file), '6.4.0-9-default'
+        ) == ('gnulinux-advanced-UUID>gnulinux-6.4.0-9-default-advanced-UUID')
+        # a version which only starts another version does not match
+        assert (
+            BootLoaderConfigGrub2._get_menu_entry_id(
+                str(config_file), '6.4.0-3'
+            )
+            == ''
+        )
+        config_file.write_text(self.grub_config_without_submenu)
+        assert (
+            BootLoaderConfigGrub2._get_menu_entry_id(
+                str(config_file), '6.4.0-3-rt'
+            )
+            == 'gnulinux-6.4.0-3-rt-advanced-UUID'
+        )
+
+    def _setup_kernel_flavor_root(self, root_dir, entries=()):
+        for version in ['6.4.0-9-default', '6.4.0-3-rt', '6.4.0-1-rt']:
+            modules_dir = root_dir / 'lib' / 'modules' / version
+            modules_dir.mkdir(parents=True)
+            (modules_dir / 'vmlinuz').touch()
+        entries_dir = root_dir / 'boot' / 'loader' / 'entries'
+        entries_dir.mkdir(parents=True)
+        for entry in entries:
+            (entries_dir / entry).touch()
+        self.bootloader.root_mount = Mock()
+        self.bootloader.root_mount.mountpoint = str(root_dir)
+        self.bootloader.xml_state.get_build_type_bootloader_kernel_flavors = (
+            Mock(return_value=['rt', 'default'])
+        )
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_kernel_flavor_default_entry(
+        self, mock_Command_run, tmp_path
+    ):
+        self._setup_kernel_flavor_root(tmp_path)
+        config_file = tmp_path / 'grub.cfg'
+        config_file.write_text(self.grub_config_with_submenu)
+        (tmp_path / 'etc' / 'default').mkdir(parents=True)
+        (tmp_path / 'etc' / 'default' / 'grub').write_text(
+            'GRUB_DEFAULT=saved\n'
+        )
+        with self._caplog.at_level(logging.WARNING):
+            self.bootloader._setup_kernel_flavor_default_entry(str(config_file))
+            assert 'GRUB_DEFAULT' not in self._caplog.text
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot',
+                str(tmp_path),
+                'grub2-editenv',
+                '-',
+                'set',
+                'saved_entry=gnulinux-advanced-UUID>'
+                'gnulinux-6.4.0-3-rt-advanced-UUID',
+            ]
+        )
+        (tmp_path / 'etc' / 'default' / 'grub').write_text('GRUB_DEFAULT=0\n')
+        with self._caplog.at_level(logging.WARNING):
+            self.bootloader._setup_kernel_flavor_default_entry(str(config_file))
+            assert 'GRUB_DEFAULT=0 is set' in self._caplog.text
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_kernel_flavor_default_entry_from_loader_entries(
+        self, mock_Command_run, tmp_path
+    ):
+        # with menu entries according to the boot loader specification
+        # the default entry is selected by the name of its file
+        self._setup_kernel_flavor_root(
+            tmp_path,
+            [
+                'bc8499a-6.4.0-9-default.conf',
+                'bc8499a-6.4.0-1-rt.conf',
+                'bc8499a-6.4.0-3-rt.conf',
+            ],
+        )
+        config_file = tmp_path / 'grub.cfg'
+        config_file.write_text('blscfg\n')
+        self.bootloader._setup_kernel_flavor_default_entry(str(config_file))
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot',
+                str(tmp_path),
+                'grub2-editenv',
+                '-',
+                'set',
+                'saved_entry=bc8499a-6.4.0-3-rt',
+            ]
+        )
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_kernel_flavor_default_entry_raises(
+        self, mock_Command_run, tmp_path
+    ):
+        self._setup_kernel_flavor_root(tmp_path, ['bc8499a-6.4.0-1-rt.conf'])
+        config_file = tmp_path / 'grub.cfg'
+        config_file.write_text('blscfg\n')
+        with raises(KiwiBootLoaderGrubMenuEntryError):
+            self.bootloader._setup_kernel_flavor_default_entry(str(config_file))
+        assert not mock_Command_run.called
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_kernel_flavor_default_entry_without_flavors(
+        self, mock_Command_run
+    ):
+        self.bootloader._setup_kernel_flavor_default_entry('grub.cfg')
+        assert not mock_Command_run.called
 
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
@@ -1164,7 +1391,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.multiboot = False
         self.bootloader.setup_install_image_config(self.mbrid)
         self.grub2.get_install_template.assert_called_once_with(
-            True, False, False, True, True
+            True, False, False, True, True, kernel_count=1
         )
         mock_copy_grub_config_to_efi_path.assert_called_once_with(
             'root_dir', 'earlyboot.cfg', 'iso'

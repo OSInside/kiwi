@@ -46,6 +46,15 @@ class BootLoaderTemplateZipl:
             + self.cr
         )
 
+        self.default = (
+            dedent(
+                '''
+            default=${default_entry}
+        '''
+            ).strip()
+            + self.cr
+        )
+
         self.entry_secure = (
             dedent(
                 '''
@@ -69,15 +78,22 @@ class BootLoaderTemplateZipl:
             + self.cr
         )
 
-    def get_loader_template(self) -> Template:
+    def get_loader_template(self, with_default_entry: bool = False) -> Template:
         """
         Bootloader main configuration template
+
+        :param bool with_default_entry:
+            select the default entry by the default_entry parameter,
+            which is the name of a section, e.g the title of a
+            loader entry
 
         :return: instance of :class:`Template`
 
         :rtype: Template
         """
         template_data = self.main_conf
+        if with_default_entry:
+            template_data += self.default
         return Template(template_data)
 
     def get_entry_template(self, secure: bool = False) -> Template:

@@ -154,6 +154,24 @@ class TestBootLoaderSpecBase:
         )
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
+    def test_get_entry_name_of_flavor(self, mock_OsRelease, tmp_path):
+        # the entry belongs to the latest kernel of the flavor, the
+        # entry of the latest kernel of another flavor is not used
+        self._setup_root_tree(
+            tmp_path,
+            ['6.4.0-9-default', '6.4.0-3-rt', '6.4.0-1-rt'],
+            ['bc8499a-6.4.0-9-default.conf'],
+        )
+        assert self.bootloader.get_entry_name('rt') == (
+            'bc8499a-6.4.0-3-rt.conf'
+        )
+        assert self.bootloader.get_entry_name('default') == (
+            'bc8499a-6.4.0-9-default.conf'
+        )
+        with raises(KiwiKernelLookupError):
+            self.bootloader.get_entry_name('64kb')
+
+    @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
     def test_get_entry_name_os_policy_without_version(
         self, mock_OsRelease, tmp_path
     ):
