@@ -2692,14 +2692,21 @@ div {
         ## by the VM (ova only)
         attribute disktype { text }
     k.vmdisk.controller.attribute =
-        ## The disk controller used for the VM guest (vmdk only)
+        ## The disk controller used for the VM guest (vmdk and ova).
+        ## sata and nvme are supported for ova only. lsisas1068 and
+        ## legacyESX are supported for vmdk only. scsi, paravirtual
+        ## and pvscsi select the VMware paravirtual SCSI controller
         attribute controller {
-            "ide"        |
-            "buslogic"   |
-            "lsilogic"   |
-            "lsisas1068" |
-            "legacyESX"  |
-            "pvscsi"
+            "ide"         |
+            "sata"        |
+            "nvme"        |
+            "scsi"        |
+            "buslogic"    |
+            "lsilogic"    |
+            "lsisas1068"  |
+            "legacyESX"   |
+            "pvscsi"      |
+            "paravirtual"
         }
     k.vmdisk.id.attribute =
         ## The disk ID / device for the VM disk (vmdk only)
