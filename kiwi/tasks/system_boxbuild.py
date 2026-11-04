@@ -127,14 +127,14 @@ class SystemBoxbuildTask(CliTask):
             final_kiwi_build_command.append('--debug')
         if self.global_args.get('--type'):
             final_kiwi_build_command.append('--type')
-            final_kiwi_build_command.append(self.global_args.get('--type'))
+            final_kiwi_build_command.append(self.global_args['--type'])
         if self.global_args.get('--profile'):
-            for profile in sorted(set(self.global_args.get('--profile'))):
+            for profile in sorted(set(self.global_args['--profile'])):
                 final_kiwi_build_command.append('--profile')
                 final_kiwi_build_command.append(profile)
         if self.global_args.get('--kiwi-file'):
             final_kiwi_build_command.append('--kiwi-file')
-            final_kiwi_build_command.append(self.global_args.get('--kiwi-file'))
+            final_kiwi_build_command.append(self.global_args['--kiwi-file'])
         final_kiwi_build_command += kiwi_build_command
         missing_required_options = [
             option

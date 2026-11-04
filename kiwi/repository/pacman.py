@@ -18,7 +18,7 @@
 import os
 import logging
 from configparser import ConfigParser
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 import kiwi.defaults as defaults
@@ -135,18 +135,18 @@ class RepositoryPacman(RepositoryBase):
         self,
         name: str,
         uri: str,
-        repo_type: str = None,
-        prio: int = None,
-        dist: str = None,
-        components: str = None,
-        user: str = None,
-        secret: str = None,
-        credentials_file: str = None,
+        repo_type: Optional[str] = None,
+        prio: Optional[int] = None,
+        dist: Optional[str] = None,
+        components: Optional[str] = None,
+        user: Optional[str] = None,
+        secret: Optional[str] = None,
+        credentials_file: Optional[str] = None,
         repo_gpgcheck: bool = False,
         pkg_gpgcheck: bool = False,
-        sourcetype: str = None,
-        customization_script: str = None,
-        architectures: str = None,
+        sourcetype: Optional[str] = None,
+        customization_script: Optional[str] = None,
+        architectures: Optional[str] = None,
     ) -> None:
         """
         Add pacman repository
@@ -172,7 +172,7 @@ class RepositoryPacman(RepositoryBase):
         )
         self.repo_names.append(name + '.repo')
         repo_config = ConfigParser()
-        repo_config.optionxform = str  # type: ignore
+        repo_config.optionxform = str  # type: ignore[method-assign, assignment]
         if not components:
             self._add_repo_section(
                 repo_config, name, uri, repo_gpgcheck, pkg_gpgcheck
@@ -248,7 +248,7 @@ class RepositoryPacman(RepositoryBase):
 
     def _write_runtime_config(self) -> None:
         runtime_pacman_config = ConfigParser()
-        runtime_pacman_config.optionxform = str  # type: ignore
+        runtime_pacman_config.optionxform = str  # type: ignore[method-assign, assignment]
         runtime_pacman_config.add_section('options')
 
         runtime_pacman_config.set('options', 'Architecture', 'auto')

@@ -18,7 +18,7 @@
 import os
 import logging
 import collections
-from typing import Dict
+from typing import Dict, List, Optional, Union
 
 # project
 from kiwi.runtime_config import RuntimeConfig
@@ -63,7 +63,7 @@ class Profile:
             profile[key] = Shell.format_to_variable_value(value)
         return collections.OrderedDict(sorted(profile.items()))
 
-    def add(self, key: str, value: str) -> None:
+    def add(self, key: str, value: Optional[Union[str, int, bool]]) -> None:
         """
         Add key/value pair to profile dictionary
 
@@ -93,7 +93,7 @@ class Profile:
                 profile.write(line + os.linesep)
                 log.debug('--> {0}'.format(line))
 
-    def _oemconfig_to_profile(self):
+    def _oemconfig_to_profile(self) -> None:
         # kiwi_oemvmcp_parmfile
         # kiwi_oemmultipath_scan
         # kiwi_oemswapMB
@@ -200,13 +200,13 @@ class Profile:
                 oemconfig.get_oem_inplace_recovery()
             )
 
-    def _drivers_to_profile(self):
+    def _drivers_to_profile(self) -> None:
         # kiwi_drivers
         self.dot_profile['kiwi_drivers'] = ','.join(
             self.xml_state.get_drivers_list()
         )
 
-    def _type_complex_to_profile(self):
+    def _type_complex_to_profile(self) -> None:
         # kiwi_xendomain
         # kiwi_install_volid
         if self.xml_state.is_xen_server():
@@ -224,7 +224,7 @@ class Profile:
             )
             self.dot_profile['kiwi_live_volid'] = live_iso_volid
 
-    def _strip_to_profile(self):
+    def _strip_to_profile(self) -> None:
         # kiwi_strip_delete
         # kiwi_strip_tools
         # kiwi_strip_libs
@@ -238,7 +238,7 @@ class Profile:
             self.xml_state.get_strip_libraries_to_keep()
         )
 
-    def _systemdisk_to_profile(self):
+    def _systemdisk_to_profile(self) -> None:
         # kiwi_lvmgroup
         # kiwi_lvm
         # kiwi_Volume_X
@@ -268,7 +268,7 @@ class Profile:
                     ]
                 )
 
-    def _preferences_to_profile(self):
+    def _preferences_to_profile(self) -> None:
         # kiwi_iversion
         # kiwi_showlicense
         # kiwi_keytable
@@ -324,7 +324,7 @@ class Profile:
                     preferences.get_bootloader_theme()
                 )
 
-    def _type_to_profile(self):
+    def _type_to_profile(self) -> None:
         # kiwi_type
         # kiwi_compressed
         # kiwi_boot_timeout
@@ -410,7 +410,7 @@ class Profile:
             self.xml_state.get_luks_credentials() == ''
         )
 
-    def _runtime_settings_to_profile(self):
+    def _runtime_settings_to_profile(self) -> None:
         # kiwi_shasum_suffix
         temp_file = Temporary().new_file()
         runtime_config = RuntimeConfig()
@@ -418,17 +418,17 @@ class Profile:
             runtime_config.get_checksum_handler(temp_file.name).suffix
         )
 
-    def _profile_names_to_profile(self):
+    def _profile_names_to_profile(self) -> None:
         # kiwi_profiles
         self.dot_profile['kiwi_profiles'] = ','.join(self.xml_state.profiles)
 
-    def _packages_marked_for_deletion_to_profile(self):
+    def _packages_marked_for_deletion_to_profile(self) -> None:
         # kiwi_delete
         self.dot_profile['kiwi_delete'] = ' '.join(
             self.xml_state.get_to_become_deleted_packages()
         )
 
-    def _image_names_to_profile(self):
+    def _image_names_to_profile(self) -> None:
         # kiwi_displayname
         # kiwi_cpio_name
         # kiwi_iname
@@ -445,13 +445,15 @@ class Profile:
         if self.xml_state.get_build_type_name() == 'cpio':
             self.dot_profile['kiwi_cpio_name'] = self.dot_profile['kiwi_iname']
 
-    def _root_partition_uuid_to_profile(self):
+    def _root_partition_uuid_to_profile(self) -> None:
         # kiwi_rootpartuuid
         self.dot_profile['kiwi_rootpartuuid'] = (
             self.xml_state.get_root_partition_uuid()
         )
 
-    def _text(self, section_content):
+    def _text(
+        self, section_content: List[Union[str, int, bool]]
+    ) -> Optional[Union[str, int, bool]]:
         """
         Helper method to return the text for XML elements of the
         following structure: <section>text</section>. The data
@@ -463,3 +465,4 @@ class Profile:
                 return 'true'
             else:
                 return content
+        return None

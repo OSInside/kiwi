@@ -18,12 +18,14 @@
 import importlib
 import logging
 from collections import namedtuple
+from typing import Any, Dict, List, Optional
 from xml.etree import ElementTree
 from xml.dom import minidom
 
 # project
 import kiwi.defaults as defaults
 
+from kiwi.solver.repository.base import SolverRepositoryBase
 from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobError,
@@ -40,7 +42,7 @@ class Sat:
     The class uses SUSE's libsolv sat plugin
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         An instance of Sat auto loads the python solv plugin which is a
         python binding to the libsolv C library. An exception is raised
@@ -59,7 +61,9 @@ class Sat:
         self.pool = self.solv.Pool()
         self.pool.setarch()
 
-    def set_dist_type(self, dist, arch=None):
+    def set_dist_type(
+        self, dist: str, arch: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
         if not arch:
             arch = defaults.PLATFORM_MACHINE
         dist_types = {
@@ -81,7 +85,7 @@ class Sat:
         self.pool.setarch(dist_type['arch'] if dist_type else arch)
         return dist_type
 
-    def add_repository(self, solver_repository):
+    def add_repository(self, solver_repository: SolverRepositoryBase) -> None:
         """
         Add a repository solvable to the pool. This basically add the
         required repository metadata which is needed to run a solver
@@ -95,7 +99,12 @@ class Sat:
         self.pool.addfileprovides()
         self.pool.createwhatprovides()
 
-    def solve(self, job_names, skip_missing=False, ignore_recommended=True):
+    def solve(
+        self,
+        job_names: List[str],
+        skip_missing: bool = False,
+        ignore_recommended: bool = True,
+    ) -> Dict[str, Any]:
         """
         Solve dependencies for the given job list. The list is allowed
         to contain element names of the following format:
@@ -136,7 +145,7 @@ class Sat:
         solver_transaction = solver.transaction()
         return self._evaluate_solver_result(solver_transaction)
 
-    def _evaluate_solver_problems(self, solver_problems):
+    def _evaluate_solver_problems(self, solver_problems: Any) -> Optional[str]:
         """
         Iterate over solver problems and their solutions
 
@@ -171,8 +180,11 @@ class Sat:
             xml_data_unformatted = ElementTree.tostring(problems, 'utf-8')
             xml_data_domtree = minidom.parseString(xml_data_unformatted)
             return xml_data_domtree.toprettyxml(indent="    ")
+        return None
 
-    def _evaluate_solver_result(self, solver_transaction):
+    def _evaluate_solver_result(
+        self, solver_transaction: Any
+    ) -> Dict[str, Any]:
         """
         Iterate over solver result and return a data dictionary
 
@@ -201,7 +213,9 @@ class Sat:
             )
         return result
 
-    def _setup_jobs(self, job_names, skip_missing):
+    def _setup_jobs(
+        self, job_names: List[str], skip_missing: bool
+    ) -> List[Any]:
         """
         Create a solver job list from given list of job names
 

@@ -20,7 +20,8 @@ import os
 import re
 import logging
 from collections import namedtuple
-from typing import List
+from types import TracebackType
+from typing import Dict, List, Optional, Type, TypeVar
 
 # project
 from kiwi.mount_manager import MountManager
@@ -29,10 +30,16 @@ from kiwi.path import Path
 from kiwi.defaults import Defaults, KERNEL_FLAVOR_NONE
 from kiwi.utils.block import BlockID
 from kiwi.system.setup import SystemSetup
+from kiwi.system.identifier import SystemIdentifier
+from kiwi.storage.disk import ptable_entry_type
+from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiBootLoaderTargetError
 
 log = logging.getLogger('kiwi')
+
+# the type of the bootloader config instance used as context manager
+BootLoaderConfigT = TypeVar('BootLoaderConfigT', bound='BootLoaderConfigBase')
 
 
 class BootLoaderConfigBase(ABC):
@@ -44,7 +51,13 @@ class BootLoaderConfigBase(ABC):
     :param dict custom_args: custom bootloader arguments dictionary
     """
 
-    def __init__(self, xml_state, root_dir, boot_dir=None, custom_args={}):
+    def __init__(
+        self,
+        xml_state: XMLState,
+        root_dir: str,
+        boot_dir: Optional[str] = None,
+        custom_args: Dict = {},
+    ) -> None:
         self.root_dir = root_dir
         self.boot_dir = boot_dir or root_dir
         self.xml_state = xml_state
@@ -52,24 +65,24 @@ class BootLoaderConfigBase(ABC):
         self.arch = Defaults.get_platform_name()
 
         self.system_is_mounted = False
-        self.volumes_mount = []
-        self.partitions_mount = []
-        self.root_mount = None
-        self.boot_mount = None
-        self.efi_mount = None
-        self.device_mount = None
-        self.proc_mount = None
-        self.sys_mount = None
-        self.tmp_mount = None
-        self.etc_kernel_mount = None
+        self.volumes_mount: List[MountManager] = []
+        self.partitions_mount: List[MountManager] = []
+        self.root_mount: Optional[MountManager] = None
+        self.boot_mount: Optional[MountManager] = None
+        self.efi_mount: Optional[MountManager] = None
+        self.device_mount: Optional[MountManager] = None
+        self.proc_mount: Optional[MountManager] = None
+        self.sys_mount: Optional[MountManager] = None
+        self.tmp_mount: Optional[MountManager] = None
+        self.etc_kernel_mount: Optional[MountManager] = None
 
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.post_init(custom_args)
 
-    def __enter__(self):
+    def __enter__(self: BootLoaderConfigT) -> BootLoaderConfigT:
         return self
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict) -> None:
         """
         Post initialization method
 
@@ -80,7 +93,7 @@ class BootLoaderConfigBase(ABC):
         self.custom_args = custom_args
 
     @abstractmethod
-    def write(self):
+    def write(self) -> None:
         """
         Write config data to config file.
 
@@ -88,8 +101,11 @@ class BootLoaderConfigBase(ABC):
         """
 
     def write_meta_data(
-        self, root_device=None, write_device=None, boot_options=''
-    ):
+        self,
+        root_device: Optional[str] = None,
+        write_device: Optional[str] = None,
+        boot_options: str = '',
+    ) -> None:
         """
         Write bootloader setup meta data files
 
@@ -104,13 +120,13 @@ class BootLoaderConfigBase(ABC):
     @abstractmethod
     def setup_disk_image_config(
         self,
-        boot_uuid=None,
-        root_uuid=None,
-        hypervisor=None,
-        kernel=None,
-        initrd=None,
-        boot_options={},
-    ):
+        boot_uuid: Optional[str] = None,
+        root_uuid: Optional[str] = None,
+        hypervisor: Optional[str] = None,
+        kernel: Optional[str] = None,
+        initrd: Optional[str] = None,
+        boot_options: Dict = {},
+    ) -> None:
         """
         Create boot config file to boot from disk.
 
@@ -133,7 +149,9 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_install_image_config(self, mbrid, hypervisor, kernel, initrd):
+    def setup_install_image_config(
+        self, mbrid: SystemIdentifier, hypervisor: str, kernel: str, initrd: str
+    ) -> None:
         """
         Create boot config file to boot from install media in EFI mode.
 
@@ -146,7 +164,9 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_live_image_config(self, mbrid, hypervisor, kernel, initrd):
+    def setup_live_image_config(
+        self, mbrid: SystemIdentifier, hypervisor: str, kernel: str, initrd: str
+    ) -> None:
         """
         Create boot config file to boot live ISO image in EFI mode.
 
@@ -160,8 +180,11 @@ class BootLoaderConfigBase(ABC):
 
     @abstractmethod
     def setup_disk_boot_images(
-        self, boot_uuid, efi_uuid=None, lookup_path=None
-    ):
+        self,
+        boot_uuid: str,
+        efi_uuid: Optional[str] = None,
+        lookup_path: Optional[str] = None,
+    ) -> None:
         """
         Create bootloader images for disk boot
 
@@ -177,7 +200,9 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_install_boot_images(self, mbrid, lookup_path=None):
+    def setup_install_boot_images(
+        self, mbrid: SystemIdentifier, lookup_path: Optional[str] = None
+    ) -> None:
         """
         Create bootloader images for ISO boot an install media
 
@@ -188,7 +213,9 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_live_boot_images(self, mbrid, lookup_path=None):
+    def setup_live_boot_images(
+        self, mbrid: SystemIdentifier, lookup_path: Optional[str] = None
+    ) -> None:
         """
         Create bootloader images for ISO boot a live ISO image
 
@@ -199,7 +226,7 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_sysconfig_bootloader(self):
+    def setup_sysconfig_bootloader(self) -> None:
         """
         Create or update etc/sysconfig/bootloader by parameters
         required according to the bootloader setup
@@ -207,7 +234,7 @@ class BootLoaderConfigBase(ABC):
         Implementation in specialized bootloader class required
         """
 
-    def create_efi_path(self, in_sub_dir='boot/efi'):
+    def create_efi_path(self, in_sub_dir: str = 'boot/efi') -> str:
         """
         Create standard EFI boot directory structure
 
@@ -223,7 +250,7 @@ class BootLoaderConfigBase(ABC):
         Path.create(efi_boot_path)
         return efi_boot_path
 
-    def get_boot_theme(self):
+    def get_boot_theme(self) -> Optional[str]:
         """
         Bootloader Theme name
 
@@ -238,7 +265,7 @@ class BootLoaderConfigBase(ABC):
                 theme = section_content[0]
         return theme
 
-    def get_boot_timeout_seconds(self):
+    def get_boot_timeout_seconds(self) -> int:
         """
         Bootloader timeout in seconds
 
@@ -253,7 +280,7 @@ class BootLoaderConfigBase(ABC):
             timeout_seconds = Defaults.get_default_boot_timeout_seconds()
         return timeout_seconds
 
-    def get_continue_on_timeout(self):
+    def get_continue_on_timeout(self) -> bool:
         """
         Check if the boot should continue after boot timeout or not
 
@@ -268,7 +295,7 @@ class BootLoaderConfigBase(ABC):
             continue_on_timeout = True
         return continue_on_timeout
 
-    def failsafe_boot_entry_requested(self):
+    def failsafe_boot_entry_requested(self) -> bool:
         """
         Check if a failsafe boot entry is requested
 
@@ -280,7 +307,9 @@ class BootLoaderConfigBase(ABC):
             return False
         return True
 
-    def get_boot_cmdline(self, boot_device, write_device=None):
+    def get_boot_cmdline(
+        self, boot_device: Optional[str], write_device: Optional[str] = None
+    ) -> str:
         """
         Boot commandline arguments passed to the kernel
 
@@ -311,7 +340,9 @@ class BootLoaderConfigBase(ABC):
             cmdline += ' ' + custom_root
         return cmdline.strip()
 
-    def get_install_image_boot_default(self, loader=None):
+    def get_install_image_boot_default(
+        self, loader: Optional[str] = None
+    ) -> str:
         """
         Provide the default boot menu entry identifier for install images
 
@@ -364,7 +395,7 @@ class BootLoaderConfigBase(ABC):
 
         return menu_list[boot_id].menu_id
 
-    def get_boot_path(self, target='disk'):
+    def get_boot_path(self, target: str = 'disk') -> str:
         """
         Bootloader lookup path on boot device
 
@@ -403,7 +434,7 @@ class BootLoaderConfigBase(ABC):
 
         return bootpath
 
-    def quote_title(self, name):
+    def quote_title(self, name: str) -> str:
         """
         Quote special characters in the title name
 
@@ -421,7 +452,7 @@ class BootLoaderConfigBase(ABC):
         name = name.replace(']', ')')
         return name
 
-    def get_menu_entry_title(self, plain=False):
+    def get_menu_entry_title(self, plain: bool = False) -> str:
         """
         Prefixed menu entry title
 
@@ -479,7 +510,7 @@ class BootLoaderConfigBase(ABC):
             return f'{title} ({flavor})'
         return title
 
-    def get_menu_entry_install_title(self):
+    def get_menu_entry_install_title(self) -> str:
         """
         Prefixed menu entry title for install images
 
@@ -497,14 +528,14 @@ class BootLoaderConfigBase(ABC):
 
     def _mount_system(
         self,
-        device_map,
-        root_device,
-        boot_device,
-        efi_device=None,
-        volumes=None,
-        root_volume_name=None,
-        partitions=None,
-    ):
+        device_map: Optional[Dict],
+        root_device: str,
+        boot_device: str,
+        efi_device: Optional[str] = None,
+        volumes: Optional[Dict] = None,
+        root_volume_name: Optional[str] = None,
+        partitions: Optional[Dict[str, ptable_entry_type]] = None,
+    ) -> None:
         self.root_mount = MountManager(device=root_device)
         if 's390' in self.arch and self.bootloader == 'grub2_s390x_emu':
             self.boot_mount = MountManager(
@@ -547,6 +578,8 @@ class BootLoaderConfigBase(ABC):
                 )
 
         if partitions:
+            # the partitions are mounted from the given device map
+            assert device_map is not None
             for map_name in sorted(partitions.keys()):
                 if map_name in device_map:
                     partition_mount = MountManager(
@@ -560,6 +593,7 @@ class BootLoaderConfigBase(ABC):
                     partition_mount.mount()
 
         if efi_device:
+            assert self.efi_mount is not None
             self.efi_mount.mount()
 
         if self.root_filesystem_is_overlay:
@@ -575,7 +609,7 @@ class BootLoaderConfigBase(ABC):
             # There are also tools that writes to /etc/kernel, e.g
             # systemd-boot. If it exists we map it to the ESP
             etc_kernel = f'{self.root_mount.mountpoint}/etc/kernel'
-            if os.path.exists(etc_kernel):
+            if efi_device and os.path.exists(etc_kernel):
                 self.etc_kernel_mount = MountManager(
                     device=efi_device, mountpoint=etc_kernel
                 )
@@ -595,8 +629,9 @@ class BootLoaderConfigBase(ABC):
         self.sys_mount.bind_mount()
         self.system_is_mounted = True
 
-    def _umount_system(self):
+    def _umount_system(self) -> None:
         if self.system_is_mounted:
+            assert self.root_mount is not None
             # Rebuild security context
             setup = SystemSetup(self.xml_state, self.root_mount.mountpoint)
             setup.setup_selinux_file_contexts()
@@ -623,7 +658,9 @@ class BootLoaderConfigBase(ABC):
                 self.root_mount.umount()
             self.system_is_mounted = False
 
-    def _get_root_cmdline_parameter(self, boot_device):
+    def _get_root_cmdline_parameter(
+        self, boot_device: Optional[str]
+    ) -> Optional[str]:
         """
         root= argument passed to the kernel
 
@@ -666,8 +703,11 @@ class BootLoaderConfigBase(ABC):
                 )
         else:
             log.warning('No explicit root= cmdline provided')
+        return None
 
-    def _get_root_overlay_cmdline_parameter(self, boot_device, write_device):
+    def _get_root_overlay_cmdline_parameter(
+        self, boot_device: Optional[str], write_device: Optional[str]
+    ) -> str:
         """
         rd.root.overlay.write= argument passed to the kernel
 
@@ -694,7 +734,9 @@ class BootLoaderConfigBase(ABC):
                 )
         return root_overlay_parameter
 
-    def _get_location(self, device, persistency_type=''):
+    def _get_location(
+        self, device: str, persistency_type: str = ''
+    ) -> Dict[str, str]:
         if not persistency_type:
             persistency_type = self.xml_state.build_type.get_devicepersistency()
         block_operation = BlockID(device)
@@ -712,5 +754,10 @@ class BootLoaderConfigBase(ABC):
             'node': f'/dev/disk/{persistency_type}/{location}',
         }
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self._umount_system()

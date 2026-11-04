@@ -18,7 +18,7 @@
 import os
 import glob
 from configparser import ConfigParser
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 import kiwi.defaults as defaults
@@ -192,17 +192,17 @@ class RepositoryDnf5(RepositoryBase):
         name: str,
         uri: str,
         repo_type: str = 'rpm-md',
-        prio: int = None,
-        dist: str = None,
-        components: str = None,
-        user: str = None,
-        secret: str = None,
-        credentials_file: str = None,
+        prio: Optional[int] = None,
+        dist: Optional[str] = None,
+        components: Optional[str] = None,
+        user: Optional[str] = None,
+        secret: Optional[str] = None,
+        credentials_file: Optional[str] = None,
         repo_gpgcheck: bool = False,
         pkg_gpgcheck: bool = False,
-        sourcetype: str = None,
-        customization_script: str = None,
-        architectures: str = None,
+        sourcetype: Optional[str] = None,
+        customization_script: Optional[str] = None,
+        architectures: Optional[str] = None,
     ) -> None:
         """
         Add dnf repository

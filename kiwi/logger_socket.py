@@ -19,7 +19,7 @@ import logging.handlers
 
 
 class PlainTextSocketHandler(logging.handlers.SocketHandler):
-    def makePickle(self, record):
+    def makePickle(self, record: logging.LogRecord) -> bytes:
         """
         Custom makePickle method which actually does not pickle
         the messages into the pickle binary format but just
@@ -46,5 +46,7 @@ class PlainTextSocketHandler(logging.handlers.SocketHandler):
                 finally:
                     connection.close()
         """
+        # the formatter is always set by Logger.set_log_socket
+        assert self.formatter
         message = self.formatter.format(record)
         return message.encode()

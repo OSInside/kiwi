@@ -27,6 +27,22 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
+    def test_create_primary_size_as_string(
+        self, mock_temp, mock_flag, mock_command
+    ):
+        # sizes of clones are given as numeric strings
+        temp_type = namedtuple('temp_type', ['name'])
+        mock_temp.return_value = temp_type(name='tempfile')
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner._create_primary('name', '100', 't.linux')
+        m_open.return_value.write.assert_called_once_with(
+            'n\np\n1\n\n+101M\nw\nq\n'
+        )
+
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
+    @patch('kiwi.partitioner.msdos.Temporary.new_file')
     def test_create_primary(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
         temp_type = namedtuple('temp_type', ['name'])

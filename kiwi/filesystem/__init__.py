@@ -16,11 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict, List
+from typing import Dict, List, Optional
 from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.filesystem.base import FileSystemBase
 from kiwi.exceptions import KiwiFileSystemSetupError
 
 filesystem_class_map = {
@@ -55,9 +56,9 @@ class FileSystem(metaclass=ABCMeta):
     def new(
         name: str,
         device_provider: DeviceProvider,
-        root_dir: str = None,
-        custom_args: Dict = None,  # noqa: E252
-    ):
+        root_dir: Optional[str] = None,
+        custom_args: Optional[Dict] = None,  # noqa: E252
+    ) -> FileSystemBase:
         try:
             filesystem = importlib.import_module(
                 'kiwi.filesystem.{0}'.format(name)

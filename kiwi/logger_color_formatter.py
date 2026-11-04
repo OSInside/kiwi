@@ -26,7 +26,7 @@ class ColorMessage:
     message formatter
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = list(range(8))
         self.color = {
             'BLACK': BLACK,

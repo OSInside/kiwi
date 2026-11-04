@@ -47,7 +47,7 @@ class SnapshotManagerBase:
         self.root_volume_name = root_volume_name
         self.post_init(custom_args)
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict[str, Any]]) -> None:
         """
         Post initialization method
 
@@ -58,7 +58,7 @@ class SnapshotManagerBase:
     def create_first_snapshot(self) -> List[MountManager]:
         raise NotImplementedError
 
-    def setup_first_snapshot(self):
+    def setup_first_snapshot(self) -> None:
         raise NotImplementedError
 
     def get_default_snapshot_name(self) -> str:

@@ -84,7 +84,7 @@ class RootInit:
             self.delete()
             raise KiwiRootInitCreationError(f'{type(e).__name__}: {format(e)}')
 
-    def _create_base_directories(self, root):
+    def _create_base_directories(self, root: str) -> None:
         """
         Create minimum collection of directories in the new
         root system required for kiwi to operate
@@ -108,7 +108,7 @@ class RootInit:
                 os.makedirs(root_path)
                 os.chown(root_path, root_uid, root_gid)
 
-    def _create_base_links(self, root):
+    def _create_base_links(self, root: str) -> None:
         """
         Create minimum collection of file handle and runtime
         links which needs to be present prior to any package

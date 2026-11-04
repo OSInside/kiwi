@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Union
 import logging
 
 # project
@@ -37,7 +38,7 @@ class SystemUpdateTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Update root system with latest repository updates
         and optionally allow to add or delete packages. the options
@@ -80,7 +81,7 @@ class SystemUpdateTask(CliTask):
                             manager, self.command_args['--delete-package']
                         )
 
-    def _help(self):
+    def _help(self) -> Union[bool, Help]:
         if self.command_args['help']:
             self.manual.show('kiwi::system::update')
         else:

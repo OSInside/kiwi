@@ -18,7 +18,8 @@
 import os
 import logging
 from contextlib import ExitStack
-from typing import List, Any, Optional
+from types import TracebackType
+from typing import Dict, List, Any, Optional, Type
 from textwrap import dedent
 
 # project
@@ -108,13 +109,13 @@ class SystemPrepare:
         #: A list of Uri references
         self.uri_list: List[Uri] = []
 
-    def __enter__(self):
+    def __enter__(self) -> "SystemPrepare":
         return self
 
     def setup_repositories(
         self,
         clear_cache: bool = False,
-        signing_keys: List[str] = None,
+        signing_keys: Optional[List[str]] = None,
         target_arch: Optional[str] = None,
     ) -> PackageManagerBase:
         """
@@ -232,7 +233,7 @@ class SystemPrepare:
             )
 
     def install_bootstrap(
-        self, manager: PackageManagerBase, plus_packages: List = None
+        self, manager: PackageManagerBase, plus_packages: Optional[List] = None
     ) -> None:
         """
         Install system software using the package manager
@@ -631,7 +632,9 @@ class SystemPrepare:
                     'Could not determine CA update tool, skipping setup'
                 )
 
-    def _install_archives(self, archive_list, archive_target_dir_dict):
+    def _install_archives(
+        self, archive_list: List[str], archive_target_dir_dict: Dict
+    ) -> None:
         log.info("Installing archives")
         for archive in archive_list:
             log.info("--> archive: %s", archive)
@@ -654,17 +657,20 @@ class SystemPrepare:
             target_dir = self.root_bind.root_dir
             if archive_target_dir_dict.get(archive):
                 target_dir = os.path.normpath(
-                    os.sep.join(
-                        [target_dir, archive_target_dir_dict.get(archive)]
-                    )
+                    os.sep.join([target_dir, archive_target_dir_dict[archive]])
                 )
             log.info('--> target dir: %s', target_dir)
             tar = ArchiveTar(archive_file)
             tar.extract(target_dir)
 
     def _setup_requests(
-        self, manager, packages, collections=None, products=None, ignored=None
-    ):
+        self,
+        manager: PackageManagerBase,
+        packages: List[str],
+        collections: Optional[List[str]] = None,
+        products: Optional[List[str]] = None,
+        ignored: Optional[List[str]] = None,
+    ) -> List[str]:
         if packages:
             for package in sorted(packages):
                 log.info('--> package: {0}'.format(package))
@@ -696,7 +702,12 @@ class SystemPrepare:
             )
         return script_path
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if hasattr(self, 'root_bind'):
             self.root_bind.cleanup()
         if self.root_import:

@@ -16,12 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import List
+from typing import TYPE_CHECKING, List
 from abc import ABCMeta, abstractmethod
 import logging
 
 # project
 from kiwi.exceptions import KiwiPackageManagerSetupError
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.package_manager.base import PackageManagerBase
 
 log = logging.getLogger('kiwi')
 
@@ -51,7 +54,7 @@ class PackageManager(metaclass=ABCMeta):
         package_manager_name: str,
         custom_args: List = [],
         release_version: str = '',
-    ):
+    ) -> 'PackageManagerBase':
         name_map = {
             'zypper': ['zypper', 'Zypper'],
             'dnf': ['dnf', 'Dnf'],

@@ -24,7 +24,7 @@ class SolverRepositoryDeb(SolverRepositoryBase):
     **Class for SAT solvable creation for apt-deb type repositories.**
     """
 
-    def _setup_repository_metadata(self):
+    def _setup_repository_metadata(self) -> None:
         """
         Download repo metadata for apt-deb specific repositories
         and create SAT solvables from all solver relevant files

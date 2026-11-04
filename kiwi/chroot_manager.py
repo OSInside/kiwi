@@ -17,7 +17,8 @@
 #
 import os
 import logging
-from typing import List, Optional, NamedTuple
+from types import TracebackType
+from typing import List, Optional, NamedTuple, Type
 
 # project
 from kiwi.mount_manager import MountManager
@@ -70,7 +71,12 @@ class ChrootManager:
             raise e
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self.umount()
 
     def mount(self) -> None:

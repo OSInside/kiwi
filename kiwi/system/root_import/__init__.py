@@ -17,12 +17,15 @@
 #
 import logging
 import importlib
-from typing import List
+from typing import TYPE_CHECKING, Any, List
 from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.system.uri import Uri
 from kiwi.exceptions import KiwiRootImportError
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.system.root_import.base import RootImportBase
 
 log = logging.getLogger('kiwi')
 
@@ -48,7 +51,9 @@ class RootImport(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(root_dir: str, image_uri: List[Uri], image_type: str):
+    def new(
+        root_dir: str, image_uri: List[Uri], image_type: str
+    ) -> 'RootImportBase':
         name_map = {'docker': 'OCI', 'oci': 'OCI'}
         log.info('Importing root from a {0} image type'.format(image_type))
         custom_args, module_namespace = RootImport._custom_args_for_root_import(
@@ -70,7 +75,7 @@ class RootImport(metaclass=ABCMeta):
             )
 
     @staticmethod
-    def _custom_args_for_root_import(image_type: str):
+    def _custom_args_for_root_import(image_type: str) -> List[Any]:
         if image_type == 'docker':
             custom_args = {'archive_transport': 'docker-archive'}
         else:

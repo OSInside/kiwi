@@ -16,8 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict
+from typing import Dict, Optional
 from kiwi.xml_state import XMLState
+from kiwi.bootloader.install.base import BootLoaderInstallBase
 from abc import ABCMeta, abstractmethod
 
 from ...exceptions import KiwiBootLoaderInstallSetupError
@@ -43,8 +44,8 @@ class BootLoaderInstall(metaclass=ABCMeta):
         xml_state: XMLState,
         root_dir: str,
         device_provider: object,
-        custom_args: Dict = None,
-    ):
+        custom_args: Optional[Dict] = None,
+    ) -> BootLoaderInstallBase:
         name_map = {
             'grub2': {'grub2': 'BootLoaderInstallGrub2'},
             'grub2_s390x_emu': {'grub2': 'BootLoaderInstallGrub2'},

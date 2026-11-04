@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Dict, Optional
+
+# project
+from kiwi.xml_state import XMLState
+from kiwi.storage.device_provider import DeviceProvider
 
 
 class BootLoaderInstallBase:
@@ -26,7 +31,13 @@ class BootLoaderInstallBase:
     :param dict custom_args: custom arguments dictionary
     """
 
-    def __init__(self, xml_state, root_dir, device_provider, custom_args=None):
+    def __init__(
+        self,
+        xml_state: XMLState,
+        root_dir: str,
+        device_provider: DeviceProvider,
+        custom_args: Optional[Dict] = None,
+    ) -> None:
         self.xml_state = xml_state
         self.root_dir = root_dir
         self.device_provider = device_provider
@@ -35,7 +46,7 @@ class BootLoaderInstallBase:
 
         self.post_init(custom_args)
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict]) -> None:
         """
         Post initialization method
 
@@ -45,7 +56,7 @@ class BootLoaderInstallBase:
         """
         self.custom_args = custom_args
 
-    def install_required(self):
+    def install_required(self) -> bool:
         """
         Check if bootloader needs to be installed
 
@@ -53,7 +64,7 @@ class BootLoaderInstallBase:
         """
         raise NotImplementedError
 
-    def install(self):
+    def install(self) -> None:
         """
         Install bootloader on self.device
 
@@ -61,7 +72,7 @@ class BootLoaderInstallBase:
         """
         raise NotImplementedError
 
-    def secure_boot_install(self):
+    def secure_boot_install(self) -> None:
         """
         Run shim-install in self.device for secure boots
 
@@ -69,7 +80,7 @@ class BootLoaderInstallBase:
         """
         raise NotImplementedError
 
-    def set_disk_password(self, password: str):
+    def set_disk_password(self, password: str) -> None:
         """
         Include crypto mount credentials
 

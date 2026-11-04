@@ -28,7 +28,7 @@ class SolverRepositoryRpmDir(SolverRepositoryBase):
     **Class for SAT solvable creation for rpm_dir type repositories.**
     """
 
-    def _setup_repository_metadata(self):
+    def _setup_repository_metadata(self) -> None:
         """
         Download rpms from the repository and create a SAT
         solvable from the rpm header metadata

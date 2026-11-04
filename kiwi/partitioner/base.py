@@ -29,7 +29,7 @@ class PartitionerBase:
     def __init__(
         self,
         disk_provider: DeviceProvider,
-        start_sector: int = None,
+        start_sector: Optional[int] = None,
         extended_layout: bool = False,
     ) -> None:
         """
@@ -77,11 +77,11 @@ class PartitionerBase:
     def create(
         self,
         name: str,
-        mbsize: int,
+        mbsize: Union[int, str],
         type_name: str,
         flags: List[str] = [],
         partition_id: Optional[int] = None,
-    ):
+    ) -> None:
         """
         Create partition
 
@@ -97,7 +97,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def set_flag(self, partition_id: int, flag_name: str):
+    def set_flag(self, partition_id: Union[int, str], flag_name: str) -> None:
         """
         Set partition flag
 
@@ -108,7 +108,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def set_uuid(self, partition_id: int, uuid: str):
+    def set_uuid(self, partition_id: Union[int, str], uuid: str) -> None:
         """
         Set partition UUID
 
@@ -119,7 +119,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def set_hybrid_mbr(self):
+    def set_hybrid_mbr(self) -> None:
         """
         Turn partition table into hybrid table if supported
 
@@ -127,7 +127,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def set_mbr(self):
+    def set_mbr(self) -> None:
         """
         Turn partition table into MBR (msdos table)
 
@@ -135,7 +135,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def set_start_sector(self, start_sector: int):
+    def set_start_sector(self, start_sector: int) -> None:
         """
         Set start sector of first partition as configured
 
@@ -145,7 +145,7 @@ class PartitionerBase:
         """
         pass
 
-    def resize_table(self, entries: int = 0):
+    def resize_table(self, entries: int = 0) -> None:
         """
         Resize partition table
 

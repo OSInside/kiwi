@@ -88,7 +88,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
             shasum=True,
         )
 
-    def _pack_net_guid_tag(self, tag):
+    def _pack_net_guid_tag(self, tag: str) -> bytes:
         """
         Pack tag format into 16 byte binary representation. String format
         of the tag is: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
@@ -140,7 +140,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
             + binary_tag_part_5
         )
 
-    def _write_vhd_tag(self, tag):
+    def _write_vhd_tag(self, tag: str) -> None:
         """
         Azure service uses a tag injected into the disk
         image to identify the OS. The tag is 512B long,

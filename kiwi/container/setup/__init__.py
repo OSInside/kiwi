@@ -17,9 +17,10 @@
 #
 import importlib
 from abc import ABCMeta, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 # project
+from kiwi.container.setup.base import ContainerSetupBase
 from kiwi.exceptions import KiwiContainerSetupError
 
 
@@ -33,7 +34,9 @@ class ContainerSetup(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(name: str, root_dir: str, custom_args: Dict = None):  # noqa: E252
+    def new(
+        name: str, root_dir: str, custom_args: Optional[Dict] = None
+    ) -> ContainerSetupBase:
         name_map = {
             'docker': 'Docker',
             'oci': 'OCI',

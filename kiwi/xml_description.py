@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import os
 import logging
 from xml.dom import minidom
@@ -60,7 +60,9 @@ class XMLDescription:
     :param str derived_from: path to base description file
     """
 
-    def __init__(self, description: str = '', derived_from: str = None):
+    def __init__(
+        self, description: str = '', derived_from: Optional[str] = None
+    ):
         log.info(f'Loading XML description: {description}')
         self.markup = Markup.new(description)
         self.description = self.markup.get_xml_description()
@@ -201,8 +203,8 @@ class XMLDescription:
 
     @staticmethod
     def _get_relaxng_validation_details(
-        schema_file, description_file, error_log
-    ):
+        schema_file: str, description_file: str, error_log: etree._ListErrorLog
+    ) -> None:
         """
         Run jing program to validate description against the schema
 
@@ -222,7 +224,9 @@ class XMLDescription:
             log.info('--> {0}'.format(error_log))
 
     @staticmethod
-    def _get_schematron_validation_details(validation_report):
+    def _get_schematron_validation_details(
+        validation_report: etree._ElementTree,
+    ) -> None:
         """
         Extract error message form the schematron validation report
 
@@ -235,7 +239,7 @@ class XMLDescription:
         ):
             log.info('--> %s', msg.text)
 
-    def _parse(self):
+    def _parse(self) -> Any:
         try:
             parse = xml_parse.parse(self.description, True)
             parse.description_dir = self.description_origin and os.path.dirname(

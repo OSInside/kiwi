@@ -23,6 +23,11 @@ class TestSysConfig:
         assert self.sysconfig['foo'] == '"bar"'
         assert self.sysconfig.data_list[-1] == 'foo'
 
+    def test_set_item_number(self):
+        # values are kept in the string format they are written in
+        self.sysconfig['timeout'] = 10
+        assert self.sysconfig['timeout'] == '10'
+
     def test_contains(self):
         assert 'non_existing_key' not in self.sysconfig
         assert 'name' in self.sysconfig

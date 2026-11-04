@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -48,7 +48,7 @@ class ArchiveBuilder:
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ):
         self.root_dir = root_dir
         self.target_dir = target_dir

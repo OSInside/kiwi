@@ -17,6 +17,8 @@
 #
 
 # project
+from typing import Dict, Optional
+
 from kiwi.container.setup.base import ContainerSetupBase
 
 
@@ -25,7 +27,7 @@ class ContainerSetupOCI(ContainerSetupBase):
     Oci container setup
     """
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict]) -> None:
         """
         Post initialization method
 
@@ -36,7 +38,7 @@ class ContainerSetupOCI(ContainerSetupBase):
         if custom_args:
             self.custom_args = custom_args
 
-    def setup(self):
+    def setup(self) -> None:
         """
         Setup system for use with docker
         """

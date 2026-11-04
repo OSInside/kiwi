@@ -216,7 +216,7 @@ class ContainerImageOCI(ContainerImageBase):
 
         return filename
 
-    def _append_buildservice_disturl_label(self):
+    def _append_buildservice_disturl_label(self) -> None:
         with open(os.sep + Defaults.get_buildservice_env_name()) as env:
             for line in env:
                 if line.startswith('BUILD_DISTURL') and '=' in line:

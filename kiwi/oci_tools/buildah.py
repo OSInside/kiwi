@@ -19,6 +19,8 @@ import logging
 import os
 import random
 import string
+from types import TracebackType
+from typing import Any, List, Mapping, Optional, Type
 
 # project
 from kiwi.oci_tools.base import OCIBase
@@ -35,18 +37,18 @@ class OCIBuildah(OCIBase):
     **Open Container Operations using buildah**
     """
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Initializes some default parameters
         """
-        self.working_image = None
-        self.imported_image = None
-        self.working_container = None
+        self.working_image: Optional[str] = None
+        self.imported_image: Optional[str] = None
+        self.working_container: Optional[str] = None
 
-    def __enter__(self):
+    def __enter__(self) -> 'OCIBuildah':
         return self
 
-    def import_container_image(self, container_image_ref):
+    def import_container_image(self, container_image_ref: str) -> None:
         """
         Imports container image reference to the OCI containers storage.
 
@@ -104,8 +106,12 @@ class OCIBuildah(OCIBase):
         )
 
     def export_container_image(
-        self, filename, transport, image_ref, additional_names=None
-    ):
+        self,
+        filename: str,
+        transport: str,
+        image_ref: str,
+        additional_names: Optional[List[str]] = None,
+    ) -> None:
         """
         Exports the working container to a container image archive
 
@@ -146,7 +152,7 @@ class OCIBuildah(OCIBase):
             )
         )
 
-    def init_container(self):
+    def init_container(self) -> None:
         """
         Initialize a new container in OCI containers storage
         """
@@ -165,20 +171,24 @@ class OCIBuildah(OCIBase):
             ['buildah', 'from', '--name', self.working_container, 'scratch']
         )
 
-    def unpack(self):
+    def unpack(self) -> None:
         """
         Mounts current container root data to a directory
         """
+        assert self.working_container
         cmd = Command.run(['buildah', 'mount', self.working_container])
         self.oci_root_dir = cmd.output.rstrip()
 
-    def sync_rootfs(self, root_dir, exclude_list=None):
+    def sync_rootfs(
+        self, root_dir: str, exclude_list: Optional[List[str]] = None
+    ) -> None:
         """
         Synchronizes the image root with the rootfs of the container
 
         :param string root_dir: root directory of the prepare step
         :param list exclude_list: list of paths to exclude
         """
+        assert self.oci_root_dir
         self._sync_data(
             ''.join([root_dir, os.sep]),
             self.oci_root_dir,
@@ -195,13 +205,16 @@ class OCIBuildah(OCIBase):
             ],
         )
 
-    def import_rootfs(self, root_dir, exclude_list=None):
+    def import_rootfs(
+        self, root_dir: str, exclude_list: Optional[List[str]] = None
+    ) -> None:
         """
         Synchronizes the container rootfs with the root tree of the build
 
         :param string root_dir: root directory used in prepare step
         :param list exclude_list: list of paths to exclude
         """
+        assert self.oci_root_dir
         self._sync_data(
             os.sep.join([self.oci_root_dir, '']),
             root_dir,
@@ -209,15 +222,16 @@ class OCIBuildah(OCIBase):
             options=Defaults.get_sync_options(),
         )
 
-    def repack(self, oci_config):
+    def repack(self, oci_config: Mapping[str, Any]) -> None:
         """
         Pack root data directory into container image
 
         :param list oci_config: unused parameter
         """
+        assert self.working_container
         Command.run(['buildah', 'umount', self.working_container])
 
-    def set_config(self, oci_config):
+    def set_config(self, oci_config: Mapping[str, Any]) -> None:
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container.
@@ -225,12 +239,13 @@ class OCIBuildah(OCIBase):
         :param list oci_config: meta data list
         :param bool base_image: True|False
         """
+        assert self.working_container
         config_args = self._process_oci_config_to_arguments(oci_config)
         Command.run(
             ['buildah', 'config'] + config_args + [self.working_container]
         )
 
-    def post_process(self):
+    def post_process(self) -> None:
         """
         Commits the OCI container into an OCI image
         """
@@ -259,7 +274,9 @@ class OCIBuildah(OCIBase):
         self.working_container = None
 
     @classmethod
-    def _process_oci_config_to_arguments(self, oci_config):
+    def _process_oci_config_to_arguments(
+        self, oci_config: Mapping[str, Any]
+    ) -> List[str]:
         """
         Process the oci configuration dictionary into a list of arguments
         for the 'buildah config' command
@@ -343,8 +360,10 @@ class OCIBuildah(OCIBase):
 
     @classmethod
     def _random_string_generator(
-        cls, chars_num=6, allchars=string.ascii_lowercase + string.digits
-    ):
+        cls,
+        chars_num: int = 6,
+        allchars: str = string.ascii_lowercase + string.digits,
+    ) -> str:
         """
         Creates a random string with the given length of characters choosen
         randomly from a given list of possible characters.
@@ -362,7 +381,12 @@ class OCIBuildah(OCIBase):
         """
         return "".join(random.choice(allchars) for x in range(chars_num))
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.working_container:
             Command.run(['buildah', 'umount', self.working_container])
             Command.run(['buildah', 'rm', self.working_container])

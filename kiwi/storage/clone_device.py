@@ -45,7 +45,7 @@ class CloneDevice(DeviceProvider):
         self.source_provider = source_provider
         self.root_dir = root_dir
 
-    def clone(self, target_devices: List[DeviceProvider]):
+    def clone(self, target_devices: List[DeviceProvider]) -> None:
         """
         Clone source device to target device(s)
 

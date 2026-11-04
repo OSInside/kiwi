@@ -17,6 +17,7 @@
 #
 import os
 from collections import namedtuple
+from typing import Any
 
 # project
 from kiwi.solver.repository.base import SolverRepositoryBase
@@ -27,7 +28,7 @@ class SolverRepositorySUSE(SolverRepositoryBase):
     **Class for SAT solvable creation for SUSE type repositories.**
     """
 
-    def _setup_repository_metadata(self):
+    def _setup_repository_metadata(self) -> None:
         """
         Download repo metadata for SUSE specific repositories and
         create SAT solvables from all solver relevant files
@@ -41,7 +42,7 @@ class SolverRepositorySUSE(SolverRepositoryBase):
             )
         self._create_solvables(metadata_dir, repo_data.solv_tool)
 
-    def _find_primary_repository_files(self):
+    def _find_primary_repository_files(self) -> Any:
         """
         Lookup repodata/repomd.xml or alternative the packages.gz
         from the suse/setup/descr metadata. For online suse repos

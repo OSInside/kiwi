@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Optional
 
 from textwrap import dedent
 
@@ -67,7 +68,7 @@ class VagrantConfigTemplate:
         end
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.indent = '  '
 
         self.header = (
@@ -85,7 +86,7 @@ class VagrantConfigTemplate:
         '''
         ).strip()
 
-    def get_template(self, custom_settings=None):
+    def get_template(self, custom_settings: Optional[str] = None) -> str:
         """
         Return a new template with ``custom_settings`` included and
         indented appropriately.

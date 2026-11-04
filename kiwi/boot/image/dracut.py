@@ -80,6 +80,8 @@ class BootImageDracut(BootImageBase):
 
         :param str filename: file path name
         :param bool install_media: unused
+        :param bool delete_after_include:
+            delete the file from the boot root once the initrd is created
         """
         self.included_files.append('--install')
         self.included_files.append(filename)

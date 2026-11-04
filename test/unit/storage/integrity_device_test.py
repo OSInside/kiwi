@@ -149,6 +149,8 @@ class TestIntegrityDevice:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
+            # set by create_dm_integrity()
+            self.integrity.integrity_device = '/dev/mapper/integrityRoot'
             self.integrity.create_integrity_metadata()
         assert file_handle.write.call_args_list == [
             call(b'1 xfs rw integrity'),
@@ -180,6 +182,8 @@ class TestIntegrityDevice:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
+            # set by create_dm_integrity()
+            self.integrity_hmac.integrity_device = '/dev/mapper/integrityRoot'
             self.integrity_hmac.create_integrity_metadata()
         assert file_handle.write.call_args_list == [
             call(b'1 xfs rw integrity'),

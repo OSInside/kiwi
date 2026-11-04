@@ -82,7 +82,7 @@ class DiskFormatVmdk(DiskFormatBase):
             shasum=False,
         )
 
-    def _create_vmware_settings_file(self):
+    def _create_vmware_settings_file(self) -> None:
         """
         In order to run a vmdk image in VMware products a settings
         file is needed

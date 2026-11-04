@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, TextIO
 import logging
 from kiwi.logger_socket import PlainTextSocketHandler
 import sys
@@ -247,11 +247,11 @@ class Logger(logging.Logger):
 
     def _add_stream_handler(
         self,
-        handler_type,
-        message_format,
-        message_filter,
-        channel=sys.__stdout__,
-    ):
+        handler_type: str,
+        message_format: str,
+        message_filter: List[logging.Filter],
+        channel: Optional[TextIO] = sys.__stdout__,
+    ) -> None:
         handler = logging.StreamHandler(channel)
         handler.setFormatter(logging.Formatter(message_format, '%H:%M:%S'))
         for rule in message_filter:

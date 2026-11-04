@@ -17,7 +17,7 @@
 #
 import os
 import glob
-from typing import Dict, NamedTuple
+from typing import Dict, NamedTuple, Optional
 
 # project
 from kiwi.firmware import FirmWare
@@ -84,8 +84,11 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         pass
 
     def write_meta_data(
-        self, root_device=None, write_device=None, boot_options=''
-    ):
+        self,
+        root_device: Optional[str] = None,
+        write_device: Optional[str] = None,
+        boot_options: str = '',
+    ) -> None:
         """
         For bootloaders following the bootloader spec take over
         the cmdline options and store them for later use
@@ -98,11 +101,11 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
 
     def setup_disk_image_config(
         self,
-        boot_uuid: str = '',
-        root_uuid: str = '',
-        hypervisor: str = '',
-        kernel: str = '',
-        initrd: str = '',
+        boot_uuid: Optional[str] = '',
+        root_uuid: Optional[str] = '',
+        hypervisor: Optional[str] = '',
+        kernel: Optional[str] = '',
+        initrd: Optional[str] = '',
         boot_options: Dict = {},
     ) -> None:
         """
@@ -173,7 +176,10 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         pass
 
     def setup_disk_boot_images(
-        self, boot_uuid: str, efi_uuid: str = '', lookup_path: str = ''
+        self,
+        boot_uuid: str,
+        efi_uuid: Optional[str] = '',
+        lookup_path: Optional[str] = '',
     ) -> None:
         """
         Create bootloader image(s) for disk boot
@@ -187,7 +193,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.create_loader_image(self.target.disk)
 
     def setup_install_boot_images(
-        self, mbrid: SystemIdentifier, lookup_path: str = ''
+        self, mbrid: SystemIdentifier, lookup_path: Optional[str] = ''
     ) -> None:
         """
         Create bootloader image(s) for install ISO boot
@@ -200,7 +206,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.create_loader_image(self.target.install)
 
     def setup_live_boot_images(
-        self, mbrid: SystemIdentifier, lookup_path: str = ''
+        self, mbrid: SystemIdentifier, lookup_path: Optional[str] = ''
     ) -> None:
         """
         Create bootloader image(s) for live ISO boot

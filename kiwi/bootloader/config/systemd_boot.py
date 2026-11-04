@@ -19,7 +19,7 @@ import os
 import logging
 from string import Template
 from contextlib import ExitStack
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 # project
 from kiwi.path import Path
@@ -93,6 +93,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             boot_options.get('system_root_volume'),
             boot_options.get('system_partitions'),
         )
+        assert self.root_mount is not None
         dracut_setup = self.xml_state.get_dracut_config('setup')
         self._run_bootctl(self.root_mount.mountpoint)
         if dracut_setup.uefi:
@@ -126,7 +127,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                 self._get_template_parameters(entry_name, flavor),
             )
 
-    def _create_embedded_fat_efi_image(self, path: str):
+    def _create_embedded_fat_efi_image(self, path: str) -> None:
         """
         Creates a EFI system partition image at the given path.
         Installs systemd-boot required EFI layout into the image
@@ -254,7 +255,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
 
     def _get_template_parameters(
         self, default_entry: str = 'main.conf', flavor: str = ''
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Union[str, int]]:
         kernel_file, initrd_file = self.boot_files.get(
             flavor, (self.custom_args['kernel'], self.custom_args['initrd'])
         )
@@ -272,7 +273,9 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
 
     @staticmethod
     def _write_config_file(
-        template: Template, filename: str, parameters: Dict[str, str]
+        template: Template,
+        filename: str,
+        parameters: Dict[str, Union[str, int]],
     ) -> None:
         try:
             config_data = template.substitute(parameters)

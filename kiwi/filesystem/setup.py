@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Optional
 import logging
 
 # project
@@ -52,7 +53,7 @@ class FileSystemSetup:
         else:
             self.requested_filesystem = xml_state.build_type.get_filesystem()
 
-    def get_size_mbytes(self, filesystem: str = None) -> int:
+    def get_size_mbytes(self, filesystem: Optional[str] = None) -> int:
         """
         Precalculate the requires size in mbytes to store all data
         from the root directory in the requested filesystem. Return

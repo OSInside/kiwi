@@ -17,7 +17,7 @@
 #
 import warnings
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 
 def obsolete(decommission_at: str, version: str) -> Callable:
@@ -45,7 +45,7 @@ def obsolete(decommission_at: str, version: str) -> Callable:
 
     def decorate_obsolete(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             warnings.warn(
                 f'Function {func.__name__!r} is marked obsolete '
                 f'since version {version!r} '
@@ -78,7 +78,7 @@ def decommissioned(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> None:
         raise DeprecationWarning(
             f'Function {func.__name__!r} has been decommissioned'
         )

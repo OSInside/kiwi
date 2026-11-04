@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Any
+
 # project
 from kiwi.command import Command
 from kiwi.exceptions import KiwiDeviceProviderError
@@ -25,7 +27,7 @@ class DeviceProvider:
     **Base class for any class providing storage devices**
     """
 
-    def get_device(self):
+    def get_device(self) -> Any:
         """
         Representation of device nodes
 

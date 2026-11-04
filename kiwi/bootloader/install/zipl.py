@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
@@ -29,7 +29,7 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
     **zipl bootloader installation**
     """
 
-    def post_init(self, custom_args: Dict):
+    def post_init(self, custom_args: Optional[Dict]) -> None:
         """
         zipl post initialization method
 
@@ -51,7 +51,7 @@ class BootLoaderInstallZipl(BootLoaderInstallBase):
         """
         return False
 
-    def secure_boot_install(self):
+    def secure_boot_install(self) -> None:
         """
         Run shim installation for secure boot setup
 

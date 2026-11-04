@@ -21,7 +21,8 @@ import random
 import logging
 import copy
 from functools import reduce
-from typing import Dict, List, Optional
+from types import TracebackType
+from typing import Dict, List, Optional, Type
 
 # project
 import kiwi.defaults as defaults
@@ -64,7 +65,7 @@ class FileSystemBase:
         device_provider: DeviceProvider,
         root_dir: str = '',
         custom_args: Dict = {},
-    ):
+    ) -> None:
         # filesystems created with a block device stores the mountpoint
         # here. The file name of the file containing the filesystem is
         # stored in the device_provider if the filesystem is represented
@@ -85,10 +86,10 @@ class FileSystemBase:
         self.post_init(custom_args)
         self.veritysetup: Optional[VeritySetup] = None
 
-    def __enter__(self):
+    def __enter__(self) -> 'FileSystemBase':
         return self
 
-    def post_init(self, custom_args: Dict):
+    def post_init(self, custom_args: Dict) -> None:
         """
         Post initialization method
 
@@ -122,7 +123,7 @@ class FileSystemBase:
         if not self.custom_args.get('fs_attributes'):
             self.custom_args['fs_attributes'] = []
 
-    def set_uuid(self):
+    def set_uuid(self) -> None:
         """
         Create new random filesystem UUID
 
@@ -137,11 +138,11 @@ class FileSystemBase:
 
     def create_on_device(
         self,
-        label: str = None,
+        label: Optional[str] = None,
         size: int = 0,
         unit: str = defaults.UNIT.kb,
-        uuid: str = None,
-    ):
+        uuid: Optional[str] = None,
+    ) -> None:
         """
         Create filesystem on block device
 
@@ -159,8 +160,11 @@ class FileSystemBase:
         raise NotImplementedError
 
     def create_on_file(
-        self, filename: str, label: str = None, exclude: List[str] = None
-    ):
+        self,
+        filename: str,
+        label: Optional[str] = None,
+        exclude: Optional[List[str]] = None,
+    ) -> None:
         """
         Create filesystem from root data tree
 
@@ -274,8 +278,8 @@ class FileSystemBase:
         return [','.join(options)] if options else []
 
     def create_verity_layer(
-        self, blocks: Optional[int] = None, filename: str = None
-    ):
+        self, blocks: Optional[int] = None, filename: Optional[str] = None
+    ) -> None:
         """
         Create veritysetup on device
 
@@ -464,13 +468,14 @@ class FileSystemBase:
             )
         return format(int(result_size))
 
-    def _apply_attributes(self):
+    def _apply_attributes(self) -> None:
         """
         Apply filesystem attributes
         """
         attribute_map = {'synchronous-updates': '+S', 'no-copy-on-write': '+C'}
         for attribute in self.custom_args['fs_attributes']:
             if attribute_map.get(attribute):
+                assert self.filesystem_mount is not None
                 log.info(
                     '--> setting {0} for {1}'.format(
                         attribute, self.filesystem_mount.mountpoint
@@ -479,10 +484,15 @@ class FileSystemBase:
                 Command.run(
                     [
                         'chattr',
-                        attribute_map.get(attribute),
+                        attribute_map[attribute],
                         self.filesystem_mount.mountpoint,
                     ]
                 )
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self.umount()

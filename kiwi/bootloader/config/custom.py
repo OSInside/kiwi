@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.system.identifier import SystemIdentifier
@@ -28,23 +28,26 @@ class BootLoaderConfigCustom(BootLoaderConfigBase):
     """
 
     def setup_disk_boot_images(
-        self, boot_uuid, efi_uuid=None, lookup_path=None
+        self,
+        boot_uuid: str,
+        efi_uuid: Optional[str] = None,
+        lookup_path: Optional[str] = None,
     ) -> None:
         raise NotImplementedError
 
     def setup_disk_image_config(
         self,
-        boot_uuid: str = '',
-        root_uuid: str = '',
-        hypervisor: str = '',
-        kernel: str = '',
-        initrd: str = '',
-        boot_options: Dict[str, str] = {},
+        boot_uuid: Optional[str] = '',
+        root_uuid: Optional[str] = '',
+        hypervisor: Optional[str] = '',
+        kernel: Optional[str] = '',
+        initrd: Optional[str] = '',
+        boot_options: Dict = {},
     ) -> None:
         raise NotImplementedError
 
     def setup_install_boot_images(
-        self, mbrid: SystemIdentifier, lookup_path: str = ''
+        self, mbrid: SystemIdentifier, lookup_path: Optional[str] = ''
     ) -> None:
         raise NotImplementedError
 
@@ -58,7 +61,7 @@ class BootLoaderConfigCustom(BootLoaderConfigBase):
         raise NotImplementedError
 
     def setup_live_boot_images(
-        self, mbrid: SystemIdentifier, lookup_path: str = ''
+        self, mbrid: SystemIdentifier, lookup_path: Optional[str] = ''
     ) -> None:
         raise NotImplementedError
 

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 
+from typing import Optional
+
 # project
 from uuid import UUID
 import kiwi.defaults as defaults
@@ -30,11 +32,11 @@ class FileSystemFat16(FileSystemBase):
 
     def create_on_device(
         self,
-        label: str = None,
+        label: Optional[str] = None,
         size: int = 0,
         unit: str = defaults.UNIT.kb,
-        uuid: str = None,
-    ):
+        uuid: Optional[str] = None,
+    ) -> None:
         """
         Create fat16 filesystem on block device
 
@@ -67,7 +69,7 @@ class FileSystemFat16(FileSystemBase):
             )
         Command.run(['mkdosfs', '-F16', '-I'] + call_args + device_args)
 
-    def set_uuid(self):
+    def set_uuid(self) -> None:
         """
         Create new random filesystem UUID
         """

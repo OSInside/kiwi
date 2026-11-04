@@ -17,7 +17,7 @@
 #
 from collections import OrderedDict
 from textwrap import dedent
-from typing import List
+from typing import Any, Dict, List, Union
 import logging
 import glob
 import os
@@ -46,7 +46,7 @@ class ResultBundleTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Create result bundle from the image build results in the
         specified target directory. Each result image will contain
@@ -70,7 +70,7 @@ class ResultBundleTask(CliTask):
             )
 
         log.info('Bundle build results from %s', result_directory)
-        result = Result.load(result_directory + '/kiwi.result')
+        result: Result = Result.load(result_directory + '/kiwi.result')
 
         if self.command_args['--bundle-format']:
             result.add_bundle_format(self.command_args['--bundle-format'])
@@ -78,7 +78,9 @@ class ResultBundleTask(CliTask):
         image_version = result.xml_state.get_image_version()
         image_name = result.xml_state.xml_data.get_name()
         image_description = result.xml_state.get_description_section()
-        ordered_results = OrderedDict(sorted(result.get_results().items()))
+        ordered_results: Dict[str, Any] = OrderedDict(
+            sorted(result.get_results().items())
+        )
 
         # hard link bundle files, compress and build checksum
         if self.command_args['--package-as-rpm']:
@@ -293,7 +295,7 @@ class ResultBundleTask(CliTask):
         bundle_directory: str,
         image_name: str,
         image_version: str,
-        description_text,
+        description_text: str,
         filenames: List[str],
     ) -> None:
         source_links = []
@@ -368,7 +370,7 @@ class ResultBundleTask(CliTask):
             os.unlink(source_file)
         Command.run(['bash', '-c', 'mv noarch/*.rpm . && rmdir noarch'])
 
-    def _help(self):
+    def _help(self) -> Union[bool, Help]:
         if self.command_args['help']:
             self.manual.show('kiwi::result::bundle')
         else:

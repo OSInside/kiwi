@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from base64 import b64encode
+from tempfile import TemporaryDirectory
+from typing import List, Optional
 from urllib.request import urlopen
 from urllib.request import Request
 from kiwi.utils.temporary import Temporary
@@ -32,6 +34,7 @@ from kiwi.exceptions import KiwiUriOpenError
 from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.defaults import Defaults
+from kiwi.system.uri import Uri
 
 
 class SolverRepositoryBase:
@@ -43,7 +46,9 @@ class SolverRepositoryBase:
     :param string secret: Secret token for uri authentication
     """
 
-    def __init__(self, uri, user=None, secret=None):
+    def __init__(
+        self, uri: Uri, user: Optional[str] = None, secret: Optional[str] = None
+    ) -> None:
         self.uri = uri
         # check if the URI string contains credentials and
         # extract/trim them from the uri object. The urlparse
@@ -59,12 +64,12 @@ class SolverRepositoryBase:
         else:
             self.user = user
             self.secret = secret
-        self.repository_metadata_dirs = []
-        self.repository_solvable_dir = None
+        self.repository_metadata_dirs: List[TemporaryDirectory] = []
+        self.repository_solvable_dir: Optional[TemporaryDirectory] = None
 
     def create_repository_solvable(
-        self, target_dir=Defaults.get_solvable_location()
-    ):
+        self, target_dir: str = Defaults.get_solvable_location()
+    ) -> Optional[str]:
         """
         Create SAT solvable for this repository from previously
         created intermediate solvables by merge and store the
@@ -77,14 +82,14 @@ class SolverRepositoryBase:
         :rtype: str
         """
         Path.create(target_dir)
-        solvable = os.sep.join([target_dir, self.uri.alias()])
+        solvable: Optional[str] = os.sep.join([target_dir, self.uri.alias()])
         if not self.is_uptodate(target_dir):
             self._setup_repository_metadata()
             solvable = self._merge_solvables(target_dir)
 
         return solvable
 
-    def timestamp(self):
+    def timestamp(self) -> str:
         """
         Return repository timestamp
 
@@ -98,7 +103,9 @@ class SolverRepositoryBase:
         """
         return 'static'
 
-    def is_uptodate(self, target_dir=Defaults.get_solvable_location()):
+    def is_uptodate(
+        self, target_dir: str = Defaults.get_solvable_location()
+    ) -> bool:
         """
         Check if repository metadata is up to date
 
@@ -117,7 +124,7 @@ class SolverRepositoryBase:
 
         return False
 
-    def download_from_repository(self, repo_source, target):
+    def download_from_repository(self, repo_source: str, target: str) -> None:
         """
         Download given source file from the repository and store
         it as target file
@@ -141,14 +148,16 @@ class SolverRepositoryBase:
                 credentials = b64encode(
                     format(':'.join([self.user, self.secret])).encode()
                 )
-                request.add_header('Authorization', b'Basic ' + credentials)
+                request.add_header(
+                    'Authorization', 'Basic ' + credentials.decode()
+                )
             location = urlopen(request)
         except Exception as e:
             raise KiwiUriOpenError(f'{type(e).__name__}: {e} {download_link}')
         with open(target, 'wb') as target_file:
             target_file.write(location.read())
 
-    def get_repo_type(self):
+    def get_repo_type(self) -> Optional[str]:
         try:
             if self._get_repomd_xml():
                 return 'rpm-md'
@@ -161,13 +170,13 @@ class SolverRepositoryBase:
             pass
         try:
             repo_listing = self._get_pacman_packages()
-            if '.db.sig\"' in repo_listing:
+            if repo_listing and '.db.sig\"' in repo_listing:
                 return 'pacman'
         except KiwiUriOpenError:
             pass
         return None
 
-    def _get_pacman_packages(self):
+    def _get_pacman_packages(self) -> Optional[str]:
         """
         Download Arch repository listing for the current architecture
 
@@ -182,8 +191,11 @@ class SolverRepositoryBase:
         if os.path.isfile(dir_listing_download.name):
             with open(dir_listing_download.name) as listing:
                 return listing.read()
+        return None
 
-    def _get_deb_packages(self, download_dir=None):
+    def _get_deb_packages(
+        self, download_dir: Optional[str] = None
+    ) -> Optional[str]:
         """
         Download Packages.gz file from an apt repository and
         return its contents. If download_dir is set, download
@@ -203,13 +215,16 @@ class SolverRepositoryBase:
                 with open(packages_download.name) as packages:
                     return packages.read()
         else:
-            packages_download = os.sep.join(
+            packages_file = os.sep.join(
                 [download_dir, repo_source.replace(os.sep, '_')]
             )
-            self.download_from_repository(repo_source, packages_download)
-            return packages_download
+            self.download_from_repository(repo_source, packages_file)
+            return packages_file
+        return None
 
-    def _get_repomd_xml(self, lookup_path='repodata'):
+    def _get_repomd_xml(
+        self, lookup_path: str = 'repodata'
+    ) -> etree._ElementTree:
         """
         Parse repomd.xml file from lookup_path and return an etree
         This method only applies to rpm-md type repositories
@@ -225,7 +240,9 @@ class SolverRepositoryBase:
         self.download_from_repository(xml_setup_file, xml_download.name)
         return etree.parse(xml_download.name)
 
-    def _get_repomd_xpath(self, xml_data, expression):
+    def _get_repomd_xpath(
+        self, xml_data: etree._ElementTree, expression: str
+    ) -> List[etree._Element]:
         """
         Call the provided xpath expression on the root element
         of the xml_data which must be an XML etree parsed document
@@ -248,7 +265,7 @@ class SolverRepositoryBase:
         )
         return xml_data.getroot().xpath(expression, namespaces=namespace_map)
 
-    def _setup_repository_metadata(self):
+    def _setup_repository_metadata(self) -> None:
         """
         Download all relevant repository metadata and create
         intermediate solvables from the result. The metadata structure
@@ -257,7 +274,7 @@ class SolverRepositoryBase:
         """
         raise NotImplementedError
 
-    def _create_solvables(self, metadata_dir, tool):
+    def _create_solvables(self, metadata_dir: str, tool: str) -> None:
         """
         Create intermediate (before merge) SAT solvables from the
         data given in the metadata_dir and store the result in the
@@ -314,7 +331,7 @@ class SolverRepositoryBase:
                 )
                 Command.run(['bash', '-c', ' '.join(bash_command)])
 
-    def _merge_solvables(self, target_dir):
+    def _merge_solvables(self, target_dir: str) -> Optional[str]:
         """
         Merge all intermediate SAT solvables into one and store
         the result in the given target_dir. In addition an
@@ -337,8 +354,9 @@ class SolverRepositoryBase:
             with open('.'.join([solvable, 'timestamp']), 'w') as solvable_time:
                 solvable_time.write(self.timestamp())
             return solvable
+        return None
 
-    def _get_mime_typed_uri(self):
+    def _get_mime_typed_uri(self) -> str:
         """
         Adds `file` scheme for local URIs
 
@@ -352,7 +370,7 @@ class SolverRepositoryBase:
             else ''.join(['file://', self.uri.translate()])
         )
 
-    def _create_temporary_metadata_dir(self):
+    def _create_temporary_metadata_dir(self) -> str:
         """
         Create and manage a temporary metadata directory
 
@@ -364,15 +382,16 @@ class SolverRepositoryBase:
         self.repository_metadata_dirs.append(metadata_dir)
         return metadata_dir.name
 
-    def _get_random_solvable_name(self):
-        if self.repository_solvable_dir:
-            return '{0}/solvable-{1}{2}{3}{4}'.format(
-                self.repository_solvable_dir.name,
-                self._rand(),
-                self._rand(),
-                self._rand(),
-                self._rand(),
-            )
+    def _get_random_solvable_name(self) -> str:
+        # the solvable directory is created by _create_solvables()
+        assert self.repository_solvable_dir is not None
+        return '{0}/solvable-{1}{2}{3}{4}'.format(
+            self.repository_solvable_dir.name,
+            self._rand(),
+            self._rand(),
+            self._rand(),
+            self._rand(),
+        )
 
-    def _rand(self):
+    def _rand(self) -> str:
         return f'{random.randrange(1, 254):02x}'

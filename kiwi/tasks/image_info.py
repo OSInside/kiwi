@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Any, List, Optional
 from itertools import zip_longest
 from urllib.parse import urlparse
 
@@ -29,6 +30,7 @@ from kiwi.solver.repository.base import SolverRepositoryBase
 from kiwi.system.uri import Uri
 from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
+import kiwi.defaults as defaults
 
 
 class ImageInfoTask(CliTask):
@@ -41,7 +43,7 @@ class ImageInfoTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Walks through the given info options and provide the requested data
         """
@@ -65,6 +67,7 @@ class ImageInfoTask(CliTask):
                     *self._get_repo_parameters(add_repo, add_credentials)
                 )
 
+        assert self.runtime_checker is not None
         self.runtime_checker.check_repositories_configured()
 
         result = {'image': self.xml_state.xml_data.get_name()}
@@ -138,7 +141,7 @@ class ImageInfoTask(CliTask):
                 'Description(TOML):',
             )
 
-    def _setup_solver(self):
+    def _setup_solver(self) -> Sat:
         solver = Sat()
         for xml_repo in self.xml_state.get_repository_sections_used_for_build():
             repo_source = xml_repo.get_source().get_path()
@@ -162,6 +165,13 @@ class ImageInfoTask(CliTask):
                 # over the configured dist components and add them as
                 # repository each.
                 dist_type = solver.set_dist_type('deb')
+                # without a Debian name for the architecture the
+                # solver uses the machine name, see Sat.set_dist_type
+                deb_arch = (
+                    dist_type['arch']
+                    if dist_type
+                    else defaults.PLATFORM_MACHINE
+                )
                 if repo_components and repo_dist:
                     for component in repo_components.split():
                         repo_source_for_component = os.sep.join(
@@ -170,7 +180,7 @@ class ImageInfoTask(CliTask):
                                 'dists',
                                 repo_dist,
                                 component,
-                                f'binary-{dist_type.get("arch")}',
+                                f'binary-{deb_arch}',
                             ]
                         )
                         solver.add_repository(
@@ -194,8 +204,10 @@ class ImageInfoTask(CliTask):
             )
         return solver
 
-    def _get_repo_parameters(self, tokens, credentials):
-        parameters = self.eleventuple_token(tokens)
+    def _get_repo_parameters(
+        self, tokens: str, credentials: Optional[str]
+    ) -> List[Any]:
+        parameters: List[Any] = self.eleventuple_token(tokens)
         signing_keys_index = 6
         repo_source_index = 0
         repo_type_index = 1

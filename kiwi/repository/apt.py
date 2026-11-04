@@ -23,7 +23,7 @@ import logging
 from base64 import b64encode
 from urllib.parse import urlparse, unquote
 from urllib.request import Request, urlopen
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 import kiwi.defaults as defaults
@@ -196,17 +196,17 @@ class RepositoryApt(RepositoryBase):
         name: str,
         uri: str,
         repo_type: str = 'deb',
-        prio: int = None,
-        dist: str = None,
-        components: str = None,
-        user: str = None,
-        secret: str = None,
-        credentials_file: str = None,
-        repo_gpgcheck: bool = None,
-        pkg_gpgcheck: bool = None,
-        sourcetype: str = None,
-        customization_script: str = None,
-        architectures: str = None,
+        prio: Optional[int] = None,
+        dist: Optional[str] = None,
+        components: Optional[str] = None,
+        user: Optional[str] = None,
+        secret: Optional[str] = None,
+        credentials_file: Optional[str] = None,
+        repo_gpgcheck: Optional[bool] = None,
+        pkg_gpgcheck: Optional[bool] = None,
+        sourcetype: Optional[str] = None,
+        customization_script: Optional[str] = None,
+        architectures: Optional[str] = None,
     ) -> None:
         """
         Add apt_get repository

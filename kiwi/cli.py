@@ -147,7 +147,7 @@ class Cli:
     cli.add_typer(result, name='result')
     cli.add_typer(image, name='image')
 
-    def __init__(self):
+    def __init__(self) -> None:
         Cli.cli_ok = False
         exit_code = 1
         # load plugins...
@@ -176,7 +176,7 @@ class Cli:
         self.command_args = self.get_command_args(raise_if_no_command=False)
         self.command_loaded = None
 
-    def version(self, perform: bool):
+    def version(self, perform: bool) -> None:
         if perform:
             print(f'KIWI (next generation) version {__version__}')
             raise typer.Exit(0)
@@ -338,7 +338,7 @@ class Cli:
                 '--version', help='show program version', callback=version
             ),
         ] = None,
-    ):
+    ) -> None:
         """
         KIWI - Appliance Builder
         """
@@ -474,7 +474,7 @@ class Cli:
                 '--print-toml', help='print image description in TOML'
             ),
         ] = False,
-    ):
+    ) -> None:
         """
         Provide information about the specified image description
         """
@@ -523,7 +523,7 @@ class Cli:
                 'directory'
             ),
         ] = None,
-    ):
+    ) -> None:
         """
         For disk based images, allow to resize the image to a new
         disk geometry. The additional space is free and not in use
@@ -552,7 +552,7 @@ class Cli:
                 help='the target directory to expect image build results'
             ),
         ],
-    ):
+    ) -> None:
         """
         List result information from a previously built image
         """
@@ -625,7 +625,7 @@ class Cli:
                 '--no-compress', help='Do not compress the result image file(s)'
             ),
         ] = False,
-    ):
+    ) -> None:
         """
         Create result bundle from the image build results in the
         specified target directory. Each result image will contain
@@ -834,7 +834,7 @@ class Cli:
                 'for the import process.'
             ),
         ] = None,
-    ):
+    ) -> None:
         """
         Build a system image from the specified description. The
         build command combines the prepare and create commands.
@@ -1054,7 +1054,7 @@ class Cli:
                 'for the import process.'
             ),
         ] = None,
-    ):
+    ) -> None:
         """
         Prepare and install a new system root tree for chroot access.
         """
@@ -1108,7 +1108,7 @@ class Cli:
                 'The option can be specified multiple times'
             ),
         ] = [],
-    ):
+    ) -> None:
         """
         Update root system with latest repository updates
         and optionally allow to add or delete packages.
@@ -1146,7 +1146,7 @@ class Cli:
                 'specified multiple times'
             ),
         ] = [],
-    ):
+    ) -> None:
         """
         Create an image from the specified root directory.
         """
@@ -1349,7 +1349,7 @@ class Cli:
                 'required to specify the CPU emulation the box should use'
             ),
         ] = None,
-    ):
+    ) -> None:
         Cli.subcommand_args['boxbuild'] = {
             '--box': box,
             '--list-boxes': list_boxes,
@@ -1388,7 +1388,7 @@ class Cli:
             'ignore_unknown_options': True,
         },
     )
-    def boxbuild_kiwi(ctx: typer.Context):
+    def boxbuild_kiwi(ctx: typer.Context) -> None:
         """
         List of command parameters as supported by the kiwi-ng
         build command. The information given here is passed
@@ -1437,7 +1437,7 @@ class Cli:
                 'provided registry URI'
             ),
         ] = None,
-    ):
+    ) -> None:
         Cli.subcommand_args['stackbuild'] = {
             '--stash': stash,
             '--target-dir': Cli._as_path_name(target_dir),
@@ -1459,7 +1459,7 @@ class Cli:
             'ignore_unknown_options': True,
         },
     )
-    def stackbuild_kiwi(ctx: typer.Context):
+    def stackbuild_kiwi(ctx: typer.Context) -> None:
         """
         List of command parameters as supported by the kiwi-ng
         build or create command. The information given here is passed
@@ -1498,7 +1498,7 @@ class Cli:
             Optional[bool],
             typer.Option('--list', help='List the available stashes'),
         ] = False,
-    ):
+    ) -> None:
         """
         Create a container from the given root directory.
         """
@@ -1514,7 +1514,7 @@ class Cli:
         Cli.global_args['system'] = True
         Cli.cli_ok = True
 
-    def get_servicename(self):
+    def get_servicename(self) -> str:
         """
         Extract service name from argument parse result
 
@@ -1531,7 +1531,7 @@ class Cli:
         else:
             raise KiwiUnknownServiceName('Unknown/Invalid Servicename')
 
-    def get_command(self):
+    def get_command(self) -> str:
         """
         Extract selected command name
 
@@ -1564,7 +1564,7 @@ class Cli:
             raise KiwiCommandNotLoaded(f'{command} command not loaded')
         return result
 
-    def get_global_args(self):
+    def get_global_args(self) -> Dict:
         """
         Get argument dict for global arguments
 
@@ -1635,7 +1635,7 @@ class Cli:
                     raise KiwiLoadPluginError(f'{plugin_entry}: {issue}')
         return plugin_typers
 
-    def load_command(self):
+    def load_command(self) -> Any:
         """
         Loads task class plugin according to service and command name
 

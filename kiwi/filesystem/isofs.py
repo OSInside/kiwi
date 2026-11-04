@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.filesystem.base import FileSystemBase
@@ -31,8 +31,11 @@ class FileSystemIsoFs(FileSystemBase):
     """
 
     def create_on_file(
-        self, filename: str, label: str = None, exclude: List[str] = None
-    ):
+        self,
+        filename: str,
+        label: Optional[str] = None,
+        exclude: Optional[List[str]] = None,
+    ) -> None:
         """
         Create iso filesystem from data tree
 

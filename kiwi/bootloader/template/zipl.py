@@ -24,7 +24,7 @@ class BootLoaderTemplateZipl:
     **zipl configuraton file templates**
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cr = '\n'
 
         self.main_conf = (

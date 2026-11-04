@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List, Optional
+from typing import List, Optional, Union
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -50,9 +50,9 @@ class PartitionerDasd(PartitionerBase):
     def create(
         self,
         name: str,
-        mbsize: int,
+        mbsize: Union[int, str],
         type_name: str,
-        flags: List[str] = None,
+        flags: Optional[List[str]] = None,
         partition_id: Optional[int] = None,
     ) -> None:
         """
@@ -87,7 +87,7 @@ class PartitionerDasd(PartitionerBase):
             # that point.
             log.debug('potential fdasd errors were ignored')
 
-    def set_uuid(self, partition_id: int, uuid: str) -> None:
+    def set_uuid(self, partition_id: Union[int, str], uuid: str) -> None:
         """
         Set partition UUID
 
@@ -98,7 +98,7 @@ class PartitionerDasd(PartitionerBase):
         """
         pass  # pragma: nocover
 
-    def set_flag(self, partition_id: int, flag_name: str):
+    def set_flag(self, partition_id: Union[int, str], flag_name: str) -> None:
         """
         Set partition flag
 
@@ -109,7 +109,7 @@ class PartitionerDasd(PartitionerBase):
         """
         pass  # pragma: nocover
 
-    def resize_table(self, entries: int = None) -> None:
+    def resize_table(self, entries: Optional[int] = None) -> None:
         """
         Resize partition table
 

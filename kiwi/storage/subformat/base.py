@@ -18,6 +18,8 @@
 import os
 import logging
 from collections import OrderedDict
+from types import TracebackType
+from typing import Optional, Type
 
 # project
 from kiwi.command import Command
@@ -48,7 +50,7 @@ class DiskFormatBase:
         xml_state: XMLState,
         root_dir: str,
         target_dir: str,
-        custom_args: dict = None,
+        custom_args: Optional[dict] = None,
     ):
         self.xml_state = xml_state
         self.root_dir = root_dir
@@ -61,7 +63,7 @@ class DiskFormatBase:
 
         self.post_init(custom_args or {})
 
-    def __enter__(self):
+    def __enter__(self) -> "DiskFormatBase":
         return self
 
     def post_init(self, custom_args: dict) -> None:
@@ -84,7 +86,7 @@ class DiskFormatBase:
         """
         return os.path.exists(self.diskname)
 
-    def resize_raw_disk(self, size_bytes, append=False):
+    def resize_raw_disk(self, size_bytes: int, append: bool = False) -> bool:
         """
         Resize raw disk image to specified size. If the request
         would actually shrink the disk an exception is raised.
@@ -180,7 +182,7 @@ class DiskFormatBase:
             ]
         )
 
-    def store_to_result(self, result: Result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store result file of the format conversion into the
         provided result instance.
@@ -203,6 +205,11 @@ class DiskFormatBase:
             shasum=True,
         )
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.temp_image_dir and os.path.exists(self.temp_image_dir):
             Path.wipe(self.temp_image_dir)

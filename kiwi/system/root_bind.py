@@ -19,7 +19,7 @@ import os
 import logging
 import shutil
 import textwrap
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.runtime_config import RuntimeConfig
@@ -128,7 +128,7 @@ class RootBind:
         ]
         self._cleanup_mounts(umounts)
 
-    def mount_shared_directory(self, host_dir: str = None) -> None:
+    def mount_shared_directory(self, host_dir: Optional[str] = None) -> None:
         """
         Bind mount shared location
 
@@ -234,7 +234,7 @@ class RootBind:
         self._cleanup_dir_stack()
         self._cleanup_intermediate_config()
 
-    def _cleanup_intermediate_config(self):
+    def _cleanup_intermediate_config(self) -> None:
         # delete kiwi copied config files
         config_files_to_delete = []
 
@@ -295,7 +295,7 @@ class RootBind:
 
         self._restore_intermediate_config_rpmnew_variants()
 
-    def _restore_config_template(self, config_file):
+    def _restore_config_template(self, config_file: str) -> None:
         """
         Systems that use configuration templates and a tool to
         manage them might have skipped their call due to the
@@ -314,12 +314,12 @@ class RootBind:
         if template_map.get(config_file):
             for template_dir in template_dirs:
                 template_file = os.sep.join(
-                    [template_dir, template_map.get(config_file)]
+                    [template_dir, template_map[config_file]]
                 )
                 if os.path.exists(template_file):
                     Command.run(['cp', template_file, config_file])
 
-    def _restore_intermediate_config_rpmnew_variants(self):
+    def _restore_intermediate_config_rpmnew_variants(self) -> None:
         """
         check for rpmnew variants of the config files. if the package
         installed an rpmnew variant of the config file it needs to be
@@ -333,7 +333,7 @@ class RootBind:
 
                 shutil.move(config_rpm_new, self.root_dir + config)
 
-    def _cleanup_mounts(self, umounts):
+    def _cleanup_mounts(self, umounts: List[MountManager]) -> None:
         for umount in reversed(umounts):
             if umount.is_mounted():
                 try:
@@ -348,11 +348,11 @@ class RootBind:
             else:
                 log.warning('Path %s not a mountpoint', umount.mountpoint)
 
-    def _cleanup_mount_stack(self):
+    def _cleanup_mount_stack(self) -> None:
         self._cleanup_mounts(self.mount_stack)
         del self.mount_stack[:]
 
-    def _cleanup_dir_stack(self):
+    def _cleanup_dir_stack(self) -> None:
         for location in reversed(self.dir_stack):
             try:
                 Path.remove_hierarchy(root=self.root_dir, path=location)

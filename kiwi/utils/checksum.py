@@ -19,6 +19,7 @@ import os
 from collections import namedtuple
 import hashlib
 import encodings.ascii as encoding
+from typing import Any, Callable, Optional
 
 # project
 from kiwi.api_helper import decommissioned
@@ -36,7 +37,7 @@ class Checksum:
     :param str checksum_filename: target file with checksum information
     """
 
-    def __init__(self, source_filename):
+    def __init__(self, source_filename: str) -> None:
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
                 f'checksum source file {source_filename} not found'
@@ -45,7 +46,7 @@ class Checksum:
         self.checksum_filename = None
         self.ascii = encoding.getregentry().name
 
-    def matches(self, checksum, filename):
+    def matches(self, checksum: str, filename: str) -> bool:
         """
         Compare given checksum with reference checksum stored
         in the provided filename. If the checksum matches the
@@ -71,10 +72,10 @@ class Checksum:
         return False
 
     @decommissioned
-    def md5(self, filename=None):
+    def md5(self, filename: Optional[str] = None) -> None:
         pass  # pragma: no cover
 
-    def sha256(self, filename=None):
+    def sha256(self, filename: Optional[str] = None) -> str:
         """
         Create sha256 checksum
 
@@ -89,7 +90,7 @@ class Checksum:
             )
         return sha256_checksum
 
-    def sha512(self, filename=None):
+    def sha512(self, filename: Optional[str] = None) -> str:
         """
         Create sha512 checksum
 
@@ -104,7 +105,12 @@ class Checksum:
             )
         return sha512_checksum
 
-    def _create_checksum_file(self, checksum, filename, haslib_method):
+    def _create_checksum_file(
+        self,
+        checksum: str,
+        filename: str,
+        haslib_method: Callable[[], 'hashlib._Hash'],
+    ) -> None:
         """
         Creates the text file that contains the checksum
 
@@ -118,6 +124,7 @@ class Checksum:
                 os.path.getsize(self.source_filename)
             )
             compress.uncompress(temporary=True)
+            assert compress.uncompressed_filename is not None
             blocks = self._block_list(
                 os.path.getsize(compress.uncompressed_filename)
             )
@@ -143,7 +150,9 @@ class Checksum:
                     f'{checksum} {blocks.blocks} {blocks.blocksize}\n'
                 )
 
-    def _calculate_hash_hexdigest(self, digest, filename, digest_blocks=128):
+    def _calculate_hash_hexdigest(
+        self, digest: 'hashlib._Hash', filename: str, digest_blocks: int = 128
+    ) -> str:
         """
         Calculates the hash hexadecimal digest for a given file.
 
@@ -157,7 +166,7 @@ class Checksum:
                 digest.update(chunk)
         return digest.hexdigest()
 
-    def _block_list(self, file_size):
+    def _block_list(self, file_size: int) -> Any:
         """
         Calculates the number of blocks and the block size for a given file
         size in bytes.

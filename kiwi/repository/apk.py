@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -82,17 +82,17 @@ class RepositoryApk(RepositoryBase):
         name: str,
         uri: str,
         repo_type: str = 'apk',
-        prio: int = None,
-        dist: str = None,
-        components: str = None,
-        user: str = None,
-        secret: str = None,
-        credentials_file: str = None,
-        repo_gpgcheck: bool = None,
-        pkg_gpgcheck: bool = None,
-        sourcetype: str = None,
-        customization_script: str = None,
-        architectures: str = None,
+        prio: Optional[int] = None,
+        dist: Optional[str] = None,
+        components: Optional[str] = None,
+        user: Optional[str] = None,
+        secret: Optional[str] = None,
+        credentials_file: Optional[str] = None,
+        repo_gpgcheck: Optional[bool] = None,
+        pkg_gpgcheck: Optional[bool] = None,
+        sourcetype: Optional[str] = None,
+        customization_script: Optional[str] = None,
+        architectures: Optional[str] = None,
     ) -> None:
         """
         Add apk repository

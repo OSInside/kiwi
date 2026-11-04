@@ -19,7 +19,8 @@ import os
 import re
 import logging
 from configparser import ConfigParser
-from typing import List, Dict
+from types import TracebackType
+from typing import List, Dict, Optional, Type
 
 # project
 import kiwi.defaults as defaults
@@ -251,17 +252,17 @@ class RepositoryZypper(RepositoryBase):
         name: str,
         uri: str,
         repo_type: str = 'rpm-md',
-        prio: int = None,
-        dist: str = None,
-        components: str = None,
-        user: str = None,
-        secret: str = None,
-        credentials_file: str = None,
+        prio: Optional[int] = None,
+        dist: Optional[str] = None,
+        components: Optional[str] = None,
+        user: Optional[str] = None,
+        secret: Optional[str] = None,
+        credentials_file: Optional[str] = None,
         repo_gpgcheck: bool = False,
         pkg_gpgcheck: bool = False,
-        sourcetype: str = None,
-        customization_script: str = None,
-        architectures: str = None,
+        sourcetype: Optional[str] = None,
+        customization_script: Optional[str] = None,
+        architectures: Optional[str] = None,
     ) -> None:
         """
         Add zypper repository
@@ -500,5 +501,10 @@ class RepositoryZypper(RepositoryBase):
         if os.path.isfile(self.runtime_zypp_config_file.name):
             os.unlink(self.runtime_zypp_config_file.name)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self._restore_package_cache()

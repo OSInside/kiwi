@@ -353,3 +353,13 @@ class TestDefaults:
         assert (
             Defaults.get_grub_path('root', 'some_file_to_search', False) == ''
         )
+
+    def test_get_efi_vendor_directory_not_found(self, tmp_path):
+        assert Defaults.get_efi_vendor_directory(str(tmp_path)) is None
+        assert Defaults.get_vendor_grubenv(str(tmp_path)) is None
+        # a vendor directory without grubenv
+        (tmp_path / 'EFI' / 'fedora').mkdir(parents=True)
+        assert Defaults.get_vendor_grubenv(str(tmp_path)) is None
+
+    def test_get_default_packager_tool_unknown(self):
+        assert Defaults.get_default_packager_tool('unknown') is None

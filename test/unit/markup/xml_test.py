@@ -18,3 +18,7 @@ class TestMarkupXML:
     def test_get_yaml_description(self):
         with raises(KiwiMarkupConversionError):
             self.markup.get_yaml_description()
+
+    def test_get_toml_description(self):
+        with raises(KiwiMarkupConversionError):
+            self.markup.get_toml_description()

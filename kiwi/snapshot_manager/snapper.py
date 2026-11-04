@@ -18,7 +18,7 @@
 import os
 import shutil
 import datetime
-from typing import List
+from typing import Any, Dict, List, Optional
 from xml.etree import ElementTree
 from xml.dom import minidom
 
@@ -45,7 +45,7 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         snapshots are hosted in a subvolume.
     """
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict[str, Any]]) -> None:
         """
         Post initialization method
 
@@ -118,7 +118,7 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         )
         return [snapshots_mount]
 
-    def setup_first_snapshot(self):
+    def setup_first_snapshot(self) -> None:
         """
         Arranges the snapshot configuration once the OS tree is synched.
         It uses the snapper and the data from the snapshot itself.
@@ -202,13 +202,13 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         """
         return self.default_snapshot_name
 
-    def _xml_pretty(self, toplevel_element):
+    def _xml_pretty(self, toplevel_element: ElementTree.Element) -> str:
         xml_data_unformatted = ElementTree.tostring(toplevel_element, 'utf-8')
         xml_data_domtree = minidom.parseString(xml_data_unformatted)
         return xml_data_domtree.toprettyxml(indent="    ")
 
     @staticmethod
-    def _set_snapper_sysconfig_file(root_path):
+    def _set_snapper_sysconfig_file(root_path: str) -> str:
         sysconf_file = SysConfig(
             os.sep.join([root_path, 'etc/sysconfig/snapper'])
         )

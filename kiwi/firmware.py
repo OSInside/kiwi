@@ -16,9 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
+from typing import Optional
 
 # project
 from .defaults import Defaults
+from .xml_state import XMLState
 
 from .exceptions import KiwiNotImplementedError
 
@@ -34,7 +36,7 @@ class FirmWare:
     * :param object xml_state: instance of :class:`XMLState`
     """
 
-    def __init__(self, xml_state):
+    def __init__(self, xml_state: XMLState) -> None:
         self.arch = Defaults.get_platform_name()
         self.zipl_target_type = xml_state.get_build_type_bootloader_targettype()
         self.firmware = xml_state.build_type.get_firmware()
@@ -58,7 +60,7 @@ class FirmWare:
                     % (self.firmware, self.arch)
                 )
 
-    def get_partition_table_type(self):
+    def get_partition_table_type(self) -> str:
         """
         Provides partition table type according to architecture and firmware
 
@@ -118,7 +120,7 @@ class FirmWare:
             return self.firmware
         return ''
 
-    def ec2_mode(self):
+    def ec2_mode(self) -> Optional[str]:
         """
         Check if EC2 mode is requested
 
@@ -128,8 +130,9 @@ class FirmWare:
         """
         if self.firmware in Defaults.get_ec2_capable_firmware_names():
             return self.firmware
+        return None
 
-    def bios_mode(self):
+    def bios_mode(self) -> bool:
         """
         Check if BIOS mode is requested
 
@@ -142,7 +145,7 @@ class FirmWare:
         else:
             return False
 
-    def ofw_mode(self):
+    def ofw_mode(self) -> bool:
         """
         Check if OFW mode is requested
 
@@ -155,7 +158,7 @@ class FirmWare:
         else:
             return False
 
-    def opal_mode(self):
+    def opal_mode(self) -> bool:
         """
         Check if Opal mode is requested
 
@@ -168,7 +171,7 @@ class FirmWare:
         else:
             return False
 
-    def get_legacy_bios_partition_size(self):
+    def get_legacy_bios_partition_size(self) -> int:
         """
         Size of legacy bios_grub partition if legacy BIOS mode is
         required. Returns 0 if no such partition is needed
@@ -182,7 +185,7 @@ class FirmWare:
         else:
             return 0
 
-    def get_efi_partition_size(self):
+    def get_efi_partition_size(self) -> int:
         """
         Size of EFI partition.
         Returns 0 if no such partition is needed
@@ -199,7 +202,7 @@ class FirmWare:
         else:
             return 0
 
-    def get_prep_partition_size(self):
+    def get_prep_partition_size(self) -> int:
         """
         Size of Prep partition if OFW mode is requested.
         Returns 0 if no such partition is needed

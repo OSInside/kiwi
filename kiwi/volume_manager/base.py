@@ -16,7 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from collections import namedtuple
-from typing import Any, Dict, List, Optional
+from tempfile import TemporaryDirectory
+from types import TracebackType
+from typing import Any, Dict, List, Optional, Type
 import logging
 import os
 
@@ -58,7 +60,7 @@ class VolumeManagerBase(DeviceProvider):
         custom_args: Optional[Dict[str, Any]] = None,
     ) -> None:
 
-        self.temp_directories: List[Temporary] = []
+        self.temp_directories: List[TemporaryDirectory] = []
         #: all volumes are combined into one mountpoint. This is
         #: needed at sync_data time. How to mount the volumes is
         #: special to the volume management class
@@ -75,7 +77,7 @@ class VolumeManagerBase(DeviceProvider):
         #: list of volumes from :class:`XMLState::get_volumes()`
         self.volumes = volumes
         #: volume group name
-        self.volume_group = None
+        self.volume_group: Optional[str] = None
         #: filesystem name the volumes were created with. Only known
         #: after an explicit create_volumes() call
         self.filesystem_name: str = ''
@@ -120,10 +122,10 @@ class VolumeManagerBase(DeviceProvider):
 
         self.post_init(custom_args)
 
-    def __enter__(self):
+    def __enter__(self) -> 'VolumeManagerBase':
         return self
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict[str, Any]]) -> None:
         """
         Post initialization method
 
@@ -133,7 +135,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         pass
 
-    def setup(self, name: str = None):
+    def setup(self, name: Optional[str] = None) -> None:
         """
         Implements setup required prior to the creation of volumes
 
@@ -143,7 +145,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
-    def create_volumes(self, filesystem_name):
+    def create_volumes(self, filesystem_name: str) -> None:
         """
         Implements creation of volumes
 
@@ -153,7 +155,9 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
-    def apply_attributes_on_volume(self, toplevel, volume):
+    def apply_attributes_on_volume(
+        self, toplevel: str, volume: volume_type
+    ) -> None:
         for attribute in volume.attributes:
             if attribute == 'no-copy-on-write':
                 log.info(
@@ -179,14 +183,14 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
-    def get_volumes(self):
+    def get_volumes(self) -> Dict:
         """
         Implements return of dictionary of volumes and
         their mount options
         """
         raise NotImplementedError
 
-    def mount_volumes(self):
+    def mount_volumes(self) -> None:
         """
         Implements mounting of all volumes below one master directory
 
@@ -194,7 +198,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
-    def umount_volumes(self):
+    def umount_volumes(self) -> None:
         """
         Implements umounting of all volumes
 
@@ -202,7 +206,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
-    def umount(self):
+    def umount(self) -> None:
         """
         Consistency layer with regards to FileSystem classes
 
@@ -210,7 +214,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         self.umount_volumes()
 
-    def mount(self):
+    def mount(self) -> None:
         """
         Consistency layer with regards to FileSystem classes
 
@@ -218,7 +222,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         self.mount_volumes()
 
-    def is_loop(self):
+    def is_loop(self) -> bool:
         """
         Check if storage provider is loop based
 
@@ -231,7 +235,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         return self.device_provider_root.is_loop()
 
-    def get_device(self):
+    def get_device(self) -> Dict[str, DeviceProvider]:
         """
         Return current DeviceProvider dictionary
 
@@ -241,7 +245,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         return self.device_map
 
-    def create_volume_paths_in_root_dir(self):
+    def create_volume_paths_in_root_dir(self) -> None:
         """
         Implements creation of volume paths in the given root directory
         """
@@ -257,7 +261,7 @@ class VolumeManagerBase(DeviceProvider):
                     # volume
                     Path.create(volume_image_path)
 
-    def get_canonical_volume_list(self):
+    def get_canonical_volume_list(self) -> Any:
         """
         Implements hierarchical sorting of volumes according to their
         paths and provides information about the volume configured as
@@ -286,7 +290,11 @@ class VolumeManagerBase(DeviceProvider):
         )
 
     def get_volume_mbsize(
-        self, volume, all_volumes, filesystem_name, resize_on_boot=False
+        self,
+        volume: volume_type,
+        all_volumes: List[volume_type],
+        filesystem_name: str,
+        resize_on_boot: bool = False,
     ) -> int:
         """
         Implements size lookup for the given path and desired
@@ -307,12 +315,12 @@ class VolumeManagerBase(DeviceProvider):
 
         :rtype: int
         """
-        [size_type, mbsize] = volume.size.split(':')
+        [size_type, volume_mbsize] = volume.size.split(':')
         lookup_path = volume.realpath
         lookup_abspath = os.path.normpath(
             os.sep.join([self.root_dir, lookup_path])
         )
-        mbsize = int(mbsize)
+        mbsize = int(volume_mbsize)
 
         if resize_on_boot:
             # If resize_on_boot is true, the disk is self expandable and
@@ -397,8 +405,8 @@ class VolumeManagerBase(DeviceProvider):
         return root_mount
 
     def create_verity_layer(
-        self, blocks: Optional[int] = None, filename: str = None
-    ):
+        self, blocks: Optional[int] = None, filename: Optional[str] = None
+    ) -> None:
         """
         veritysetup on LVM devices is not supported
         """
@@ -410,13 +418,13 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
-    def set_property_readonly_root(self):
+    def set_property_readonly_root(self) -> None:
         """
         Implements setup of read-only root property
         """
         raise KiwiVolumeManagerSetupError('read only property not supported')
 
-    def setup_mountpoint(self):
+    def setup_mountpoint(self) -> None:
         """
         Implements creation of a master directory holding
         the mounts of all volumes
@@ -425,5 +433,10 @@ class VolumeManagerBase(DeviceProvider):
         self.mountpoint = self.mountpoint_tempdir.name
         self.temp_directories.append(self.mountpoint_tempdir)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         pass

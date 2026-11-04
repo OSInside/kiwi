@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
@@ -41,7 +42,12 @@ class ArchiveTar:
         list of files and directorie names to archive
     """
 
-    def __init__(self, filename, create_from_file_list=True, file_list=None):
+    def __init__(
+        self,
+        filename: str,
+        create_from_file_list: bool = True,
+        file_list: Optional[List[str]] = None,
+    ) -> None:
         self.filename = filename
         self.create_from_file_list = create_from_file_list
         self.file_list = file_list
@@ -51,7 +57,12 @@ class ArchiveTar:
         else:
             self.xattrs_options = []
 
-    def create(self, source_dir, exclude=None, options=None):
+    def create(
+        self,
+        source_dir: str,
+        exclude: Optional[List[str]] = None,
+        options: Optional[List[str]] = None,
+    ) -> str:
         """
         Create uncompressed tar archive
 
@@ -70,7 +81,12 @@ class ArchiveTar:
         )
         return self.filename
 
-    def append_files(self, source_dir, files_to_append, options=None):
+    def append_files(
+        self,
+        source_dir: str,
+        files_to_append: List[str],
+        options: Optional[List[str]] = None,
+    ) -> str:
         """
         Append files to an already existing uncompressed tar archive
 
@@ -89,8 +105,12 @@ class ArchiveTar:
         return self.filename
 
     def create_xz_compressed(
-        self, source_dir, exclude=None, options=None, xz_options=None
-    ):
+        self,
+        source_dir: str,
+        exclude: Optional[List[str]] = None,
+        options: Optional[List[str]] = None,
+        xz_options: Optional[List[str]] = None,
+    ) -> str:
         """
         Create XZ compressed tar archive
 
@@ -116,7 +136,9 @@ class ArchiveTar:
         Command.run(['bash', '-c', ' '.join(bash_command)])
         return self.filename + '.xz'
 
-    def create_gnu_gzip_compressed(self, source_dir, exclude=None):
+    def create_gnu_gzip_compressed(
+        self, source_dir: str, exclude: Optional[List[str]] = None
+    ) -> str:
         """
         Create gzip compressed tar archive
 
@@ -137,7 +159,7 @@ class ArchiveTar:
         )
         return self.filename + '.gz'
 
-    def extract(self, dest_dir):
+    def extract(self, dest_dir: str) -> None:
         """
         Extract tar archive contents
 
@@ -145,7 +167,9 @@ class ArchiveTar:
         """
         Command.run(['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename])
 
-    def _get_archive_items(self, source_dir, exclude_list):
+    def _get_archive_items(
+        self, source_dir: str, exclude_list: Optional[List[str]]
+    ) -> List[str]:
         if self.create_from_file_list:
             return self._get_archive_content_list(
                 source_dir, exclude_list, self.file_list
@@ -154,8 +178,11 @@ class ArchiveTar:
             return self._get_archive_exclude_list(exclude_list) + ['.']
 
     def _get_archive_content_list(
-        self, source_dir, exclude_list=None, file_list=None
-    ):
+        self,
+        source_dir: str,
+        exclude_list: Optional[List[str]] = None,
+        file_list: Optional[List[str]] = None,
+    ) -> List[str]:
         final_archive_contents = []
         archive_contents = file_list
         if not archive_contents:
@@ -169,9 +196,11 @@ class ArchiveTar:
 
         return final_archive_contents
 
-    def _get_archive_exclude_list(self, exclude_list):
+    def _get_archive_exclude_list(
+        self, exclude_list: Optional[List[str]]
+    ) -> List[str]:
         archive_items = []
-        for exclude in exclude_list:
+        for exclude in exclude_list or []:
             archive_items.append('--exclude')
             archive_items.append('./' + exclude)
         return archive_items

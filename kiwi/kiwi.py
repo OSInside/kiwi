@@ -25,7 +25,7 @@ from kiwi.exceptions import KiwiError
 log = logging.getLogger('kiwi')
 
 
-def main():
+def main() -> None:
     """
     kiwi - main application entry point
 

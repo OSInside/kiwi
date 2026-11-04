@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List, Dict, no_type_check
+from typing import List, Dict, no_type_check, Optional
 
 # project
 from kiwi.command import CommandCallT
@@ -101,7 +101,7 @@ class PackageManagerDnf(PackageManagerBase):
 
     @decommissioned
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, delta_root: bool = False
+        self, root_bind: Optional[RootBind] = None, delta_root: bool = False
     ) -> None:
         pass  # pragma: no cover
 

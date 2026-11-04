@@ -37,11 +37,11 @@ class RootImportOCI(RootImportBase):
     a oci image tarball file.
     """
 
-    def post_init(self, custom_args: Dict[str, str]):
+    def post_init(self, custom_args: Dict[str, str]) -> None:
         self.archive_transport = custom_args['archive_transport']
         self.compressed_image_files: List[Compress] = []
 
-    def sync_data(self):
+    def sync_data(self) -> None:
         """
         Synchronize data from the given base image to the target root
         directory.

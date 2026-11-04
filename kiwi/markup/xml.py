@@ -43,3 +43,11 @@ class MarkupXML(MarkupBase):
         raise KiwiMarkupConversionError(
             'Conversion to YAML not supported, install anymarkup-core module'
         )
+
+    def get_toml_description(self) -> str:
+        """
+        Conversion into TOML format not supported by base XML markup
+        """
+        raise KiwiMarkupConversionError(
+            'Conversion to TOML not supported, install anymarkup-core module'
+        )

@@ -19,7 +19,7 @@ import os
 import logging
 from collections import namedtuple
 from kiwi.command import CommandCallT
-from typing import NamedTuple, List, Callable
+from typing import Any, NamedTuple, List, Callable
 
 # project
 from kiwi.utils.codec import Codec
@@ -46,12 +46,14 @@ class CommandProcess:
     :param string log_topic: topic string for logging
     """
 
-    def __init__(self, command: CommandCallT, log_topic='system') -> None:
+    def __init__(
+        self, command: CommandCallT, log_topic: str = 'system'
+    ) -> None:
         self.command = CommandIterator(command)
         self.log_topic = log_topic
         self.items_processed = 0
 
-    def poll(self):
+    def poll(self) -> None:
         """
         Iterate over process, raise on error and log output
         """
@@ -67,7 +69,7 @@ class CommandProcess:
         items_to_complete: List[str],
         match_method: Callable,
         with_stderr: bool = False,
-    ):
+    ) -> None:
         """
         Iterate over process and show progress in percent
         raise on error and log output
@@ -88,7 +90,7 @@ class CommandProcess:
         if self.command.get_error_code() != 0:
             raise KiwiCommandError(self.command.get_error_output())
 
-    def poll_and_watch(self):
+    def poll_and_watch(self) -> Any:
         """
         Iterate over process don't raise on error and log
         stdout and stderr
@@ -111,7 +113,9 @@ class CommandProcess:
             log.debug('--------------err stop--------------')
         return result(stderr=error_output, returncode=error_code)
 
-    def create_match_method(self, method):
+    def create_match_method(
+        self, method: Callable[[str, str], bool]
+    ) -> Callable[[str, str], bool]:
         """
         create a matcher function pointer which calls the given
         method as method(item_to_match, data) on dereference
@@ -122,21 +126,26 @@ class CommandProcess:
         :rtype: object
         """
 
-        def create_method(item_to_match, data):
+        def create_method(item_to_match: str, data: str) -> bool:
             return method(item_to_match, data)
 
         return create_method
 
-    def returncode(self):
+    def returncode(self) -> int:
         return self.command.get_error_code()
 
-    def _init_progress(self):
+    def _init_progress(self) -> None:
         Logger.progress(0, 100, '[ INFO    ]: Processing')
 
-    def _stop_progress(self):
+    def _stop_progress(self) -> None:
         Logger.progress(100, 100, '[ INFO    ]: Processing')
 
-    def _update_progress(self, match_method, items_to_complete, command_output):
+    def _update_progress(
+        self,
+        match_method: Callable,
+        items_to_complete: List[str],
+        command_output: str,
+    ) -> None:
         items_count = len(items_to_complete)
         for item in items_to_complete:
             if match_method(item, command_output):
@@ -195,7 +204,7 @@ class CommandIterator:
 
         return PollT(stdout_line=line_stdout, stderr_line=line_stderr)
 
-    def get_error_output(self):
+    def get_error_output(self) -> str:
         """
         Provide data which was sent to the stderr channel
 
@@ -231,5 +240,5 @@ class CommandIterator:
         """
         self.command.process.kill()
 
-    def __iter__(self):
+    def __iter__(self) -> 'CommandIterator':
         return self

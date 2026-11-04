@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Union, cast
 import shutil
 
 # project
@@ -28,6 +28,8 @@ from kiwi.storage.device_provider import DeviceProvider
 from kiwi.boot.image.base import BootImageBase
 from kiwi.boot.image import BootImage
 from kiwi.bootloader.config import create_boot_loader_config
+from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
+from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.firmware import FirmWare
@@ -66,7 +68,7 @@ class InstallImageBuilder:
         root_dir: str,
         target_dir: str,
         boot_image_task: Optional[BootImageBase],
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ) -> None:
         self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
@@ -365,16 +367,23 @@ class InstallImageBuilder:
         archive.create(self.pxe_dir.name)
         self.boot_image_task.cleanup()
 
-    def _create_bootloader_instance(self):
-        return create_boot_loader_config(
-            name=self.bootloader,
-            xml_state=self.xml_state,
-            root_dir=self.root_dir,
-            boot_dir=self.media_dir.name,
-            custom_args=(
-                Defaults.get_grub_custom_arguments(self.root_dir)
-                if self.bootloader.startswith('grub')
-                else {}
+    def _create_bootloader_instance(
+        self,
+    ) -> Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot]:
+        # ISO images boot with grub2 or systemd-boot only, any other
+        # bootloader name is turned into grub2, see __init__
+        return cast(
+            Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot],
+            create_boot_loader_config(
+                name=self.bootloader,
+                xml_state=self.xml_state,
+                root_dir=self.root_dir,
+                boot_dir=self.media_dir.name,
+                custom_args=(
+                    Defaults.get_grub_custom_arguments(self.root_dir)
+                    if self.bootloader.startswith('grub')
+                    else {}
+                ),
             ),
         )
 

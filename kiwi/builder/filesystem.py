@@ -17,7 +17,7 @@
 #
 import logging
 import os
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.filesystem import FileSystem
@@ -51,7 +51,7 @@ class FileSystemBuilder:
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ):
         self.label = None
         self.root_uuid = ''

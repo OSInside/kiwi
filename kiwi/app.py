@@ -27,7 +27,7 @@ class App:
     when constructing an instance of App
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         app = CliTask(should_perform_task_setup=False)
         action = app.cli.get_command()
         service = app.cli.get_servicename()

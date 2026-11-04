@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Any, Optional
 from lxml import etree
 from urllib.parse import urlparse
 
@@ -111,12 +112,20 @@ class MarkupBase:
         """
         raise NotImplementedError
 
+    def get_toml_description(self) -> str:
+        """
+        Return TOML description file name
+
+        Implementation in specialized Markup class
+        """
+        raise NotImplementedError
+
 
 class FileResolver(etree.Resolver):
-    def __init__(self, description_dir):
+    def __init__(self, description_dir: str) -> None:
         self.description_dir = description_dir
 
-    def resolve(self, url, pubid, context):
+    def resolve(self, url: str, pubid: Optional[str], context: Any) -> Any:
         if url.startswith('this://'):
             url = url.replace('this://', '')
             url = 'dir://{0}'.format(

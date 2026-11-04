@@ -17,6 +17,7 @@
 #
 import os
 import re
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
@@ -29,10 +30,12 @@ class Rpm:
     **Helper methods to handle the rpm database configuration**
     """
 
-    def __init__(self, root_dir=None, macro_file=None):
+    def __init__(
+        self, root_dir: Optional[str] = None, macro_file: Optional[str] = None
+    ) -> None:
         self.root_dir = root_dir
-        self.config = []
-        self.custom_config = []
+        self.config: List[str] = []
+        self.custom_config: List[str] = []
         self.macro_path = os.sep.join(
             [self.root_dir or '', Defaults.get_custom_rpm_macros_path()]
         )
@@ -47,7 +50,7 @@ class Rpm:
             ]
         )
 
-    def expand_query(self, key):
+    def expand_query(self, key: str) -> str:
         """
         Query database configuration and expand it
         """
@@ -59,7 +62,7 @@ class Rpm:
             rpmdb_call = Command.run(['rpm', '-E', key])
         return rpmdb_call.output.strip()
 
-    def get_query(self, key):
+    def get_query(self, key: str) -> Optional[str]:
         """
         Query database configuration
 
@@ -80,8 +83,9 @@ class Rpm:
             match = re.match('.*{0}[\t ]+(.*)'.format(key), item)
             if match:
                 return match.group(1)
+        return None
 
-    def set_config_value(self, key, value):
+    def set_config_value(self, key: str, value: Optional[str]) -> None:
         """
         Set custom database configuration key/value pair
 
@@ -90,7 +94,7 @@ class Rpm:
         """
         self.custom_config.append('%{0}\t{1}'.format(key, value))
 
-    def write_config(self):
+    def write_config(self) -> None:
         """
         Write custom database configuration
 
@@ -102,13 +106,13 @@ class Rpm:
                 for entry in self.custom_config:
                     macro.write('{0}{1}'.format(entry, os.linesep))
 
-    def wipe_config(self):
+    def wipe_config(self) -> None:
         """
         Delete custom database configuration
         """
         Path.wipe(self.macro_file)
 
-    def _read_macro_configuration(self):
+    def _read_macro_configuration(self) -> List[str]:
         """
         Read rpm database macro and configuration setup
 

@@ -17,7 +17,8 @@
 #
 import os
 import logging
-from typing import List, Dict, Optional, Union
+from types import TracebackType
+from typing import List, Dict, Optional, Union, Type
 
 # project
 from kiwi.defaults import Defaults
@@ -59,7 +60,7 @@ class ImageSystem:
         self.mount_list: List[MountManager] = []
         self.root_mount_mountpoint = ''
 
-    def __enter__(self):
+    def __enter__(self) -> "ImageSystem":
         return self
 
     def mountpoint(self) -> str:
@@ -189,5 +190,10 @@ class ImageSystem:
             efi_device = self.device_map['efi'].get_device()
         return (root_device, boot_device, efi_device)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self.umount()

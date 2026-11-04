@@ -17,6 +17,7 @@
 #
 import collections
 import os
+from typing import Any, Dict, Optional
 
 # project
 from kiwi.command import Command
@@ -40,18 +41,20 @@ class ContainerSetupBase:
         dict of custom arguments
     """
 
-    def __init__(self, root_dir, custom_args=None):
+    def __init__(
+        self, root_dir: str, custom_args: Optional[Dict] = None
+    ) -> None:
         if not os.path.exists(root_dir):
             raise KiwiContainerSetupError(
                 f'Container root directory {root_dir} does not exist'
             )
         self.root_dir = root_dir
-        self.custom_args = custom_args or {}
+        self.custom_args: Dict[str, Any] = custom_args or {}
         if 'container_name' not in self.custom_args:
             self.custom_args['container_name'] = 'system-container'
         self.post_init(custom_args)
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict]) -> None:
         """
         Post initialization method
 
@@ -61,7 +64,7 @@ class ContainerSetupBase:
         """
         pass
 
-    def setup(self):
+    def setup(self) -> None:
         """
         Setup container metadata
 
@@ -69,7 +72,7 @@ class ContainerSetupBase:
         """
         raise NotImplementedError
 
-    def deactivate_bootloader_setup(self):
+    def deactivate_bootloader_setup(self) -> None:
         """
         Container bootloader setup
 
@@ -86,7 +89,7 @@ class ContainerSetupBase:
                 },
             )
 
-    def deactivate_root_filesystem_check(self):
+    def deactivate_root_filesystem_check(self) -> None:
         """
         Container filesystem check setup
 
@@ -101,7 +104,7 @@ class ContainerSetupBase:
                 boot_setup, {'ROOTFS_BLKDEV': 'ROOTFS_BLKDEV="/dev/null"'}
             )
 
-    def deactivate_systemd_service(self, name):
+    def deactivate_systemd_service(self, name: str) -> None:
         """
         Container system services setup
 
@@ -120,7 +123,7 @@ class ContainerSetupBase:
                     f'Failed to deactivate service {name}: {format(e)}'
                 )
 
-    def setup_root_console(self):
+    def setup_root_console(self) -> None:
         """
         Container console setup
 
@@ -132,7 +135,7 @@ class ContainerSetupBase:
                 pass
         self._update_config(securetty, {'console': 'console'})
 
-    def get_container_name(self):
+    def get_container_name(self) -> str:
         """
         Container name
 
@@ -141,7 +144,9 @@ class ContainerSetupBase:
         """
         return self.custom_args['container_name']
 
-    def _update_config(self, filename, update_record):
+    def _update_config(
+        self, filename: str, update_record: Dict[str, str]
+    ) -> None:
         data = []
         with open(filename, 'r') as config:
             data = config.read().rsplit('\n')

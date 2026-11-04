@@ -17,6 +17,7 @@
 #
 from string import Template
 from textwrap import dedent
+from typing import Dict, Optional, Set, Tuple
 
 
 class OvaComposeTemplate:
@@ -24,7 +25,7 @@ class OvaComposeTemplate:
     OVA compose settings template
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cr = '\n'
 
         self.header = (
@@ -54,8 +55,8 @@ class OvaComposeTemplate:
         )
 
     def _get_controller(
-        self, controller: str | None, device_id: str
-    ) -> tuple[str, str, str]:
+        self, controller: Optional[str], device_id: str
+    ) -> Tuple[str, str, str]:
         controller_map = {
             'ide': ('ide', 'ide_controller'),
             'sata': ('sata', 'sata_controller'),
@@ -81,7 +82,7 @@ class OvaComposeTemplate:
         controllers_added: set,
         controller_name: str,
         controller_type: str,
-        controller_subtype: str | None = None,
+        controller_subtype: Optional[str] = None,
     ) -> None:
         if controller_name in controllers_added:
             return
@@ -92,8 +93,8 @@ class OvaComposeTemplate:
         controllers_added.add(controller_name)
 
     def _get_network_setup(
-        self, network_setup: dict = None
-    ) -> tuple[list, list]:
+        self, network_setup: Optional[dict] = None
+    ) -> Tuple[list, list]:
         hardware_lines = []
         network_lines = ['networks:']
 
@@ -150,11 +151,11 @@ class OvaComposeTemplate:
 
     def _get_hardware_template(
         self,
-        memory_setup: bool = False,
-        cpu_setup: bool = False,
-        network_setup: dict = None,
+        memory_setup: Optional[int] = False,
+        cpu_setup: Optional[int] = False,
+        network_setup: Optional[dict] = None,
         iso_setup: bool = False,
-        disk_controller: str = None,
+        disk_controller: Optional[str] = None,
         iso_controller: str = 'ide',
         disk_id: str = '0',
         iso_id: str = '0',
@@ -170,7 +171,7 @@ class OvaComposeTemplate:
         if memory_setup:
             hardware_lines.append('    memory: ${memory_size}')
 
-        controllers_added: set[str] = set()
+        controllers_added: Set[str] = set()
 
         disk_parent, disk_controller_type, disk_controller_subtype = (
             self._get_controller(disk_controller, str(disk_id))
@@ -227,14 +228,14 @@ class OvaComposeTemplate:
 
     def get_template(
         self,
-        memory_setup=False,
-        cpu_setup=False,
-        network_setup=False,
-        iso_setup=False,
-        disk_controller='ide',
-        iso_controller='ide',
-        disk_id='0',
-        iso_id='0',
+        memory_setup: Optional[int] = False,
+        cpu_setup: Optional[int] = False,
+        network_setup: Optional[Dict[str, Dict[str, Optional[str]]]] = None,
+        iso_setup: bool = False,
+        disk_controller: Optional[str] = 'ide',
+        iso_controller: str = 'ide',
+        disk_id: str = '0',
+        iso_id: str = '0',
     ) -> Template:
         """
         Set data for the ova-compose template

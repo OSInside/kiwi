@@ -26,7 +26,7 @@ class BootLoaderTemplateGrub2:
     **grub2 configuraton file templates**
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.header = (
             dedent(
                 '''
@@ -377,7 +377,7 @@ class BootLoaderTemplateGrub2:
         checkiso: bool = False,
         has_btrfs_relative_path: bool = False,
         kernel_count: int = 1,
-    ):
+    ) -> Template:
         """
         Bootloader configuration template for live ISO media
 
@@ -426,7 +426,7 @@ class BootLoaderTemplateGrub2:
         checkiso: bool = False,
         has_btrfs_relative_path: bool = False,
         kernel_count: int = 1,
-    ):
+    ) -> Template:
         """
         Bootloader configuration template for live ISO media with
         hypervisor, e.g Xen dom0
@@ -476,7 +476,7 @@ class BootLoaderTemplateGrub2:
         with_timeout: bool = True,
         has_btrfs_relative_path: bool = False,
         kernel_count: int = 1,
-    ):
+    ) -> Template:
         """
         Bootloader configuration template for install media
 
@@ -524,7 +524,7 @@ class BootLoaderTemplateGrub2:
         with_timeout: bool = True,
         has_btrfs_relative_path: bool = False,
         kernel_count: int = 1,
-    ):
+    ) -> Template:
         """
         Bootloader configuration template for install media with
         hypervisor, e.g Xen dom0
