@@ -16,11 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
+from typing import TYPE_CHECKING, Optional
 from abc import ABCMeta, abstractmethod
 import logging
 
 # project
 from kiwi.exceptions import KiwiPartitionerSetupError
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.partitioner.base import PartitionerBase
 
 log = logging.getLogger('kiwi')
 
@@ -43,9 +47,9 @@ class Partitioner(metaclass=ABCMeta):
     def new(
         table_type: str,
         storage_provider: object,
-        start_sector: int = None,
+        start_sector: Optional[int] = None,
         extended_layout: bool = False,
-    ):
+    ) -> 'PartitionerBase':
         name_map = {'msdos': 'MsDos', 'gpt': 'Gpt', 'dasd': 'Dasd'}
         try:
             partitioner = importlib.import_module(

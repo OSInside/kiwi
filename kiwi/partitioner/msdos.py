@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List, Optional
+from typing import List, Optional, Union
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -57,7 +57,7 @@ class PartitionerMsDos(PartitionerBase):
     def create(
         self,
         name: str,
-        mbsize: int,
+        mbsize: Union[int, str],
         type_name: str,
         flags: List[str] = [],
         partition_id: Optional[int] = None,
@@ -93,7 +93,7 @@ class PartitionerMsDos(PartitionerBase):
         else:
             self._create_primary(name, mbsize, type_name, flags, partition_id)
 
-    def set_flag(self, partition_id: int, flag_name: str) -> None:
+    def set_flag(self, partition_id: Union[int, str], flag_name: str) -> None:
         """
         Set msdos partition flag
 
@@ -129,7 +129,7 @@ class PartitionerMsDos(PartitionerBase):
         else:
             log.warning('Flag %s ignored on msdos', flag_name)
 
-    def resize_table(self, entries: int = None) -> None:
+    def resize_table(self, entries: Optional[int] = None) -> None:
         """
         Resize partition table
 
@@ -139,7 +139,7 @@ class PartitionerMsDos(PartitionerBase):
         """
         pass
 
-    def set_uuid(self, partition_id: int, uuid: str) -> None:
+    def set_uuid(self, partition_id: Union[int, str], uuid: str) -> None:
         """
         Set partition UUID
 
@@ -150,7 +150,7 @@ class PartitionerMsDos(PartitionerBase):
         """
         pass  # pragma: nocover
 
-    def set_start_sector(self, start_sector: int):
+    def set_start_sector(self, start_sector: int) -> None:
         """
         Set start sector of first partition as configured.
         fdisk and friends are not able to work correctly if
@@ -181,7 +181,7 @@ class PartitionerMsDos(PartitionerBase):
     def _create_primary(
         self,
         name: str,
-        mbsize: int,
+        mbsize: Union[int, str],
         type_name: str,
         flags: List[str] = [],
         partition_id: Optional[int] = None,
@@ -198,8 +198,9 @@ class PartitionerMsDos(PartitionerBase):
             if self.start_sector > self.default_start and mbsize != 'all_free':
                 # fdisk default start sector is self.default_start, increase
                 # the partition size such that after set_start_sector()
-                # the requested partition size is present
-                mbsize += int(
+                # the requested partition size is present. The size
+                # can also be given as numeric string, e.g for clones
+                mbsize = int(mbsize) + int(
                     (self.start_sector - self.default_start)
                     * self.sector_size
                     / (1024 * 1024)
@@ -245,7 +246,7 @@ class PartitionerMsDos(PartitionerBase):
     def _create_logical(
         self,
         name: str,
-        mbsize: int,
+        mbsize: Union[int, str],
         type_name: str,
         flags: List[str] = [],
         partition_id: Optional[int] = None,

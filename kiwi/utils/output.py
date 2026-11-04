@@ -18,6 +18,7 @@
 import json
 import os
 import logging
+from typing import Dict, List, Optional, Union
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -39,19 +40,21 @@ class DataOutput:
     :param str style: output style could be either standard or color
     """
 
-    def __init__(self, data, style='standard'):
+    def __init__(
+        self, data: Union[Dict, List], style: str = 'standard'
+    ) -> None:
         self.data = data
         self.style = style
         self.color_json = Path.which('pjson')
 
-    def display(self):
+    def display(self) -> None:
         """
         Show data in json output format and selected style
         """
         self._json()
 
     @staticmethod
-    def display_file(filename, message=None):
+    def display_file(filename: str, message: Optional[str] = None) -> None:
         """
         Show data from file
         """
@@ -60,7 +63,7 @@ class DataOutput:
         with open(filename) as data:
             print(data.read())
 
-    def _json(self):
+    def _json(self) -> None:
         """
         Show data in json output format and selected style
         """
@@ -74,7 +77,7 @@ class DataOutput:
         else:
             self._standard_json()
 
-    def _standard_json(self):
+    def _standard_json(self) -> None:
         """
         Show data in plain json output format without any highlighting
         """
@@ -84,7 +87,7 @@ class DataOutput:
             )
         )
 
-    def _color_json(self):
+    def _color_json(self) -> None:
         """
         Show data in json output format with nice color highlighting
         """

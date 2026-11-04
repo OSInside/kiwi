@@ -19,7 +19,8 @@ import os
 import time
 import logging
 from textwrap import dedent
-from typing import List, Dict
+from types import TracebackType
+from typing import List, Dict, Optional, Type
 
 # project
 from kiwi.path import Path
@@ -63,7 +64,12 @@ class MountManager:
     def __enter__(self) -> "MountManager":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self.umount()
 
     def get_attributes(self) -> Dict[str, str]:

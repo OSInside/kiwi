@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import List, Optional
+
 # project
 from kiwi.command import Command
 
@@ -26,17 +28,19 @@ class ArchiveCpio:
     :param string filename: filename to use for archive extraction or creation
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: str) -> None:
         self.filename = filename
 
-    def create(self, source_dir, exclude=None):
+    def create(
+        self, source_dir: str, exclude: Optional[List[str]] = None
+    ) -> None:
         """
         Create cpio archive
 
         :param string source_dir: data source directory
         :param list exclude: list of excluded items
         """
-        find_excludes = []
+        find_excludes: List[str] = []
         find_command = ['cd', source_dir, '&&', 'find', '.']
         cpio_command = [
             'cpio',
@@ -61,7 +65,7 @@ class ArchiveCpio:
         bash_command = find_command + ['|'] + cpio_command
         Command.run(['bash', '-c', ' '.join(bash_command)])
 
-    def extract(self, dest_dir):
+    def extract(self, dest_dir: str) -> None:
         """
         Extract cpio archive contents
 

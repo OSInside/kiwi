@@ -17,7 +17,7 @@
 #
 import re
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 from kiwi.command import CommandCallT
@@ -152,7 +152,9 @@ class PackageManagerMicroDnf(PackageManagerBase):
             )
 
     def process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, bootstrap_package: str = None
+        self,
+        root_bind: Optional[RootBind] = None,
+        bootstrap_package: Optional[str] = None,
     ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
@@ -345,7 +347,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         )
 
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, delta_root: bool = False
+        self, root_bind: Optional[RootBind] = None, delta_root: bool = False
     ) -> None:
         """
         Move the rpm database to the place as it is expected by the

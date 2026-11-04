@@ -19,7 +19,7 @@ import logging
 import simplejson
 import pickle
 import os
-from typing import Dict, NamedTuple, TypeVar, Any, Optional
+from typing import Dict, NamedTuple, Any, Optional
 
 # project
 from kiwi.xml_state import XMLState
@@ -52,8 +52,6 @@ result_name_tags = NamedTuple(
     ],
 )
 
-result_type = TypeVar('result_type', bound='Result')
-
 
 class Result:
     """
@@ -74,7 +72,7 @@ class Result:
 
         self.xml_state = xml_state
 
-    def add_bundle_format(self, pattern: str):
+    def add_bundle_format(self, pattern: str) -> None:
         version_string = self.xml_state.get_image_version()
         if '.' in version_string:
             major, minor, patch = version_string.split(sep='.', maxsplit=2)
@@ -217,7 +215,7 @@ class Result:
             raise KiwiResultError(f'Failed to pickle dump results: {format(e)}')
 
     @staticmethod
-    def load(filename: str) -> result_type:  # type: ignore
+    def load(filename: str) -> 'Result':
         """
         Load pickle dumped filename into a Result instance
 

@@ -158,14 +158,14 @@ class SystemStackbuildTask(CliTask):
         final_kiwi_command = ['kiwi-ng']
         if self.global_args.get('--type'):
             final_kiwi_command.append('--type')
-            final_kiwi_command.append(self.global_args.get('--type'))
+            final_kiwi_command.append(self.global_args['--type'])
         if self.global_args.get('--profile'):
-            for profile in sorted(set(self.global_args.get('--profile'))):
+            for profile in sorted(set(self.global_args['--profile'])):
                 final_kiwi_command.append('--profile')
                 final_kiwi_command.append(profile)
         if self.global_args.get('--kiwi-file'):
             final_kiwi_command.append('--kiwi-file')
-            final_kiwi_command.append(self.global_args.get('--kiwi-file'))
+            final_kiwi_command.append(self.global_args['--kiwi-file'])
         final_kiwi_command += kiwi_command
         final_kiwi_command += (
             self.command_args.get('system_build_or_create') or []

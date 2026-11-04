@@ -214,7 +214,9 @@ class IsoToolsXorrIso(IsoToolsBase):
             'emul_type=no_emulation',
         ]
 
-    def create_iso(self, filename: str, hidden_files: List[str] = None) -> None:
+    def create_iso(
+        self, filename: str, hidden_files: Optional[List[str]] = None
+    ) -> None:
         """
         Creates the iso file with the given filename using xorriso
 

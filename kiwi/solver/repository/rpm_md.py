@@ -17,6 +17,7 @@
 #
 import os
 from collections import namedtuple
+from typing import Any, List
 
 # project
 from kiwi.solver.repository.base import SolverRepositoryBase
@@ -27,7 +28,7 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
     **Class for SAT solvable creation for rpm-md type repositories.**
     """
 
-    def _setup_repository_metadata(self):
+    def _setup_repository_metadata(self) -> None:
         """
         Download repo metadata for rpm-md specific repositories
         and create SAT solvables from all solver relevant files
@@ -60,7 +61,7 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
             )
         self._create_solvables(rpm_comps_dir, rpm_comps_data.solv_tool)
 
-    def timestamp(self):
+    def timestamp(self) -> str:
         """
         Get timestamp from the first primary metadata
 
@@ -72,7 +73,7 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
             self._get_repomd_xml(), 'repo:data[@type="primary"]/repo:timestamp'
         )[0].text
 
-    def _find_repomd_files(self, type_list, tool):
+    def _find_repomd_files(self, type_list: List[str], tool: str) -> Any:
         """
         Lookup repodata/repomd.xml and the metadata files for the
         specified type list. Assign the found entries to the given

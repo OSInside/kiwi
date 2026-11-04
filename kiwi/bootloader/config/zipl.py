@@ -20,9 +20,10 @@ import copy
 import logging
 import shutil
 from string import Template
-from typing import Dict
+from typing import Dict, List, Union
 
 # project
+from kiwi.xml_state import HostKeyCertificateT
 from kiwi.path import Path
 from kiwi.boot.image.base import BootImageBase
 from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
@@ -72,10 +73,13 @@ class BootLoaderZipl(BootLoaderSpecBase):
             boot_options.get('system_root_volume'),
             boot_options.get('system_partitions'),
         )
+        assert self.root_mount is not None
         root_dir = self.root_mount.mountpoint
         self.custom_args['secure_linux'] = False
 
-        host_key_certificates = self.xml_state.get_host_key_certificates()
+        host_key_certificates: List[HostKeyCertificateT] = (
+            self.xml_state.get_host_key_certificates()
+        )
         if host_key_certificates:
             # The secure execution image is created from the kernel and
             # initrd of the latest kernel. Kernel flavors are not
@@ -116,12 +120,10 @@ class BootLoaderZipl(BootLoaderSpecBase):
                     genprotimg_host_key_check.append(
                         host_key_certificate['hkd_sign_cert']
                     )
-                    for host_key in host_key_certificate.get('hkd_cert'):
+                    for host_key in host_key_certificate['hkd_cert']:
                         genprotimg_host_key_check.append('-k')
                         genprotimg_host_key_check.append(host_key)
-                    for host_crl in host_key_certificate.get(
-                        'hkd_revocation_list'
-                    ):
+                    for host_crl in host_key_certificate['hkd_revocation_list']:
                         genprotimg_host_key_check.append('--crl')
                         genprotimg_host_key_check.append(host_crl)
                     log.info(
@@ -136,12 +138,10 @@ class BootLoaderZipl(BootLoaderSpecBase):
                 genprotimg = genprotimg_init
                 genprotimg.append('--no-verify')
                 for host_key_certificate in host_key_certificates:
-                    for host_key in host_key_certificate.get('hkd_cert'):
+                    for host_key in host_key_certificate['hkd_cert']:
                         genprotimg.append('-k')
                         genprotimg.append(host_key)
-                    for host_crl in host_key_certificate.get(
-                        'hkd_revocation_list'
-                    ):
+                    for host_crl in host_key_certificate['hkd_revocation_list']:
                         genprotimg.append('--crl')
                         genprotimg.append(host_crl)
                 Command.run(genprotimg)
@@ -189,7 +189,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
                     attestation_response_key,
                 ]
                 for host_key_certificate in host_key_certificates:
-                    for host_key in host_key_certificate.get('hkd_cert'):
+                    for host_key in host_key_certificate['hkd_cert']:
                         pvattest.append('-k')
                         pvattest.append(host_key)
                 Command.run(pvattest)
@@ -305,12 +305,13 @@ class BootLoaderZipl(BootLoaderSpecBase):
             self.entries_dir,
             '--verbose',
         ]
+        assert self.sys_mount is not None
         self.sys_mount.umount()
         Command.run(zipl)
 
     def _get_template_parameters(
         self, default_entry: str = '', flavor: str = ''
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Union[str, int]]:
         disk_type = self.disk_type or 'SCSI'
         disk_type = disk_type if disk_type != 'GPT' else 'SCSI'
         blocksize = self.disk_blocksize or 512
@@ -409,7 +410,9 @@ class BootLoaderZipl(BootLoaderSpecBase):
             )
             return Command.run(['bash', '-c', sfdisk_command]).output.strip()
 
-    def _get_dasd_disk_geometry_element(self, disk_device, search) -> int:
+    def _get_dasd_disk_geometry_element(
+        self, disk_device: str, search: str
+    ) -> int:
         fdasd = ['fdasd', '-f', '-p', disk_device]
         bash_command = fdasd + ['|', 'grep', '"' + search + '"']
         fdasd_call = Command.run(['bash', '-c', ' '.join(bash_command)])
@@ -423,7 +426,9 @@ class BootLoaderZipl(BootLoaderSpecBase):
 
     @staticmethod
     def _write_config_file(
-        template: Template, filename: str, parameters: Dict[str, str]
+        template: Template,
+        filename: str,
+        parameters: Dict[str, Union[str, int]],
     ) -> None:
         try:
             config_data = template.substitute(parameters)

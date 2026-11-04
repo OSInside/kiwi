@@ -32,7 +32,7 @@ class BlockID:
 
     """
 
-    def __init__(self, device):
+    def __init__(self, device: str) -> None:
         uuid_format = re.match(r'^UUID=(.*)', device)
         if uuid_format:
             blkid_result = Command.run(
@@ -42,7 +42,7 @@ class BlockID:
         else:
             self.device = device
 
-    def get_label(self):
+    def get_label(self) -> str:
         """
         Retrieve filesystem label from block device
 
@@ -52,7 +52,7 @@ class BlockID:
         """
         return self.get_blkid('LABEL')
 
-    def get_uuid(self):
+    def get_uuid(self) -> str:
         """
         Retrieve filesystem uuid from block device
 
@@ -62,7 +62,7 @@ class BlockID:
         """
         return self.get_blkid('UUID')
 
-    def get_ptuuid(self):
+    def get_ptuuid(self) -> str:
         """
         Retrieve partition uuid from block device
 
@@ -72,7 +72,7 @@ class BlockID:
         """
         return self.get_blkid('PTUUID')
 
-    def get_filesystem(self):
+    def get_filesystem(self) -> str:
         """
         Retrieve filesystem type from block device
 
@@ -99,7 +99,7 @@ class BlockID:
                 partition_count += 1
         return partition_count
 
-    def get_blkid(self, id_type):
+    def get_blkid(self, id_type: str) -> str:
         """
         Retrieve information for specified metadata ID from block device
 

@@ -17,6 +17,7 @@
 #
 import os
 import re
+from typing import Optional
 
 # project
 from kiwi.command import Command
@@ -29,12 +30,12 @@ class RpmDataBase:
     **Setup RPM database configuration**
     """
 
-    def __init__(self, root_dir, macro_file=None):
+    def __init__(self, root_dir: str, macro_file: Optional[str] = None) -> None:
         self.rpmdb_host = Rpm()
         self.rpmdb_image = Rpm(root_dir, macro_file)
         self.root_dir = root_dir
 
-    def has_rpm(self):
+    def has_rpm(self) -> bool:
         """
         Check if rpmdb binary was found in root_dir to indicate
         that the rpm system is present.
@@ -46,16 +47,16 @@ class RpmDataBase:
             return False
         return True
 
-    def rebuild_database(self):
+    def rebuild_database(self) -> None:
         """
         Rebuild image rpm database taking current macro setup into account
         """
         Command.run(['chroot', self.root_dir, 'rpmdb', '--rebuilddb'])
 
-    def init_database(self):
+    def init_database(self) -> None:
         Command.run(['rpm', '--root', self.root_dir, '--initdb'])
 
-    def set_macro_from_string(self, setting):
+    def set_macro_from_string(self, setting: str) -> None:
         """
         Setup given macro setting in image rpm configuration.
         The following format for the setting is expected:
@@ -76,10 +77,10 @@ class RpmDataBase:
         if match:
             self.rpmdb_image.set_config_value(match.group(1), match.group(2))
 
-    def write_config(self):
+    def write_config(self) -> None:
         self.rpmdb_image.write_config()
 
-    def import_signing_key_to_image(self, key):
+    def import_signing_key_to_image(self, key: str) -> None:
         """
         Import the given signing key to the image rpm database
         """
@@ -95,7 +96,7 @@ class RpmDataBase:
             ]
         )
 
-    def set_database_to_host_path(self):
+    def set_database_to_host_path(self) -> None:
         """
         Setup dbpath to point to the host rpm dbpath configuration
         and write the configuration file
@@ -105,7 +106,7 @@ class RpmDataBase:
         )
         self.rpmdb_image.write_config()
 
-    def link_database_to_host_path(self):
+    def link_database_to_host_path(self) -> None:
         """
         Create a link from host database location to image database
         location. The link is only created if both locations differ
@@ -136,7 +137,7 @@ class RpmDataBase:
                     ]
                 )
 
-    def set_database_to_image_path(self):
+    def set_database_to_image_path(self) -> None:
         """
         Setup dbpath to point to the image rpm dbpath configuration
         Rebuild the database such that it gets moved to the standard

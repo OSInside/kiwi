@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
@@ -29,7 +29,7 @@ class BootLoaderInstallSystemdBoot(BootLoaderInstallBase):
     **systemd-boot bootloader installation**
     """
 
-    def post_init(self, custom_args: Dict):
+    def post_init(self, custom_args: Optional[Dict]) -> None:
         """
         systemd-boot post initialization method
 
@@ -38,7 +38,7 @@ class BootLoaderInstallSystemdBoot(BootLoaderInstallBase):
         """
         self.custom_args = custom_args
 
-    def install_required(self):
+    def install_required(self) -> bool:
         """
         Check if systemd-boot needs to install boot code
 
@@ -52,7 +52,7 @@ class BootLoaderInstallSystemdBoot(BootLoaderInstallBase):
         """
         return False
 
-    def secure_boot_install(self):
+    def secure_boot_install(self) -> None:
         """
         Run shim installation for secure boot setup
 

@@ -267,7 +267,7 @@ class Kernel:
         return None
 
     def copy_kernel(
-        self, target_dir: str, file_name: str = None, flavor: str = ''
+        self, target_dir: str, file_name: Optional[str] = None, flavor: str = ''
     ) -> None:
         """
         Copy kernel to specified target
@@ -287,7 +287,7 @@ class Kernel:
             Command.run(['cp', kernel.filename, target_file])
 
     def copy_xen_hypervisor(
-        self, target_dir: str, file_name: str = None
+        self, target_dir: str, file_name: Optional[str] = None
     ) -> None:
         """
         Copy xen hypervisor to specified target

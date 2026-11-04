@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 
+from typing import Sequence, Union
+
 
 class KiwiError(Exception):
     """
@@ -28,10 +30,12 @@ class KiwiError(Exception):
     :param string message: Exception message text
     """
 
-    def __init__(self, message):
+    def __init__(
+        self, message: Union[str, Exception, Sequence[Exception]]
+    ) -> None:
         self.message = message
 
-    def __str__(self):
+    def __str__(self) -> str:
         return format(self.message)
 
 

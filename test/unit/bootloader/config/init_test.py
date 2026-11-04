@@ -19,10 +19,17 @@ class TestBootLoaderConfig:
             create_boot_loader_config(
                 name=name, xml_state=xml_state, root_dir='root_dir'
             )
-            mock_grub2.assert_called_once_with(
-                xml_state, 'root_dir', None, None
-            )
+            mock_grub2.assert_called_once_with(xml_state, 'root_dir', None, {})
             mock_grub2.reset_mock()
+        # given custom arguments are passed as they are
+        custom_args = {'grub_load_command': 'configfile'}
+        create_boot_loader_config(
+            name='grub2',
+            xml_state=xml_state,
+            root_dir='root_dir',
+            custom_args=custom_args,
+        )
+        assert mock_grub2.call_args[0][3] is custom_args
 
     @patch('kiwi.bootloader.config.systemd_boot.BootLoaderSystemdBoot')
     def test_bootloader_config_systemd_boot(self, mock_systemd_boot):
@@ -34,7 +41,7 @@ class TestBootLoaderConfig:
             boot_dir='boot_dir',
         )
         mock_systemd_boot.assert_called_once_with(
-            xml_state, 'root_dir', 'boot_dir', None
+            xml_state, 'root_dir', 'boot_dir', {}
         )
 
     @patch('kiwi.bootloader.config.zipl.BootLoaderZipl')
@@ -47,9 +54,7 @@ class TestBootLoaderConfig:
             root_dir='root_dir',
             boot_dir='boot_dir',
         )
-        mock_zipl.assert_called_once_with(
-            xml_state, 'root_dir', 'boot_dir', None
-        )
+        mock_zipl.assert_called_once_with(xml_state, 'root_dir', 'boot_dir', {})
 
     @patch('kiwi.bootloader.config.custom.BootLoaderConfigCustom')
     def test_bootloader_config_custom(self, mock_custom):
@@ -57,4 +62,4 @@ class TestBootLoaderConfig:
         create_boot_loader_config(
             name='custom', xml_state=xml_state, root_dir='root_dir'
         )
-        mock_custom.assert_called_once_with(xml_state, 'root_dir', None, None)
+        mock_custom.assert_called_once_with(xml_state, 'root_dir', None, {})

@@ -19,6 +19,7 @@ import logging
 import os
 import random
 import struct
+from typing import Optional
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
@@ -35,14 +36,14 @@ class SystemIdentifier:
     :param str image_id: hex identifier string
     """
 
-    def __init__(self):
-        self.image_id = None
+    def __init__(self) -> None:
+        self.image_id: Optional[str] = None
         sde = os.environ.get('SOURCE_DATE_EPOCH')
         if sde:
             log.info(f'Using SystemIdentifier seed SOURCE_DATE_EPOCH:{sde}')
             random.seed(int(sde))
 
-    def get_id(self) -> str:
+    def get_id(self) -> Optional[str]:
         """
         Current hex identifier
 
@@ -86,5 +87,5 @@ class SystemIdentifier:
                 disk.seek(440, 0)
                 disk.write(packed_id)
 
-    def _rand(self):
+    def _rand(self) -> int:
         return random.randrange(1, 0xFE)

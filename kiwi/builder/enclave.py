@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -53,7 +53,7 @@ class EnclaveBuilder:
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ):
         self.target_dir = target_dir
         self.custom_cmdline = xml_state.build_type.get_kernelcmdline()

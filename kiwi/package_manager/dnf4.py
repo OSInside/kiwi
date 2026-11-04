@@ -17,7 +17,7 @@
 #
 import os
 import re
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 from kiwi.command import CommandCallT
@@ -88,7 +88,7 @@ class PackageManagerDnf4(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def _get_dnf4_binary_name(self, root=None):
+    def _get_dnf4_binary_name(self, root: Optional[str] = None) -> str:
         """
         Identify whether dnf is 'dnf4' or 'dnf-3'
 
@@ -157,7 +157,9 @@ class PackageManagerDnf4(PackageManagerBase):
             )
 
     def process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, bootstrap_package: str = None
+        self,
+        root_bind: Optional[RootBind] = None,
+        bootstrap_package: Optional[str] = None,
     ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
@@ -361,7 +363,7 @@ class PackageManagerDnf4(PackageManagerBase):
         )
 
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, delta_root: bool = False
+        self, root_bind: Optional[RootBind] = None, delta_root: bool = False
     ) -> None:
         """
         Move the rpm database to the place as it is expected by the

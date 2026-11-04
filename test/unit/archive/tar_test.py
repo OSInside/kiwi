@@ -149,6 +149,27 @@ class TestArchiveTar:
         assert mock_command.call_count == 2
 
     @patch('kiwi.archive.tar.Command.run')
+    def test_create_from_dir_without_excludes(self, mock_command):
+        command = mock.Mock()
+        command.output = 'version 1.27.0'
+        mock_command.return_value = command
+        archive = ArchiveTar('foo.tar', False)
+        assert archive.create('source-dir') == 'foo.tar'
+        assert mock_command.call_args_list[1] == call(
+            [
+                'tar',
+                '-C',
+                'source-dir',
+                '--xattrs',
+                '--xattrs-include=*',
+                '-c',
+                '-f',
+                'foo.tar',
+                '.',
+            ]
+        )
+
+    @patch('kiwi.archive.tar.Command.run')
     @patch('os.listdir')
     def test_create_xz_compressed(self, mock_os_dir, mock_command):
         mock_os_dir.return_value = ['foo', 'bar']

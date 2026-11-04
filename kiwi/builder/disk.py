@@ -101,7 +101,7 @@ class DiskBuilder:
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ):
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
@@ -125,7 +125,7 @@ class DiskBuilder:
         self.root_filesystem_read_only_partsize = (
             xml_state.build_type.get_overlayroot_readonly_partsize()
         )
-        self.veritysetup = None
+        self.veritysetup: Optional[VeritySetup] = None
         self.root_filesystem_verity_blocks = (
             xml_state.build_type.get_verity_blocks()
         )
@@ -303,7 +303,7 @@ class DiskBuilder:
         self.append_unpartitioned_space()
         return self.create_disk_format(result)
 
-    def _get_root_readonly_compression(self):
+    def _get_root_readonly_compression(self) -> Optional[str]:
         """
         Compression setting for the overlay read-only root filesystem
 
@@ -1222,7 +1222,7 @@ class DiskBuilder:
         return int(part_id) if part_id else None
 
     def _build_and_map_disk_partitions(
-        self, disk: Disk, disksize_mbytes: float
+        self, disk: Disk, disksize_mbytes: int
     ) -> Dict:
         disk.wipe()
         disksize_used_mbytes = 0
@@ -1334,6 +1334,7 @@ class DiskBuilder:
             # case
             root_clone_count = 0
 
+        rootfs_mbsize: Union[int, str]
         if self.spare_part_mbsize and self.spare_part_is_last:
             rootfs_mbsize = (
                 disksize_mbytes
@@ -1577,6 +1578,8 @@ class DiskBuilder:
     ) -> None:
         if self.initrd_system == 'kiwi':
             log.info('Creating generic boot image etc/fstab')
+            # the kiwi boot image is prepared at this point
+            assert self.boot_image.setup is not None
             self._write_generic_fstab(device_map, self.boot_image.setup, system)
 
     def _write_generic_fstab(
@@ -1662,7 +1665,7 @@ class DiskBuilder:
         self,
         device: str,
         mount_point: str,
-        options: List = None,
+        options: Optional[List] = None,
         check: str = '0 0',
     ) -> None:
         if not options:
@@ -2037,7 +2040,7 @@ class DiskBuilder:
     def _install_bootloader(
         self,
         device_map: Dict,
-        disk,
+        disk: Disk,
         system: Optional[Union[FileSystemBase, VolumeManagerBase]],
         bootloader_config: BootLoaderConfigBase,
         boot_image: BootImageBase,

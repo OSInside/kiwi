@@ -17,7 +17,8 @@
 #
 import os
 import logging
-from typing import Optional, List, Dict, IO, Union, NamedTuple
+from types import TracebackType
+from typing import Optional, List, Dict, IO, Union, NamedTuple, Type
 
 # project
 import kiwi.defaults as defaults
@@ -61,7 +62,7 @@ class IntegrityDevice(DeviceProvider):
         self,
         storage_provider: DeviceProvider,
         integrity_algorithm: str,
-        credentials: integrity_credentials_type = None,
+        credentials: Optional[integrity_credentials_type] = None,
     ) -> None:
         #: the underlaying device provider
         self.storage_provider = storage_provider
@@ -100,7 +101,7 @@ class IntegrityDevice(DeviceProvider):
         self.integrity_metadata_file: Optional[IO[bytes]] = None
         self.credentials = credentials
 
-    def __enter__(self):
+    def __enter__(self) -> "IntegrityDevice":
         return self
 
     def get_device(self) -> Optional[MappedDevice]:
@@ -169,6 +170,8 @@ class IntegrityDevice(DeviceProvider):
         with a smaller size than the device_node !
         """
         metadata_format_version = defaults.DM_METADATA_FORMAT_VERSION
+        # set by create_dm_integrity()
+        assert self.integrity_device is not None
         filesystem = BlockID(self.integrity_device).get_filesystem()
         integrity_superblock = self._get_integrity_superblock()
         if filesystem and integrity_superblock:
@@ -299,7 +302,12 @@ class IntegrityDevice(DeviceProvider):
                     integrity[entry[0]] = entry[1]
         return integrity
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.integrity_device:
             try:
                 Command.run(['integritysetup', 'close', self.integrity_name])

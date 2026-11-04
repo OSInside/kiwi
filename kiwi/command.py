@@ -229,11 +229,14 @@ class Command:
 
         # guaranteed to be true as stdout & stderr equal subprocess.PIPE
         assert process.stdout and process.stderr
+        # the narrowed types are kept in the select closures below
+        stdout = process.stdout
+        stderr = process.stderr
 
         def output_available() -> Callable[[], bool]:
-            def _select():
+            def _select() -> bool:
                 readable, _, exceptional = select.select(
-                    [process.stdout], [], [process.stdout], 1e-4
+                    [stdout], [], [stdout], 1e-4
                 )
                 if readable and not exceptional:
                     return True
@@ -242,9 +245,9 @@ class Command:
             return _select
 
         def error_available() -> Callable[[], bool]:
-            def _select():
+            def _select() -> bool:
                 readable, _, exceptional = select.select(
-                    [process.stderr], [], [process.stderr], 1e-4
+                    [stderr], [], [stderr], 1e-4
                 )
                 if readable and not exceptional:
                     return True

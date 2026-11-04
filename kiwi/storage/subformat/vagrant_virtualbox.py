@@ -114,7 +114,7 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
         return [box_img, box_ovf]
 
     @staticmethod
-    def _random_mac():
+    def _random_mac() -> str:
         return '%02x%02x%02x%02x%02x%02x'.upper() % (
             0x00,
             0x16,

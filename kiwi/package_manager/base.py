@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List, Dict
+from types import TracebackType
+from typing import List, Dict, Optional, Type
 
 from kiwi.api_helper import decommissioned
 from kiwi.command import CommandCallT
@@ -50,7 +51,7 @@ class PackageManagerBase:
 
         self.post_init(custom_args or [])
 
-    def __enter__(self):
+    def __enter__(self) -> 'PackageManagerBase':
         return self
 
     def post_init(self, custom_args: List = []) -> None:
@@ -120,7 +121,9 @@ class PackageManagerBase:
         raise NotImplementedError
 
     def process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, bootstrap_package: str = None
+        self,
+        root_bind: Optional[RootBind] = None,
+        bootstrap_package: Optional[str] = None,
     ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
@@ -214,7 +217,7 @@ class PackageManagerBase:
         pass  # pragma: no cover
 
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, delta_root: bool = False
+        self, root_bind: Optional[RootBind] = None, delta_root: bool = False
     ) -> None:
         """
         Process extra code required after bootstrapping
@@ -223,7 +226,9 @@ class PackageManagerBase:
         """
         pass
 
-    def post_process_delete_requests(self, root_bind: RootBind = None) -> None:
+    def post_process_delete_requests(
+        self, root_bind: Optional[RootBind] = None
+    ) -> None:
         """
         Process extra code required after deleting packages
 
@@ -279,6 +284,11 @@ class PackageManagerBase:
         del self.product_requests[:]
         del self.exclude_requests[:]
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.repository:
             self.repository.cleanup()

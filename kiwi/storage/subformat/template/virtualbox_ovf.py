@@ -29,7 +29,7 @@ class VirtualboxOvfTemplate:
     Gompa.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # note: the OS ID is set to Other Linux 64
         self.OVF_TEMPLATE = """<?xml version="1.0"?>
 <Envelope ovf:version="1.0" xml:lang="en-US" xmlns="http://schemas.dmtf.org/ovf/envelope/1" xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData" xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:vbox="http://www.virtualbox.org/ovf/machine">
@@ -152,7 +152,7 @@ class VirtualboxOvfTemplate:
 </Envelope>
 """
 
-    def get_template(self):
+    def get_template(self) -> Template:
         """
         Return the actual ovf template. The following values must be
         substituted:

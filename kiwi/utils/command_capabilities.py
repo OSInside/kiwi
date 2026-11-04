@@ -45,7 +45,7 @@ class CommandCapabilities:
         root: str = '',
         raise_on_error: bool = True,
         silent: bool = False,
-    ):
+    ) -> bool:
         """
         Checks if the given flag is present in the help output
         of the given command.

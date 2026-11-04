@@ -16,11 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
+from typing import TYPE_CHECKING, Optional
 from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiSolverRepositorySetupError
 from kiwi.system.uri import Uri
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.solver.repository.base import SolverRepositoryBase
 
 
 class SolverRepository(metaclass=ABCMeta):
@@ -35,7 +39,9 @@ class SolverRepository(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(uri: Uri, user: str = None, secret: str = None):
+    def new(
+        uri: Uri, user: Optional[str] = None, secret: Optional[str] = None
+    ) -> 'SolverRepositoryBase':
         name_map = {
             'yast2': ['SolverRepositorySUSE', 'suse'],
             'rpm-md': ['SolverRepositoryRpmMd', 'rpm_md'],

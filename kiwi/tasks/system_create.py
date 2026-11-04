@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Union
 import logging
 
 # project
@@ -39,7 +40,7 @@ class SystemCreateTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Create a system image from the specified root directory
         the root directory is the result of a system prepare
@@ -89,7 +90,7 @@ class SystemCreateTask(CliTask):
         result.print_results()
         result.dump(os.sep.join([abs_target_dir_path, 'kiwi.result']))
 
-    def _help(self):
+    def _help(self) -> Union[bool, Help]:
         if self.command_args['help']:
             self.manual.show('kiwi::system::create')
         else:

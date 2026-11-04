@@ -19,6 +19,7 @@ import os
 import logging
 from collections import namedtuple
 from textwrap import dedent
+from typing import Any, Optional
 
 # project
 from kiwi.firmware import FirmWare
@@ -185,7 +186,7 @@ class DiskSetup:
                 )
             return self.configured_size.mbytes
 
-    def need_boot_partition(self):
+    def need_boot_partition(self) -> bool:
         """
         Decide if an extra boot partition is needed. This is done with
         the bootpartition attribute from the type, however if it is not
@@ -262,7 +263,7 @@ class DiskSetup:
             return Defaults.get_default_boot_mbytes()
         return 0
 
-    def _inplace_recovery_partition_size(self):
+    def _inplace_recovery_partition_size(self) -> Optional[int]:
         """
         In inplace recovery mode the recovery archive is created at
         install time. This requires free space on the disk. The
@@ -276,8 +277,9 @@ class DiskSetup:
             recovery_mbytes = self.oemconfig.get_oem_recovery_part_size()
             if recovery_mbytes:
                 return int(recovery_mbytes[0] * 1.7)
+        return None
 
-    def _accumulate_partitions_size(self):
+    def _accumulate_partitions_size(self) -> int:
         """
         Calculate number of mbytes to add to the disk to allow
         the creaton of the partitions with their configured size
@@ -329,7 +331,7 @@ class DiskSetup:
                     )
         return disk_partition_mbytes
 
-    def _accumulate_volume_size(self, root_mbytes):
+    def _accumulate_volume_size(self, root_mbytes: int) -> int:
         """
         Calculate number of mbytes to add to the disk to allow
         the creaton of the volumes with their configured size
@@ -408,7 +410,7 @@ class DiskSetup:
 
         return disk_volume_mbytes
 
-    def _get_root_volume_configuration(self):
+    def _get_root_volume_configuration(self) -> Optional[Any]:
         """
         Provide root volume configuration if present and in
         use according to the selected volume management. So far
@@ -424,8 +426,9 @@ class DiskSetup:
                     return root_volume_type(
                         size_type=size_type, req_size=int(req_size)
                     )
+        return None
 
-    def _calculate_volume_mbytes(self):
+    def _calculate_volume_mbytes(self) -> Any:
         """
         Calculate the number of mbytes each volume path currently
         consumes and also provide a total number of these values.
@@ -450,7 +453,7 @@ class DiskSetup:
 
         return volume_mbytes_type(volume=volume_mbytes, total=volume_total)
 
-    def _calculate_partition_mbytes(self):
+    def _calculate_partition_mbytes(self) -> Any:
         """
         Calculate the number of mbytes each partition path consumes
         """

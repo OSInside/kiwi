@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.filesystem.base import FileSystemBase
@@ -28,8 +28,11 @@ class FileSystemEroFs(FileSystemBase):
     """
 
     def create_on_file(
-        self, filename, label: str = None, exclude: List[str] = None
-    ):
+        self,
+        filename: str,
+        label: Optional[str] = None,
+        exclude: Optional[List[str]] = None,
+    ) -> None:
         """
         Create erofs filesystem from data tree
 

@@ -28,6 +28,10 @@ class TestMarkupBase:
         with raises(NotImplementedError):
             self.markup.get_yaml_description()
 
+    def test_get_toml_description(self):
+        with raises(NotImplementedError):
+            self.markup.get_toml_description()
+
     def test_apply_xslt_stylesheets(self):
         assert 'xslt-' in self.markup.apply_xslt_stylesheets(
             '../data/example_config.xml'

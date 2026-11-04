@@ -17,12 +17,21 @@
 #
 # project
 import importlib
-from typing import Dict
+from typing import TYPE_CHECKING, Dict, Optional, Union
 from abc import ABCMeta, abstractmethod
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiRequestedTypeError
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.builder.archive import ArchiveBuilder
+    from kiwi.builder.container import ContainerBuilder
+    from kiwi.builder.disk import DiskBuilder
+    from kiwi.builder.enclave import EnclaveBuilder
+    from kiwi.builder.filesystem import FileSystemBuilder
+    from kiwi.builder.kis import KisBuilder
+    from kiwi.builder.live import LiveImageBuilder
 
 
 class ImageBuilder(metaclass=ABCMeta):
@@ -39,8 +48,16 @@ class ImageBuilder(metaclass=ABCMeta):
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
-    ):
+        custom_args: Optional[Dict] = None,
+    ) -> Union[
+        'FileSystemBuilder',
+        'DiskBuilder',
+        'LiveImageBuilder',
+        'KisBuilder',
+        'EnclaveBuilder',
+        'ArchiveBuilder',
+        'ContainerBuilder',
+    ]:
         image_type = xml_state.get_build_type_name()
         if image_type in Defaults.get_filesystem_image_types():
             name_token = ('filesystem', 'FileSystemBuilder')

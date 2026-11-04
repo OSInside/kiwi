@@ -26,7 +26,7 @@ class BuilderTemplateSystemdUnit:
     **systemd unit file templates**
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.unit = (
             dedent(
                 '''
@@ -63,7 +63,7 @@ class BuilderTemplateSystemdUnit:
         container_files: List[str],
         load_commands: List[List[str]],
         after: List[str],
-    ):
+    ) -> Template:
         template_data = self.unit
         for container_file in container_files:
             template_data += 'ConditionPathExists={0}{1}'.format(

@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import TYPE_CHECKING, Dict, Literal, Union, overload
+from typing import TYPE_CHECKING, Dict, Literal, Optional, Union, overload
 
 
 from kiwi.exceptions import KiwiBootLoaderConfigSetupError
 
 if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.xml_state import XMLState
     from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
     from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
     from kiwi.bootloader.config.custom import BootLoaderConfigCustom
@@ -31,10 +32,10 @@ if TYPE_CHECKING:  # pragma: nocover
 def create_boot_loader_config(
     *,
     name: Literal["grub2"],
-    xml_state: object,
+    xml_state: "XMLState",
     root_dir: str,
-    boot_dir: str = None,
-    custom_args: Dict = None,
+    boot_dir: Optional[str] = None,
+    custom_args: Optional[Dict] = None,
 ) -> "BootLoaderConfigGrub2": ...  # pragma: nocover
 
 
@@ -42,10 +43,10 @@ def create_boot_loader_config(
 def create_boot_loader_config(
     *,
     name: Literal["grub2_s390x_emu"],
-    xml_state: object,
+    xml_state: "XMLState",
     root_dir: str,
-    boot_dir: str = None,
-    custom_args: Dict = None,
+    boot_dir: Optional[str] = None,
+    custom_args: Optional[Dict] = None,
 ) -> "BootLoaderConfigGrub2": ...  # pragma: nocover
 
 
@@ -53,10 +54,10 @@ def create_boot_loader_config(
 def create_boot_loader_config(
     *,
     name: Literal["systemd_boot"],
-    xml_state: object,
+    xml_state: "XMLState",
     root_dir: str,
-    boot_dir: str = None,
-    custom_args: Dict = None,
+    boot_dir: Optional[str] = None,
+    custom_args: Optional[Dict] = None,
 ) -> "BootLoaderSystemdBoot": ...  # pragma: nocover
 
 
@@ -64,10 +65,10 @@ def create_boot_loader_config(
 def create_boot_loader_config(
     *,
     name: Literal["zipl"],
-    xml_state: object,
+    xml_state: "XMLState",
     root_dir: str,
-    boot_dir: str = None,
-    custom_args: Dict = None,
+    boot_dir: Optional[str] = None,
+    custom_args: Optional[Dict] = None,
 ) -> "BootLoaderZipl": ...  # pragma: nocover
 
 
@@ -75,10 +76,10 @@ def create_boot_loader_config(
 def create_boot_loader_config(
     *,
     name: str,
-    xml_state: object,
+    xml_state: "XMLState",
     root_dir: str,
-    boot_dir: str = None,
-    custom_args: Dict = None,
+    boot_dir: Optional[str] = None,
+    custom_args: Optional[Dict] = None,
 ) -> (
     "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl]"
 ): ...  # pragma: nocover
@@ -87,11 +88,14 @@ def create_boot_loader_config(
 def create_boot_loader_config(
     *,
     name: str,
-    xml_state: object,
+    xml_state: "XMLState",
     root_dir: str,
-    boot_dir: str = None,
-    custom_args: Dict = None,
+    boot_dir: Optional[str] = None,
+    custom_args: Optional[Dict] = None,
 ) -> "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl, BootLoaderConfigCustom]":
+    # the loaders read their custom arguments from a dict
+    if custom_args is None:
+        custom_args = {}
 
     if name in ("grub2", "grub2_s390x_emu"):
         from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2

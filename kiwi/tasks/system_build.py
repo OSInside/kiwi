@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Any, List, Optional, Union
 import logging
 from itertools import zip_longest
 from urllib.parse import urlparse
@@ -33,7 +34,7 @@ from kiwi.path import Path
 
 from kiwi.exceptions import KiwiCATargetDistributionError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemBuildTask(CliTask):
@@ -46,7 +47,7 @@ class SystemBuildTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Build a system image from the specified description. The
         build command combines the prepare and create commands
@@ -277,15 +278,17 @@ class SystemBuildTask(CliTask):
         result.print_results()
         result.dump(os.sep.join([abs_target_dir_path, 'kiwi.result']))
 
-    def _help(self):
+    def _help(self) -> Union[bool, Help]:
         if self.command_args['help']:
             self.manual.show('kiwi::system::build')
         else:
             return False
         return self.manual
 
-    def _get_repo_parameters(self, tokens, credentials):
-        parameters = self.eleventuple_token(tokens)
+    def _get_repo_parameters(
+        self, tokens: str, credentials: Optional[str]
+    ) -> List[Any]:
+        parameters: List[Any] = self.eleventuple_token(tokens)
         signing_keys_index = 6
         repo_source_index = 0
         repo_type_index = 1

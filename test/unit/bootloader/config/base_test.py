@@ -385,6 +385,24 @@ class TestBootLoaderConfigBase:
     @patch('kiwi.bootloader.config.base.MountManager')
     @patch('kiwi.bootloader.config.base.SystemSetup')
     @patch('os.path.exists')
+    def test_mount_system_overlay_without_efi_device(
+        self, mock_os_path_exists, mock_SystemSetup, mock_MountManager
+    ):
+        # without an ESP etc/kernel is not mapped
+        mock_os_path_exists.return_value = True
+        mock_MountManager.return_value.mountpoint = 'root_mount_point'
+        bootloader = BootLoaderConfigTestImpl(self.state, 'root_dir')
+        bootloader.root_filesystem_is_overlay = True
+        bootloader._mount_system(None, 'rootdev', 'bootdev')
+        assert (
+            call(device=None, mountpoint='root_mount_point/etc/kernel')
+            not in mock_MountManager.call_args_list
+        )
+        assert bootloader.etc_kernel_mount is None
+
+    @patch('kiwi.bootloader.config.base.MountManager')
+    @patch('kiwi.bootloader.config.base.SystemSetup')
+    @patch('os.path.exists')
     def test_mount_system(
         self, mock_os_path_exists, mock_SystemSetup, mock_MountManager
     ):

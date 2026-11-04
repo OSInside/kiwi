@@ -19,7 +19,8 @@ import os
 import uuid
 import logging
 import binascii
-from typing import Optional
+from types import TracebackType
+from typing import Optional, Type
 
 # project
 from kiwi.runtime_config import RuntimeConfig
@@ -66,7 +67,7 @@ class LuksDevice(DeviceProvider):
             ]
         }
 
-    def __enter__(self):
+    def __enter__(self) -> "LuksDevice":
         return self
 
     def get_device(self) -> Optional[MappedDevice]:
@@ -84,8 +85,8 @@ class LuksDevice(DeviceProvider):
     def create_crypto_luks(
         self,
         passphrase: str,
-        osname: str = None,
-        options: list = None,
+        osname: Optional[str] = None,
+        options: Optional[list] = None,
         keyfile: str = '',
         randomize: bool = True,
         root_dir: str = '',
@@ -273,7 +274,12 @@ class LuksDevice(DeviceProvider):
         os.chmod(filename, 0o600)
         return random_data
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.luks_device:
             try:
                 Command.run(['cryptsetup', 'luksClose', self.luks_name])

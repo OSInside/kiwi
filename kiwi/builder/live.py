@@ -18,7 +18,7 @@
 from contextlib import ExitStack
 import os
 import logging
-from typing import Dict, List, Union
+from typing import Dict, List, Union, cast, Optional
 import shutil
 
 # project
@@ -30,7 +30,6 @@ from kiwi.utils.temporary import Temporary
 from kiwi.bootloader.config import create_boot_loader_config
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
-from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.filesystem.setup import FileSystemSetup
@@ -72,7 +71,7 @@ class LiveImageBuilder:
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ):
         self.bootloader = xml_state.get_build_type_bootloader_name()
         if self.bootloader != 'systemd_boot':
@@ -325,6 +324,8 @@ class LiveImageBuilder:
                         if self.root_filesystem_verity_blocks != 'all'
                         else None
                     )
+                    # set by create_verity_layer()
+                    assert live_container_image.veritysetup is not None
                     self._write_veritytab_to_boot_image(
                         container_image.name, live_container_image.veritysetup
                     )
@@ -368,6 +369,8 @@ class LiveImageBuilder:
                         if self.root_filesystem_verity_blocks != 'all'
                         else None
                     )
+                    # set by create_verity_layer()
+                    assert live_container_image.veritysetup is not None
                     self._write_veritytab_to_boot_image(
                         container_image.name, live_container_image.veritysetup
                     )
@@ -565,16 +568,23 @@ class LiveImageBuilder:
                 delete_after_include=True,
             )
 
-    def _create_bootloader_instance(self) -> BootLoaderConfigBase:
-        return create_boot_loader_config(
-            name=self.bootloader,
-            xml_state=self.xml_state,
-            root_dir=self.root_dir,
-            boot_dir=self.media_dir.name,
-            custom_args=(
-                Defaults.get_grub_custom_arguments(self.root_dir)
-                if self.bootloader.startswith('grub')
-                else {}
+    def _create_bootloader_instance(
+        self,
+    ) -> Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot]:
+        # ISO images boot with grub2 or systemd-boot only, any other
+        # bootloader name is turned into grub2, see __init__
+        return cast(
+            Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot],
+            create_boot_loader_config(
+                name=self.bootloader,
+                xml_state=self.xml_state,
+                root_dir=self.root_dir,
+                boot_dir=self.media_dir.name,
+                custom_args=(
+                    Defaults.get_grub_custom_arguments(self.root_dir)
+                    if self.bootloader.startswith('grub')
+                    else {}
+                ),
             ),
         )
 

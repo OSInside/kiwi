@@ -17,14 +17,17 @@
 #
 import os
 import logging
-from typing import Dict, List
+from types import TracebackType
+from typing import Any, Dict, List, Optional, Type
 
 # project
 import kiwi.defaults as defaults
+from kiwi.defaults import Defaults
 
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
 from kiwi.mount_manager import MountManager
+from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.base import FileSystemBase
@@ -40,7 +43,7 @@ class VolumeManagerLVM(VolumeManagerBase):
     **Implements LVM volume management**
     """
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict[str, Any]]) -> None:
         """
         Post initialization method
 
@@ -67,7 +70,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             'devices/external_device_info_source=none',
         ]
 
-    def get_device(self):
+    def get_device(self) -> Dict[str, DeviceProvider]:
         """
         Dictionary of MappedDevice instances per volume
 
@@ -77,7 +80,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         :rtype: dict
         """
-        device_map = {}
+        device_map: Dict[str, DeviceProvider] = {}
         for volume_name, volume_node in list(self.volume_map.items()):
             if self._is_root_volume(volume_name):
                 # root volume device takes precedence over the
@@ -94,15 +97,18 @@ class VolumeManagerLVM(VolumeManagerBase):
             )
         return device_map
 
-    def setup(self, volume_group_name='systemVG'):
+    def setup(self, volume_group_name: Optional[str] = None) -> None:
         """
         Setup lvm volume management
 
         In case of LVM a new volume group is created on a PV
         initialized storage device
 
-        :param str name: volume group name
+        :param str name: volume group name, the default name if not set
         """
+        volume_group_name = (
+            volume_group_name or Defaults.get_default_volume_group_name()
+        )
         self.setup_mountpoint()
 
         if self._volume_group_in_use_on_host_system(volume_group_name):
@@ -125,7 +131,9 @@ class VolumeManagerLVM(VolumeManagerBase):
         self.volume_group = volume_group_name
 
     @staticmethod
-    def _create_volume_no_zero(lvm_tool_options, lvcreate_args):
+    def _create_volume_no_zero(
+        lvm_tool_options: List[str], lvcreate_args: List[str]
+    ) -> None:
         """
         Create an LV using specified arguments to lvcreate
 
@@ -148,7 +156,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         log.debug('--> running "vgscan --mknodes" to create missing nodes')
         Command.run(['vgscan'] + lvm_tool_options + ['--mknodes'])
 
-    def create_volumes(self, filesystem_name):
+    def create_volumes(self, filesystem_name: str) -> None:
         """
         Create configured lvm volumes and filesystems
 
@@ -169,6 +177,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                 self.custom_args['resize_on_boot'],
             )
             log.info('--> volume %s with %s MB', volume.name, volume_mbsize)
+            assert self.volume_group is not None
             self._create_volume_no_zero(
                 self.lvm_tool_options,
                 [
@@ -190,6 +199,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         if canonical_volume_list.full_size_volume:
             full_size_volume = canonical_volume_list.full_size_volume
             log.info('--> fullsize volume %s', full_size_volume.name)
+            assert self.volume_group is not None
             self._create_volume_no_zero(
                 self.lvm_tool_options,
                 [
@@ -284,7 +294,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                 }
         return volumes
 
-    def mount_volumes(self):
+    def mount_volumes(self) -> None:
         """
         Mount lvm volumes
 
@@ -302,7 +312,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             Path.create(volume_mount.mountpoint)
             volume_mount.mount(options=mount_options)
 
-    def umount_volumes(self):
+    def umount_volumes(self) -> None:
         """
         Umount lvm volumes
         """
@@ -310,14 +320,21 @@ class VolumeManagerLVM(VolumeManagerBase):
             if volume_mount.is_mounted():
                 volume_mount.umount()
 
-    def _is_volume_enabled_for_fs_check(self, volume_name):
+    def _is_volume_enabled_for_fs_check(
+        self, volume_name: Optional[str]
+    ) -> bool:
         for volume in self.volumes:
             if volume_name == volume.name:
                 if 'enable-for-filesystem-check' in volume.attributes:
                     return True
         return False
 
-    def _create_filesystem(self, volume_name, volume_label, filesystem_name):
+    def _create_filesystem(
+        self,
+        volume_name: str,
+        volume_label: Optional[str],
+        filesystem_name: str,
+    ) -> None:
         device_node = self.volume_map[volume_name]
         if self._is_root_volume(volume_name) and not volume_label:
             # if there is no @root volume definition for the root volume,
@@ -333,8 +350,9 @@ class VolumeManagerLVM(VolumeManagerBase):
         ) as filesystem:
             filesystem.create_on_device(label=volume_label)
 
-    def _add_to_mount_list(self, volume_name, realpath):
+    def _add_to_mount_list(self, volume_name: str, realpath: str) -> None:
         device_node = self.volume_map[volume_name]
+        assert self.mountpoint is not None
         if self._is_root_volume(volume_name):
             # root volume must be first in the list
             self.mount_list.insert(
@@ -348,17 +366,21 @@ class VolumeManagerLVM(VolumeManagerBase):
                 )
             )
 
-    def _add_to_volume_map(self, volume_name):
+    def _add_to_volume_map(self, volume_name: str) -> None:
+        assert self.volume_group is not None
         self.volume_map[volume_name] = ''.join(
             ['/dev/', self.volume_group, '/', volume_name]
         )
 
-    def _get_volume_name_from_volume_map(self, device):
+    def _get_volume_name_from_volume_map(self, device: str) -> Optional[str]:
         for volume_name, volume_path in self.volume_map.items():
             if volume_path == device:
                 return volume_name
+        return None
 
-    def _volume_group_in_use_on_host_system(self, volume_group_name):
+    def _volume_group_in_use_on_host_system(
+        self, volume_group_name: str
+    ) -> bool:
         vgs_call = Command.run(
             [
                 'vgs',
@@ -376,17 +398,24 @@ class VolumeManagerLVM(VolumeManagerBase):
             # group name, it is considered to be not used
             return False
 
-    def _is_root_volume(self, volume_name):
+    def _is_root_volume(self, volume_name: Optional[str]) -> Optional[bool]:
         for volume in self.volumes:
             if volume_name == volume.name and volume.is_root_volume:
                 return True
+        return None
 
-    def _is_swap_volume(self, volume_name):
+    def _is_swap_volume(self, volume_name: str) -> Optional[bool]:
         for volume in self.volumes:
             if volume_name == volume.name and volume.label == 'SWAP':
                 return True
+        return None
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.volume_group:
             try:
                 self.umount_volumes()

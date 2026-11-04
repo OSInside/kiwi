@@ -6,6 +6,7 @@ import kiwi
 
 from ..test_helper import argv_kiwi_tests
 
+from kiwi.defaults import Defaults
 from kiwi.tasks.image_info import ImageInfoTask
 
 from collections import namedtuple, OrderedDict
@@ -239,6 +240,32 @@ class TestImageInfoTask:
             call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md', ''),
         ]
         mock_out.assert_called_once_with(self.result_info)
+
+    @patch('kiwi.tasks.image_info.DataOutput')
+    @patch('kiwi.tasks.image_info.SolverRepository.new')
+    @patch('kiwi.tasks.image_info.Uri')
+    @patch('kiwi.tasks.image_info.SolverRepositoryBase.get_repo_type')
+    def test_process_image_info_resolve_package_list_no_deb_arch(
+        self, mock_get_repo_type, mock_uri, mock_solver_repo_new, mock_out
+    ):
+        # without a Debian name for the architecture the machine
+        # name is used, as the solver does
+        Defaults.set_platform_name('s390x')
+        uri = Mock()
+        uri.uri = 'http://example.org/some/path'
+        mock_uri.return_value = uri
+        mock_get_repo_type.return_value = 'apt-deb'
+        self.solver.set_dist_type.return_value = None
+        self._init_command_args()
+        self.task.command_args['info'] = True
+        self.task.command_args['--resolve-package-list'] = True
+        self.task.process()
+        assert mock_uri.call_args_list[1] == call(
+            'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
+            'main/binary-s390x',
+            'apt-deb',
+            '',
+        )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     @patch('kiwi.tasks.image_info.DataOutput')

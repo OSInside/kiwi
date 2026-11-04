@@ -20,7 +20,7 @@ import logging
 import collections
 import pathlib
 import shutil
-from typing import Dict, List, MutableMapping, Optional
+from typing import Any, Dict, List, MutableMapping, Optional
 
 # project
 from kiwi.command import Command
@@ -68,7 +68,7 @@ class Path:
         return ordered_paths
 
     @staticmethod
-    def access(path: str, mode: int, **kwargs) -> bool:
+    def access(path: str, mode: int, **kwargs: Any) -> bool:
         """
         Check whether path can be accessed with the given mode.
 

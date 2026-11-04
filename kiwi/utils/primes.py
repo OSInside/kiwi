@@ -18,7 +18,7 @@
 
 import math
 
-from typing import List, Iterator
+from typing import List, Iterator, Optional
 
 # initial list of prime numbers which will be extended as much as required
 # and reused in next calls
@@ -57,7 +57,7 @@ def primes(number: int) -> Iterator[int]:
             break
 
 
-def factors(number: int, max_factor: int = None) -> Iterator[int]:
+def factors(number: int, max_factor: Optional[int] = None) -> Iterator[int]:
     _max = int(math.ceil(number**0.5))
     _max = min(_max, max_factor or _max)
     _number = number

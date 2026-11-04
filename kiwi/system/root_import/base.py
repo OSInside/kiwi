@@ -81,7 +81,7 @@ class RootImportBase:
 
         self.post_init(custom_args)
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict[str, str]) -> None:
         """
         Initialization of the specialized import class
 
@@ -160,7 +160,7 @@ class RootImportBase:
             Path.wipe(self.overlay.lower)
             Path.wipe(self.overlay.work)
 
-    def overlay_data(self):
+    def overlay_data(self) -> None:
         """
         Synchronize data from the given base image to the target root
         directory as an overlayfs mounted target.
@@ -169,7 +169,7 @@ class RootImportBase:
         """
         raise NotImplementedError
 
-    def sync_data(self):
+    def sync_data(self) -> None:
         """
         Synchronizes the root system of `image_file` into the root_dir
 
@@ -177,7 +177,7 @@ class RootImportBase:
         """
         raise NotImplementedError
 
-    def _make_checksum(self, image):
+    def _make_checksum(self, image: str) -> None:
         shasum = self.runtime_config.get_checksum_handler(
             source_filename=image,
             target_filename='{}{}'.format(

@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Any, List, Optional, Union
 import logging
 from itertools import zip_longest
 from urllib.parse import urlparse
@@ -44,7 +45,7 @@ class SystemPrepareTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Prepare and install a new system for chroot access
         """
@@ -241,15 +242,17 @@ class SystemPrepareTask(CliTask):
                 # delete any custom rpm macros created
                 system.clean_package_manager_leftovers()
 
-    def _help(self):
+    def _help(self) -> Union[bool, Help]:
         if self.command_args['help']:
             self.manual.show('kiwi::system::prepare')
         else:
             return False
         return self.manual
 
-    def _get_repo_parameters(self, tokens, credentials):
-        parameters = self.eleventuple_token(tokens)
+    def _get_repo_parameters(
+        self, tokens: str, credentials: Optional[str]
+    ) -> List[Any]:
+        parameters: List[Any] = self.eleventuple_token(tokens)
         signing_keys_index = 6
         repo_source_index = 0
         if not parameters[signing_keys_index]:

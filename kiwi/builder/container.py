@@ -17,7 +17,7 @@
 #
 import logging
 import os
-from typing import Dict
+from typing import Dict, Optional
 
 # project
 from kiwi.container import ContainerImage
@@ -49,7 +49,7 @@ class ContainerBuilder:
         xml_state: XMLState,
         target_dir: str,
         root_dir: str,
-        custom_args: Dict = None,
+        custom_args: Optional[Dict] = None,
     ):
         self.runtime_config = RuntimeConfig()
         self.custom_args = custom_args or {}
@@ -145,6 +145,8 @@ class ContainerBuilder:
                 source_filename=self.base_image
             )
             checksum = Checksum(self.base_image)
+            # the sha file is set along with the base image
+            assert self.base_image_sha is not None
             if not checksum.matches(shasum.digest(), self.base_image_sha):
                 raise KiwiContainerBuilderError(
                     'base image file {0} checksum validation failed'.format(

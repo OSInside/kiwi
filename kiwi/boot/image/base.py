@@ -131,7 +131,12 @@ class BootImageBase:
         """
         pass
 
-    def include_file(self, filename: str, install_media: bool = False) -> None:
+    def include_file(
+        self,
+        filename: str,
+        install_media: bool = False,
+        delete_after_include: bool = False,
+    ) -> None:
         """
         Include file to boot image
 
@@ -142,6 +147,9 @@ class BootImageBase:
         :param str filename: file path name
 
         :param bool install_media: include also for installation media initrd
+
+        :param bool delete_after_include:
+            delete the file from the boot root once it is included
         """
         pass
 

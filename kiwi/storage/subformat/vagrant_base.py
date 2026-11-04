@@ -71,7 +71,9 @@ class DiskFormatVagrantBase(DiskFormatBase):
 
     """
 
-    def post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]):
+    def post_init(
+        self, custom_args: Dict['str', xml_parse.vagrantconfig]
+    ) -> None:
         """
         vagrant disk format post initialization method
 
@@ -215,14 +217,14 @@ class DiskFormatVagrantBase(DiskFormatBase):
         """
         return ''
 
-    def _create_box_metadata(self):
+    def _create_box_metadata(self) -> str:
         metadata = self.get_additional_metadata() or {}
         metadata['provider'] = self.provider
         return json.dumps(
             metadata, sort_keys=True, indent=2, separators=(',', ': ')
         )
 
-    def _create_box_vagrantconfig(self):
+    def _create_box_vagrantconfig(self) -> str:
         template = VagrantConfigTemplate()
         return template.get_template(
             custom_settings=self.get_additional_vagrant_config_settings()

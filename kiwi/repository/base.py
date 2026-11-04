@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List, Dict
+from types import TracebackType
+from typing import List, Dict, Optional, Type
 
 from kiwi.system.root_bind import RootBind
 from kiwi.command import Command
@@ -40,7 +41,7 @@ class RepositoryBase:
 
         self.post_init(custom_args or [])
 
-    def __enter__(self):
+    def __enter__(self) -> 'RepositoryBase':
         return self
 
     def post_init(self, custom_args: List = []) -> None:
@@ -83,8 +84,8 @@ class RepositoryBase:
         repo_gpgcheck: bool,
         pkg_gpgcheck: bool,
         sourcetype: str,
-        customization_script: str = None,
-        architectures: str = None,
+        customization_script: Optional[str] = None,
+        architectures: Optional[str] = None,
     ) -> None:
         """
         Add repository
@@ -183,7 +184,7 @@ class RepositoryBase:
         raise NotImplementedError
 
     @staticmethod
-    def run_repo_customize(script_path: str, repo_file) -> None:
+    def run_repo_customize(script_path: str, repo_file: str) -> None:
         """
         Run an optional customization script
 
@@ -200,5 +201,10 @@ class RepositoryBase:
         """
         pass  # pragma: no cover
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         pass  # pragma: no cover

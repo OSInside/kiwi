@@ -17,10 +17,11 @@
 #
 # project
 import importlib
-from typing import List
+from typing import List, Optional
 from abc import ABCMeta, abstractmethod
 
 from kiwi.xml_state import XMLState
+from kiwi.boot.image.base import BootImageBase
 
 from kiwi.exceptions import KiwiBootImageSetupError
 
@@ -43,9 +44,9 @@ class BootImage(metaclass=ABCMeta):
     def new(
         xml_state: XMLState,
         target_dir: str,
-        root_dir: str = None,
-        signing_keys: List = None,
-    ):
+        root_dir: Optional[str] = None,
+        signing_keys: Optional[List[str]] = None,
+    ) -> BootImageBase:
         initrd_system = xml_state.get_initrd_system()
         name_map = {
             'kiwi': {'builtin_kiwi': 'BootImageKiwi'},

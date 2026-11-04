@@ -17,7 +17,7 @@
 #
 import importlib
 from abc import ABCMeta, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 from kiwi.container.base import ContainerImageBase
 from kiwi.exceptions import KiwiContainerImageSetupError
@@ -38,7 +38,7 @@ class ContainerImage(metaclass=ABCMeta):
 
     @staticmethod
     def new(
-        name: str, root_dir: str, custom_args: Dict = None
+        name: str, root_dir: str, custom_args: Optional[Dict] = None
     ) -> ContainerImageBase:  # noqa: E252
         name_map = {'docker': 'OCI', 'oci': 'OCI', 'appx': 'Appx', 'wsl': 'Wsl'}
         args_map = {

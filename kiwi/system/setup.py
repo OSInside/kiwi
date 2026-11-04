@@ -859,7 +859,7 @@ class SystemSetup:
         self._call_script(defaults.POST_PREPARE_OVERLAY_SCRIPT)
 
     def call_config_host_overlay_script(
-        self, working_directory: str = None
+        self, working_directory: Optional[str] = None
     ) -> None:
         """
         Call config-host-overlay.sh script _NON_ chrooted
@@ -877,7 +877,10 @@ class SystemSetup:
         self._call_script(defaults.PRE_CREATE_SCRIPT)
 
     def call_edit_boot_config_script(
-        self, filesystem: str, boot_part_id: int, working_directory: str = None
+        self,
+        filesystem: str,
+        boot_part_id: int,
+        working_directory: Optional[str] = None,
     ) -> None:
         """
         Call configured editbootconfig script _NON_ chrooted
@@ -899,7 +902,7 @@ class SystemSetup:
         self,
         diskname: str,
         boot_device_node: str,
-        working_directory: str = None,
+        working_directory: Optional[str] = None,
     ) -> None:
         """
         Call configured editbootinstall script _NON_ chrooted
@@ -1076,7 +1079,7 @@ class SystemSetup:
         user_realname: str = '',
         user_exists: bool = True,
         home_path: str = '',
-    ):
+    ) -> List[str]:
         options = []
         if password_format == 'plain':
             password = self._create_passwd_hash(password)
@@ -1108,7 +1111,7 @@ class SystemSetup:
                 options.append(home_path)
         return options
 
-    def _import_cdroot_archive(self):
+    def _import_cdroot_archive(self) -> None:
         glob_match = self.description_dir + '/config-cdroot.tar*'
         for cdroot_archive in sorted(glob.iglob(glob_match)):
             archive_file = os.path.join(
@@ -1122,11 +1125,11 @@ class SystemSetup:
             Command.run(['cp', cdroot_archive, archive_file + os.sep])
             break
 
-    def _import_custom_files(self):
+    def _import_custom_files(self) -> None:
         """
         Import custom file files
         """
-        file_list = []
+        file_list: List[str] = []
         system_files = self.xml_state.get_system_files()
         bootstrap_files = self.xml_state.get_bootstrap_files()
         if system_files:
@@ -1164,7 +1167,7 @@ class SystemSetup:
                     f'Specified file {file_file} does not exist'
                 )
 
-    def _import_custom_archives(self):
+    def _import_custom_archives(self) -> None:
         """
         Import custom tar archive files
         """
@@ -1206,7 +1209,7 @@ class SystemSetup:
                     'Specified archive {0} does not exist'.format(archive_file)
                 )
 
-    def _import_custom_scripts(self):
+    def _import_custom_scripts(self) -> None:
         """
         Import custom scripts
         """
@@ -1303,7 +1306,7 @@ class SystemSetup:
         option_list: List[str] = [],
         path_prefix: str = defaults.IMAGE_METADATA_DIR,
         root_is_mountpoint: bool = False,
-    ):
+    ) -> None:
         with ExitStack() as stack:
             script_path = os.path.join(self.root_dir, path_prefix, name)
             if os.path.exists(script_path):
@@ -1350,7 +1353,7 @@ class SystemSetup:
         name: str,
         option_list: List[str],
         working_directory: Optional[str],
-    ):
+    ) -> None:
         if not working_directory:
             working_directory = self.root_dir
         script_path = os.path.abspath(
@@ -1396,13 +1399,13 @@ class SystemSetup:
                     '{0} failed: {1}'.format(name, result.stderr)
                 )
 
-    def _create_passwd_hash(self, password):
+    def _create_passwd_hash(self, password: str) -> str:
         openssl = Command.run(
             ['openssl', 'passwd', '-1', '-salt', 'xyz', password]
         )
         return openssl.output[:-1]
 
-    def _preferences_lookup(self):
+    def _preferences_lookup(self) -> None:
         self.preferences = {}
         for preferences in self.xml_state.get_preferences_sections():
             timezone_section = preferences.get_timezone()
@@ -1415,8 +1418,11 @@ class SystemSetup:
             if keytable_section:
                 self.preferences['keytable'] = keytable_section[0]
 
-    def _oemconfig_lookup(self):
-        self.oemconfig = {'recovery_inplace': False, 'recovery': False}
+    def _oemconfig_lookup(self) -> None:
+        self.oemconfig: Dict[str, Optional[bool]] = {
+            'recovery_inplace': False,
+            'recovery': False,
+        }
         oemconfig = self.xml_state.get_build_type_oemconfig_section()
         if oemconfig:
             self.oemconfig['recovery'] = self._text(
@@ -1426,15 +1432,16 @@ class SystemSetup:
                 oemconfig.get_oem_inplace_recovery()
             )
 
-    def _text(self, section_content):
+    def _text(self, section_content: List[bool]) -> Optional[bool]:
         """
         Helper method to return the text for XML elements of the
         following structure: <section>text</section>.
         """
         if section_content:
             return section_content[0]
+        return None
 
-    def _export_rpm_flake_pilot_system_file_list(self, filename):
+    def _export_rpm_flake_pilot_system_file_list(self, filename: str) -> None:
         log.info('Export rpm system files script for flake-pilot')
         dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         skip_list = self.xml_state.get_system_files_ignore_packages()
@@ -1448,7 +1455,7 @@ class SystemSetup:
                 if package not in skip_list:
                     systemfiles.write(f'rpm --noghost -ql {package}\n')
 
-    def _export_rpm_package_list(self, filename):
+    def _export_rpm_package_list(self, filename: str) -> None:
         log.info('Export rpm packages metadata')
         dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         query_call = Command.run(
@@ -1479,7 +1486,7 @@ class SystemSetup:
             )
             packages.write(os.linesep)
 
-    def _export_deb_package_list(self, filename):
+    def _export_deb_package_list(self, filename: str) -> None:
         log.info('Export deb packages metadata')
         query_call = Command.run(
             [
@@ -1508,7 +1515,7 @@ class SystemSetup:
             )
             packages.write(os.linesep)
 
-    def _export_pacman_package_list(self, filename):
+    def _export_pacman_package_list(self, filename: str) -> None:
         log.info('Export pacman packages metadata')
         query_call = Command.run(
             [
@@ -1530,7 +1537,7 @@ class SystemSetup:
                     ]
                 )
 
-    def _export_rpm_package_changes(self, filename):
+    def _export_rpm_package_changes(self, filename: str) -> None:
         log.info('Export rpm packages changelog metadata')
         dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         query_call = Command.run(
@@ -1548,7 +1555,7 @@ class SystemSetup:
         with open(filename, 'w', encoding='utf-8') as changelog:
             changelog.write(query_call.output)
 
-    def _export_deb_package_changes(self, filename):
+    def _export_deb_package_changes(self, filename: str) -> None:
         log.info('Export deb packages changelog metadata')
         package_doc_dir = os.sep.join([self.root_dir, '/usr/share/doc'])
         with open(filename, 'w', encoding='utf-8') as changelog:
@@ -1567,7 +1574,7 @@ class SystemSetup:
                         )
                     )
 
-    def _export_rpm_package_verification(self, filename):
+    def _export_rpm_package_verification(self, filename: str) -> None:
         log.info('Export rpm verification metadata')
         dbpath_option = ['--dbpath', self._get_rpm_database_location()]
         query_call = Command.run(
@@ -1577,7 +1584,7 @@ class SystemSetup:
         with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
 
-    def _export_deb_package_verification(self, filename):
+    def _export_deb_package_verification(self, filename: str) -> None:
         log.info('Export deb verification metadata')
         query_call = Command.run(
             command=[
@@ -1593,7 +1600,7 @@ class SystemSetup:
         with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
 
-    def _get_rpm_database_location(self):
+    def _get_rpm_database_location(self) -> str:
         shared_mount = MountManager(
             device='/dev', mountpoint=self.root_dir + '/dev'
         )
@@ -1649,11 +1656,11 @@ class SystemSetup:
 
     def _sync_overlay_files(
         self,
-        overlay_directory,
-        follow_links=False,
-        preserve_owner_group=False,
-        profile=None,
-    ):
+        overlay_directory: str,
+        follow_links: bool = False,
+        preserve_owner_group: bool = False,
+        profile: Optional[str] = None,
+    ) -> None:
         log.info(
             'Copying user defined {0} to image tree'.format(
                 'files for profile: {0}'.format(profile) if profile else 'files'

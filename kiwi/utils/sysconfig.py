@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Dict, List, Optional, Union
 
 
 class SysConfig:
@@ -25,27 +26,28 @@ class SysConfig:
     :param str source_file: source file path
     """
 
-    def __init__(self, source_file):
+    def __init__(self, source_file: str) -> None:
         self.source_file = source_file
-        self.data_dict = {}
-        self.data_list = []
+        self.data_dict: Dict[str, str] = {}
+        self.data_list: List[str] = []
         self._read()
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Union[str, int]) -> None:
+        # values are written to the file in their string format
         if key not in self.data_dict:
             self.data_list.append(key)
-        self.data_dict[key] = value
+        self.data_dict[key] = format(value)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> str:
         return self.data_dict[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         return key in self.data_dict
 
-    def get(self, key):
+    def get(self, key: str) -> Optional[str]:
         return self.data_dict.get(key)
 
-    def write(self):
+    def write(self) -> None:
         """
         Write back source file with changed content but in same order
         """
@@ -60,7 +62,7 @@ class SysConfig:
 
                 source.write(os.linesep)
 
-    def _read(self):
+    def _read(self) -> None:
         """
         Read file into a list and a key/value dictionary
 

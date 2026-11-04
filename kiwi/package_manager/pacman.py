@@ -110,7 +110,9 @@ class PackageManagerPacman(PackageManagerBase):
         pass
 
     def process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, bootstrap_package: str = None
+        self,
+        root_bind: Optional[RootBind] = None,
+        bootstrap_package: Optional[str] = None,
     ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)

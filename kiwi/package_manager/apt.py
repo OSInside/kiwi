@@ -20,7 +20,7 @@ import os
 import glob
 import logging
 import pathlib
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # project
 from kiwi.command import CommandCallT
@@ -125,7 +125,9 @@ class PackageManagerApt(PackageManagerBase):
         pass
 
     def process_install_requests_bootstrap(
-        self, root_bind: RootBind = None, bootstrap_package: str = None
+        self,
+        root_bind: Optional[RootBind] = None,
+        bootstrap_package: Optional[str] = None,
     ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
@@ -411,7 +413,9 @@ class PackageManagerApt(PackageManagerBase):
 
         return Command.call(apt_get_command, self.command_env)
 
-    def post_process_delete_requests(self, root_bind: RootBind = None) -> None:
+    def post_process_delete_requests(
+        self, root_bind: Optional[RootBind] = None
+    ) -> None:
         """
         Revert system changes done prior deleting packages
 
@@ -523,7 +527,7 @@ class PackageManagerApt(PackageManagerBase):
         solved_debootstrap_packages: List[str],
         only_for: List[str] = [],
         skip: List[str] = [],
-    ):
+    ) -> None:
         # TODO: this should not be needed but without setting
         # the following environment variables no package pre/post
         # script completes its task. I leave it up to the Debian

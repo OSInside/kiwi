@@ -16,10 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict, List
+from typing import Dict, List, Optional
 from abc import ABCMeta, abstractmethod
 
 # project
+from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.exceptions import KiwiVolumeManagerSetupError
 
 
@@ -45,8 +46,8 @@ class VolumeManager(metaclass=ABCMeta):
         device_map: object,
         root_dir: str,
         volumes: List,
-        custom_args: Dict = None,
-    ):
+        custom_args: Optional[Dict] = None,
+    ) -> VolumeManagerBase:
         name_map = {'lvm': 'LVM', 'btrfs': 'Btrfs'}
         try:
             volume_manager = importlib.import_module(

@@ -489,3 +489,9 @@ class TestVolumeManagerLVM:
             + self.volume_manager.lvm_tool_options
             + ['-an', 'volume_group']
         )
+
+    def test_get_volume_name_from_volume_map_not_found(self):
+        assert (
+            self.volume_manager._get_volume_name_from_volume_map('/dev/unknown')
+            is None
+        )

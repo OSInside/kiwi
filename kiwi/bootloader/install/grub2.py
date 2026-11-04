@@ -20,14 +20,17 @@ import re
 import shutil
 import logging
 from contextlib import ExitStack
+from typing import Dict, List, Literal, Optional, overload
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
 from kiwi.command import Command
 from kiwi.defaults import Defaults
+from kiwi.firmware import FirmWare
 from kiwi.mount_manager import MountManager
 from kiwi.system.setup import SystemSetup
 from kiwi.path import Path
+from kiwi.storage.disk import ptable_entry_type
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubInstallError,
@@ -44,7 +47,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     **grub2 bootloader installation**
     """
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Optional[Dict]) -> None:
         """
         grub2 post initialization method
 
@@ -66,16 +69,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         """
         self.arch = Defaults.get_platform_name()
         self.custom_args = custom_args
-        self.install_arguments = []
-        self.shim_install_arguments = []
-        self.firmware = None
-        self.root_mount = None
-        self.sysfs_mount = None
-        self.volumes = None
-        self.partitions = None
-        self.root_volume_name = None
-        self.target_removable = None
-        self.device_map = None
+        self.install_arguments: List[str] = []
+        self.shim_install_arguments: List[str] = []
+        self.firmware: Optional[FirmWare] = None
+        self.root_mount: Optional[MountManager] = None
+        self.sysfs_mount: Optional[MountManager] = None
+        self.volumes: Optional[Dict] = None
+        self.partitions: Optional[Dict[str, ptable_entry_type]] = None
+        self.root_volume_name: Optional[str] = None
+        self.target_removable: Optional[bool] = None
+        self.device_map: Optional[Dict] = None
         if custom_args and 'target_removable' in custom_args:
             self.target_removable = custom_args['target_removable']
         if custom_args and 'system_volumes' in custom_args:
@@ -107,7 +110,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'root device name required for grub2 installation'
             )
 
-    def install_required(self):
+    def install_required(self) -> bool:
         """
         Check if grub2 has to be installed
 
@@ -118,6 +121,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
         :rtype: bool
         """
+        # the firmware is passed along by the disk builder
+        assert self.firmware is not None
         if 'ppc64' in self.arch and self.firmware.opal_mode():
             # OPAL doesn't need a grub2 stage1, just a config file.
             # The machine will be setup to kexec grub2 in user space
@@ -142,7 +147,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             return False
         return True
 
-    def install(self):
+    def install(self) -> None:
         """
         Install bootloader on disk device
         """
@@ -181,6 +186,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
         with ExitStack() as stack:
             self._mount_device_and_volumes(stack)
+            assert self.root_mount is not None
+            assert self.sysfs_mount is not None
 
             # check if a grub installation could be found in the image system
             module_directory = Defaults.get_grub_path(
@@ -197,7 +204,9 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             )
             boot_directory = '/boot'
 
-            # install grub2 boot code
+            # install grub2 boot code, the firmware is passed
+            # along by the disk builder
+            assert self.firmware is not None
             if self.firmware.get_partition_table_type() == 'dasd':
                 # On s390 and in CDL mode (4k DASD) the call of grub2-install
                 # does not work because grub2-install is not able to identify
@@ -266,7 +275,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             setup = SystemSetup(self.xml_state, self.root_mount.mountpoint)
             setup.setup_selinux_file_contexts()
 
-    def secure_boot_install(self):
+    def secure_boot_install(self) -> None:
         if (
             self.firmware
             and self.firmware.efi_mode() == 'uefi'
@@ -278,6 +287,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         ):
             with ExitStack() as stack:
                 self._mount_device_and_volumes(stack)
+                assert self.root_mount is not None
                 shim_install = self._get_shim_install_tool_name(
                     self.root_mount.mountpoint
                 )
@@ -308,7 +318,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         # restore the grub installer noop
                         self._enable_grub2_install(self.root_mount.mountpoint)
 
-    def set_disk_password(self, password: str):
+    def set_disk_password(self, password: str) -> None:
         with ExitStack() as stack:
             self._mount_device_and_volumes(stack)
             if self.root_mount and password is not None:
@@ -332,7 +342,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         f'Failed to open {config_file}: {issue}'
                     )
 
-    def _mount_device_and_volumes(self, stack: ExitStack):
+    def _mount_device_and_volumes(self, stack: ExitStack) -> None:
+        assert self.custom_args is not None
         self.root_mount = MountManager(device=self.custom_args['root_device'])
         stack.push(self.root_mount)
         custom_root_mount_args = []
@@ -383,6 +394,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     options=[self.volumes[volume_path]['volume_options']]
                 )
         if self.partitions:
+            # the partitions are mounted from the given device map
+            assert self.device_map is not None
             for map_name in sorted(self.partitions.keys()):
                 if map_name in self.device_map:
                     partition_mount = MountManager(
@@ -412,7 +425,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         stack.push(self.sysfs_mount)
         self.sysfs_mount.bind_mount()
 
-    def _disable_grub2_install(self, root_path):
+    def _disable_grub2_install(self, root_path: str) -> None:
         if os.access(root_path, os.W_OK):
             grub2_install = ''.join(
                 ['/usr/sbin/', self._get_grub2_install_tool_name(root_path)]
@@ -428,7 +441,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 os.path.normpath(f'{root_path}/{grub2_install}'),
             )
 
-    def _enable_grub2_install(self, root_path):
+    def _enable_grub2_install(self, root_path: str) -> None:
         if os.access(root_path, os.W_OK):
             grub2_install = ''.join(
                 ['/usr/sbin/', self._get_grub2_install_tool_name(root_path)]
@@ -445,19 +458,38 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     ]
                 )
 
-    def _get_grub2_install_tool_name(self, root_path):
+    def _get_grub2_install_tool_name(self, root_path: str) -> str:
         return self._get_tool_name(
             root_path, lookup_list=['grub2-install', 'grub-install']
         )
 
-    def _get_shim_install_tool_name(self, root_path):
+    def _get_shim_install_tool_name(self, root_path: str) -> Optional[str]:
         return self._get_tool_name(
             root_path, lookup_list=['shim-install'], fallback_on_not_found=False
         )
 
+    @overload
     def _get_tool_name(
-        self, root_path, lookup_list, fallback_on_not_found=True
-    ):
+        self,
+        root_path: str,
+        lookup_list: List[str],
+        fallback_on_not_found: Literal[True] = True,
+    ) -> str: ...  # pragma: nocover
+
+    @overload
+    def _get_tool_name(
+        self,
+        root_path: str,
+        lookup_list: List[str],
+        fallback_on_not_found: Literal[False],
+    ) -> Optional[str]: ...  # pragma: nocover
+
+    def _get_tool_name(
+        self,
+        root_path: str,
+        lookup_list: List[str],
+        fallback_on_not_found: bool = True,
+    ) -> Optional[str]:
         for tool in lookup_list:
             if Path.which(filename=tool, root_dir=root_path):
                 return tool
@@ -468,3 +500,4 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             # an exception at invocation time in order to log the
             # expected call and its arguments
             return lookup_list[0]
+        return None

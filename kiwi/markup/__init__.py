@@ -20,6 +20,7 @@ from abc import ABCMeta, abstractmethod
 import logging
 
 # project
+from kiwi.markup.base import MarkupBase
 from kiwi.exceptions import KiwiAnyMarkupPluginError
 
 log = logging.getLogger('kiwi')
@@ -37,7 +38,7 @@ class Markup(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(description: str, name: str = 'any'):  # noqa: E252
+    def new(description: str, name: str = 'any') -> MarkupBase:  # noqa: E252
         try:
             markup = Markup._load_markup_by_name(name, description)
             log.info('Support for multiple markup descriptions available')
@@ -47,7 +48,7 @@ class Markup(metaclass=ABCMeta):
         return markup
 
     @staticmethod
-    def _load_markup_by_name(name, description):
+    def _load_markup_by_name(name: str, description: str) -> MarkupBase:
         name_map = {'any': 'Any', 'xml': 'XML'}
         markup = importlib.import_module('kiwi.markup.{0}'.format(name))
         return markup.__dict__['Markup{0}'.format(name_map[name])](description)

@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
@@ -66,7 +66,9 @@ class SystemSize:
 
         return int(size)
 
-    def accumulate_mbyte_file_sizes(self, exclude: List[str] = None) -> int:
+    def accumulate_mbyte_file_sizes(
+        self, exclude: Optional[List[str]] = None
+    ) -> int:
         """
         Calculate data size of all data in the source tree
 

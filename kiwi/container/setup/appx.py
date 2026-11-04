@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import List, Optional, cast
 from lxml import etree
 from xml.dom import minidom
 
@@ -30,13 +31,16 @@ class ContainerSetupAppx(ContainerSetupBase):
     WSL/Appx container setup
     """
 
-    def setup(self):
+    def setup(self) -> None:
         """
         Setup container metadata
         """
         self.appx_at_microsoft = 'http://schemas.microsoft.com/appx'
         self.appx_manifest_file = os.sep.join(
-            [self.custom_args.get('metadata_path'), 'AppxManifest.xml']
+            [
+                cast(str, self.custom_args.get('metadata_path')),
+                'AppxManifest.xml',
+            ]
         )
         self.appx_namespace_map = dict(
             wsl='{0}/manifest/foundation/windows10'.format(
@@ -74,7 +78,7 @@ class ContainerSetupAppx(ContainerSetupBase):
                 'Failed to update Appx Manifest: {0}'.format(issue)
             )
 
-    def _update_identity(self):
+    def _update_identity(self) -> None:
         identities = self._get_xpath('//wsl:Identity')
         history = self.custom_args.get('history') or {}
         for identity in identities:
@@ -88,7 +92,7 @@ class ContainerSetupAppx(ContainerSetupBase):
             if history.get('created_by'):
                 identity.set('Publisher', history.get('created_by'))
 
-    def _update_desktop_visual(self):
+    def _update_desktop_visual(self) -> None:
         history = self.custom_args.get('history') or {}
         visuals = self._get_xpath(
             '//wsl:Applications/wsl:Application/uap:VisualElements'
@@ -97,7 +101,7 @@ class ContainerSetupAppx(ContainerSetupBase):
             if history.get('comment'):
                 visual.set('Description', history.get('comment'))
 
-    def _update_application_metadata(self):
+    def _update_application_metadata(self) -> None:
         history = self.custom_args.get('history') or {}
         applications = self._get_xpath('//wsl:Applications/wsl:Application')
         extensions = self._get_xpath(
@@ -121,11 +125,11 @@ class ContainerSetupAppx(ContainerSetupBase):
             if history.get('launcher'):
                 alias.set('Alias', history.get('launcher'))
 
-    def _get_xpath(self, expression):
+    def _get_xpath(self, expression: str) -> List[etree._Element]:
         return self.appx_manifest.getroot().xpath(
             expression, namespaces=self.appx_namespace_map
         )
 
-    def _get_microsoft_processor_architecture(self):
+    def _get_microsoft_processor_architecture(self) -> Optional[str]:
         windows = {'x86_64': 'x64'}
         return windows.get(Defaults.get_platform_name())

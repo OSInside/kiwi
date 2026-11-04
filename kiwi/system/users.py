@@ -108,7 +108,7 @@ class Users:
             ['chroot', self.root_dir, 'chown', '-R', user_and_group, home_path]
         )
 
-    def _search_for(self, name, in_file):
+    def _search_for(self, name: str, in_file: str) -> bool:
         search = '^' + name + ':'
         try:
             Command.run(

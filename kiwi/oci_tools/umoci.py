@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Any, List, Mapping, Optional
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -31,7 +32,7 @@ class OCIUmoci(OCIBase):
     **Open Container Operations using umoci**
     """
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Initializes some umoci parameters and options
         """
@@ -48,7 +49,7 @@ class OCIUmoci(OCIBase):
         else:
             self.no_history_flag = []
 
-    def import_container_image(self, container_image_ref):
+    def import_container_image(self, container_image_ref: str) -> None:
         """
         Imports container image reference to an OCI layout
 
@@ -71,8 +72,12 @@ class OCIUmoci(OCIBase):
         )
 
     def export_container_image(
-        self, filename, transport, image_ref, additional_names=None
-    ):
+        self,
+        filename: str,
+        transport: str,
+        image_ref: str,
+        additional_names: Optional[List[str]] = None,
+    ) -> None:
         """
         Exports the working container to a container image archive
 
@@ -105,7 +110,7 @@ class OCIUmoci(OCIBase):
             )
         )
 
-    def init_container(self):
+    def init_container(self) -> None:
         """
         Initialize a new container layout
 
@@ -114,7 +119,7 @@ class OCIUmoci(OCIBase):
         Command.run(['umoci', 'init', '--layout', self.container_dir])
         Command.run(['umoci', 'new', '--image', self.working_image])
 
-    def unpack(self):
+    def unpack(self) -> None:
         """
         Unpack current container root data
         """
@@ -132,13 +137,16 @@ class OCIUmoci(OCIBase):
             ]
         )
 
-    def sync_rootfs(self, root_dir, exclude_list=None):
+    def sync_rootfs(
+        self, root_dir: str, exclude_list: Optional[List[str]] = None
+    ) -> None:
         """
         Synchronizes the image root with the rootfs of the container
 
         :param string root_dir: root directory of the prepare step
         :param list exclude_list: list of paths to exclude
         """
+        assert self.oci_root_dir
         self._sync_data(
             ''.join([root_dir, os.sep]),
             os.sep.join([self.oci_root_dir, 'rootfs']),
@@ -146,13 +154,16 @@ class OCIUmoci(OCIBase):
             options=Defaults.get_sync_options() + ['--delete'],
         )
 
-    def import_rootfs(self, root_dir, exclude_list=None):
+    def import_rootfs(
+        self, root_dir: str, exclude_list: Optional[List[str]] = None
+    ) -> None:
         """
         Synchronizes the container rootfs with the root tree of the build
 
         :param string root_dir: root directory used in prepare step
         :param list exclude_list: list of paths to exclude
         """
+        assert self.oci_root_dir
         self._sync_data(
             os.sep.join([self.oci_root_dir, 'rootfs', '']),
             root_dir,
@@ -160,12 +171,13 @@ class OCIUmoci(OCIBase):
             options=Defaults.get_sync_options(),
         )
 
-    def repack(self, oci_config):
+    def repack(self, oci_config: Mapping[str, Any]) -> None:
         """
         Pack root data directory into container image
 
         :param list oci_config: meta data list
         """
+        assert self.oci_root_dir
         history_flags = self._process_oci_history_to_arguments(oci_config)
         history_flags.extend(['--history.created', self.creation_date])
         Command.run(
@@ -174,7 +186,7 @@ class OCIUmoci(OCIBase):
             + ['--image', self.working_image, self.oci_root_dir]
         )
 
-    def set_config(self, oci_config):
+    def set_config(self, oci_config: Mapping[str, Any]) -> None:
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container.
@@ -200,7 +212,9 @@ class OCIUmoci(OCIBase):
         )
 
     @staticmethod
-    def _process_oci_config_to_arguments(oci_config):
+    def _process_oci_config_to_arguments(
+        oci_config: Mapping[str, Any],
+    ) -> List[str]:
         """
         Process the oci configuration dictionary into a list of arguments
         for the 'umoci config' command
@@ -269,7 +283,9 @@ class OCIUmoci(OCIBase):
         return arguments
 
     @staticmethod
-    def _process_oci_history_to_arguments(oci_config):
+    def _process_oci_history_to_arguments(
+        oci_config: Mapping[str, Any],
+    ) -> List[str]:
         history_args = []
         if 'history' in oci_config:
             if 'comment' in oci_config['history']:
@@ -292,7 +308,7 @@ class OCIUmoci(OCIBase):
                 )
         return history_args
 
-    def post_process(self):
+    def post_process(self) -> None:
         """
         Cleanup unused data from operations
         """

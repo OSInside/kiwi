@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Optional
+
 # project
 import kiwi.defaults as defaults
 
@@ -38,11 +40,11 @@ class FileSystemXfs(FileSystemBase):
 
     def create_on_device(
         self,
-        label: str = None,
+        label: Optional[str] = None,
         size: int = 0,
         unit: str = defaults.UNIT.kb,
-        uuid: str = None,
-    ):
+        uuid: Optional[str] = None,
+    ) -> None:
         """
         Create xfs filesystem on block device
 
@@ -90,7 +92,7 @@ class FileSystemXfs(FileSystemBase):
         # non-zero writes throughout the log and sidesteps the problem.
         Command.run(['xfs_db', '-x', '-c', 'logformat -c 2', device])
 
-    def set_uuid(self):
+    def set_uuid(self) -> None:
         """
         Create new random filesystem UUID
         """

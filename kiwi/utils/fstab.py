@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Optional
 import logging
 import os
 
@@ -43,8 +43,8 @@ class Fstab:
     **Managing fstab values**
     """
 
-    def __init__(self):
-        self.fstab = []
+    def __init__(self) -> None:
+        self.fstab: List[fstab_entry_type] = []
 
     def read(self, filename: str) -> None:
         """
@@ -92,7 +92,7 @@ class Fstab:
                 entry = fstab_entries_by_path[device_path]
                 fstab.write(self._file_entry(entry) + os.linesep)
 
-    def _file_entry(self, entry):
+    def _file_entry(self, entry: fstab_entry_type) -> str:
         return '{0} {1} {2} {3} {4} {5}'.format(
             entry.device_spec,
             entry.mountpoint,
@@ -102,7 +102,7 @@ class Fstab:
             entry.fs_passno,
         )
 
-    def _parse_entry(self, line):
+    def _parse_entry(self, line: str) -> Optional[fstab_entry_type]:
         data_record = line.split()
         if (
             data_record
@@ -139,3 +139,4 @@ class Fstab:
                 dump=dump,
                 fs_passno=fs_passno,
             )
+        return None

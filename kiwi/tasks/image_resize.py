@@ -42,7 +42,7 @@ class ImageResizeTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         reformats raw disk image and its format to a new disk
         geometry using the qemu tool chain

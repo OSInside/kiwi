@@ -19,6 +19,8 @@ import os
 import logging
 import time
 import pathlib
+from types import TracebackType
+from typing import Optional, Type
 
 # project
 from kiwi.command import Command
@@ -47,8 +49,8 @@ class LoopDevice(DeviceProvider):
     def __init__(
         self,
         filename: str,
-        filesize_mbytes: int = None,
-        blocksize_bytes: int = None,
+        filesize_mbytes: Optional[int] = None,
+        blocksize_bytes: Optional[int] = None,
     ):
         self.node_name = ''
         if not os.path.exists(filename) and not filesize_mbytes:
@@ -57,7 +59,7 @@ class LoopDevice(DeviceProvider):
         self.filesize_mbytes = filesize_mbytes
         self.blocksize_bytes = blocksize_bytes
 
-    def __enter__(self):
+    def __enter__(self) -> "LoopDevice":
         return self
 
     def get_device(self) -> str:
@@ -80,7 +82,7 @@ class LoopDevice(DeviceProvider):
         """
         return True
 
-    def create(self, overwrite: bool = True):
+    def create(self, overwrite: bool = True) -> None:
         """
         Setup a loop device of the blocksize given in the constructor
         The file to loop is created with the size specified in the
@@ -105,7 +107,12 @@ class LoopDevice(DeviceProvider):
         )
         self.node_name = loop_call.output.rstrip(os.linesep)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.node_name:
             try:
                 Command.run(['losetup', '-d', self.node_name])

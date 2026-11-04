@@ -103,6 +103,22 @@ class TestSolverRepositoryBase:
     @patch('kiwi.solver.repository.base.Temporary.new_file')
     @patch.object(SolverRepositoryBase, 'download_from_repository')
     @patch('os.path.isfile')
+    def test__get_packages_not_downloaded(
+        self, mock_os_isfile, mock_download, mock_tmpfile
+    ):
+        # nothing is provided if the download did not produce a file
+        mock_os_isfile.return_value = False
+        mock_tmpfile.return_value.name = 'tmpfile'
+        assert self.solver._get_pacman_packages() is None
+        assert self.solver._get_deb_packages() is None
+
+    def test__merge_solvables_without_solvables(self):
+        self.solver.repository_solvable_dir = None
+        assert self.solver._merge_solvables('target_dir') is None
+
+    @patch('kiwi.solver.repository.base.Temporary.new_file')
+    @patch.object(SolverRepositoryBase, 'download_from_repository')
+    @patch('os.path.isfile')
     def test__get_deb_packages(
         self, mock_os_isfile, mock_download, mock_tmpfile
     ):
@@ -199,7 +215,7 @@ class TestSolverRepositoryBase:
         mock_urlopen.assert_called_once_with(request)
         mock_request.assert_called_once_with('http://myrepo/file/repodata/file')
         request.add_header.assert_called_once_with(
-            'Authorization', b'Basic dXNlcjpzZWNyZXQ='
+            'Authorization', 'Basic dXNlcjpzZWNyZXQ='
         )
         m_open.assert_called_once_with('target-file', 'wb')
         m_open.return_value.write.assert_called_once_with('data-from-network')

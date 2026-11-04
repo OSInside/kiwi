@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import Union
 import logging
 
 # project
@@ -36,7 +37,7 @@ class ResultListTask(CliTask):
         Instance of Help
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         List result information from a previous system command
         """
@@ -46,10 +47,10 @@ class ResultListTask(CliTask):
 
         result_directory = os.path.abspath(self.command_args['--target-dir'])
         log.info('Listing results from %s', result_directory)
-        result = Result.load(result_directory + '/kiwi.result')
+        result: Result = Result.load(result_directory + '/kiwi.result')
         result.print_results()
 
-    def _help(self):
+    def _help(self) -> Union[bool, Help]:
         if self.command_args['help']:
             self.manual.show('kiwi::result::list')
         else:

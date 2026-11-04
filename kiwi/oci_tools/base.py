@@ -17,6 +17,8 @@
 #
 import os
 from datetime import datetime, timezone
+from types import TracebackType
+from typing import Any, List, Mapping, Optional, Type
 
 # project
 from kiwi.path import Path
@@ -37,8 +39,8 @@ class OCIBase:
     linux distribution no matter what tooling was preferred
     """
 
-    def __init__(self):
-        self.oci_root_dir = None
+    def __init__(self) -> None:
+        self.oci_root_dir: Optional[str] = None
         sde = os.environ.get('SOURCE_DATE_EPOCH')
         if sde:
             self.creation_date = datetime.fromtimestamp(
@@ -50,10 +52,10 @@ class OCIBase:
             )
         self.post_init()
 
-    def __enter__(self):
+    def __enter__(self) -> 'OCIBase':
         return self
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -61,7 +63,7 @@ class OCIBase:
         """
         pass
 
-    def import_container_image(self, container_image_ref):
+    def import_container_image(self, container_image_ref: str) -> None:
         """
         Imports container image reference to a working space
 
@@ -72,8 +74,12 @@ class OCIBase:
         raise NotImplementedError
 
     def export_container_image(
-        self, filename, transport, image_ref, additional_refs=None
-    ):
+        self,
+        filename: str,
+        transport: str,
+        image_ref: str,
+        additional_refs: Optional[List[str]] = None,
+    ) -> None:
         """
         Exports the working container to a container image archive
 
@@ -86,7 +92,7 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def init_container(self):
+    def init_container(self) -> None:
         """
         Initialize a new container
 
@@ -94,7 +100,7 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def unpack(self):
+    def unpack(self) -> None:
         """
         Unpack current container root data
 
@@ -102,7 +108,9 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def sync_rootfs(self, root_dir, exclude_list=None):
+    def sync_rootfs(
+        self, root_dir: str, exclude_list: Optional[List[str]] = None
+    ) -> None:
         """
         Synchronizes the image root with the rootfs of the container
 
@@ -113,7 +121,9 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def import_rootfs(self, root_dir, exclude_list=None):
+    def import_rootfs(
+        self, root_dir: str, exclude_list: Optional[List[str]] = None
+    ) -> None:
         """
         Synchronizes the container rootfs with the root tree of the build
 
@@ -124,7 +134,7 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def repack(self, oci_config):
+    def repack(self, oci_config: Mapping[str, Any]) -> None:
         """
         Pack root data directory into container image
 
@@ -134,7 +144,7 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def set_config(self, oci_config):
+    def set_config(self, oci_config: Mapping[str, Any]) -> None:
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container. The validation of
@@ -146,7 +156,7 @@ class OCIBase:
         """
         raise NotImplementedError
 
-    def post_process(self):
+    def post_process(self) -> None:
         """
         Performs latest steps after the container layers is added and
         configured.
@@ -156,7 +166,12 @@ class OCIBase:
         raise NotImplementedError
 
     @staticmethod
-    def _sync_data(origin, destination, exclude_list=None, options=None):
+    def _sync_data(
+        origin: str,
+        destination: str,
+        exclude_list: Optional[List[str]] = None,
+        options: Optional[List[str]] = None,
+    ) -> None:
         """
         Synchronizes the origin and destination paths to be equivalent
 
@@ -182,5 +197,10 @@ class OCIBase:
         return False
 
     # pragma: no cover
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         pass

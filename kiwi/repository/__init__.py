@@ -16,11 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import List
+from typing import TYPE_CHECKING, List, Optional
 from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiRepositorySetupError
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.repository.base import RepositoryBase
 
 
 class Repository(metaclass=ABCMeta):
@@ -43,8 +46,8 @@ class Repository(metaclass=ABCMeta):
     def new(
         root_bind: object,
         package_manager: str,
-        custom_args: List = None,  # noqa: E252
-    ):
+        custom_args: Optional[List] = None,
+    ) -> 'RepositoryBase':
         name_map = {
             'zypper': ['zypper', 'Zypper'],
             'dnf': ['dnf', 'Dnf'],

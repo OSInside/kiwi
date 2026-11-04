@@ -533,7 +533,7 @@ class RuntimeConfig:
             log.warning(f'Runtime check: {check}: disabled')
         return disabled_checks
 
-    def _get_attribute(self, element: str, attribute: str):
+    def _get_attribute(self, element: str, attribute: str) -> Any:
         if RUNTIME_CONFIG:
             try:
                 for key, value in RUNTIME_CONFIG.get(element, {}).items():

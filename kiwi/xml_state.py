@@ -17,7 +17,17 @@
 #
 import os
 from urllib.parse import urlparse
-from typing import List, Optional, Any, Dict, NamedTuple, Callable, Union
+from typing import (
+    List,
+    Optional,
+    Any,
+    Dict,
+    NamedTuple,
+    Callable,
+    TypedDict,
+    Union,
+    cast,
+)
 import re
 import logging
 import copy
@@ -95,6 +105,13 @@ class ContainerT(NamedTuple):
     load_command: List[str]
 
 
+class HostKeyCertificateT(TypedDict):
+    hkd_cert: List[str]
+    hkd_revocation_list: List[str]
+    hkd_ca_cert: str
+    hkd_sign_cert: str
+
+
 class XMLState:
     """
     **Implements methods to get stateful information from the XML data**
@@ -105,8 +122,11 @@ class XMLState:
     """
 
     def __init__(
-        self, xml_data: Any, profiles: List = None, build_type: Any = None
-    ):
+        self,
+        xml_data: Any,
+        profiles: Optional[List] = None,
+        build_type: Any = None,
+    ) -> None:
         self.root_partition_uuid: Optional[str] = None
         self.root_filesystem_uuid: Optional[str] = None
         self.host_architecture = defaults.PLATFORM_MACHINE
@@ -610,7 +630,9 @@ class XMLState:
         """
         return self.get_packages_sections(['image'])
 
-    def get_bootstrap_packages(self, plus_packages: List = None) -> List:
+    def get_bootstrap_packages(
+        self, plus_packages: Optional[List] = None
+    ) -> List:
         """
         List of package names from the type="bootstrap" packages section(s)
 
@@ -1237,13 +1259,13 @@ class XMLState:
             return video_mode
         return 'auto'
 
-    def get_build_type_bootloader_timeout(self) -> Optional[str]:
+    def get_build_type_bootloader_timeout(self) -> Optional[int]:
         """
         Return bootloader timeout setting for selected build type
 
-        :return: timeout string
+        :return: timeout seconds
 
-        :rtype: str
+        :rtype: int
         """
         bootloader = self.get_build_type_bootloader_section()
         if bootloader:
@@ -1643,7 +1665,7 @@ class XMLState:
         """
         spare_part_size = self.build_type.get_spare_part()
         if spare_part_size:
-            return self._to_mega_byte(spare_part_size)
+            return cast(int, self._to_mega_byte(spare_part_size))
         return None
 
     def get_build_type_spare_part_fs_attributes(self) -> Optional[List]:
@@ -1715,7 +1737,7 @@ class XMLState:
 
         return users_list
 
-    def get_user_groups(self, user_name) -> List[str]:
+    def get_user_groups(self, user_name: str) -> List[str]:
         """
         List of group names matching specified user
 
@@ -1879,7 +1901,7 @@ class XMLState:
             name = partition.get_name()
             partition_name = partition.get_partition_name() or f'p.lx{name}'
             partitions[name] = ptable_entry_type(
-                mbsize=self._to_mega_byte(partition.get_size()),
+                mbsize=cast(int, self._to_mega_byte(partition.get_size())),
                 clone=(
                     int(partition.get_clone()) if partition.get_clone() else 0
                 ),
@@ -1896,14 +1918,11 @@ class XMLState:
             )
         return partitions
 
-    def get_host_key_certificates(
-        self,
-    ) -> Union[List[Dict[str, List[str]]], List[Dict[str, str]]]:
+    def get_host_key_certificates(self) -> List[HostKeyCertificateT]:
         cc_result = []
-        cc_certificates: Dict[str, List[str]] = {}
         securelinux_list = self.get_build_type_bootloader_securelinux_section()
         for securelinux in securelinux_list:
-            cc_certificates = {
+            cc_certificates: HostKeyCertificateT = {
                 'hkd_cert': [],
                 'hkd_revocation_list': [],
                 'hkd_ca_cert': securelinux.get_hkd_ca_cert(),
@@ -1926,7 +1945,7 @@ class XMLState:
             container_uri: str = '',
             container_file_name: str = '',
             container_endpoint: str = '',
-        ):
+        ) -> None:
             pass  # pragma: nocover
 
         for containers_section in self.get_containers_sections():
@@ -1966,8 +1985,8 @@ class XMLState:
                                 container_uri: str = container_uri,
                                 container_file_name: str = container_file_name,
                                 container_endpoint: str = container_endpoint,
-                            ):
-                                def perform():
+                            ) -> None:
+                                def perform() -> None:
                                     Command.run(
                                         [
                                             'cp',
@@ -1993,8 +2012,8 @@ class XMLState:
                                 container_uri: str = '',
                                 container_file_name: str = container_file_name,
                                 container_endpoint: str = container_endpoint,
-                            ):
-                                def perform():
+                            ) -> None:
+                                def perform() -> None:
                                     Command.run(
                                         [
                                             'chroot',
@@ -2450,10 +2469,10 @@ class XMLState:
         repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
         repo_signing_keys: List[str] = [],
-        components: str = None,
-        distribution: str = None,
+        components: Optional[str] = None,
+        distribution: Optional[str] = None,
         repo_gpgcheck: Optional[bool] = None,
-        repo_sourcetype: str = None,
+        repo_sourcetype: Optional[str] = None,
     ) -> None:
         """
         Overwrite repository data of the first repository
@@ -2501,15 +2520,15 @@ class XMLState:
         self,
         repo_source: str,
         repo_type: str,
-        repo_alias: str = None,
+        repo_alias: Optional[str] = None,
         repo_prio: str = '',
         repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
         repo_signing_keys: List[str] = [],
-        components: str = None,
-        distribution: str = None,
+        components: Optional[str] = None,
+        distribution: Optional[str] = None,
         repo_gpgcheck: Optional[bool] = None,
-        repo_sourcetype: str = None,
+        repo_sourcetype: Optional[str] = None,
     ) -> None:
         """
         Add a new repository section at the end of the list
@@ -3152,7 +3171,7 @@ class XMLState:
             self.get_packages_sections(['image', self.get_build_type_name()])
         )
 
-    def _used_profiles(self, profiles=None):
+    def _used_profiles(self, profiles: Optional[List[str]] = None) -> List[str]:
         """
         return list of profiles to use. The method looks up the
         profiles section in the XML description and searches for
@@ -3180,21 +3199,21 @@ class XMLState:
         if not profiles:
             return import_profiles
         else:
-            resolved_profiles = []
+            resolved_profiles: List[str] = []
             for profile in profiles:
                 resolved_profiles += self._solve_profile_dependencies(
                     profile, available_profiles, resolved_profiles
                 )
             return resolved_profiles
 
-    def _section_matches_host_architecture(self, section):
+    def _section_matches_host_architecture(self, section: Any) -> bool:
         architectures = section.get_arch()
         if architectures:
             if self.host_architecture not in architectures.split(','):
                 return False
         return True
 
-    def _match_docker_base_data(self):
+    def _match_docker_base_data(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
         container_base = {}
         if container_config_section:
@@ -3224,7 +3243,7 @@ class XMLState:
 
         return container_base
 
-    def _match_docker_entrypoint(self):
+    def _match_docker_entrypoint(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
         container_entry = {}
         if container_config_section:
@@ -3241,7 +3260,7 @@ class XMLState:
                 container_entry['entry_command'] = []
         return container_entry
 
-    def _match_docker_subcommand(self):
+    def _match_docker_subcommand(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
         container_subcommand = {}
         if container_config_section:
@@ -3260,9 +3279,9 @@ class XMLState:
                 container_subcommand['entry_subcommand'] = []
         return container_subcommand
 
-    def _match_docker_expose_ports(self):
+    def _match_docker_expose_ports(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
-        container_expose = {}
+        container_expose: Dict[str, List[str]] = {}
         if container_config_section:
             expose = container_config_section.get_expose()
             if expose and expose[0].get_port():
@@ -3273,9 +3292,9 @@ class XMLState:
                     )
         return container_expose
 
-    def _match_docker_volumes(self):
+    def _match_docker_volumes(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
-        container_volumes = {}
+        container_volumes: Dict[str, List[str]] = {}
         if container_config_section:
             volumes = container_config_section.get_volumes()
             if volumes and volumes[0].get_volume():
@@ -3293,9 +3312,9 @@ class XMLState:
                 container_stopsignal['stopsignal'] = stopsignal_section[0]
         return container_stopsignal
 
-    def _match_docker_environment(self):
+    def _match_docker_environment(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
-        container_env = {}
+        container_env: Dict[str, Dict[str, str]] = {}
         if container_config_section:
             environment = container_config_section.get_environment()
             if environment and environment[0].get_env():
@@ -3306,9 +3325,9 @@ class XMLState:
                     ] = env.get_value()
         return container_env
 
-    def _match_docker_labels(self):
+    def _match_docker_labels(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
-        container_labels = {}
+        container_labels: Dict[str, Dict[str, str]] = {}
         if container_config_section:
             labels = container_config_section.get_labels()
             if labels and labels[0].get_label():
@@ -3319,9 +3338,9 @@ class XMLState:
                     ] = label.get_value()
         return container_labels
 
-    def _match_docker_history(self):
+    def _match_docker_history(self) -> Dict:
         container_config_section = self.get_build_type_containerconfig_section()
-        container_history = {}
+        container_history: Dict[str, Dict[str, str]] = {}
         if container_config_section:
             history = container_config_section.get_history()
             if history:
@@ -3352,8 +3371,11 @@ class XMLState:
         return container_history
 
     def _solve_profile_dependencies(
-        self, profile, available_profiles, current_profiles
-    ):
+        self,
+        profile: str,
+        available_profiles: Dict[str, Any],
+        current_profiles: List[str],
+    ) -> List[str]:
         if profile not in available_profiles:
             raise KiwiProfileNotFound(
                 'profile {0} not found for host arch {1}'.format(
@@ -3373,7 +3395,7 @@ class XMLState:
                         )
         return profiles_to_add
 
-    def _build_type_section(self, build_type=None):
+    def _build_type_section(self, build_type: Optional[str] = None) -> Any:
         """
         find type section matching build type and profiles or default
         """
@@ -3407,7 +3429,7 @@ class XMLState:
             )
         )
 
-    def _profiled(self, xml_abstract):
+    def _profiled(self, xml_abstract: List) -> List:
         """
         return only those sections matching the instance stored
         profile list from the given XML abstract. Sections without
@@ -3426,13 +3448,13 @@ class XMLState:
                 result.append(section)
         return result
 
-    def _to_volume_name(self, name):
+    def _to_volume_name(self, name: str) -> str:
         name = name.strip()
         name = re.sub(r'^\/+', r'', name)
         name = name.replace('/', '_')
         return name
 
-    def _to_mega_byte(self, size):
+    def _to_mega_byte(self, size: str) -> Union[int, str]:
         value = re.search(r'(\d+)([MG]*)', format(size))
         if value:
             number = value.group(1)

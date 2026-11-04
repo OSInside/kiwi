@@ -196,7 +196,7 @@ class Uri:
         query = {'credentials': 'kiwiRepoCredentials'}
 
         if uri:
-            query = dict(params.split('=') for params in uri.query.split('&'))  # type: ignore
+            query = dict(params.split('=') for params in uri.query.split('&'))
 
         return query['credentials']
 

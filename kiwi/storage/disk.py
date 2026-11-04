@@ -18,7 +18,8 @@
 import os
 import logging
 from collections import OrderedDict
-from typing import Dict, NamedTuple, Tuple, Optional
+from types import TracebackType
+from typing import Dict, NamedTuple, Tuple, Optional, Type, Union
 
 # project
 from kiwi.defaults import Defaults
@@ -54,7 +55,7 @@ class Disk(DeviceProvider):
         self,
         table_type: str,
         storage_provider: DeviceProvider,
-        start_sector: int = None,
+        start_sector: Optional[int] = None,
         extended_layout: bool = False,
         apply_dps_codes: bool = False,
     ):
@@ -105,7 +106,7 @@ class Disk(DeviceProvider):
         )
 
         self.partition_map: Dict[str, str] = {}
-        self.public_partition_id_map: Dict[str, str] = {}
+        self.public_partition_id_map: Dict[str, Union[int, str]] = {}
         self.partition_id_map: Dict[str, str] = {}
         self.is_mapped = False
 
@@ -115,7 +116,7 @@ class Disk(DeviceProvider):
 
         self.table_type = table_type
 
-    def __enter__(self):
+    def __enter__(self) -> "Disk":
         return self
 
     def get_device(self) -> Dict[str, MappedDevice]:
@@ -195,8 +196,11 @@ class Disk(DeviceProvider):
                 )
 
     def create_root_partition(
-        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
-    ):
+        self,
+        mbsize: Union[int, str],
+        clone: int = 0,
+        partition_id: Optional[int] = None,
+    ) -> None:
         """
         Create root partition
 
@@ -232,8 +236,11 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(self.partition_id_map['root'], root_uuid)
 
     def create_root_lvm_partition(
-        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
-    ):
+        self,
+        mbsize: Union[int, str],
+        clone: int = 0,
+        partition_id: Optional[int] = None,
+    ) -> None:
         """
         Create root partition for use with LVM
 
@@ -265,8 +272,11 @@ class Disk(DeviceProvider):
             self.partitioner.set_flag(self.partition_id_map['root'], 't.lvm')
 
     def create_root_raid_partition(
-        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
-    ):
+        self,
+        mbsize: Union[int, str],
+        clone: int = 0,
+        partition_id: Optional[int] = None,
+    ) -> None:
         """
         Create root partition for use with MD Raid
 
@@ -301,8 +311,11 @@ class Disk(DeviceProvider):
             self.partitioner.set_flag(self.partition_id_map['root'], 't.raid')
 
     def create_root_readonly_partition(
-        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
-    ):
+        self,
+        mbsize: Union[int, str],
+        clone: int = 0,
+        partition_id: Optional[int] = None,
+    ) -> None:
         """
         Create root readonly partition for use with overlayfs
 
@@ -338,8 +351,11 @@ class Disk(DeviceProvider):
             )
 
     def create_boot_partition(
-        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
-    ):
+        self,
+        mbsize: Union[int, str],
+        clone: int = 0,
+        partition_id: Optional[int] = None,
+    ) -> None:
         """
         Create boot partition
 
@@ -370,8 +386,8 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(self.partition_id_map['boot'], boot_uuid)
 
     def create_prep_partition(
-        self, mbsize: str, partition_id: Optional[int] = None
-    ):
+        self, mbsize: Union[int, str], partition_id: Optional[int] = None
+    ) -> None:
         """
         Create prep partition
 
@@ -393,8 +409,8 @@ class Disk(DeviceProvider):
         self._add_to_public_id_map('kiwi_PrepPart')
 
     def create_spare_partition(
-        self, mbsize: str, partition_id: Optional[int] = None
-    ):
+        self, mbsize: Union[int, str], partition_id: Optional[int] = None
+    ) -> None:
         """
         Create spare partition for custom use
 
@@ -416,8 +432,8 @@ class Disk(DeviceProvider):
         self._add_to_public_id_map('kiwi_SparePart')
 
     def create_swap_partition(
-        self, mbsize: str, partition_id: Optional[int] = None
-    ):
+        self, mbsize: Union[int, str], partition_id: Optional[int] = None
+    ) -> None:
         """
         Create swap partition
 
@@ -443,8 +459,8 @@ class Disk(DeviceProvider):
             self.partitioner.set_flag(self.partition_id_map['swap'], 't.swap')
 
     def create_efi_csm_partition(
-        self, mbsize: str, partition_id: Optional[int] = None
-    ):
+        self, mbsize: Union[int, str], partition_id: Optional[int] = None
+    ) -> None:
         """
         Create EFI bios grub partition
 
@@ -466,8 +482,8 @@ class Disk(DeviceProvider):
         self._add_to_public_id_map('kiwi_BiosGrub')
 
     def create_efi_partition(
-        self, mbsize: str, partition_id: Optional[int] = None
-    ):
+        self, mbsize: Union[int, str], partition_id: Optional[int] = None
+    ) -> None:
         """
         Create EFI partition
 
@@ -492,7 +508,7 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(self.partition_id_map['efi'], esp_uuid)
             self.partitioner.set_flag(self.partition_id_map['efi'], 't.efi')
 
-    def activate_boot_partition(self):
+    def activate_boot_partition(self) -> None:
         """
         Activate boot partition
 
@@ -509,7 +525,7 @@ class Disk(DeviceProvider):
         if partition_id:
             self.partitioner.set_flag(partition_id, 'f.active')
 
-    def create_hybrid_mbr(self):
+    def create_hybrid_mbr(self) -> None:
         """
         Turn partition table into a hybrid GPT/MBR table
 
@@ -517,7 +533,7 @@ class Disk(DeviceProvider):
         """
         self.partitioner.set_hybrid_mbr()
 
-    def create_mbr(self):
+    def create_mbr(self) -> None:
         """
         Turn partition table into MBR (msdos table)
 
@@ -525,7 +541,7 @@ class Disk(DeviceProvider):
         """
         self.partitioner.set_mbr()
 
-    def set_start_sector(self, start_sector: int):
+    def set_start_sector(self, start_sector: int) -> None:
         """
         Set start sector
 
@@ -533,7 +549,7 @@ class Disk(DeviceProvider):
         """
         self.partitioner.set_start_sector(start_sector)
 
-    def wipe(self):
+    def wipe(self) -> None:
         """
         Zap (destroy) any GPT and MBR data structures if present
         For DASD disks create a new VTOC table
@@ -568,7 +584,7 @@ class Disk(DeviceProvider):
                 ['sgdisk', '--zap-all', self.storage_provider.get_device()]
             )
 
-    def map_partitions(self):
+    def map_partitions(self) -> None:
         """
         Map/Activate partitions
 
@@ -588,7 +604,7 @@ class Disk(DeviceProvider):
         else:
             Command.run(['partprobe', self.storage_provider.get_device()])
 
-    def get_public_partition_id_map(self) -> Dict[str, str]:
+    def get_public_partition_id_map(self) -> Dict[str, Union[int, str]]:
         """
         Populated partition name to number map
         """
@@ -626,7 +642,7 @@ class Disk(DeviceProvider):
         name: str,
         clone: int,
         type_flag: str,
-        mbsize: str,
+        mbsize: Union[int, str],
         partition_id: Optional[int] = None,
     ) -> None:
         """
@@ -660,7 +676,9 @@ class Disk(DeviceProvider):
             )
 
     @staticmethod
-    def _parse_size(value: str) -> Tuple[str, str]:
+    def _parse_size(
+        value: Union[int, str],
+    ) -> Tuple[Union[int, str], Union[int, str]]:
         """
         parse size value. This can be one of the following
 
@@ -688,15 +706,17 @@ class Disk(DeviceProvider):
         if not format(value).startswith('clone:'):
             return (value, value)
         else:
-            size_list = value.split(':')
+            size_list = format(value).split(':')
             return (size_list[1], size_list[2])
 
-    def _add_to_public_id_map(self, name, value=None):
+    def _add_to_public_id_map(
+        self, name: str, value: Optional[int] = None
+    ) -> None:
         if not value:
             value = self.partitioner.get_id()
         self.public_partition_id_map[name] = value
 
-    def _add_to_map(self, name):
+    def _add_to_map(self, name: str) -> None:
         device_node = None
         partition_number = format(self.partitioner.get_id())
         if self.storage_provider.is_loop():
@@ -719,7 +739,12 @@ class Disk(DeviceProvider):
             self.partition_map[name] = device_node
             self.partition_id_map[name] = partition_number
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.storage_provider.is_loop() and self.is_mapped:
             log.info('Cleaning up %s instance', type(self).__name__)
             try:

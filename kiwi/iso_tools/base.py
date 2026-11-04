@@ -60,7 +60,7 @@ class IsoToolsBase:
         raise NotImplementedError
 
     def init_iso_creation_parameters(
-        self, custom_args: Dict[str, Union[str, bool]] = None
+        self, custom_args: Optional[Dict[str, Union[str, bool]]] = None
     ) -> None:
         """
         Create a set of standard parameters for the main loader
@@ -83,7 +83,9 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def create_iso(self, filename: str, hidden_files: List[str] = None) -> None:
+    def create_iso(
+        self, filename: str, hidden_files: Optional[List[str]] = None
+    ) -> None:
         """
         Create iso file
 
@@ -114,8 +116,8 @@ class IsoToolsBase:
 
     @staticmethod
     def setup_media_loader_directory(
-        lookup_path: str, media_path: str, boot_theme: str
-    ):
+        lookup_path: str, media_path: str, boot_theme: Optional[str]
+    ) -> None:
         loader_data = lookup_path + '/image/loader/'
         media_boot_path = os.sep.join(
             [media_path, Defaults.get_iso_boot_path(), 'loader']

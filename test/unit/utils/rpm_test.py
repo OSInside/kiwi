@@ -30,6 +30,11 @@ class TestRpm:
         )
 
     @patch('kiwi.utils.rpm.Command.run')
+    def test_get_query_not_found(self, mock_Command_run):
+        mock_Command_run.return_value.output = '%_dbpath  %{_usr}/lib/rpm'
+        assert self.rpm_host.get_query('_unknown') is None
+
+    @patch('kiwi.utils.rpm.Command.run')
     def test_get_query(self, mock_Command_run):
         rpmdb_call = Mock()
         rpmdb_call.output = '%_dbpath  %{_usr}/lib/sysimage/rpm'

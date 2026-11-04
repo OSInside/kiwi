@@ -17,7 +17,8 @@
 #
 import os
 import logging
-from typing import Optional
+from types import TracebackType
+from typing import Optional, Type
 
 # project
 from kiwi.command import Command
@@ -41,9 +42,9 @@ class RaidDevice(DeviceProvider):
         self.storage_provider = storage_provider
 
         self.raid_level_map = {'mirroring': '1', 'striping': '0'}
-        self.raid_device = None
+        self.raid_device: Optional[str] = None
 
-    def __enter__(self):
+    def __enter__(self) -> "RaidDevice":
         return self
 
     def get_device(self) -> Optional[MappedDevice]:
@@ -58,7 +59,7 @@ class RaidDevice(DeviceProvider):
             return MappedDevice(device=self.raid_device, device_provider=self)
         return None
 
-    def create_degraded_raid(self, raid_level):
+    def create_degraded_raid(self, raid_level: str) -> None:
         """
         Create a raid array in degraded mode with one device missing.
         This only works in the raid levels 0(striping) and 1(mirroring)
@@ -125,7 +126,12 @@ class RaidDevice(DeviceProvider):
         """
         return self.storage_provider.is_loop()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         if self.raid_device:
             try:
                 Command.run(['mdadm', '--stop', self.raid_device])

@@ -27,7 +27,7 @@ class Privileges:
     """
 
     @staticmethod
-    def check_for_root_permissions():
+    def check_for_root_permissions() -> bool:
         """
         Check if we are effectively root on the system. If not
         an exception is thrown

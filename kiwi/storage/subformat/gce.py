@@ -109,7 +109,7 @@ class DiskFormatGce(DiskFormatBase):
             shasum=True,
         )
 
-    def get_target_file_path_for_format(self, format_name):
+    def get_target_file_path_for_format(self, format_name: str) -> str:
         """
         Google requires the image name to follow their naming
         convetion. Therefore it's required to provide a suitable

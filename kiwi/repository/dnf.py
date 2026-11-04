@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List, Dict, no_type_check
+from typing import List, Dict, no_type_check, Optional
 
 # project
 from kiwi.repository.base import RepositoryBase
@@ -50,16 +50,16 @@ class RepositoryDnf(RepositoryBase):
         name: str,
         uri: str,
         repo_type: str = 'rpm-md',
-        prio: int = None,
-        dist: str = None,
-        components: str = None,
-        user: str = None,
-        secret: str = None,
-        credentials_file: str = None,
+        prio: Optional[int] = None,
+        dist: Optional[str] = None,
+        components: Optional[str] = None,
+        user: Optional[str] = None,
+        secret: Optional[str] = None,
+        credentials_file: Optional[str] = None,
         repo_gpgcheck: bool = False,
         pkg_gpgcheck: bool = False,
-        sourcetype: str = None,
-        customization_script: str = None,
+        sourcetype: Optional[str] = None,
+        customization_script: Optional[str] = None,
     ) -> None:
         pass  # pragma: no cover
 

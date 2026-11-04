@@ -20,7 +20,7 @@ import re
 import errno
 import logging
 from stat import ST_MODE
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
@@ -47,8 +47,8 @@ class DataSync:
 
     def sync_data(
         self,
-        options: List[str] = [],
-        exclude: List[str] = [],
+        options: Optional[List[str]] = None,
+        exclude: Optional[List[str]] = None,
         force_trailing_slash: bool = False,
     ) -> None:
         """

@@ -16,11 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict
+from typing import TYPE_CHECKING, Dict, Optional
 from abc import ABCMeta, abstractmethod
 
 # project
 from kiwi.exceptions import KiwiSnapshotManagerSetupError
+
+if TYPE_CHECKING:  # pragma: nocover
+    from kiwi.snapshot_manager.base import SnapshotManagerBase
 
 
 class SnapshotManager(metaclass=ABCMeta):
@@ -47,8 +50,8 @@ class SnapshotManager(metaclass=ABCMeta):
         root_dir: str,
         mountpoint: str,
         root_volume_name: str,
-        custom_args: Dict = None,
-    ):
+        custom_args: Optional[Dict] = None,
+    ) -> 'SnapshotManagerBase':
         name_map = {
             'snapper': 'Snapper',
         }

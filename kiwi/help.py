@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import subprocess
+from typing import Optional
 
 # project
 from .exceptions import KiwiHelpNoCommandGiven
@@ -30,7 +31,7 @@ class Help:
     command.
     """
 
-    def show(self, command=None):
+    def show(self, command: Optional[str] = None) -> None:
         """
         Call man to show the command specific manual page
 
