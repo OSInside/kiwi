@@ -23,6 +23,8 @@ except ImportError:
     import progressbar
 import requests.packages.urllib3
 
+from kiwi.exceptions import KiwiUriOpenError
+
 
 class FetchFiles:
     """
@@ -40,30 +42,44 @@ class FetchFiles:
 
         :param str url: URI
         :param str filename: local file path name
+
+        :raises KiwiUriOpenError: if the download fails
         """
-        response = requests.request(
-            'GET', url, stream=True, data=None, headers=None
-        )
-        widgets = [
-            'Loading: ',
-            progressbar.Percentage(),
-            ' ',
-            progressbar.Bar(marker='#', left='[', right=']'),
-            ' ',
-            progressbar.ETA(),
-            ' ',
-            progressbar.FileTransferSpeed(),
-        ]
-        progress = progressbar.ProgressBar(
-            maxval=int(response.headers.get('Content-Length') or ''),
-            widgets=widgets,
-        ).start()
-        processed = 0
-        with open(filename, 'wb') as data:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    data.write(chunk)
-                    data.flush()
-                    processed += len(chunk)
-                    progress.update(processed)
-        progress.finish()
+        try:
+            response = requests.request(
+                'GET', url, stream=True, data=None, headers=None
+            )
+            response.raise_for_status()
+            content_length = response.headers.get('Content-Length')
+            if content_length:
+                widgets = [
+                    'Loading: ',
+                    progressbar.Percentage(),
+                    ' ',
+                    progressbar.Bar(marker='#', left='[', right=']'),
+                    ' ',
+                    progressbar.ETA(),
+                    ' ',
+                    progressbar.FileTransferSpeed(),
+                ]
+                maxval = int(content_length)
+            else:
+                # server did not send the size of the content
+                widgets = ['Loading: ', progressbar.FileTransferSpeed()]
+                maxval = progressbar.UnknownLength
+            progress = progressbar.ProgressBar(
+                maxval=maxval, widgets=widgets
+            ).start()
+            processed = 0
+            with open(filename, 'wb') as data:
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        data.write(chunk)
+                        data.flush()
+                        processed += len(chunk)
+                        progress.update(processed)
+            progress.finish()
+        except requests.exceptions.RequestException as issue:
+            raise KiwiUriOpenError(
+                f'Download of {url} failed: {type(issue).__name__}: {issue}'
+            )
