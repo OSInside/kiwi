@@ -172,3 +172,34 @@ class TestDiskFormatVmdk:
         assert m_open.return_value.write.call_args_list[2] == call(
             'custom entry 2' + os.linesep
         )
+
+    @patch('kiwi.storage.subformat.vmdk.Command.run')
+    @patch('os.path.exists')
+    def test_create_image_format_paravirtual_scsi(
+        self, mock_exists, mock_command
+    ):
+        mock_exists.return_value = True
+        for controller in ('scsi', 'paravirtual', 'pvscsi'):
+            self.disk_setup.get_controller.return_value = controller
+            m_open = mock_open()
+            with patch('builtins.open', m_open, create=True):
+                self.disk_format.create_image_format()
+            vmx_data = ''.join(
+                write_call.args[0]
+                for write_call in m_open.return_value.write.call_args_list
+            )
+            assert 'scsi0.virtualDev = "pvscsi"' in vmx_data
+
+    @patch('kiwi.storage.subformat.vmdk.Command.run')
+    @patch('os.path.exists')
+    def test_create_image_format_unsupported_controller(
+        self, mock_exists, mock_command
+    ):
+        mock_exists.return_value = True
+        for controller in ('sata', 'nvme'):
+            self.disk_setup.get_controller.return_value = controller
+            with raises(KiwiTemplateError) as issue:
+                self.disk_format.create_image_format()
+            assert f'Controller "{controller}" is not supported' in str(
+                issue.value
+            )

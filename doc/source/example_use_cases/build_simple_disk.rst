@@ -290,9 +290,16 @@ The following example adds a disk with the ID 0 that uses an IDE controller:
 Each `vmdisk` element can be further customized using optional
 attributes:
 
-- `controller`: The disk controller used for the VM guest (`vmdk` format
-  only). Supported values are `ide`, `buslogic`, `lsilogic`, `lsisas1068`,
-  `legacyESX`, and `pvscsi`.
+- `controller`: The disk controller used for the VM guest (`vmdk` and
+  `ova` formats). Supported values are `ide`, `sata`, `nvme`, `scsi`,
+  `buslogic`, `lsilogic`, `lsisas1068`, `legacyESX`, `pvscsi`, and
+  `paravirtual`. The values `scsi`, `paravirtual`, and `pvscsi` all
+  select the VMware paravirtual SCSI controller (`VirtualSCSI` in the
+  OVF descriptor). Recent vCenter versions only accept this SCSI
+  controller type for many guest operating systems. `sata` and `nvme`
+  are supported for the `ova` format only. `lsisas1068` and `legacyESX`
+  are supported for the `vmdk` format only. If no controller is set,
+  the `ova` format uses an NVMe controller.
 
 - `device`: The disk device to appear in the guest (`xen` format only).
 

@@ -4047,14 +4047,21 @@ by the VM (ova only)</a:documentation>
     </define>
     <define name="k.vmdisk.controller.attribute">
       <attribute name="controller">
-        <a:documentation>The disk controller used for the VM guest (vmdk only)</a:documentation>
+        <a:documentation>The disk controller used for the VM guest (vmdk and ova).
+sata and nvme are supported for ova only. lsisas1068 and
+legacyESX are supported for vmdk only. scsi, paravirtual
+and pvscsi select the VMware paravirtual SCSI controller</a:documentation>
         <choice>
           <value>ide</value>
+          <value>sata</value>
+          <value>nvme</value>
+          <value>scsi</value>
           <value>buslogic</value>
           <value>lsilogic</value>
           <value>lsisas1068</value>
           <value>legacyESX</value>
           <value>pvscsi</value>
+          <value>paravirtual</value>
         </choice>
       </attribute>
     </define>

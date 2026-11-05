@@ -138,6 +138,14 @@ class DiskFormatVmdk(DiskFormatBase):
         disk_controller = 'ide'
         if disk_setup:
             disk_controller = disk_setup.get_controller() or disk_controller
+            if disk_controller in ('scsi', 'paravirtual'):
+                # generic and paravirtual SCSI is pvscsi in VMX
+                disk_controller = 'pvscsi'
+            elif disk_controller in ('sata', 'nvme'):
+                raise KiwiTemplateError(
+                    f'Controller "{disk_controller}" is not supported '
+                    'for the vmdk format, use ide or a SCSI controller'
+                )
             disk_id = disk_setup.get_id()
             if not disk_controller == 'ide':
                 template_record['scsi_controller_name'] = disk_controller

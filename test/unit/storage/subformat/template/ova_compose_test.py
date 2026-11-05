@@ -1,4 +1,7 @@
+from pytest import raises
+
 from kiwi.storage.subformat.template.ova_compose import OvaComposeTemplate
+from kiwi.exceptions import KiwiTemplateError
 
 
 class TestOvaComposeTemplate:
@@ -151,9 +154,10 @@ class TestOvaComposeTemplate:
             'sata': 'sata0',
             'scsi': 'scsi0',
             'lsilogic': 'scsi0',
-            'lsisas1068': 'scsi0',
+            'buslogic': 'scsi0',
             'nvme': 'nvme0',
             'paravirtual': 'scsi0',
+            'pvscsi': 'scsi0',
         }
 
         for controller, expected_parent in controller_mappings.items():
@@ -177,15 +181,13 @@ class TestOvaComposeTemplate:
             ), f"Controller '{controller}' should map to '{expected_parent}'"
 
     def test_get_template_controller_subtype_mapping(self):
-        """Test all supported disk controller subtype mappings"""
+        """Test SCSI controller names map to open-vmdk subtypes"""
         controller_subtypes = {
-            'ide': 'ide',
-            'sata': 'sata',
-            'scsi': 'scsi',
+            'scsi': 'VirtualSCSI',
+            'paravirtual': 'VirtualSCSI',
+            'pvscsi': 'VirtualSCSI',
             'lsilogic': 'lsilogic',
-            'lsisas1068': 'lsisas1068',
-            'nvme': 'nvme',
-            'paravirtual': 'paravirtual',
+            'buslogic': 'buslogic',
         }
 
         for controller, expected_subtype in controller_subtypes.items():
@@ -205,14 +207,34 @@ class TestOvaComposeTemplate:
                 }
             )
             assert (
-                f'subtype: {expected_subtype}' in rendered
+                f'type: scsi_controller\n        subtype: {expected_subtype}\n'
+                in rendered
             ), f"Controller '{controller}' should set subtype '{expected_subtype}'"
 
-    def test_get_template_unknown_controller_defaults_to_nvme(self):
-        """Test that unknown disk controllers default to nvme0"""
-        template = OvaComposeTemplate().get_template(
-            disk_controller='unknown_controller'
-        )
+    def test_get_template_no_subtype_for_non_scsi_controllers(self):
+        """Test that non SCSI controllers are rendered without subtype"""
+        for controller in ('ide', 'sata', 'nvme'):
+            template = OvaComposeTemplate().get_template(
+                disk_controller=controller
+            )
+            rendered = template.substitute(
+                {
+                    'display_name': 'test-vm',
+                    'guest_os': 'other4xLinux64Guest',
+                    'firmware': 'bios',
+                    'secure_boot': 'false',
+                    'number_of_cpus': 2,
+                    'memory_size': 4096,
+                    'vmdk_file': 'test.vmdk',
+                    'virtual_hardware_version': '9',
+                }
+            )
+            assert f'type: {controller}_controller\n' in rendered
+            assert f'subtype: {controller}' not in rendered
+
+    def test_get_template_no_controller_defaults_to_nvme(self):
+        """Test that no disk controller defaults to nvme0"""
+        template = OvaComposeTemplate().get_template(disk_controller=None)
         rendered = template.substitute(
             {
                 'display_name': 'test-vm',
@@ -225,11 +247,17 @@ class TestOvaComposeTemplate:
                 'virtual_hardware_version': '9',
             }
         )
-
-        # Verify unknown controller defaults to nvme0
         assert 'parent: nvme0' in rendered
         assert 'type: nvme_controller' in rendered
-        assert 'subtype: unknown_controller' in rendered
+
+    def test_get_template_unsupported_controller_raises(self):
+        """Test that controllers open-vmdk can't express are rejected"""
+        for controller in ('lsisas1068', 'legacyESX', 'unknown_controller'):
+            with raises(KiwiTemplateError) as issue:
+                OvaComposeTemplate().get_template(disk_controller=controller)
+            assert f'Controller "{controller}" is not supported' in str(
+                issue.value
+            )
 
     def test_get_template_with_iso_controller_subtype(self):
         """Test that ISO controller subtype is rendered"""

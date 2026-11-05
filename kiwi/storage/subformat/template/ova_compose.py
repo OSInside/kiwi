@@ -19,6 +19,8 @@ from string import Template
 from textwrap import dedent
 from typing import Dict, Optional, Set, Tuple
 
+from kiwi.exceptions import KiwiTemplateError
+
 
 class OvaComposeTemplate:
     """
@@ -56,24 +58,37 @@ class OvaComposeTemplate:
 
     def _get_controller(
         self, controller: Optional[str], device_id: str
-    ) -> Tuple[str, str, str]:
-        controller_map = {
-            'ide': ('ide', 'ide_controller'),
-            'sata': ('sata', 'sata_controller'),
-            'scsi': ('scsi', 'scsi_controller'),
-            'lsilogic': ('scsi', 'scsi_controller'),
-            'lsisas1068': ('scsi', 'scsi_controller'),
-            'paravirtual': ('scsi', 'scsi_controller'),
-            'nvme': ('nvme', 'nvme_controller'),
+    ) -> Tuple[str, str, Optional[str]]:
+        # Maps the kiwi controller name to the ova-compose controller
+        # name prefix, the ova-compose controller type and the subtype.
+        # The SCSI subtype becomes the OVF ResourceSubType and must
+        # be one of the names open-vmdk accepts. Paravirtual SCSI is
+        # called VirtualSCSI in OVF and is the only SCSI subtype
+        # vCenter accepts for many recent guest OS types
+        controller_map: Dict[str, Tuple[str, str, Optional[str]]] = {
+            'ide': ('ide', 'ide_controller', None),
+            'sata': ('sata', 'sata_controller', None),
+            'nvme': ('nvme', 'nvme_controller', None),
+            'scsi': ('scsi', 'scsi_controller', 'VirtualSCSI'),
+            'paravirtual': ('scsi', 'scsi_controller', 'VirtualSCSI'),
+            'pvscsi': ('scsi', 'scsi_controller', 'VirtualSCSI'),
+            'lsilogic': ('scsi', 'scsi_controller', 'lsilogic'),
+            'buslogic': ('scsi', 'scsi_controller', 'buslogic'),
         }
         normalized_controller = (controller or 'nvme').lower()
-        controller_name, controller_type = controller_map.get(
-            normalized_controller, ('nvme', 'nvme_controller')
-        )
+        if normalized_controller not in controller_map:
+            supported = ', '.join(controller_map.keys())
+            raise KiwiTemplateError(
+                f'Controller "{controller}" is not supported for the '
+                f'OVA format, use one of: {supported}'
+            )
+        controller_name, controller_type, controller_subtype = controller_map[
+            normalized_controller
+        ]
         return (
             f'{controller_name}{device_id}',
             controller_type,
-            normalized_controller,
+            controller_subtype,
         )
 
     def _add_controller(
