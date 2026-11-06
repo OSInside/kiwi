@@ -144,8 +144,11 @@ class DiskFormatBase:
         if custom_args:
             ordered_args = OrderedDict(sorted(custom_args.items()))
             for key, value in list(ordered_args.items()):
-                if key == 'adapter_type=pvscsi':
-                    # Building for the pvscsi ddb.adapterType only
+                if (
+                    key == 'adapter_type=pvscsi'
+                    or key == 'adapter_type=paravirtual'
+                ):
+                    # Building for the pvscsi/paravirtual ddb.adapterType only
                     # affects the guest configuration (vmx). For the
                     # vmdk disk format this is the same as lsilogic
                     key = 'adapter_type=lsilogic'
