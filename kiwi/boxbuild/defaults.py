@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import pathlib
 import subprocess
 from subprocess import Popen
@@ -25,7 +26,11 @@ from typing import List, Optional
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import KiwiBoxVirtioFsError, KiwiBoxTargetPathError
+from kiwi.exceptions import (
+    KiwiBoxVirtioFsError,
+    KiwiBoxTargetPathError,
+    KiwiBoxBuildError,
+)
 
 VIRTIOFSD_PROCESS_LIST: List[Popen[bytes]] = []
 HOST_SSH_PORT_FORWARDED_TO_BOX = 10000
@@ -210,3 +215,49 @@ class BoxBuildDefaults:
             raise KiwiBoxTargetPathError(
                 f'Failed to create/setup target path {target_dir}: {issue}'
             )
+
+    @staticmethod
+    def get_kiwi_git_box_args(kiwi_git: str) -> List[str]:
+        """
+        Translate a kiwi git link into the box variables used by
+        the box to clone and install kiwi from source.
+
+        The link can be specified as repository URL with an
+        optional branch reference in the web URL notation:
+
+        .. code:: shell
+
+            https://github.com/OSInside/kiwi
+            https://github.com/OSInside/kiwi/tree/BRANCH_NAME
+
+        :param str kiwi_git: kiwi git link
+
+        :return: box variables, Example:
+
+            .. code:: python
+
+                [
+                    'kiwi_git_repo=_https://github.com/OSInside/kiwi_',
+                    'kiwi_git_branch=_BRANCH_NAME_'
+                ]
+
+        :rtype: list
+        """
+        # The information is passed along as box variable on the
+        # kernel/container command line and is evaluated by a shell
+        # in the box. Thus only allow characters that are safe in
+        # this context
+        if not re.match(r'^[\w.~:/@+%-]+$', kiwi_git or ''):
+            raise KiwiBoxBuildError(f'Invalid kiwi git link: {kiwi_git!r}')
+        repo, tree, branch = kiwi_git.partition('/tree/')
+        repo = repo.rstrip('/')
+        if repo.endswith('/-'):
+            # gitlab web URL notation: REPO/-/tree/BRANCH_NAME
+            repo = repo[:-2]
+        branch = branch.strip('/')
+        if not repo or (tree and not branch):
+            raise KiwiBoxBuildError(f'Invalid kiwi git link: {kiwi_git!r}')
+        box_args = [f'kiwi_git_repo=_{repo}_']
+        if branch:
+            box_args.append(f'kiwi_git_branch=_{branch}_')
+        return box_args

@@ -58,6 +58,7 @@ class SystemBoxbuildTask(CliTask):
         elif self.command_args.get('--box'):
             keep_open = bool(self.command_args.get('--box-debug'))
             kiwi_version = self.command_args.get('--kiwi-version')
+            kiwi_git = self.command_args.get('--kiwi-git')
             shared_path = self.command_args.get('--shared-path')
 
             if self.command_args.get('--container'):
@@ -70,6 +71,7 @@ class SystemBoxbuildTask(CliTask):
                     keep_open,
                     kiwi_version,
                     shared_path,
+                    kiwi_git,
                 )
             else:
                 request_update_check = not self.command_args.get(
@@ -98,6 +100,7 @@ class SystemBoxbuildTask(CliTask):
                     keep_open,
                     kiwi_version,
                     shared_path,
+                    kiwi_git,
                 )
 
     def _help(self) -> bool:

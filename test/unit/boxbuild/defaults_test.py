@@ -5,7 +5,10 @@ from pytest import raises
 from kiwi.boxbuild.defaults import BoxBuildDefaults
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import KiwiBoxTargetPathError
+from kiwi.exceptions import (
+    KiwiBoxTargetPathError,
+    KiwiBoxBuildError,
+)
 
 
 class TestBoxBuildDefaults:
@@ -85,3 +88,39 @@ class TestBoxBuildDefaults:
         mock_Path.side_effect = Exception('some error')
         with raises(KiwiBoxTargetPathError):
             BoxBuildDefaults.create_build_target_dir('some')
+
+    def test_get_kiwi_git_box_args(self):
+        assert BoxBuildDefaults.get_kiwi_git_box_args(
+            'https://github.com/OSInside/kiwi/tree/some_branch'
+        ) == [
+            'kiwi_git_repo=_https://github.com/OSInside/kiwi_',
+            'kiwi_git_branch=_some_branch_',
+        ]
+        assert BoxBuildDefaults.get_kiwi_git_box_args(
+            'https://github.com/OSInside/kiwi/tree/feature/some-branch/'
+        ) == [
+            'kiwi_git_repo=_https://github.com/OSInside/kiwi_',
+            'kiwi_git_branch=_feature/some-branch_',
+        ]
+        assert BoxBuildDefaults.get_kiwi_git_box_args(
+            'https://gitlab.com/some/kiwi/-/tree/some_branch'
+        ) == [
+            'kiwi_git_repo=_https://gitlab.com/some/kiwi_',
+            'kiwi_git_branch=_some_branch_',
+        ]
+        assert BoxBuildDefaults.get_kiwi_git_box_args(
+            'https://github.com/OSInside/kiwi.git'
+        ) == ['kiwi_git_repo=_https://github.com/OSInside/kiwi.git_']
+
+    def test_get_kiwi_git_box_args_invalid(self):
+        for kiwi_git in [
+            '',
+            'https://github.com/OSInside/kiwi/tree/',
+            '/tree/some_branch',
+            'https://github.com/OSInside/kiwi/tree/x;reboot',
+            'https://github.com/OSInside/kiwi/tree/$(reboot)',
+            'https://github.com/OSInside/kiwi/tree/a b',
+            'https://github.com/OSInside/kiwi/tree/a"b',
+        ]:
+            with raises(KiwiBoxBuildError):
+                BoxBuildDefaults.get_kiwi_git_box_args(kiwi_git)

@@ -82,6 +82,11 @@
         <package name="btrfs-progs"/>
         <package name="python3-kiwi"/>
         <package name="python3-pip"/>
+        <package name="git"/>
+        <package name="python3-build"/>
+        <package name="python3-installer"/>
+        <package name="python3-poetry-core"/>
+        <package name="python3-wheel"/>
         <package name="mawk"/>
         <package name="gawk"/>
         <package name="python3-dev"/>

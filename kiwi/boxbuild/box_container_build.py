@@ -55,6 +55,7 @@ class BoxContainerBuild:
         keep_open: bool = False,
         kiwi_version: Optional[str] = None,
         custom_shared_path: Optional[str] = None,
+        kiwi_git: Optional[str] = None,
     ) -> None:
         """
         Start the build process in a container
@@ -73,6 +74,9 @@ class BoxContainerBuild:
         :param bool keep_open: keep container running True|False
         :param str kiwi_version: pip install this kiwi version
         :param str custom_shared_path: make this path available in the container
+        :param str kiwi_git:
+            git link to install kiwi from source, Example:
+            https://github.com/OSInside/kiwi/tree/BRANCH_NAME
         """
         self.kiwi_build_command = kiwi_build_command
         desc = os.path.abspath(self._pop_arg_param('--description'))
@@ -88,6 +92,10 @@ class BoxContainerBuild:
             container_cmdline.append('kiwi-no-halt')
         if kiwi_version:
             container_cmdline.append('kiwi_version=_{0}_'.format(kiwi_version))
+        if kiwi_git:
+            container_cmdline += BoxBuildDefaults.get_kiwi_git_box_args(
+                kiwi_git
+            )
         if custom_shared_path:
             custom_shared_path = os.path.abspath(custom_shared_path)
             if not os.path.exists(custom_shared_path):

@@ -379,6 +379,55 @@ class TestCli:
                 '--allow-existing-root',
             ]
 
+    def test_boxbuild_kiwi_git(self):
+        with patch(
+            'sys.argv',
+            [
+                sys.argv[0],
+                'system',
+                'boxbuild',
+                '--box',
+                'universal',
+                '--kiwi-git',
+                'https://github.com/OSInside/kiwi/tree/some_branch',
+                'kiwi',
+                '--description',
+                'description',
+                '--target-dir',
+                'directory',
+            ],
+        ):
+            command_args = Cli().get_command_args()
+            assert command_args['--kiwi-version'] is None
+            assert (
+                command_args['--kiwi-git']
+                == 'https://github.com/OSInside/kiwi/tree/some_branch'
+            )
+
+    @patch('sys.stderr')
+    def test_boxbuild_kiwi_version_and_kiwi_git_mutually_exclusive(
+        self, mock_stderr
+    ):
+        for options in [
+            ['--kiwi-version', '10.2.0', '--kiwi-git', 'git_link'],
+            ['--kiwi-git', 'git_link', '--kiwi-version', '10.2.0'],
+        ]:
+            with patch(
+                'sys.argv',
+                [sys.argv[0], 'system', 'boxbuild', '--box', 'universal']
+                + options
+                + [
+                    'kiwi',
+                    '--description',
+                    'description',
+                    '--target-dir',
+                    'directory',
+                ],
+            ):
+                with raises(SystemExit) as exit_info:
+                    Cli()
+                assert exit_info.value.code == 2
+
     def test_boxbuild_command_args_separator(self):
         with patch(
             'sys.argv',
