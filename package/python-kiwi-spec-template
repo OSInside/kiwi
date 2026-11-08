@@ -75,6 +75,7 @@ Packager:       Marcus Schaefer <marcus.schaefer@suse.com>
 Group:          %{pygroup}
 Source0:        %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
+Source2:        kiwi-boxbuild-vendor.tar.gz
 # SUSE-specific source additions (1001+)
 Source1001:     systemd-tmpfiles-for-suse.conf
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -90,6 +91,12 @@ BuildRequires:  passwd
 # Main build requirements
 BuildRequires:  gcc
 BuildRequires:  make
+BuildRequires:  cargo
+%if 0%{?debian} || 0%{?ubuntu}
+BuildRequires:  rustc
+%else
+BuildRequires:  rust
+%endif
 BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.9
 BuildRequires:  python%{python3_pkgversion}-build
 BuildRequires:  python%{python3_pkgversion}-installer
@@ -429,6 +436,19 @@ Recommends:     podman
 Host setup helper to pull in all packages required/useful on
 the build host to build images in a self contained virtual
 machine or container via the kiwi-ng system boxbuild command
+
+%package -n kiwi-boxbuild
+Summary:        KIWI - build in a self contained box via a runtime container
+Group:          %{sysgroup}
+Requires:       podman
+
+%description -n kiwi-boxbuild
+Provides the kiwi-boxbuild command which builds images in a self
+contained virtual machine, called a box. kiwi-boxbuild pulls a small
+runtime container and calls the kiwi-ng system boxbuild command
+inside of it. kiwi as well as the requirements of the boxbuild
+command are provided by the runtime container, only podman is
+required on the build host
 
 %package -n kiwi-systemdeps-stackbuild
 Summary:        KIWI - host requirements for building based on containers
@@ -788,6 +808,10 @@ make -C selinux SHARE="%{_datadir}" TARGETS="kiwi"
 # Build application wheel
 %{__python3} -m build --no-isolation --wheel
 
+# Build kiwi-boxbuild from the vendored crates
+tar -C tools/kiwi-boxbuild -xf %{SOURCE2}
+make boxbuild
+
 %install
 # Install application
 %{__python3} -m installer --destdir %{buildroot} %{?is_deb:--no-compile-bytecode} dist/*.whl
@@ -803,6 +827,9 @@ make buildroot=%{buildroot}/ python=%{__python3} install
 
 # Install dracut modules
 make buildroot=%{buildroot}/ python=%{__python3} install_dracut
+
+# Install kiwi-boxbuild
+make buildroot=%{buildroot}/ python=%{__python3} install_boxbuild
 
 # Install documentation README / LICENSE
 make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ python=%{__python3} install_package_docs
@@ -892,6 +919,13 @@ fi
 
 %files -n kiwi-systemdeps-boxbuild
 # Empty metapackage
+
+%files -n kiwi-boxbuild
+%{_bindir}/kiwi-boxbuild
+# Own the completion directories to not require bash-completion
+%dir %{_usr}/share/bash-completion
+%dir %{_usr}/share/bash-completion/completions
+%{_usr}/share/bash-completion/completions/kiwi-boxbuild
 
 %files -n kiwi-systemdeps-stackbuild
 # Empty metapackage

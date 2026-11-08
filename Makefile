@@ -7,6 +7,11 @@ sc_disable = SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004,SC2317,SC2329
 
 LC = LC_MESSAGES
 
+boxbuild_dir = tools/kiwi-boxbuild
+# Select dependency versions which are compatible with the
+# rust-version of kiwi-boxbuild when the Cargo.lock is created
+boxbuild_cargo = CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS=fallback cargo
+
 version := $(shell \
     $(python) -c \
     'from kiwi.version import __version__; print(__version__)'\
@@ -23,6 +28,38 @@ install_package_docs:
 		${buildroot}${docdir}/python-kiwi/LICENSE
 	install -m 644 README.rst \
 		${buildroot}${docdir}/python-kiwi/README
+
+boxbuild:
+	# compile kiwi-boxbuild, calls kiwi-ng system boxbuild in the
+	# boxbuild runtime container and only requires podman on the host.
+	# If present, the vendored crates are used, see boxbuild_vendor
+	cd ${boxbuild_dir} && ${boxbuild_cargo} build --release
+
+install_boxbuild:
+	install -d -m 755 ${buildroot}usr/bin
+	install -m 755 ${boxbuild_dir}/target/release/kiwi-boxbuild \
+		${buildroot}usr/bin/kiwi-boxbuild
+	install -d -m 755 ${buildroot}usr/share/bash-completion/completions
+	install -m 644 ${boxbuild_dir}/completion/kiwi-boxbuild \
+		${buildroot}usr/share/bash-completion/completions/kiwi-boxbuild
+
+boxbuild_test:
+	cd ${boxbuild_dir} && ${boxbuild_cargo} test
+
+boxbuild_vendor:
+	# provide the crates kiwi-boxbuild depends on along with the
+	# Cargo.lock as tarball, such that kiwi-boxbuild compiles
+	# offline, e.g in the Open Build Service
+	rm -rf dist/kiwi-boxbuild-vendor
+	mkdir -p dist/kiwi-boxbuild-vendor/.cargo
+	cd ${boxbuild_dir} && ${boxbuild_cargo} vendor --quiet \
+		../../dist/kiwi-boxbuild-vendor/vendor > /dev/null
+	cp ${boxbuild_dir}/Cargo.lock dist/kiwi-boxbuild-vendor
+	cp package/kiwi-boxbuild-cargo-config \
+		dist/kiwi-boxbuild-vendor/.cargo/config.toml
+	tar -C dist/kiwi-boxbuild-vendor -czf dist/kiwi-boxbuild-vendor.tar.gz \
+		vendor Cargo.lock .cargo
+	rm -rf dist/kiwi-boxbuild-vendor
 
 install:
 	# apart from python sources there are also
@@ -118,6 +155,7 @@ check: setup
 	bash -c 'shellcheck -e ${sc_disable} boxes/*/*.sh -s bash'
 	bash -c 'shellcheck -e ${sc_disable} boxes/images.sh -s bash'
 	bash -c 'shellcheck build-tests.sh'
+	bash -c 'shellcheck -s bash ${boxbuild_dir}/completion/kiwi-boxbuild'
 	# python flake tests
 	poetry run flake8 --statistics -j auto --count kiwi
 	poetry run flake8 --statistics -j auto --count test/unit
@@ -137,7 +175,7 @@ black: setup
 		--skip-string-normalization \
 		--line-length 80 kiwi test/unit/
 
-build: clean check test
+build: clean check test boxbuild_test
 	# build the sdist source tarball
 	poetry build --format=sdist
 	# provide rpm source tarball
@@ -159,6 +197,8 @@ build: clean check test
 	cp package/python-kiwi-rpmlintrc dist
 	# provide additional source files
 	cp package/systemd-tmpfiles-for-suse.conf dist
+	# provide vendored crates of kiwi-boxbuild
+	${MAKE} boxbuild_vendor
 
 prepare_for_pypi: clean setup
 	# documentation render and tests
@@ -169,5 +209,6 @@ prepare_for_pypi: clean setup
 
 clean:
 	rm -rf dist
+	rm -rf ${boxbuild_dir}/target
 	rm -rf doc/build
 	rm -rf doc/dist

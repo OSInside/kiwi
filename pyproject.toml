@@ -37,6 +37,9 @@ include = [
    { path = "package", format = "sdist" },
    { path = "selinux", format = "sdist" },
    { path = "test", format = "sdist" },
+   { path = "tools/kiwi-boxbuild/Cargo.toml", format = "sdist" },
+   { path = "tools/kiwi-boxbuild/src", format = "sdist" },
+   { path = "tools/kiwi-boxbuild/completion", format = "sdist" },
    { path = "kiwi/runtime_checker_metadata.yml", format = "sdist" },
 ]
 

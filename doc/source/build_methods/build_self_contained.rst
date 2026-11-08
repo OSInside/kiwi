@@ -49,6 +49,14 @@ sharing backends:
    `kiwi-boxed-plugin`. The plugin is no longer needed and is
    replaced by the `kiwi-systemdeps-boxbuild` package.
 
+.. tip::
+
+   The `kiwi-boxbuild` command runs the `boxbuild` command in a
+   runtime container which already provides {kiwi} and the
+   `kiwi-systemdeps-boxbuild` requirements. With `kiwi-boxbuild`
+   only `podman` is needed on the build host. For details, see
+   :ref:`runtime_container_boxbuild`.
+
 Building with the boxbuild command
 ----------------------------------
 

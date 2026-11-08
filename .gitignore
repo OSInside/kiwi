@@ -89,3 +89,4 @@ doc/xml/
 # Rust
 Cargo.lock
 vendor/
+tools/kiwi-boxbuild/target/

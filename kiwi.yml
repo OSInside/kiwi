@@ -28,6 +28,15 @@
 #  public: true
 
 
+# Setup behaviour of the kiwi-boxbuild command
+#boxbuild:
+#  # Specify the runtime container which kiwi-boxbuild pulls to
+#  # call the kiwi-ng system boxbuild command inside of it. The
+#  # container has to provide kiwi-ng as its entry point along
+#  # with the requirements of the boxbuild command
+#  runtime_container: registry.opensuse.org/virtualization/appliances/selfcontained/runtime/images/boxbuild:latest
+
+
 # Setup behaviour of the kiwi result bundle command
 #bundle:
 #  # Specify if the bundle tarball should contain compressed results.

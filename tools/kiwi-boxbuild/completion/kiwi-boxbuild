@@ -1,0 +1,135 @@
+# bash completion for kiwi-boxbuild
+#
+# The kiwi-boxbuild options below are checked against the command
+# line interface of kiwi-boxbuild by its unit tests. The box names
+# and the options of the kiwi-ng system build command are checked
+# against kiwi by test/unit/kiwi_boxbuild_completion_test.py
+#
+# shellcheck shell=bash
+
+# Boxes provided by the kiwi boxes configuration
+_kiwi_boxbuild_boxes="fedora leap staging tumbleweed ubuntu universal"
+
+# kiwi-boxbuild options before the kiwi subcommand
+_kiwi_boxbuild_value_options="
+    --profile --type --kiwi-file --config --boxbuild-config
+    --box --box-memory --box-console --box-smp-cpus --kiwi-version
+    --kiwi-git --shared-path --machine --cpu
+"
+_kiwi_boxbuild_flag_options="
+    --debug --list-boxes --box-debug --no-update-check --no-snapshot
+    --no-accel --virtiofs-sharing --help --version
+"
+
+# Options of the kiwi-ng system build command after the kiwi subcommand
+_kiwi_boxbuild_build_value_options="
+    --description --target-dir
+    --add-bootstrap-package --add-container-label --add-package
+    --add-repo --add-repo-credentials --ca-cert --ca-target-distribution
+    --delete-package --set-container-derived-from --set-container-tag
+    --set-release-version --set-repo --set-repo-credentials
+    --set-type-attr --signing-key
+"
+_kiwi_boxbuild_build_flag_options="
+    --allow-existing-root --clear-cache --ignore-repos
+    --ignore-repos-used-for-build
+"
+
+_kiwi_boxbuild_reply() {
+    # Set the completion reply from the given compgen arguments
+    mapfile -t COMPREPLY < <(compgen "$@")
+}
+
+_kiwi_boxbuild_is_value_option() {
+    # Check if the word $1 is one of the value options in $2
+    local option
+    for option in $2; do
+        if [ "$1" = "${option}" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+_kiwi_boxbuild() {
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local prev=
+    local word
+    local index
+    local in_build=false
+    local value_options=${_kiwi_boxbuild_value_options}
+
+    if [ "${COMP_CWORD}" -gt 0 ]; then
+        prev=${COMP_WORDS[COMP_CWORD - 1]}
+    fi
+    # bash splits --option=value into the words --option, = and value
+    if [ "${cur}" = "=" ]; then
+        cur=
+    elif [ "${prev}" = "=" ] && [ "${COMP_CWORD}" -gt 1 ]; then
+        prev=${COMP_WORDS[COMP_CWORD - 2]}
+    fi
+
+    # Find out if the word to complete belongs to the options
+    # passed along to the build in the box. Values of options
+    # are skipped, such that a value named kiwi is not taken
+    # for the kiwi subcommand
+    for (( index=1; index < COMP_CWORD; index++ )); do
+        word=${COMP_WORDS[index]}
+        if [ "${word}" = "kiwi" ] || [ "${word}" = "--" ]; then
+            in_build=true
+            value_options=${_kiwi_boxbuild_build_value_options}
+            break
+        fi
+        if [ "${word}" = "=" ] || \
+            _kiwi_boxbuild_is_value_option "${word}" "${value_options}"
+        then
+            (( index++ ))
+        fi
+    done
+
+    if [ "${in_build}" = "true" ]; then
+        case "${prev}" in
+            --description|--target-dir)
+                _kiwi_boxbuild_reply -d -- "${cur}"
+                return 0
+                ;;
+            --signing-key|--ca-cert)
+                _kiwi_boxbuild_reply -f -- "${cur}"
+                return 0
+                ;;
+        esac
+        if _kiwi_boxbuild_is_value_option "${prev}" "${value_options}"; then
+            COMPREPLY=()
+            return 0
+        fi
+        _kiwi_boxbuild_reply -W "${_kiwi_boxbuild_build_value_options} \
+            ${_kiwi_boxbuild_build_flag_options}" -- "${cur}"
+        return 0
+    fi
+
+    case "${prev}" in
+        --box)
+            _kiwi_boxbuild_reply -W "${_kiwi_boxbuild_boxes}" -- "${cur}"
+            return 0
+            ;;
+        --shared-path)
+            _kiwi_boxbuild_reply -d -- "${cur}"
+            return 0
+            ;;
+        --config|--boxbuild-config|--kiwi-file)
+            _kiwi_boxbuild_reply -f -- "${cur}"
+            return 0
+            ;;
+    esac
+    if _kiwi_boxbuild_is_value_option "${prev}" "${value_options}"; then
+        COMPREPLY=()
+        return 0
+    fi
+    # Options and the kiwi subcommand, which starts the options
+    # passed along to the build in the box
+    _kiwi_boxbuild_reply -W "${_kiwi_boxbuild_value_options} \
+        ${_kiwi_boxbuild_flag_options} kiwi" -- "${cur}"
+    return 0
+}
+
+complete -o filenames -F _kiwi_boxbuild kiwi-boxbuild
