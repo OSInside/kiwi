@@ -187,6 +187,38 @@ class TestBoxBuild:
     @patch('os.system')
     @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
     @patch('kiwi.boxbuild.box_build.Path.which')
+    def test_run_with_kiwi_git(
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
+    ):
+        mock_path_which.return_value = 'qemu-system-x86_64'
+        self.build.run(
+            [
+                '--type',
+                'oem',
+                'system',
+                'build',
+                '--description',
+                'desc',
+                '--target-dir',
+                'target',
+            ],
+            kiwi_git='https://github.com/OSInside/kiwi/tree/some_branch',
+        )
+        assert (
+            '-append "console=hvc0 kiwi=\\"--type oem system build\\"'
+            ' kiwi_git_repo=_https://github.com/OSInside/kiwi_'
+            ' kiwi_git_branch=_some_branch_'
+            ' sharing_backend=_9p_" '
+        ) in mock_os_system.call_args.args[0]
+
+    @patch('os.environ')
+    @patch('os.system')
+    @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
+    @patch('kiwi.boxbuild.box_build.Path.which')
     def test_run_cross_arch_aarch64_on_x86_64(
         self,
         mock_path_which,

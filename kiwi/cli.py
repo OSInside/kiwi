@@ -22,7 +22,7 @@ import os
 from importlib.metadata import entry_points, EntryPoint
 from pathlib import Path
 from typer.core import TyperGroup
-from typing import Annotated, Any, Dict, Optional, List
+from typing import Annotated, Any, Callable, Dict, Optional, List
 
 if sys.version_info >= (3, 8):
     from typing import Literal  # pragma: no cover
@@ -42,6 +42,41 @@ from kiwi.version import __version__
 from kiwi.defaults import Defaults
 
 log = logging.getLogger('kiwi')
+
+
+def mutually_exclusive(*names: str) -> Callable[..., Any]:
+    """
+    Create a typer option callback which rejects the combination
+    of the option with any of the other options from the given
+    group of mutually exclusive options
+
+    Options provided on the command line are processed in the
+    order they appear. Thus the callback of the later option sees
+    the value of the former option in the context parameters
+
+    :param str names: python parameter names of the options in the group
+
+    :return: typer option callback
+
+    :rtype: Callable
+    """
+
+    def callback(
+        ctx: typer.Context, param: typer.CallbackParam, value: Any
+    ) -> Any:
+        if value:
+            for option in ctx.command.params:
+                if (
+                    option.name != param.name
+                    and option.name in names
+                    and ctx.params.get(option.name)
+                ):
+                    raise typer.BadParameter(
+                        f'mutually exclusive with {option.opts[0]}'
+                    )
+        return value
+
+    return callback
 
 
 class PassThroughGroup(TyperGroup):
@@ -1216,12 +1251,31 @@ class Cli:
         kiwi_version: Annotated[
             Optional[str],
             typer.Option(
+                callback=mutually_exclusive('kiwi_version', 'kiwi_git'),
                 help='<version> Specify a KIWI version to use for '
                 'the build. The referenced KIWI will be fetched from '
                 'pip and replaces the box installed KIWI version. '
                 'Note: If --no-snapshot is used in combination '
                 'with this option, the change of the KIWI version will '
-                'be permanently stored in the used box.'
+                'be permanently stored in the used box. '
+                'This option is mutually exclusive with --kiwi-git.',
+            ),
+        ] = None,
+        kiwi_git: Annotated[
+            Optional[str],
+            typer.Option(
+                callback=mutually_exclusive('kiwi_version', 'kiwi_git'),
+                help='<git_link> Specify a KIWI git link to use for '
+                'the build, e.g. '
+                'https://github.com/OSInside/kiwi/tree/BRANCH_NAME. '
+                'The referenced KIWI source will be cloned, built and '
+                'installed in the box and replaces the box installed '
+                'KIWI version. If no /tree/BRANCH_NAME is part of the '
+                'link, the default branch of the repository is used. '
+                'Note: If --no-snapshot is used in combination '
+                'with this option, the change of the KIWI version will '
+                'be permanently stored in the used box. '
+                'This option is mutually exclusive with --kiwi-version.',
             ),
         ] = None,
         shared_path: Annotated[
@@ -1359,6 +1413,7 @@ class Cli:
             '--box-debug': box_debug,
             '--container': container,
             '--kiwi-version': kiwi_version,
+            '--kiwi-git': kiwi_git,
             '--shared-path': Cli._as_path_name(shared_path),
             '--no-update-check': no_update_check,
             '--no-snapshot': no_snapshot,

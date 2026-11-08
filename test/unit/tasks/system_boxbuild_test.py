@@ -56,6 +56,7 @@ class TestSystemBoxbuildTask:
         self.task.command_args['--box'] = None
         self.task.command_args['--box-debug'] = False
         self.task.command_args['--kiwi-version'] = None
+        self.task.command_args['--kiwi-git'] = None
         self.task.command_args['--shared-path'] = None
         self.task.command_args['--9p-sharing'] = None
         self.task.command_args['--sshfs-sharing'] = None
@@ -131,6 +132,7 @@ class TestSystemBoxbuildTask:
             False,
             None,
             None,
+            None,
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')
@@ -170,6 +172,7 @@ class TestSystemBoxbuildTask:
             True,
             True,
             False,
+            None,
             None,
             None,
         )
@@ -231,6 +234,24 @@ class TestSystemBoxbuildTask:
             False,
             None,
             None,
+            None,
+        )
+
+    @patch('kiwi.tasks.system_boxbuild.BoxBuild')
+    def test_process_system_boxbuild_kiwi_git(self, mock_BoxBuild):
+        self._init_command_args()
+        self.task.command_args['boxbuild'] = True
+        self.task.command_args['--box'] = 'universal'
+        self.task.command_args['--kiwi-git'] = (
+            'https://github.com/OSInside/kiwi/tree/some_branch'
+        )
+        box_build = Mock()
+        mock_BoxBuild.return_value = box_build
+        self.task.process()
+        assert box_build.run.call_args.args[4] is None
+        assert (
+            box_build.run.call_args.args[6]
+            == 'https://github.com/OSInside/kiwi/tree/some_branch'
         )
 
     @patch('kiwi.tasks.system_boxbuild.BoxBuild')

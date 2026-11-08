@@ -19,7 +19,7 @@ SYNOPSIS
        [--box-smp-cpus=<number>]
        [--box-debug]
        [--container]
-       [--kiwi-version=<version>]
+       [--kiwi-version=<version> | --kiwi-git=<git_link>]
        [--shared-path=<path>]
        [--no-update-check]
        [--no-snapshot]
@@ -115,7 +115,19 @@ OPTIONS
   KIWI will be fetched from pip and replaces the box installed
   KIWI version. Note: If --no-snapshot is used in combination
   with this option, the change of the KIWI version will be
-  permanently stored in the used box.
+  permanently stored in the used box. This option is
+  mutually exclusive with --kiwi-git.
+
+--kiwi-git=<git_link>
+
+  Specify a KIWI git link to use for the build, for example
+  https://github.com/OSInside/kiwi/tree/BRANCH_NAME. The referenced
+  KIWI source will be cloned, built and installed in the box and
+  replaces the box installed KIWI version. If no /tree/BRANCH_NAME
+  is part of the link, the default branch of the repository is used.
+  Note: If --no-snapshot is used in combination with this option,
+  the change of the KIWI version will be permanently stored in the
+  used box. This option is mutually exclusive with --kiwi-version.
 
 --shared-path=<path>
 

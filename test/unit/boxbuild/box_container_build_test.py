@@ -1,4 +1,4 @@
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 from pytest import raises
 
 from kiwi.boxbuild.box_container_build import BoxContainerBuild
@@ -216,3 +216,49 @@ class TestBoxContainerBuild:
             '--volume /var/tmp/repos:/var/tmp/repos '
             'some'
         )
+
+    @patch('os.path.isdir')
+    @patch('os.path.abspath')
+    @patch('os.path.exists')
+    @patch('os.environ')
+    @patch('os.system')
+    @patch('kiwi.boxbuild.box_container_build.NamedTemporaryFile')
+    @patch('kiwi.boxbuild.box_container_build.Command.run')
+    @patch('pathlib.Path')
+    def test_run_with_kiwi_git(
+        self,
+        mock_Path,
+        mock_Command_run,
+        mock_NamedTemporaryFile,
+        mock_os_system,
+        mock_os_environ,
+        mock_os_path_exists,
+        mock_os_abspath,
+        mock_os_path_isdir,
+    ):
+        mock_os_path_isdir.return_value = True
+        mock_os_abspath.side_effect = lambda path: path
+        mock_os_path_exists.side_effect = lambda path: path == 'desc'
+        tmpfile = Mock()
+        tmpfile.name = 'tmpfile'
+        mock_NamedTemporaryFile.return_value = tmpfile
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.build.run(
+                [
+                    '--type',
+                    'oem',
+                    'system',
+                    'build',
+                    '--description',
+                    'desc',
+                    '--target-dir',
+                    'target',
+                ],
+                kiwi_git='https://github.com/OSInside/kiwi/tree/some_branch',
+            )
+            assert file_handle.write.call_args_list[0] == call(
+                'kiwi="--type oem system build"'
+                ' kiwi_git_repo=_https://github.com/OSInside/kiwi_'
+                ' kiwi_git_branch=_some_branch_'
+            )

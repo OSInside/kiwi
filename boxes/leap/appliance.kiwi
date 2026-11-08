@@ -58,6 +58,11 @@
         <package name="btrfsprogs"/>
         <package name="python3-kiwi"/>
         <package name="python3-pip"/>
+        <package name="git-core"/>
+        <package name="python3-build"/>
+        <package name="python3-installer"/>
+        <package name="python3-poetry-core"/>
+        <package name="python3-wheel"/>
         <package name="checkmedia"/>
         <package name="jing"/>
         <package name="iproute2"/>

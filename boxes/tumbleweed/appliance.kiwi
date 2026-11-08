@@ -82,6 +82,11 @@
         <package name="kiwi-systemdeps"/>
         <package name="python3-devel"/>
         <package name="python3-pip"/>
+        <package name="git-core"/>
+        <package name="python3-build"/>
+        <package name="python3-installer"/>
+        <package name="python3-poetry-core"/>
+        <package name="python3-wheel"/>
         <package name="netcat-openbsd"/>
         <package name="s390-tools" arch="s390x"/>
         <package name="distribution-gpg-keys"/>

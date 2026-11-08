@@ -96,6 +96,7 @@ class BoxBuild:
         keep_open: bool = False,
         kiwi_version: Optional[str] = None,
         custom_shared_path: Optional[str] = None,
+        kiwi_git: Optional[str] = None,
     ) -> None:
         """
         Start the build process in a box VM using KVM
@@ -116,6 +117,9 @@ class BoxBuild:
         :param bool keep_open: keep VM running True|False
         :param str kiwi_version: pip install this kiwi version
         :param str custom_shared_path: make this path available in the box
+        :param str kiwi_git:
+            git link to install kiwi from source, Example:
+            https://github.com/OSInside/kiwi/tree/BRANCH_NAME
         """
         self.kiwi_build_command = kiwi_build_command
         desc = self._pop_arg_param('--description')
@@ -137,6 +141,8 @@ class BoxBuild:
             vm_append.append('kiwi-no-halt')
         if kiwi_version:
             vm_append.append('kiwi_version=_{0}_'.format(kiwi_version))
+        if kiwi_git:
+            vm_append += BoxBuildDefaults.get_kiwi_git_box_args(kiwi_git)
         if custom_shared_path:
             vm_append.append('custom_mount=_{0}_'.format(custom_shared_path))
         if self.sharing_backend == 'sshfs':
