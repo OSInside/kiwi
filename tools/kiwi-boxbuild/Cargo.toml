@@ -1,0 +1,22 @@
+[package]
+name = "kiwi-boxbuild"
+version = "11.1.8"
+edition = "2021"
+rust-version = "1.81"
+license = "GPL-3.0-or-later"
+description = "Build an image in a self contained box using the boxbuild runtime container"
+homepage = "https://osinside.github.io/kiwi/"
+repository = "https://github.com/OSInside/kiwi"
+
+[dependencies]
+clap = { version = "4.5", default-features = false, features = ["std", "derive", "help", "usage", "error-context", "suggestions"] }
+log = { version = "0.4" }
+env_logger = { version = "0.11", default-features = false }
+serde = { version = "1.0", features = ["derive"] }
+serde_norway = { version = "0.9" }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

@@ -14,6 +14,7 @@ Alternative Build Methods
    :maxdepth: 1
 
    build_methods/build_self_contained
+   build_methods/build_with_runtime_container
    build_methods/build_based_on_containers
 
 The `boxbuild` command runs the {kiwi} build inside of a self-contained
@@ -21,6 +22,12 @@ virtual machine or container, called a box. This keeps the build host
 free from the build tool chain, allows building as a non-root user,
 and allows building images for other distributions than the one
 running on the build host. See :ref:`self_contained` for details.
+
+The `kiwi-boxbuild` command pulls a small runtime container and calls
+the `kiwi-ng system boxbuild` command inside of it. {kiwi} and the
+requirements of the `boxbuild` command are provided by the runtime
+container, such that only `podman` is needed on the build host. See
+:ref:`runtime_container_boxbuild` for details.
 
 The `stash` and `stackbuild` commands store {kiwi} built root trees as
 OCI containers and build images on top of one or more of those
