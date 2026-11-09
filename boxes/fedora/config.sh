@@ -66,3 +66,8 @@ for profile in ${kiwi_profiles//,/ }; do
         systemctl mask systemd-modules-load
     fi
 done
+
+#======================================
+# dnf Compat links
+#--------------------------------------
+ln -s /usr/bin/dnf5 /usr/bin/dnf4
