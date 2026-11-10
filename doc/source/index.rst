@@ -1,5 +1,8 @@
 .. kiwi documentation master file
 
+.. meta::
+   :algolia-site-verification: 3F201E9586E5E7B3
+
 .. only:: suse
 
    .. include:: suse_metadata.rst
