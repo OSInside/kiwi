@@ -107,6 +107,14 @@ Start with :doc:`quickstart` for a first build, :doc:`concept_and_workflow` for
 workflow details, and :doc:`image_description` for the schema-backed reference
 for description files.
 
+.. note::
+   Most chapters of this documentation reference example image descriptions
+   from the integration build tests, which are part of the {kiwi} source
+   repository in the :file:`build-tests` directory. In addition, the
+   `community image descriptions <https://github.com/OSInside/kiwi-descriptions>`__
+   offer examples for a wider range of distributions, and can also contain
+   image descriptions for certain use cases, such as desktop images.
+
 System Requirements
 -------------------
 
