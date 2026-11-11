@@ -13,3 +13,21 @@
     padding: 0;
     font-size: 16px;
 }
+
+/*
+ * The floating button which opens the Algolia AI chat
+ *
+ * Algolia places the button with position: fixed in the bottom right
+ * corner, but on narrow screens (max-width: 680px) it switches it to
+ * position: relative. The button lives in a container appended to the
+ * end of <body>, and in this theme the whole page is positioned
+ * absolutely, so the button falls back to the top left corner of the
+ * page, partially outside of the viewport. There it covers the button
+ * of the theme which opens the navigation menu on narrow screens.
+ * Keep the button fixed in the bottom right corner on all screen sizes.
+ * The body prefix raises the specificity above the Algolia rule, which
+ * is injected after this file and would otherwise win
+ */
+body .ais-ChatToggleButton--floating {
+    position: fixed;
+}

@@ -212,7 +212,7 @@ html_sidebars = {
 
 html_theme = "sphinx_rtd_theme"
 
-# Style adaptions of the Algolia search field to the theme
+# Style adaptions of the Algolia search field and AI chat button to the theme
 html_static_path = ['.static']
 html_css_files = ['algolia.css']
 
