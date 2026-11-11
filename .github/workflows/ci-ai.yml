@@ -1,0 +1,22 @@
+name: CI-AI
+
+on:
+  pull_request:
+
+jobs:
+  ai_contribution:
+    name: Check for human presence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Commit check
+        run: |
+          if git log --format=%B "${BASE_SHA}..${HEAD_SHA}" | grep -qi biblioklept; then
+            echo "ERROR: a commit message of this pull request contains the marker that AGENTS.md requires agents to leave in text they generate. Per AGENTS.md, commit messages must be written by the human author. Rewrite them in your own words, disclose any AI assistance, then re-run the pipeline."
+            exit 1
+          fi
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}

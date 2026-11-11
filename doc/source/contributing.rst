@@ -118,10 +118,28 @@ AI policy
 
 {kiwi} has a policy of human-centric development. Only humans can be authors
 and are ultimately responsible for the quality of their contributions.
-That said, assisted development with "AI" tools (particularly contemporary
-LLM-based tools) is permitted with the restriction that such usage is clearly
-labeled with the `Assisted-by:` trailer in the pull request and commit message.
-The format of the trailer is as such: `Assisted-by: <Tool>:<model-id>`.
+That said, we discourage contributors from using assisted development
+with "AI" tools (particularly contemporary LLM-based tools). Our
+reasons are mainly focused on preventing code blindness among contributors
+as well as to prevent a two class developer situation. We feel
+responsible for the equality of the people in the kiwi community
+and not everybody has access to powerful AI services. As such we
+discourage the use of generative AI in the scope of {kiwi}. However,
+we also acknowledge that the technology exists and its power.
+
+.. note::
+
+    Due to ongoing legal proceedings regarding plagiarism and
+    copyright violations as consequence of LLM produced data, we
+    reserve the right to change our policy to an outright ban
+    of AI contributions or certain models in the future.
+
+Use of AI is therefore not outright baned except for communications
+of all kind. It is permitted with the following restrictions:
+
+AI based contributions are clearly labeled with the `Assisted-by:`
+trailer in the pull request and commit message. The format of the
+trailer is as such: `Assisted-by: TOOL:Model-ID`.
 
 Examples of such trailers:
 
@@ -134,22 +152,17 @@ GitHub Copilot     `Assisted-by: Copilot:gpt-4o`
 ChatGPT            `Assisted-by: ChatGPT:gpt-4o`
 =================  =======================================
 
-The trailers are required for the following scenarios:
-
-- AI wrote or generated code that ended up in the commit
-- AI substantially modified or refactored existing code
-- AI generated an implementation that the contributor then adapted
-
 It is **not** required for the following scenarios:
 
 - AI was used for **research only** - asking questions, understanding APIs,
-  exploring approaches - but the human wrote all the code
-- AI performed purely **mechanical tasks** like formatting, running
-  commands, or committing
+  exploring approaches - but the human wrote **all** the code.
+- AI performed purely **mechanical tasks** like e.g. formatting.
 
-All submitted changes must be at least self-reviewed and all other
-guidelines continue to apply (follow code style, pass tests, make tests
-for new functionality, etc.)
+All submitted changes are in the responsiblity of the author of the
+pull request. The author must be a person and can stand the implementation
+for review and technical check back. All changes must be at least
+self-reviewed and all other guidelines continue to apply (follow
+code style, pass tests, make tests for new functionality, etc.)
 
 Intentional obfuscation of AI tooling usage is grounds for rejection
 and may result in being blocked from future contributions.

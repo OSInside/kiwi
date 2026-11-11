@@ -1,11 +1,21 @@
 # How to Contribute to KIWI
 
-:+1::tada: First off, thanks for taking the time to contribute! :tada::+1:
+Thanks for taking the time to contribute!
 
-The following article is a set of guidelines for contributing to KIWI which
-is hosted on the [OsInside Organization](https://github.com/OsInside) on GitHub.
+The following article is a set of guidelines for contributing to KIWI
+which is hosted on the [OSInside Organization](https://github.com/osinside)
+on GitHub.
+
+## Creating PRs
+
 For technical details on contributing code and/or documentation please take a
 moment and read the [Contributing](https://osinside.github.io/kiwi/contributing.html) chapter. Thanks much.
+
+## AI Policy
+
+Please respect our AI policy:
+
+* https://osinside.github.io/kiwi/contributing.html#ai-policy
 
 ## Reporting Bugs
 
@@ -23,5 +33,4 @@ If you need to discuss code issues, there is a KIWI mailing list on
 Google Groups, see <kiwi-images@googlegroups.com>. Alternatively
 reach out to the [Matrix](https://matrix.to/#kiwi:matrix.org) channel.
 
-
-Thanks! :heart: :heart: :heart:
+Thanks! :heart:
