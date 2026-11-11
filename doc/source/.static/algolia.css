@@ -1,0 +1,15 @@
+/*
+ * The Algolia search field, see .templates/searchbox.html
+ *
+ * The theme styles every text input, which also applies to the input
+ * inside the search field of Algolia: it draws a second box with a
+ * border and an inset shadow inside the field and shrinks the text to
+ * 80%. The input is reset to the plain input Algolia designs it as,
+ * with the text in the size of the body text
+ */
+#autocomplete .ais-AutocompleteInput {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    font-size: 16px;
+}

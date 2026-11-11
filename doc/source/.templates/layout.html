@@ -1,0 +1,11 @@
+{% extends "!layout.html" %}
+
+{#- Load the Algolia Experiences library at the end of <body>. It
+    renders the search field into the #autocomplete container, see
+    searchbox.html. The library reads its settings from its own URL
+    and must therefore be loaded as a plain script, without async or
+    defer -#}
+{%- block footer %}
+  {{ super() }}
+  <script src="https://cdn.jsdelivr.net/npm/@algolia/experiences/dist/experiences.js?appId=5B872QGQDR&apiKey=3e83220f165a4c43046379870bf6172b&experienceId=5B872QGQDR&env=prod"></script>
+{%- endblock %}
