@@ -212,6 +212,10 @@ html_sidebars = {
 
 html_theme = "sphinx_rtd_theme"
 
+# Style adaptions of the Algolia search field to the theme
+html_static_path = ['.static']
+html_css_files = ['algolia.css']
+
 html_theme_options = {
     'collapse_navigation': False,
     'sticky_navigation': True,
