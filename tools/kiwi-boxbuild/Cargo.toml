@@ -1,6 +1,6 @@
 [package]
 name = "kiwi-boxbuild"
-version = "11.1.11"
+version = "11.1.12"
 edition = "2021"
 rust-version = "1.81"
 license = "GPL-3.0-or-later"
