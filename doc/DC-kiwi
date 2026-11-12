@@ -1,8 +1,0 @@
-## ----------------------------
-## Doc Config File for DAPS
-## ----------------------------
-MAIN=xml/book.xml
-ADOC_POST=yes
-ADOC_TYPE=book
-STYLEROOT="/usr/share/xml/docbook/stylesheet/suse2022-ns"
-DOCBOOK5_RNG_URI="file:///usr/share/xml/docbook/schema/rng/5.2/docbookxi.rnc"
