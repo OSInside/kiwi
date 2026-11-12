@@ -3,49 +3,49 @@
 kiwi-ng system create
 =====================
 
+.. _db_kiwi_system_create_desc:
+
+Runs the create step: builds the image from a root tree created by
+`kiwi-ng system prepare` and stores the image files in the target
+directory, see :ref:`create-step`.
+
 .. _db_kiwi_system_create_synopsis:
 
-SYNOPSIS
---------
+Usage
+-----
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
-
-   kiwi-ng system create --help
-   kiwi-ng system create --root=<directory> --target-dir=<directory>
-       [--signing-key=<key-file>...]
-
-.. _db_kiwi_system_create_desc:
-
-DESCRIPTION
------------
-
-Create an image from the previously prepared image root directory. The `kiwi-ng
-system create` command is normally issued after the `kiwi-ng system prepare` command, and it
-builds the requested image type in the specified target directory.
+   kiwi-ng [global options] system create \
+       --root <directory> \
+       --target-dir <directory> \
+       [options]
 
 .. _db_kiwi_system_create_opts:
 
-OPTIONS
+Options
 -------
 
---root=<directory>
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  The path to the image root directory. This directory is normally created by the
-  `kiwi-ng system prepare` command. Keep in mind that if the specified directory is not
-  created using the `kiwi-ng system prepare` command, {kiwi} stores image build metadata
-  in the `image/` directory. This directory must exist for the `kiwi-ng system create`
-  command to work correctly.
+   * - Option
+     - Description
+   * - ``--root <directory>``
+     - Required. The root tree. It must contain the build metadata in
+       :file:`image/`, which the prepare step stores.
+   * - ``--target-dir <directory>``
+     - Required. The directory for the build results.
+   * - ``--signing-key <key-file>...``
+     - Import the key as trusted key into the package manager database.
+       In the create step, this only affects the boot image.
 
---target-dir=<directory>
+.. _db_kiwi_system_create_example:
 
-  The path to store the build results.
+Example
+-------
 
---signing-key=<key-file>
+.. code:: bash
 
-  A trusted key file to be imported into the package manager's database before
-  performing any operation. This is useful if an image build validates
-  repository and package signatures during build time. In the create step, this
-  option only affects the boot image. This option can be specified multiple
-  times.
+   $ sudo kiwi-ng system create --root /tmp/myimage/root --target-dir /tmp/myimage

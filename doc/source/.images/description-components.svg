@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560" version="1.1">
+  <title>Components of a KIWI NG image description</title>
+  <defs>
+    <style>
+      .directory { fill: #f8fafc; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 8 5; rx: 14; ry: 14; }
+      .required-box { fill: #ffffff; stroke: #0f172a; stroke-width: 2.5; rx: 10; ry: 10; }
+      .optional-box { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; rx: 10; ry: 10; }
+      .prepare-pill { fill: #E0F2FE; stroke: #0EA5E9; stroke-width: 1.5; rx: 11; ry: 11; }
+      .create-pill { fill: #F0FDF4; stroke: #16A34A; stroke-width: 1.5; rx: 11; ry: 11; }
+      .title { font-family: Helvetica, Arial, sans-serif; font-size: 22px; font-weight: bold; fill: #0f172a; }
+      .directory-label { font-family: Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #475569; }
+      .kind { font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; fill: #64748b; }
+      .label { font-family: Helvetica, Arial, sans-serif; font-size: 17px; font-weight: bold; fill: #0f172a; }
+      .file { font-family: "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 16px; font-weight: bold; fill: #0f172a; }
+      .subtext { font-family: Helvetica, Arial, sans-serif; font-size: 13px; fill: #475569; }
+      .prepare-text { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #0369a1; }
+      .create-text { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #15803d; }
+      .legend { font-family: Helvetica, Arial, sans-serif; font-size: 13px; fill: #475569; }
+      .center { text-anchor: middle; dominant-baseline: middle; }
+    </style>
+  </defs>
+
+  <text x="400" y="30" class="title center">KIWI NG Image Description</text>
+
+  <!-- the description directory which holds all components -->
+  <rect x="20" y="60" width="760" height="440" class="directory" />
+  <text x="40" y="88" class="directory-label">Description directory</text>
+
+  <!-- the image definition, the only required component -->
+  <rect x="40" y="104" width="720" height="100" class="required-box" />
+  <text x="60" y="128" class="kind">REQUIRED</text>
+  <text x="60" y="152" class="file">config.xml or *.kiwi</text>
+  <text x="60" y="174" class="subtext">Image definition: preferences, repositories, packages, users, image types and profiles.</text>
+  <text x="60" y="192" class="subtext">Written in XML, a *.kiwi file can also use YAML or TOML. Validated against the schema.</text>
+  <rect x="598" y="118" width="74" height="22" class="prepare-pill" />
+  <text x="635" y="129" class="prepare-text center">prepare</text>
+  <rect x="680" y="118" width="64" height="22" class="create-pill" />
+  <text x="712" y="129" class="create-text center">create</text>
+
+  <!-- archives -->
+  <rect x="40" y="220" width="350" height="128" class="optional-box" />
+  <text x="60" y="244" class="kind">OPTIONAL</text>
+  <text x="60" y="268" class="label">Archives</text>
+  <text x="60" y="292" class="subtext">Tar archives referenced via</text>
+  <text x="60" y="310" class="subtext">&lt;archive name="..."/&gt; in &lt;packages&gt;,</text>
+  <text x="60" y="328" class="subtext">installed into the root tree with the packages</text>
+  <rect x="300" y="234" width="74" height="22" class="prepare-pill" />
+  <text x="337" y="245" class="prepare-text center">prepare</text>
+
+  <!-- overlay tree -->
+  <rect x="410" y="220" width="350" height="128" class="optional-box" />
+  <text x="430" y="244" class="kind">OPTIONAL</text>
+  <text x="430" y="268" class="label">Overlay tree</text>
+  <text x="430" y="292" class="subtext">Directory root/ or archive root.tar.gz,</text>
+  <text x="430" y="310" class="subtext">copied on top of the root tree after the</text>
+  <text x="430" y="328" class="subtext">packages are installed, also per profile</text>
+  <rect x="670" y="234" width="74" height="22" class="prepare-pill" />
+  <text x="707" y="245" class="prepare-text center">prepare</text>
+
+  <!-- scripts -->
+  <rect x="40" y="364" width="350" height="120" class="optional-box" />
+  <text x="60" y="388" class="kind">OPTIONAL</text>
+  <text x="60" y="412" class="label">Scripts</text>
+  <text x="60" y="436" class="subtext">Prepare: post_bootstrap.sh, config.sh</text>
+  <text x="60" y="454" class="subtext">Create: images.sh, pre_disk_sync.sh, disk.sh</text>
+  <text x="60" y="472" class="subtext">For changes config.xml cannot express</text>
+  <rect x="218" y="378" width="74" height="22" class="prepare-pill" />
+  <text x="255" y="389" class="prepare-text center">prepare</text>
+  <rect x="300" y="378" width="64" height="22" class="create-pill" />
+  <text x="332" y="389" class="create-text center">create</text>
+
+  <!-- CD root user data -->
+  <rect x="410" y="364" width="350" height="120" class="optional-box" />
+  <text x="430" y="388" class="kind">OPTIONAL</text>
+  <text x="430" y="412" class="label">CD root user data</text>
+  <text x="430" y="436" class="subtext">Archive config-cdroot.tar[.compression],</text>
+  <text x="430" y="454" class="subtext">unpacked onto live and install ISO media,</text>
+  <text x="430" y="472" class="subtext">for example license files or documentation</text>
+  <rect x="680" y="378" width="64" height="22" class="create-pill" />
+  <text x="712" y="389" class="create-text center">create</text>
+
+  <!-- legend -->
+  <rect x="190" y="522" width="74" height="22" class="prepare-pill" />
+  <text x="227" y="533" class="prepare-text center">prepare</text>
+  <text x="274" y="537" class="legend">used in the prepare step</text>
+  <rect x="450" y="522" width="64" height="22" class="create-pill" />
+  <text x="482" y="533" class="create-text center">create</text>
+  <text x="524" y="537" class="legend">used in the create step</text>
+</svg>

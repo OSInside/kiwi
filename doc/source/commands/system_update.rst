@@ -1,45 +1,46 @@
+.. _kiwi_system_update:
+
 kiwi-ng system update
 =====================
 
+.. _db_kiwi_system_update_desc:
+
+Updates the packages of a root tree created by `kiwi-ng system prepare`
+from the repositories of its image description, and optionally adds or
+removes packages.
+
 .. _db_kiwi_system_update_synopsis:
 
-SYNOPSIS
---------
+Usage
+-----
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
-
-   kiwi-ng system update --help
-   kiwi-ng system update --root=<directory>
-       [--add-package=<name>...]
-       [--delete-package=<name>...]
-
-.. _db_kiwi_system_update_desc:
-
-DESCRIPTION
------------
-
-Update a previously prepared image root tree. The update command refreshes the
-contents of the root directory according to the repository setup of the image
-XML description. The update command can also be used to add or remove
-packages from the image root tree.
+   kiwi-ng [global options] system update --root <directory> [options]
 
 .. _db_kiwi_system_update_opts:
 
-OPTIONS
+Options
 -------
 
---add-package=<name>
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  Specify a package to add (install). The option can be specified
-  multiple times.
+   * - Option
+     - Description
+   * - ``--root <directory>``
+     - Required. The root tree to update.
+   * - ``--add-package <name>...``
+     - Install the package.
+   * - ``--delete-package <name>...``
+     - Uninstall the package, including the packages depending on it.
 
---delete-package=<name>
+.. _db_kiwi_system_update_example:
 
-  Specify a package to delete. The option can be specified
-  multiple times.
+Example
+-------
 
---root=<directory>
+.. code:: bash
 
-  Path to the root directory of the image.
+   $ sudo kiwi-ng system update --root /tmp/myimage/root --add-package vim

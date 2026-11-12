@@ -22,12 +22,11 @@ media, containers, and specialized deployment targets.
    overview
    installation
    quickstart
-   concept_and_workflow
+   building_images
    commands
    image_description
    build_methods
    example_use_cases
-   image_types_and_results
    troubleshooting
    contributing
 
@@ -73,6 +72,7 @@ Why KIWI?
   scripts when the schema alone is not enough.
 
 .. sidebar:: Links
+   :class: float-right
 
    * `GitHub Sources <https://github.com/OSInside/kiwi>`__
    * `GitHub Releases <https://github.com/OSInside/kiwi/releases>`__
@@ -102,9 +102,9 @@ Why KIWI?
 Get Started
 -----------
 
-Start with :doc:`quickstart` for a first build, :doc:`concept_and_workflow` for
-workflow details, and :doc:`image_description` for the schema-backed reference
-for description files.
+Start with :doc:`quickstart` for a first build, :doc:`building_images` for
+the build process and how to set up an image, and :doc:`image_description` for
+the schema-backed reference for description files.
 
 .. note::
    Most chapters of this documentation reference example image descriptions
@@ -127,6 +127,14 @@ To build images with {kiwi}, you need:
 * Git to clone image descriptions and example repositories.
 * Optionally, a virtualization environment such as QEMU to boot and inspect
   the resulting images.
+
+.. tip:: Fewer requirements with kiwi-boxbuild
+
+   The `kiwi-boxbuild` tool, written in Rust, runs the build in a
+   self-contained virtual machine started from a runtime container.
+   The build host only needs `podman` and access to the KVM device
+   :file:`/dev/kvm`. Neither {kiwi} and Python nor QEMU have to be
+   installed on it. See :ref:`runtime_container_boxbuild` for details.
 
 The project officially tests and supports the following distributions:
 

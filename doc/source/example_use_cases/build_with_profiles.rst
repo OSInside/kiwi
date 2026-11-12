@@ -21,8 +21,8 @@ command line flag `--profile=$PROFILE_NAME`:
          --set-repo {exc_repo_leap} \
          --target-dir /tmp/myimage
 
-Consult the manual page of :file:`kiwi` for further details:
-:ref:`db_commands_kiwi_synopsis`.
+For further details, see the
+:ref:`global options of kiwi-ng <db_commands_kiwi_opts>`.
 
 
 Building with the Open Build Service

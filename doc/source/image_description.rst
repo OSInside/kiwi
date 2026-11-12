@@ -3,13 +3,14 @@
 Image Description
 =================
 
-KIWI builds images from a description directory. The directory describes what
-packages to install, how to configure the target system, and which image types
-should be created from the prepared root tree.
+.. sidebar:: Abstract
 
-.. contents:: On this page
-   :local:
-   :depth: 2
+   This chapter describes the image description of {kiwi} |version|
+
+.. toctree::
+   :hidden:
+
+   image_description/elements
 
 Description Directory Layout
 ----------------------------
@@ -204,8 +205,3 @@ The exhaustive element and attribute reference is documented in
 Use this page as the guide to the structure of a description directory and use
 :doc:`image_description/elements` as the schema-backed lookup for every valid
 section and attribute.
-
-.. toctree::
-   :maxdepth: 1
-
-   image_description/elements.rst

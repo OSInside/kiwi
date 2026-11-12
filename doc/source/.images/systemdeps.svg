@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="660" viewBox="0 0 800 660" version="1.1">
+  <title>The kiwi-systemdeps packages and their requirements</title>
+  <defs>
+    <style>
+      .all { fill: #f8fafc; stroke: #0f172a; stroke-width: 2.5; rx: 10; ry: 10; }
+      .pkg { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; rx: 10; ry: 10; }
+      .pkg-extra { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 6 4; rx: 10; ry: 10; }
+      .title { font-family: Helvetica, Arial, sans-serif; font-size: 22px; font-weight: bold; fill: #0f172a; }
+      .name { font-family: "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 12px; font-weight: bold; fill: #0f172a; }
+      .subtext { font-family: Helvetica, Arial, sans-serif; font-size: 12px; fill: #475569; }
+      .legend { font-family: Helvetica, Arial, sans-serif; font-size: 13px; fill: #475569; }
+      .arrow { stroke: #475569; stroke-width: 2; fill: none; }
+      .arrow-head { fill: #475569; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" class="arrow-head" />
+    </marker>
+  </defs>
+  <text x="400" y="34" class="title" text-anchor="middle">kiwi-systemdeps Packages</text>
+  <rect x="40" y="58" width="720" height="50" class="all" />
+  <text x="400" y="80" class="name" text-anchor="middle">kiwi-systemdeps</text>
+  <text x="400" y="98" class="subtext" text-anchor="middle">requires all packages below, except for -boxbuild and -stackbuild</text>
+  <rect x="145" y="140" width="210" height="56" class="pkg" />
+  <text x="250.0" y="163" class="name" text-anchor="middle">kiwi-systemdeps-disk-images</text>
+  <text x="250.0" y="182" class="subtext" text-anchor="middle">oem disk images</text>
+  <rect x="145" y="240" width="210" height="56" class="pkg" />
+  <text x="250.0" y="263" class="name" text-anchor="middle">kiwi-systemdeps-iso-media</text>
+  <text x="250.0" y="282" class="subtext" text-anchor="middle">iso images, oem install media</text>
+  <rect x="40" y="340" width="210" height="56" class="pkg" />
+  <text x="145.0" y="363" class="name" text-anchor="middle">kiwi-systemdeps-filesystems</text>
+  <text x="145.0" y="382" class="subtext" text-anchor="middle">filesystem based image types</text>
+  <rect x="260" y="340" width="210" height="56" class="pkg" />
+  <text x="365.0" y="363" class="name" text-anchor="middle">kiwi-systemdeps-bootloaders</text>
+  <text x="365.0" y="382" class="subtext" text-anchor="middle">bootable oem and iso images</text>
+  <rect x="145" y="440" width="210" height="56" class="pkg" />
+  <text x="250.0" y="463" class="name" text-anchor="middle">kiwi-systemdeps-core</text>
+  <text x="250.0" y="482" class="subtext" text-anchor="middle">tbz, package managers, tar</text>
+  <line x1="250.0" y1="196" x2="250.0" y2="238" class="arrow" marker-end="url(#arrowhead)" />
+  <line x1="250.0" y1="296" x2="145.0" y2="338" class="arrow" marker-end="url(#arrowhead)" />
+  <line x1="250.0" y1="296" x2="365.0" y2="338" class="arrow" marker-end="url(#arrowhead)" />
+  <line x1="145.0" y1="396" x2="250.0" y2="438" class="arrow" marker-end="url(#arrowhead)" />
+  <line x1="365.0" y1="396" x2="250.0" y2="438" class="arrow" marker-end="url(#arrowhead)" />
+  <rect x="520" y="140" width="240" height="56" class="pkg-extra" />
+  <text x="640.0" y="163" class="name" text-anchor="middle">kiwi-systemdeps-stackbuild</text>
+  <text x="640.0" y="182" class="subtext" text-anchor="middle">system stash and stackbuild</text>
+  <rect x="520" y="240" width="240" height="56" class="pkg" />
+  <text x="640.0" y="263" class="name" text-anchor="middle">kiwi-systemdeps-containers</text>
+  <text x="640.0" y="282" class="subtext" text-anchor="middle">docker and oci images</text>
+  <rect x="520" y="340" width="240" height="56" class="pkg" />
+  <text x="640.0" y="363" class="name" text-anchor="middle">kiwi-systemdeps-containers-wsl</text>
+  <text x="640.0" y="382" class="subtext" text-anchor="middle">wsl and appx images</text>
+  <rect x="520" y="440" width="240" height="56" class="pkg" />
+  <text x="640.0" y="463" class="name" text-anchor="middle">kiwi-systemdeps-image-validation</text>
+  <text x="640.0" y="482" class="subtext" text-anchor="middle">jing, YAML and TOML support</text>
+  <rect x="520" y="540" width="240" height="56" class="pkg-extra" />
+  <text x="640.0" y="563" class="name" text-anchor="middle">kiwi-systemdeps-boxbuild</text>
+  <text x="640.0" y="582" class="subtext" text-anchor="middle">system boxbuild, QEMU/KVM</text>
+  <line x1="640.0" y1="196" x2="640.0" y2="238" class="arrow" marker-end="url(#arrowhead)" />
+  <line x1="40" y1="626" x2="72" y2="626" class="arrow" marker-end="url(#arrowhead)" />
+  <text x="82" y="630" class="legend" text-anchor="start">requires, the required packages are installed as well</text>
+  <rect x="480" y="616" width="28" height="20" class="pkg-extra" />
+  <text x="518" y="630" class="legend" text-anchor="start">not part of kiwi-systemdeps</text>
+</svg>

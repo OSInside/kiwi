@@ -1,5 +1,63 @@
 {% extends "!layout.html" %}
 
+{#- The page layout follows the documentation layout of the Carbon
+    design system: a dark header bar on top which holds the product
+    name and the search field, a light navigation tree on the left,
+    the page content in the middle and an "On this page" navigation
+    of the current page on the right. The styles for this layout
+    are provided by .static/layout.css -#}
+
+{%- block extrahead %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans@1/css/ibm-plex-sans-all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-mono@1/css/ibm-plex-mono-all.min.css">
+{%- endblock %}
+
+{#- The header bar on top of the page. The button opens the
+    navigation on narrow screens, the theme binds the click handler
+    to all elements with data-toggle="wy-nav-top" -#}
+{%- block extrabody %}
+  <header class="kiwi-header">
+    <button type="button" class="kiwi-header-menu" data-toggle="wy-nav-top" aria-label="{{ _('Navigation menu') }}">
+      <span class="fa fa-bars" aria-hidden="true"></span>
+    </button>
+    <a class="kiwi-header-name" href="{{ pathto(root_doc|default(master_doc)) }}">
+      {%- if logo_url %}
+      <img src="{{ logo_url }}" alt="" />
+      {%- endif %}
+      <span class="kiwi-header-product">{{ project }}</span>
+      <span class="kiwi-header-title">{{ _('Documentation') }}</span>
+    </a>
+    <div class="kiwi-header-search">
+      {%- include "searchbox.html" %}
+    </div>
+    <a class="kiwi-header-link" href="https://github.com/OSInside/kiwi">
+      <span class="fa fa-github" aria-hidden="true"></span>
+      <span class="kiwi-header-link-text">GitHub</span>
+    </a>
+  </header>
+{%- endblock %}
+
+{#- Product name and version on top of the navigation tree. The
+    search field moved into the header bar -#}
+{%- block sidebartitle %}
+  <a class="kiwi-nav-product" href="{{ pathto(root_doc|default(master_doc)) }}">{{ project }}</a>
+  <span class="kiwi-nav-version">{{ version }}</span>
+{%- endblock %}
+
+{#- The "On this page" navigation of the sections of the current
+    page. On wide screens it is placed right of the page content,
+    on narrow screens it is hidden -#}
+{%- block document %}
+  {{ super() }}
+  {%- if display_toc %}
+  <nav class="kiwi-page-toc" aria-label="{{ _('On this page') }}">
+    <p class="kiwi-page-toc-title">{{ _('On this page') }}</p>
+    {{ toc }}
+  </nav>
+  {%- endif %}
+{%- endblock %}
+
 {#- Load the Algolia Experiences library at the end of <body>. It
     renders the search field into the #autocomplete container, see
     searchbox.html. The library reads its settings from its own URL

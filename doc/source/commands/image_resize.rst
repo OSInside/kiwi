@@ -3,46 +3,50 @@
 kiwi-ng image resize
 ====================
 
+.. _db_kiwi_image_resize_desc:
+
+Resizes a disk image. The added space is not used by the image until the
+partitions are resized, for example by the resize on first boot of an
+`oem` disk image. The command is therefore mostly useful for `oem`
+images.
+
 .. _db_kiwi_image_resize_synopsis:
 
-SYNOPSIS
---------
+Usage
+-----
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
-
-   kiwi-ng image resize --help
-   kiwi-ng image resize --target-dir=<directory> --size=<size>
-       [--root=<directory>]
-
-.. _db_kiwi_image_resize_desc:
-
-DESCRIPTION
------------
-
-For disk-based images, this allows you to resize the image to a new disk geometry. The
-additional space is free and not in use by the image. The OEM boot code in
-{kiwi} offers a resizing procedure that can be used to make use of the
-additional free space. For OEM image builds, it is advisable to run the resizing
-operation.
+   kiwi-ng [global options] image resize \
+       --target-dir <directory> \
+       --size <size> \
+       [options]
 
 .. _db_kiwi_image_resize_opts:
 
-OPTIONS
+Options
 -------
 
---root=<directory>
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  The path to the root directory. If not specified, kiwi
-  searches for the root directory in `build/image-root` under
-  the specified target directory.
+   * - Option
+     - Description
+   * - ``--target-dir <directory>``
+     - Required. The target directory of the build.
+   * - ``--size <size>``
+     - Required. The new size in bytes, or with the unit `m` (MiB) or `g`
+       (GiB), for example `20g`.
+   * - ``--root <directory>``
+     - The root tree of the image. Default:
+       :file:`<target-dir>/build/image-root`.
 
---size=<size>
+.. _db_kiwi_image_resize_example:
 
-  The new size of the image. The value is either a size in bytes,
-  or it can be specified with m (MB) or g (GB). Example: 20g
+Example
+-------
 
---target-dir=<directory>
+.. code:: bash
 
-  The directory containing the kiwi build results.
+   $ sudo kiwi-ng image resize --target-dir /tmp/myimage --size 20g

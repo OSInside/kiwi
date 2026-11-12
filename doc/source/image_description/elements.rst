@@ -1324,7 +1324,7 @@ bootprofile="name":
 bundle_format="string":
   Base name pattern used for all target image files by
   :command:`kiwi-ng result bundle`. See
-  :ref:`image_types` for the list of supported placeholders.
+  :ref:`result_bundle_format` for the list of supported placeholders.
 
 disk_start_sector="number":
   First usable sector of the partition table. The minimum, and the

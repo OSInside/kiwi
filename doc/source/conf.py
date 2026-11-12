@@ -8,6 +8,7 @@ import sys
 from os.path import abspath, dirname, join, normpath
 import shlex
 
+from docutils import nodes
 from sphinx.transforms import SphinxTransform
 
 
@@ -60,10 +61,99 @@ class AddRootRole(SphinxTransform):
             self.document['role'] = 'main'
 
 
+class AddTermAnchors(SphinxTransform):
+    """
+    Make the terms of definition lists linkable
+
+    A definition list shows a term like a title followed by its
+    explanation. Docutils does not give the term an id, thus there
+    is no way to link to it. Each term gets an id made from its
+    text and the permalink the headings of the sections have. The id
+    is unique within the page, if it is taken already, the id of
+    the section which holds the term is put in front of it and if
+    that is taken too, a number is appended. The kiwi-term class
+    marks the terms for the search crawler, which creates a search
+    result for each of them
+    """
+    default_priority = 500
+
+    def apply(self):
+        for term in list(self.document.findall(nodes.term)):
+            if not isinstance(term.parent, nodes.definition_list_item):
+                continue
+            if not term['ids']:
+                term_id = self._unique_id(term)
+                if not term_id:
+                    continue
+                term['ids'].append(term_id)
+                self.document.ids[term_id] = term
+            term['classes'].append('kiwi-term')
+            if self.config.html_permalinks:
+                # the same permalink sign the headings use
+                term += nodes.raw(
+                    '', '<a class="headerlink" href="#{0}" title="{1}">{2}</a>'.format(
+                        term['ids'][0], 'Link to this term',
+                        self.config.html_permalinks_icon
+                    ), format='html'
+                )
+
+    def _unique_id(self, term):
+        base_id = nodes.make_id(term.astext())
+        if not base_id:
+            return None
+        candidates = [base_id]
+        parent = term.parent
+        while parent is not None and not isinstance(parent, nodes.section):
+            parent = parent.parent
+        if parent is not None and parent['ids']:
+            candidates.append('{0}-{1}'.format(parent['ids'][0], base_id))
+        for candidate in candidates:
+            if candidate not in self.document.ids:
+                return candidate
+        count = 2
+        while '{0}-{1}'.format(candidates[-1], count) in self.document.ids:
+            count += 1
+        return '{0}-{1}'.format(candidates[-1], count)
+
+
+def add_man_description_section(app, doctree, docname):
+    """
+    Put the introduction of a command page into a Description section
+
+    The command pages start with a description paragraph right below
+    the title, which reads well on a web page. In a manual page, text
+    before the first section would end up in the NAME section. For the
+    manual pages only, the text before the first section is therefore
+    moved into a section named Description
+    """
+    if app.builder.name != 'man' or not docname.startswith('commands/'):
+        return
+    for page in doctree.findall(nodes.section):
+        title = page.next_node(nodes.title)
+        intro = []
+        for child in page.children:
+            if isinstance(child, nodes.section):
+                break
+            if child is not title:
+                intro.append(child)
+        if not intro:
+            return
+        description = nodes.section(
+            '', nodes.title('', 'Description'), ids=[f'{docname}-description']
+        )
+        for child in intro:
+            page.remove(child)
+            description += child
+        page.insert(page.index(title) + 1, description)
+        return
+
+
 def setup(app):
     app.add_config_value('prolog_replacements', {}, True)
     app.add_transform(AddRootRole)
+    app.add_transform(AddTermAnchors)
     app.connect('source-read', prologReplace)
+    app.connect('doctree-resolved', add_man_description_section)
 
 
 prolog_replacements = {
@@ -212,9 +302,15 @@ html_sidebars = {
 
 html_theme = "sphinx_rtd_theme"
 
-# Style adaptions of the Algolia search field and AI chat button to the theme
+# Do not link to the reST source of the pages
+html_show_sourcelink = False
+
+# Page layout following the Carbon design system on top of the theme,
+# see .templates/layout.html, and style adaptions of the Algolia search
+# field and AI chat button
 html_static_path = ['.static']
-html_css_files = ['algolia.css']
+html_css_files = ['layout.css', 'algolia.css']
+html_js_files = ['layout.js']
 
 html_theme_options = {
     'collapse_navigation': False,

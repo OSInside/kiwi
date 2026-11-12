@@ -1,33 +1,42 @@
+.. _kiwi_result_list:
+
 kiwi-ng result list
 ===================
 
+.. _db_kiwi_result_list_desc:
+
+Lists the results of the last `kiwi-ng system build` or
+`kiwi-ng system create` call in a target directory, read from its file
+:file:`kiwi.result`. Each build overwrites this file.
+
 .. _db_kiwi_result_list_synopsis:
 
-SYNOPSIS
---------
+Usage
+-----
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
-
-   kiwi-ng result list --help
-   kiwi-ng result list --target-dir=<directory>
-
-.. _db_kiwi_result_list_desc:
-
-DESCRIPTION
------------
-
-Lists build results from a previous build or create command. During multiple
-image builds with the same target directory, the build result information is
-overwritten every time you build an image. This means that the build result list
-is valid for the last build only.
+   kiwi-ng [global options] result list --target-dir <directory>
 
 .. _db_kiwi_result_list_opts:
 
-OPTIONS
+Options
 -------
 
---target-dir=<directory>
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  Directory containing the {kiwi} build results.
+   * - Option
+     - Description
+   * - ``--target-dir <directory>``
+     - Required. The target directory of the build.
+
+.. _db_kiwi_result_list_example:
+
+Example
+-------
+
+.. code:: bash
+
+   $ kiwi-ng result list --target-dir /tmp/myimage

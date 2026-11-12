@@ -1,0 +1,969 @@
+/*
+ * Documentation layout following the Carbon design system
+ *
+ * The structure of the pages is provided by the Read the Docs theme,
+ * this file restyles it: a dark header bar on top, a light navigation
+ * tree on the left, the page content in the middle and the "On this
+ * page" navigation on the right, see .templates/layout.html.
+ * Colors and sizes are taken from the Carbon design tokens:
+ *
+ *   gray-100 #161616   text, header bar
+ *   gray-80  #393939   header bar hover
+ *   gray-70  #525252   secondary text
+ *   gray-20  #e0e0e0   borders, selected items
+ *   gray-10  #f4f4f4   navigation, code, tiles
+ *   blue-60  #0f62fe   links, current item
+ *   blue-70  #0043ce   link hover
+ */
+
+:root {
+    --kiwi-header-height: 48px;
+    --kiwi-nav-width: 300px;
+    --kiwi-content-width: 960px;
+    --kiwi-toc-width: 16rem;
+    --kiwi-text: #161616;
+    --kiwi-text-secondary: #525252;
+    --kiwi-border: #e0e0e0;
+    --kiwi-layer: #f4f4f4;
+    --kiwi-link: #0f62fe;
+    --kiwi-link-hover: #0043ce;
+    --kiwi-font: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --kiwi-font-mono: "IBM Plex Mono", Menlo, "DejaVu Sans Mono", Consolas, monospace;
+}
+
+/* Fonts */
+
+body,
+h1, h2, h3, h4, h5, h6,
+legend, input, button, select, textarea, .btn,
+.rst-content .toctree-wrapper > p.caption,
+.wy-menu-vertical header,
+.wy-menu-vertical p.caption {
+    font-family: var(--kiwi-font);
+}
+
+code, kbd, pre, samp,
+.rst-content code, .rst-content tt,
+.rst-content pre.literal-block,
+.rst-content div[class^="highlight"] pre,
+.rst-content .linenodiv pre {
+    font-family: var(--kiwi-font-mono);
+}
+
+/* keep headings visible below the fixed header bar when jumping to them */
+html {
+    scroll-padding-top: calc(var(--kiwi-header-height) + 1rem);
+}
+
+body {
+    color: var(--kiwi-text);
+    background: #ffffff;
+}
+
+/* Header bar */
+
+.kiwi-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    height: var(--kiwi-header-height);
+    padding: 0 1rem 0 0;
+    background: #161616;
+    border-bottom: 1px solid #393939;
+    color: #f4f4f4;
+}
+
+.kiwi-header a,
+.kiwi-header a:visited,
+.kiwi-header a:hover {
+    color: #f4f4f4;
+    text-decoration: none;
+}
+
+.kiwi-header-menu {
+    display: none;
+    width: var(--kiwi-header-height);
+    height: var(--kiwi-header-height);
+    border: 0;
+    background: transparent;
+    color: #f4f4f4;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.kiwi-header-menu:hover,
+.kiwi-header-link:hover,
+.kiwi-header-name:hover {
+    background: #393939;
+}
+
+.kiwi-header-name {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 1rem;
+    font-size: 14px;
+    letter-spacing: .16px;
+    white-space: nowrap;
+}
+
+.kiwi-header-name img {
+    width: 28px;
+    height: 28px;
+    margin-right: .5rem;
+}
+
+.kiwi-header-product {
+    font-weight: 600;
+}
+
+.kiwi-header-title {
+    margin-left: .25rem;
+}
+
+.kiwi-header-search {
+    flex: 0 1 24rem;
+    margin-left: auto;
+}
+
+.kiwi-header-search div[role="search"] {
+    margin: 0;
+}
+
+/* The search field fits into the header bar and has round corners.
+   On narrow screens Algolia replaces the field with a button which
+   opens the search, it gets the same size and corners */
+.kiwi-header-search .ais-AutocompleteForm,
+.kiwi-header-search .ais-AutocompleteDetachedSearchButton {
+    height: 40px;
+    border-radius: 12px;
+}
+
+.kiwi-header-link {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-left: 1rem;
+    padding: 0 1rem;
+    font-size: 14px;
+}
+
+.kiwi-header-link .fa {
+    margin-right: .5rem;
+    font-size: 20px;
+}
+
+/* Navigation tree on the left */
+
+.wy-nav-side {
+    top: var(--kiwi-header-height);
+    width: var(--kiwi-nav-width);
+    min-height: 0;
+    padding-bottom: 0;
+    background: var(--kiwi-layer);
+    border-right: 1px solid var(--kiwi-border);
+    color: var(--kiwi-text);
+}
+
+.wy-side-scroll {
+    background: var(--kiwi-layer);
+}
+
+.wy-side-nav-search {
+    margin-bottom: 0;
+    padding: 1.5rem 1rem 1rem;
+    background: transparent;
+    border-bottom: 1px solid var(--kiwi-border);
+    color: var(--kiwi-text);
+    text-align: left;
+}
+
+.wy-side-nav-search > a.kiwi-nav-product {
+    display: block;
+    margin: 0;
+    padding: 0;
+    color: var(--kiwi-text);
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.wy-side-nav-search > a.kiwi-nav-product:hover {
+    background: transparent;
+}
+
+.kiwi-nav-version {
+    display: block;
+    margin-top: .25rem;
+    color: var(--kiwi-text-secondary);
+    font-size: 12px;
+    letter-spacing: .32px;
+}
+
+.wy-menu-vertical {
+    width: var(--kiwi-nav-width);
+    padding: .5rem 0 2rem;
+}
+
+.wy-menu-vertical a,
+.wy-menu-vertical li.current a,
+.wy-menu-vertical li.on a,
+.wy-menu-vertical li.current > a,
+.wy-menu-vertical li.toctree-l1.current > a,
+.wy-menu-vertical li.toctree-l2.current > a,
+.wy-menu-vertical li.toctree-l3.current > a,
+.wy-menu-vertical li.toctree-l4.current > a,
+.wy-menu-vertical li.toctree-l2.current li.toctree-l3 > a,
+.wy-menu-vertical li.toctree-l3.current li.toctree-l4 > a,
+.wy-menu-vertical li.toctree-l4.current li.toctree-l5 > a {
+    color: var(--kiwi-text-secondary);
+    background: transparent;
+    border: 0;
+    font-size: 14px;
+    line-height: 1.29;
+    letter-spacing: .16px;
+}
+
+.wy-menu-vertical li.current,
+.wy-menu-vertical li.current ul,
+.wy-menu-vertical li.toctree-l2.current,
+.wy-menu-vertical li.toctree-l3.current,
+.wy-menu-vertical li.toctree-l4.current {
+    background: transparent;
+}
+
+.wy-menu-vertical a:hover,
+.wy-menu-vertical li.current a:hover,
+.wy-menu-vertical li.current > a:hover,
+.wy-menu-vertical li.toctree-l2.current li.toctree-l3 > a:hover,
+.wy-menu-vertical li.toctree-l3.current li.toctree-l4 > a:hover {
+    color: var(--kiwi-text);
+    background: var(--kiwi-border);
+}
+
+/* the chapter and its sections which hold the current page */
+.wy-menu-vertical li.current > a {
+    color: var(--kiwi-text);
+    font-weight: 600;
+}
+
+/* the current page */
+.wy-menu-vertical li.current > a.current,
+.wy-menu-vertical a.current.reference.internal {
+    color: var(--kiwi-text);
+    background: var(--kiwi-border);
+    box-shadow: inset 4px 0 0 var(--kiwi-link);
+    font-weight: 600;
+}
+
+.wy-menu-vertical li button.toctree-expand,
+.wy-menu-vertical li.current > a button.toctree-expand,
+.wy-menu-vertical li.on a button.toctree-expand {
+    width: 1rem;
+    color: var(--kiwi-text-secondary);
+    text-align: center;
+}
+
+/* chevrons instead of plus and minus signs to expand the tree */
+.wy-menu-vertical li button.toctree-expand:before {
+    content: "\f105";
+}
+
+.wy-menu-vertical li.current > a button.toctree-expand:before,
+.wy-menu-vertical li.on a button.toctree-expand:before {
+    content: "\f107";
+}
+
+.wy-menu-vertical a:hover button.toctree-expand {
+    color: var(--kiwi-text);
+}
+
+.wy-menu-vertical p.caption {
+    color: var(--kiwi-text);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .32px;
+}
+
+/* Content */
+
+.wy-nav-content-wrap {
+    margin-left: var(--kiwi-nav-width);
+    padding-top: var(--kiwi-header-height);
+    background: #ffffff;
+}
+
+.wy-nav-content {
+    max-width: var(--kiwi-content-width);
+    margin: 0;
+    padding: 1.5rem 2rem 3rem;
+    background: #ffffff;
+}
+
+/* the mobile navigation bar of the theme is replaced by the header */
+.wy-nav-top {
+    display: none !important;
+}
+
+.rst-content p,
+.rst-content li,
+.rst-content dd,
+.rst-content dl dt,
+.rst-content table.docutils td {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.rst-content h1 {
+    margin: 1rem 0 1.5rem;
+    color: var(--kiwi-text);
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+.rst-content h2 {
+    margin: 2.5rem 0 1rem;
+    color: var(--kiwi-text);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.33;
+}
+
+.rst-content h3 {
+    margin: 2rem 0 .75rem;
+    color: var(--kiwi-text);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.rst-content h4,
+.rst-content h5,
+.rst-content h6 {
+    margin: 1.5rem 0 .5rem;
+    color: var(--kiwi-text);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.375;
+}
+
+a,
+a:visited,
+.rst-content a,
+.rst-content a:visited {
+    color: var(--kiwi-link);
+    text-decoration: none;
+}
+
+a:hover,
+.rst-content a:hover {
+    color: var(--kiwi-link-hover);
+    text-decoration: underline;
+}
+
+.rst-content a code.literal,
+.rst-content a:visited code.literal {
+    color: var(--kiwi-link);
+}
+
+.rst-content hr,
+.rst-content > div[role="navigation"] > hr {
+    border-top: 1px solid var(--kiwi-border);
+}
+
+/* Breadcrumbs */
+
+.wy-breadcrumbs {
+    font-size: 14px;
+    letter-spacing: .16px;
+}
+
+.wy-breadcrumbs li {
+    color: var(--kiwi-text);
+}
+
+.wy-breadcrumbs li.breadcrumb-item:before {
+    padding: 0 .5rem;
+    color: var(--kiwi-text-secondary);
+    content: "/";
+}
+
+.wy-breadcrumbs li a.icon-home:before {
+    color: var(--kiwi-link);
+}
+
+.wy-breadcrumbs-aside a {
+    font-size: 14px;
+}
+
+/* the breadcrumbs are not separated from the page by a line */
+.rst-content > div[role="navigation"]:first-child > hr {
+    display: none;
+}
+
+/* Code */
+
+.rst-content code.literal,
+.rst-content tt.literal {
+    padding: 0 .25rem;
+    color: var(--kiwi-text);
+    background: var(--kiwi-layer);
+    border: 0;
+    border-radius: 4px;
+    font-size: 87.5%;
+}
+
+/* inline code which is a cross reference is not shown in bold, the
+   default role of the documentation makes most inline code one */
+.rst-content code.xref,
+.rst-content tt.xref,
+a .rst-content code,
+a .rst-content tt {
+    color: var(--kiwi-text);
+    font-weight: 400;
+}
+
+/* Code blocks: Carbon code snippets, a gray box with a thin border,
+   syntax colors from the IBM color palette and a copy button in the
+   upper right corner, see .static/layout.js */
+
+.rst-content div[class^="highlight"],
+.rst-content pre.literal-block {
+    position: relative;
+    margin: 0 0 1.5rem;
+    background: var(--kiwi-layer);
+    border: 1px solid var(--kiwi-border);
+    border-radius: 0;
+}
+
+.rst-content div[class^="highlight"] div[class^="highlight"] {
+    margin: 0;
+    border: 0;
+}
+
+.rst-content .highlight,
+.rst-content div[class^="highlight"] pre {
+    background: var(--kiwi-layer);
+}
+
+.rst-content div[class^="highlight"] pre,
+.rst-content pre.literal-block {
+    padding: 1rem 1.25rem;
+    color: var(--kiwi-text);
+    font-size: 14px;
+    line-height: 1.5;
+    scrollbar-width: thin;
+    scrollbar-color: #c6c6c6 transparent;
+}
+
+.rst-content .highlight .c,
+.rst-content .highlight .c1,
+.rst-content .highlight .ch,
+.rst-content .highlight .cm,
+.rst-content .highlight .cp,
+.rst-content .highlight .cpf,
+.rst-content .highlight .cs {
+    color: #6f6f6f;
+    font-style: italic;
+}
+
+.rst-content .highlight .k,
+.rst-content .highlight .kc,
+.rst-content .highlight .kd,
+.rst-content .highlight .kn,
+.rst-content .highlight .kp,
+.rst-content .highlight .kr,
+.rst-content .highlight .kt,
+.rst-content .highlight .ow {
+    color: #8a3ffc;
+    font-weight: 400;
+}
+
+.rst-content .highlight .nt {
+    color: #0043ce;
+    font-weight: 400;
+}
+
+.rst-content .highlight .na,
+.rst-content .highlight .nv,
+.rst-content .highlight .vg,
+.rst-content .highlight .vi {
+    color: #9f1853;
+}
+
+.rst-content .highlight .nb,
+.rst-content .highlight .bp,
+.rst-content .highlight .nf,
+.rst-content .highlight .fm,
+.rst-content .highlight .nc,
+.rst-content .highlight .nn {
+    color: #0f62fe;
+    font-weight: 400;
+}
+
+.rst-content .highlight .s,
+.rst-content .highlight .s1,
+.rst-content .highlight .s2,
+.rst-content .highlight .sa,
+.rst-content .highlight .sb,
+.rst-content .highlight .sc,
+.rst-content .highlight .sd,
+.rst-content .highlight .se,
+.rst-content .highlight .sh,
+.rst-content .highlight .si,
+.rst-content .highlight .sr,
+.rst-content .highlight .ss,
+.rst-content .highlight .sx {
+    color: #198038;
+    font-style: normal;
+}
+
+.rst-content .highlight .m,
+.rst-content .highlight .mb,
+.rst-content .highlight .mf,
+.rst-content .highlight .mh,
+.rst-content .highlight .mi,
+.rst-content .highlight .mo,
+.rst-content .highlight .il {
+    color: #8e6a00;
+}
+
+.rst-content .highlight .o,
+.rst-content .highlight .p {
+    color: #525252;
+}
+
+.rst-content .highlight .gp {
+    color: #6f6f6f;
+    font-weight: 400;
+    user-select: none;
+}
+
+.rst-content .highlight .go {
+    color: #525252;
+}
+
+.rst-content .highlight .err {
+    border: 0;
+}
+
+/* The copy button, it shows when the pointer is over the code block,
+   and always on devices without a pointer which can hover */
+
+.kiwi-copy {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: var(--kiwi-layer);
+    border: 1px solid transparent;
+    color: var(--kiwi-text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 110ms;
+}
+
+div[class^="highlight"]:hover > .kiwi-copy,
+.kiwi-copy:focus,
+.kiwi-copy.kiwi-copy-done {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .kiwi-copy {
+        opacity: 1;
+    }
+}
+
+.kiwi-copy:hover {
+    background: var(--kiwi-border);
+    color: var(--kiwi-text);
+}
+
+.kiwi-copy:focus-visible {
+    border-color: var(--kiwi-link);
+    outline: 0;
+    box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+.kiwi-copy.kiwi-copy-done {
+    color: #198038;
+}
+
+/* Notes: Carbon inline notifications, a light tinted box with
+   a colored bar on the left and the title in bold text */
+
+.rst-content .admonition,
+.rst-content .admonition-todo,
+.rst-content .attention,
+.rst-content .caution,
+.rst-content .danger,
+.rst-content .error,
+.rst-content .hint,
+.rst-content .important,
+.rst-content .note,
+.rst-content .seealso,
+.rst-content .tip,
+.rst-content .warning {
+    --kiwi-note-color: #0043ce;
+    padding: 1rem 1rem 1rem 1.25rem;
+    background: #edf5ff;
+    border-left: 3px solid var(--kiwi-note-color);
+    color: var(--kiwi-text);
+}
+
+.rst-content .hint,
+.rst-content .important,
+.rst-content .tip {
+    --kiwi-note-color: #24a148;
+    background: #defbe6;
+}
+
+.rst-content .admonition-todo,
+.rst-content .attention,
+.rst-content .caution,
+.rst-content .warning {
+    --kiwi-note-color: #f1c21b;
+    background: #fcf4d6;
+}
+
+.rst-content .danger,
+.rst-content .error {
+    --kiwi-note-color: #da1e28;
+    background: #fff1f1;
+}
+
+.rst-content .admonition .admonition-title,
+.rst-content .admonition-todo .admonition-title,
+.rst-content .attention .admonition-title,
+.rst-content .caution .admonition-title,
+.rst-content .danger .admonition-title,
+.rst-content .error .admonition-title,
+.rst-content .hint .admonition-title,
+.rst-content .important .admonition-title,
+.rst-content .note .admonition-title,
+.rst-content .seealso .admonition-title,
+.rst-content .tip .admonition-title,
+.rst-content .warning .admonition-title {
+    margin: 0 0 .5rem;
+    padding: 0;
+    background: transparent;
+    color: var(--kiwi-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.rst-content .admonition-title:before {
+    color: var(--kiwi-note-color);
+}
+
+.rst-content .admonition p,
+.rst-content .admonition li {
+    font-size: 14px;
+    line-height: 1.43;
+}
+
+/* Sidebars: Carbon tiles with a small label as title and a blue bar
+   on top, the "Abstract" box on top of most pages is a sidebar. They
+   are placed above the text which follows them instead of floating
+   right of it, except for sidebars with the float-right class */
+
+.rst-content .sidebar {
+    float: none;
+    width: auto;
+    margin: 0 0 2rem;
+    padding: 1.25rem 1.5rem 1rem;
+    background: var(--kiwi-layer);
+    border: 0;
+    border-top: 3px solid var(--kiwi-link);
+}
+
+@media screen and (min-width: 769px) {
+    .rst-content .sidebar.float-right {
+        float: right;
+        width: 40%;
+        margin: 0 0 1.5rem 1.5rem;
+    }
+}
+
+.rst-content .sidebar .sidebar-title {
+    margin: 0 0 .75rem;
+    padding: 0;
+    background: transparent;
+    color: var(--kiwi-text-secondary);
+    font-family: var(--kiwi-font);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .32px;
+    line-height: 1.33;
+    text-transform: uppercase;
+}
+
+.rst-content .sidebar .sidebar-title:before {
+    margin-right: .5rem;
+    color: var(--kiwi-link);
+    font-family: FontAwesome;
+    font-size: 14px;
+    content: "\f0f6";
+}
+
+.rst-content .sidebar p,
+.rst-content .sidebar li {
+    color: var(--kiwi-text);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.rst-content .sidebar p {
+    margin-bottom: .75rem;
+}
+
+/* Carbon lists, an en dash marks the list items */
+.rst-content .sidebar ul,
+.rst-content .sidebar ul.simple {
+    margin: 0 0 .75rem;
+    padding: 0;
+    list-style: none;
+}
+
+.rst-content .sidebar ul li {
+    position: relative;
+    margin: 0 0 .25rem;
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.rst-content .sidebar ul li:before {
+    position: absolute;
+    left: 0;
+    color: var(--kiwi-text-secondary);
+    content: "\2013";
+}
+
+.rst-content .sidebar ul li p {
+    margin: 0;
+}
+
+/* list items which are a link get an arrow instead of the dash */
+.rst-content .sidebar ul li:has(> a:only-child):before,
+.rst-content .sidebar ul li:has(> p:only-child > a:only-child):before {
+    color: var(--kiwi-link);
+    font-family: FontAwesome;
+    font-size: 12px;
+    content: "\f178";
+}
+
+/* Tables: Carbon data tables */
+
+.rst-content table.docutils,
+.wy-table-bordered-all {
+    border: 0;
+    border-collapse: collapse;
+}
+
+.rst-content table.docutils thead th,
+.rst-content table.docutils thead td {
+    padding: .75rem 1rem;
+    background: var(--kiwi-border);
+    border: 0;
+    color: var(--kiwi-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.rst-content table.docutils td,
+.wy-table-bordered-all td {
+    padding: .75rem 1rem;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--kiwi-border);
+    font-size: 14px;
+    line-height: 1.43;
+}
+
+/* the text in table cells wraps instead of scrolling the table */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+    white-space: normal;
+}
+
+.rst-content table.docutils:not(.field-list) tr:nth-child(2n-1) td,
+.wy-table-backed,
+.wy-table-odd td,
+.wy-table-striped tr:nth-child(2n-1) td {
+    background: transparent;
+}
+
+.rst-content table.docutils tbody tr:hover td {
+    background: var(--kiwi-layer);
+}
+
+/* Footer and previous/next buttons: Carbon tertiary buttons */
+
+.rst-footer-buttons .btn,
+.rst-footer-buttons .btn-neutral,
+.rst-footer-buttons .btn-neutral:visited {
+    padding: .6875rem 1rem;
+    background: transparent !important;
+    border: 1px solid var(--kiwi-link);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--kiwi-link) !important;
+    font-size: 14px;
+}
+
+.rst-footer-buttons .btn:hover,
+.rst-footer-buttons .btn-neutral:hover {
+    background: var(--kiwi-link-hover) !important;
+    border-color: var(--kiwi-link-hover);
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+footer {
+    color: var(--kiwi-text-secondary);
+    font-size: 14px;
+}
+
+/* "On this page" navigation, see .templates/layout.html */
+
+.kiwi-page-toc {
+    display: none;
+}
+
+/* The navigation is placed right of the page content on wide screens.
+   The content keeps its width and the navigation follows it, up to
+   the point the screen gets narrow, then the content gets smaller */
+@media screen and (min-width: 1312px) {
+    .wy-nav-content {
+        max-width: min(
+            var(--kiwi-content-width),
+            calc(100vw - var(--kiwi-nav-width) - var(--kiwi-toc-width) - 3rem)
+        );
+    }
+
+    .kiwi-page-toc {
+        display: block;
+        position: fixed;
+        top: calc(var(--kiwi-header-height) + 2rem);
+        bottom: 2rem;
+        left: calc(
+            var(--kiwi-nav-width) + min(
+                var(--kiwi-content-width),
+                calc(100vw - var(--kiwi-nav-width) - var(--kiwi-toc-width) - 3rem)
+            ) + 1rem
+        );
+        width: var(--kiwi-toc-width);
+        overflow-y: auto;
+    }
+}
+
+.kiwi-page-toc-title {
+    margin: 0 0 .5rem;
+    padding-left: 1rem;
+    color: var(--kiwi-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.kiwi-page-toc ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* The local toc starts with the page title, only its sections
+   are listed */
+.kiwi-page-toc > ul > li > a {
+    display: none;
+}
+
+.kiwi-page-toc a {
+    display: block;
+    padding: .375rem 1rem;
+    border-left: 2px solid var(--kiwi-border);
+    color: var(--kiwi-text-secondary);
+    font-size: 14px;
+    line-height: 1.29;
+}
+
+.kiwi-page-toc a:visited {
+    color: var(--kiwi-text-secondary);
+}
+
+.kiwi-page-toc a:hover {
+    color: var(--kiwi-text);
+    background: var(--kiwi-layer);
+    text-decoration: none;
+}
+
+.kiwi-page-toc ul ul ul a {
+    padding-left: 2rem;
+}
+
+/* deeper levels are not listed */
+.kiwi-page-toc ul ul ul ul {
+    display: none;
+}
+
+.kiwi-page-toc a.kiwi-page-toc-current {
+    border-left: 2px solid var(--kiwi-link);
+    color: var(--kiwi-text);
+    font-weight: 600;
+}
+
+/* Narrow screens: the navigation tree slides in from the left,
+   opened by the menu button in the header bar */
+
+@media screen and (max-width: 768px) {
+    .kiwi-header-menu {
+        display: block;
+    }
+
+    .kiwi-header-name {
+        padding: 0 .5rem;
+    }
+
+    .kiwi-header-title,
+    .kiwi-header-link-text {
+        display: none;
+    }
+
+    .kiwi-header-link {
+        margin-left: .5rem;
+        padding: 0 .5rem;
+    }
+
+    .wy-nav-side {
+        left: calc(-1 * var(--kiwi-nav-width));
+    }
+
+    .wy-nav-side.shift {
+        left: 0;
+        width: 85%;
+    }
+
+    .wy-nav-content-wrap {
+        margin-left: 0;
+    }
+
+    .wy-nav-content-wrap.shift {
+        top: var(--kiwi-header-height);
+    }
+
+    .wy-nav-content {
+        padding: 1rem;
+    }
+}

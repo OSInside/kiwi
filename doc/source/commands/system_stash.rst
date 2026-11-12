@@ -3,66 +3,50 @@
 kiwi-ng system stash
 ====================
 
+.. _db_kiwi_system_stash_desc:
+
+Stores a root tree as an OCI container, called a stash, below
+:file:`/var/tmp/kiwi-stash` and in the local container storage of
+`podman`. Storing a root tree with an existing container name adds a
+new layer. Stashes are the base of :ref:`kiwi_system_stackbuild`, see
+:ref:`stackbuild`.
+
 .. _db_kiwi_system_stash_synopsis:
 
-SYNOPSIS
---------
+Usage
+-----
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
-
-   kiwi-ng system stash --help
-   kiwi-ng system stash --root=<directory>
-       [--tag=<name>]
-       [--container-name=<name>]
+   kiwi-ng [global options] system stash --root <directory> [options]
    kiwi-ng system stash --list
-
-.. _db_kiwi_system_stash_desc:
-
-DESCRIPTION
------------
-
-Create a container from the given root directory. The command
-takes the contents of the given root directory at call time
-and creates an OCI container from it, called a stash. The stash
-is stored below `/var/tmp/kiwi-stash` and imported into the
-local container registry using `podman`. If a stash with the
-same container name already exists, a new layer is added to it.
-
-A stash can be used as the image root for the
-:ref:`kiwi_system_stackbuild` command. For a detailed introduction,
-see :ref:`stackbuild`.
 
 .. _db_kiwi_system_stash_opts:
 
-OPTIONS
+Options
 -------
 
---root=<directory>
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  The path to the root directory, usually the result of
-  a former system prepare or build call.
-
---tag=<name>
-
-  The tag name for the container. By default, `latest`
-  is used.
-
---container-name=<name>
-
-  The name of the container. By default, it is
-  set to the image name of the stash.
-
---list
-
-  List the available stashes.
+   * - Option
+     - Description
+   * - ``--root <directory>``
+     - The root tree, usually from `kiwi-ng system prepare` or
+       `kiwi-ng system build`.
+   * - ``--container-name <name>``
+     - The container name. Default: the image name.
+   * - ``--tag <name>``
+     - The container tag. Default: `latest`.
+   * - ``--list``
+     - List the available stashes.
 
 .. _db_kiwi_system_stash_example:
 
-EXAMPLE
+Example
 -------
 
 .. code:: bash
 
-   $ kiwi-ng system stash --root /tmp/mytest/build/image-root
+   $ sudo kiwi-ng system stash --root /tmp/myimage/build/image-root

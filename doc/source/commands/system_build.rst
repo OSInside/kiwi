@@ -3,269 +3,211 @@
 kiwi-ng system build
 ====================
 
+.. _db_kiwi_system_build_desc:
+
+Builds an image in one call by running the prepare and the create step,
+see :ref:`working-with-kiwi-image-building-process`. The root tree is
+created in :file:`<target-dir>/build/image-root`, the log is written to
+:file:`<target-dir>/build/image-root.log` unless ``--logfile`` is given,
+and the image files are stored in the target directory.
+
 .. _db_kiwi_system_build_synopsis:
 
-SYNOPSIS
---------
+Usage
+-----
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
-
-   kiwi-ng system build --help
-   kiwi-ng system build --description=<directory> --target-dir=<directory>
-       [--allow-existing-root]
-       [--clear-cache]
-       [--ignore-repos]
-       [--ignore-repos-used-for-build]
-       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>]
-       [--set-repo-credentials=<user:pass_or_filename>]
-       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
-       [--add-repo-credentials=<user:pass_or_filename>...]
-       [--add-package=<name>...]
-       [--add-bootstrap-package=<name>...]
-       [--ca-cert=<cert-file>...]
-       [--ca-target-distribution=<suse|redhat|debian|archlinux>]
-       [--delete-package=<name>...]
-       [--set-container-derived-from=<uri>]
-       [--set-container-tag=<name>]
-       [--add-container-label=<name=value>...]
-       [--set-type-attr=<attribute=value>...]
-       [--set-release-version=<version>]
-       [--signing-key=<key-file>...]
-
-.. _db_kiwi_system_build_desc:
-
-DESCRIPTION
------------
-
-Build an image in one step. The build command combines preparation and building
-steps, which makes it possible to create an image with a single command. The
-build command creates the root directory of the image under
-`<target-dir>/build/image-root` and writes a log file,
-`<target-dir>/build/image-root.log`. The resulting image files are created in the
-specified target directory.
+   kiwi-ng [global options] system build \
+       --description <directory> \
+       --target-dir <directory> \
+       [options]
 
 .. _db_kiwi_system_build_opts:
 
-OPTIONS
+Options
 -------
 
---add-bootstrap-package=<name>
+Options marked with ``...`` can be given multiple times.
 
-  Specifies a package to install as part of the early {kiwi} bootstrap phase.
-  The option can be specified multiple times.
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
---add-container-label=<name=value>
+   * - Option
+     - Description
+   * - ``--description <directory>``
+     - Required. The image description directory.
+   * - ``--target-dir <directory>``
+     - Required. The directory for the build results.
+   * - ``--allow-existing-root``
+     - Use the root tree of an earlier build instead of stopping with an
+       error. The root tree can become inconsistent.
+   * - ``--clear-cache``
+     - Delete the cache of the used repositories before installing
+       packages. The cache is shared between builds, use this if
+       signatures must be validated against the repositories.
 
-  Adds a container label in the container configuration metadata. It
-  overwrites the label with the provided key-value pair if it is
-  already defined in the XML description.
+Repositories
+~~~~~~~~~~~~
 
---add-package=<name>
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  Specifies a package to add (install). The option can be specified
-  multiple times.
+   * - Option
+     - Description
+   * - ``--set-repo <repo>``
+     - Replace the first repository of the image description, see
+       `Repository Format`_.
+   * - ``--set-repo-credentials <credentials>``
+     - The credentials of ``--set-repo``, see `Repository Format`_.
+   * - ``--add-repo <repo>...``
+     - Add a repository.
+   * - ``--add-repo-credentials <credentials>...``
+     - The credentials of ``--add-repo``, matched by order.
+   * - ``--ignore-repos``
+     - Ignore all repositories of the image description. Combine it with
+       ``--set-repo`` or ``--add-repo``.
+   * - ``--ignore-repos-used-for-build``
+     - Like ``--ignore-repos``, but keep the repositories with
+       `imageonly="true"`.
 
---add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
+Packages
+~~~~~~~~
 
-  Adds a new repository to the existing repository setup in the XML
-  description. This option can be specified multiple times.
-  For details about the possible option values, see the **--set-repo**
-  information below.
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
---add-repo-credentials=<user:pass_or_filename>
+   * - Option
+     - Description
+   * - ``--add-package <name>...``
+     - Install the package in addition to the image description.
+   * - ``--add-bootstrap-package <name>...``
+     - Install the package in the bootstrap phase.
+   * - ``--delete-package <name>...``
+     - Uninstall the package, including the packages depending on it,
+       right after the packages are installed.
 
-  For **uri://user:pass@location** repositories, set the user and password
-  associated with an add-repo specification. If the provided value describes a
-  filename in the filesystem, the first line of that file is used as
-  credentials.
+Image Settings
+~~~~~~~~~~~~~~
 
---allow-existing-root
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  Uses an existing root directory from a previous
-  build attempt. Use with caution, because this can cause an inconsistent
-  root tree if the existing contents do not fit the
-  previous image type setup.
+   * - Option
+     - Description
+   * - ``--set-type-attr <attribute=value>...``
+     - Set an attribute of the selected image type, for example
+       ``--set-type-attr volid=some``.
+   * - ``--set-release-version <version>``
+     - Set the `release-version` of the selected image type.
+   * - ``--set-container-derived-from <uri>``
+     - Replace the base container of the selected type, if the type has
+       a `derived_from` attribute.
+   * - ``--set-container-tag <name>``
+     - Replace the container tag, if the image description sets one.
+   * - ``--add-container-label <name=value>...``
+     - Add a container label, overwriting a label of the same name.
 
---clear-cache
+Keys and Certificates
+~~~~~~~~~~~~~~~~~~~~~
 
-  Deletes the repository cache for each of the used repositories
-  before installing any package. This is useful when an image build
-  validates the signature of the package from the
-  original repository source for any build. Some package managers
-  unconditionally trust the contents of the cache, which works for
-  cache data dedicated to one build. In the case of {kiwi}, the cache
-  is shared between multiple image builds on that host for performance
-  reasons.
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
---ca-cert=<cert-file>
+   * - Option
+     - Description
+   * - ``--signing-key <key-file>...``
+     - Import the key as trusted key into the package manager database
+       before any package operation.
+   * - ``--ca-cert <cert-file>...``
+     - Import the CA certificate into the root tree right after the
+       bootstrap phase, for example for proxy servers used by the build.
+   * - ``--ca-target-distribution <name>``
+     - How the certificates of ``--ca-cert`` and of the image description
+       are imported: `suse`, `redhat`, `debian` or `archlinux`.
 
-  Adds a cert file to the directory storing additional local CA certificates.
-  The import will occur immediately after the bootstrap process, where
-  the required CA update tooling is expected to be installed. This
-  option is useful for situations where certificates are not packaged,
-  or the certificates are required during the build process, e.g., due
-  to proxy servers in the build environment that need certificates
-  in chroot. The option can be specified multiple times.
+.. _db_kiwi_system_build_repo:
 
---ca-target-distribution=<suse|redhat|debian|archlinux>
+Repository Format
+~~~~~~~~~~~~~~~~~
 
-  Specifies the target distribution for the import of certificates
-  via the `--ca-cert` option(s) and/or the provided `<certificates>`
-  from the image description. The selected distribution is used
-  in KIWI to map the distribution-specific CA storage path and
-  update tool for the import process.
+A `<repo>` value is a comma-separated list of fields. Fields at the end
+can be omitted, fields in between left empty:
 
---delete-package=<name>
+.. code:: bash
 
-  Specifies a package to delete. The option can be specified
-  multiple times.
+   source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype
 
---description=<directory>
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
 
-  The path to an XML description. This is a directory containing at least
-  one `config.xml` or `*.kiwi` XML file.
+   * - Field
+     - Value
+   * - source
+     - The location of the repository, see `URI Types`_.
+   * - type
+     - `apk`, `apt-deb`, `apt-rpm`, `deb-dir`, `mirrors` or `rpm-md`.
+   * - alias
+     - The name of the repository. Default: a generated unique name.
+   * - priority
+     - The priority, its meaning depends on the package manager.
+   * - imageinclude
+     - `true` configures the repository in the image as well.
+   * - package_gpgcheck
+     - `true` validates the package signatures.
+   * - {signing_keys}
+     - Signing key URIs in curly brackets, separated by semicolons, for
+       example `{file:///keys/a.asc;file:///keys/b.asc}`.
+   * - components
+     - Debian repositories: the components, separated by spaces.
+   * - distribution
+     - Debian repositories: the distribution name.
+   * - repo_gpgcheck
+     - `true` validates the repository signature.
+   * - repo_sourcetype
+     - `baseurl` (default), `metalink` or `mirrorlist`.
 
---ignore-repos
-
-  Ignores all repository configurations from the XML description.
-  This option is used in combination with the `--add-repo`
-  option. Otherwise, there are no repositories available for an
-  image build, which leads to an error.
-
---ignore-repos-used-for-build
-
-  Works the same way as `--ignore-repos`, except that repository configuration
-  with the `imageonly` attribute set to **true** is not ignored.
-
---set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
-
-  Overwrites the first repository entry in the XML description with the
-  provided information:
-
-  - **source**
-
-    Source URL pointing to a package repository that must be in a format
-    supported by the selected package manager. See the URI_TYPES section for
-    details about the supported source locators.
-
-  - **type**
-
-    Repository type: `rpm-md`, `apt-deb`.
-
-  - **alias**
-
-    An alias name for the repository. If not specified, {kiwi} generates
-    an alias name as a result of a hex representation from uuid4. While the hex 
-    is used to uniquely identify the repository, it is not descriptive. 
-    We recommend using descriptive aliases.
-
-  - **priority**
-
-    A number indicating the repository priority. How the value is evaluated
-    depends on the selected package manager. Refer to the package
-    manager documentation for details about the supported priority ranges
-    and their meaning.
-
-  - **imageinclude**
-
-    Set to either **true** or **false** to indicate if the repository
-    is part of the system image repository setup or not.
-
-  - **package_gpgcheck**
-
-    Set to either **true** or **false** to indicate if the repository
-    should validate the package signatures.
-
-  - **{signing_keys}**
-
-    A list of `signing_keys` enclosed in curly brackets and delimited by 
-    a semicolon. The reference to a signing key must be provided in the URI
-    format.
-
-  - **components**
-
-    A component list for Debian-based repos as a space-delimited string.
-
-  - **distribution**
-
-    The main distribution name for Debian-based repos.
-
-  - **repo_gpgcheck**
-
-    Set to either **true** or **false** to indicate if the repository
-    should validate the repository signature.
-
-  - **repo_sourcetype**
-
-    Specifies the source type of the repository path. Supported values
-    are `baseurl`, `metalink`, or `mirrorlist`. With `baseurl`, the source
-    path is interpreted as a simple URI. If `metalink` is set, the source
-    path is resolved as a metalink URI, and if `mirrorlist` is set, the
-    source path is resolved as a mirrorlist file. If not specified,
-    `baseurl` is the default.
-
---set-repo-credentials=<user:pass_or_filename>
-
-  For **uri://user:pass@location**-type repositories, set the user and
-  password connected to the set-repo specification. If the provided
-  value describes a filename in the filesystem, the first line of that file
-  is used as credentials.
-
---set-container-derived-from=<uri>
-
-  Overwrites the source location of the base container for the selected
-  image type. The setting applies only if the configured image type
-  is set up with an initial `derived_from` reference.
-
---set-container-tag=<name>
-
-  Overwrites the container tag in the container configuration.
-  The setting is only effective if the container configuration
-  provides the initial tag value.
-
---set-type-attr=<attribute=value>
-
-  Overwrites/sets the attribute with the provided value in the selected
-  build type section. Example: `--set-type-attr volid=some`.
-
---set-release-version=<version>
-
-  Overwrites/sets the release-version element in the selected
-  build type preferences section.
-
---signing-key=<key-file>
-
-  Sets the key file to be trusted and imported into the package
-  manager's database before performing any operation. This is useful
-  when an image build validates repository and package
-  signatures during build time. This option can be specified multiple
-  times.
-
---target-dir=<directory>
-
-  The path to store the build results.
+A `<credentials>` value is `user:password`, or the name of a file whose
+first line contains it. It is added to the repository source as
+`scheme://user:password@location`.
 
 .. _db_kiwi_system_build_uri:
 
-URI_TYPES
----------
+URI Types
+~~~~~~~~~
 
-- **http://** | **https://** | **ftp://**
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
 
-  A remote repository delivered via the HTTP or FTP protocol.
+   * - Source
+     - Location
+   * - ``http://``, ``https://``, ``ftp://``
+     - A repository on a server.
+   * - ``obs://<project>/<repository>``
+     - A repository of the Open Build Service, resolved with the download
+       server of the runtime configuration. Default:
+       http://download.opensuse.org/repositories.
+   * - ``obsrepositories:/``
+     - Builds in the Open Build Service only: the repositories of the
+       project building the image.
+   * - ``dir://<path>``, ``file://<path>``
+     - A local directory or file. An absolute path is used as ``dir://``.
 
-- **obs://**
+.. _db_kiwi_system_build_example:
 
-  An Open Buildservice repository. The source data is translated into
-  an HTTP URL pointing to http://download.opensuse.org.
+Example
+-------
 
-- **ibs://**
+.. code:: bash
 
-  An internal Open Buildservice repository. The source data is translated into
-  an HTTP URL pointing to download.suse.de.
-
-- **dir://**
-
-  A local directory.
+   $ sudo kiwi-ng system build \
+       --description kiwi/build-tests/{exc_description_disk} \
+       --set-repo {exc_repo_leap} \
+       --target-dir /tmp/myimage
