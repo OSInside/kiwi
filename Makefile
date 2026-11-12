@@ -127,23 +127,6 @@ docs: setup
 ghpages: setup
 	poetry run sphinx-build doc/source doc/build
 
-docs_suse: setup
-	sed -ie "s@:hidden:@@" doc/source/index.rst
-	rm -f doc/source/index.rste
-	poetry run make -C doc xml_suse
-	git checkout doc/source/index.rst
-	rm -rf doc/build/restxml
-	mv doc/build/xml doc/build/restxml
-	poetry run pip uninstall --yes rstxml2docbook || true
-	poetry run pip install \
-		git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
-	poetry run bash -c 'pushd doc && rstxml2docbook \
-		-v --no-split -o build/xml/book.xml build/restxml/index.xml'
-	bash -c 'mkdir -p doc/build/images/src/png && \
-		cp -a doc/source/.images/* doc/build/images/src/png'
-	cp doc/DC-kiwi doc/build/
-	bash -c 'pushd doc/build && daps -d DC-kiwi html'
-
 test_scripts: setup
 	poetry run bash -c 'pushd test/scripts && sudo pytest -s -vv'
 
