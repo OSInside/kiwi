@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
 <image schemaversion="7.5" name="boxbuild">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>marcus.schaefer@gmail.com</contact>
         <specification>kiwi runtime container</specification>
     </description>
+    <profiles>
+        <profile name="OCI" description="Runtime for Linux"/>
+        <profile name="WSL" description="Runtime for Windows"/>
+    </profiles>
     <preferences>
         <version>1.1.0</version>
         <packagemanager>zypper</packagemanager>
@@ -13,11 +20,16 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
         <keytable>us</keytable>
+    </preferences>
+    <preferences profiles="OCI">
         <type image="docker">
             <containerconfig name="boxbuild" tag="latest">
                 <entrypoint execute="/usr/bin/kiwi-ng"/>
             </containerconfig>
         </type>
+    </preferences>
+    <preferences profiles="WSL">
+        <type image="wsl"/>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
