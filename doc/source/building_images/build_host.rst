@@ -83,7 +83,8 @@ dependencies of their own, for example Java for `jing`.
 .. tip::
 
    With the `kiwi-boxbuild` tool, the build host only needs `podman`,
-   see :ref:`runtime_container_boxbuild`.
+   see :ref:`runtime_container_boxbuild`. `kiwi-boxbuild` also builds
+   Linux images on Windows 11, using WSL2.
 
 .. _runtime_config:
 

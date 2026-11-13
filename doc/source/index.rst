@@ -136,6 +136,11 @@ To build images with {kiwi}, you need:
    :file:`/dev/kvm`. Neither {kiwi} and Python nor QEMU have to be
    installed on it. See :ref:`runtime_container_boxbuild` for details.
 
+   `kiwi-boxbuild` can also be used on Windows 11, where it runs the
+   build in WSL2 with nested virtualization, see
+   :ref:`runtime_container_boxbuild_windows`. {kiwi} still builds
+   Linux images there, Windows is only the system it is called on.
+
 The project officially tests and supports the following distributions:
 
 ============================================================  =================

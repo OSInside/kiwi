@@ -28,28 +28,30 @@ pub mod build;
 pub mod cli;
 pub mod config;
 pub mod defaults;
+pub mod wsl;
 
 fn main() {
     let args = cli::translate_separator(std::env::args_os().collect());
     let cli = cli::Cli::parse_from(args);
     setup_logger(cli.global.debug);
 
-    let runtime_container = match config::get_runtime_container(
-        cli.config.as_deref()
-    ) {
-        Ok(runtime_container) => runtime_container,
+    let settings = match config::get_runtime_settings(cli.config.as_deref()) {
+        Ok(settings) => settings,
         Err(error) => {
             error!("{error}");
             exit(1)
         }
     };
+    // The runtime container on Linux, the WSL2 distribution of
+    // the runtime on Windows
+    let runtime = build::Runtime::for_host(
+        &settings.container, settings.wsl_image.as_deref()
+    );
 
     let boxbuild_config = cli.boxbuild_config.as_deref();
     if cli.boxbuild.list_boxes {
         exit(
-            build::list_boxes(
-                &cli.global, boxbuild_config, &runtime_container
-            )
+            build::list_boxes(&cli.global, boxbuild_config, &runtime)
         )
     }
     match &cli.command {
@@ -57,7 +59,7 @@ fn main() {
             exit(
                 build::build_image(
                     &cli.global, &cli.boxbuild, build_options,
-                    boxbuild_config, &runtime_container
+                    boxbuild_config, &runtime
                 )
             )
         },

@@ -26,7 +26,9 @@ running on the build host. See :ref:`self_contained` for details.
 The `kiwi-boxbuild` command pulls a small runtime container and calls
 the `kiwi-ng system boxbuild` command inside of it. {kiwi} and the
 requirements of the `boxbuild` command are provided by the runtime
-container, such that only `podman` is needed on the build host. See
+container, such that only `podman` is needed on the build host. On
+Windows 11, `kiwi-boxbuild` uses the runtime as WSL2 distribution
+instead, to build Linux images there as well. See
 :ref:`runtime_container_boxbuild` for details.
 
 The `stash` and `stackbuild` commands store {kiwi} built root trees as
