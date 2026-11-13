@@ -26,6 +26,7 @@ use crate::defaults;
 ///
 /// boxbuild:
 ///   runtime_container: ...
+///   runtime_wsl_image: ...
 #[derive(Debug, Default, Deserialize)]
 struct RuntimeConfig {
     boxbuild: Option<BoxbuildConfig>,
@@ -34,19 +35,35 @@ struct RuntimeConfig {
 #[derive(Debug, Default, Deserialize)]
 struct BoxbuildConfig {
     runtime_container: Option<String>,
+    runtime_wsl_image: Option<String>,
 }
 
-pub fn get_runtime_container(
+/// The runtime settings of kiwi-boxbuild
+#[derive(Debug, PartialEq)]
+pub struct RuntimeSettings {
+    /// The runtime container used with podman on Linux
+    pub container: String,
+    /// The WSL2 image of the runtime used on Windows, a URL or a
+    /// file. None selects the default image for the host
+    pub wsl_image: Option<String>,
+}
+
+pub fn get_runtime_settings(
     custom_config_file: Option<&str>
-) -> Result<String, String> {
+) -> Result<RuntimeSettings, String> {
     /*!
-    Provide the runtime container to run the build in
+    Provide the runtime container to run the build in on Linux and
+    the WSL2 image of the runtime to run the build in on Windows
 
     The runtime config files are read in the same order as kiwi
     reads them, a setting in a later file takes precedence. Without
-    a setting defaults::RUNTIME_CONTAINER is used
+    a setting defaults::RUNTIME_CONTAINER is used, and the default
+    WSL2 image for the host. On Windows the user config is located
+    below %USERPROFILE% if HOME is not set
     !*/
-    let home = std::env::var("HOME").ok().filter(|home| ! home.is_empty());
+    let home = ["HOME", "USERPROFILE"].iter()
+        .filter_map(|variable| std::env::var(variable).ok())
+        .find(|home| ! home.is_empty());
     let config_files = runtime_config_files(
         Path::new(defaults::USR_RUNTIME_CONFIG_FILE),
         Path::new(defaults::USR_RUNTIME_CONFIG_DIR),
@@ -57,16 +74,26 @@ pub fn get_runtime_container(
         }).as_deref(),
         custom_config_file.map(Path::new)
     )?;
-    let mut runtime_container = defaults::RUNTIME_CONTAINER.to_string();
+    let mut settings = RuntimeSettings {
+        container: defaults::RUNTIME_CONTAINER.to_string(),
+        wsl_image: None
+    };
     for config_file in config_files {
-        if let Some(value) = read_runtime_container(&config_file)? {
+        let config = read_boxbuild_config(&config_file)?;
+        if let Some(value) = config.runtime_container {
             debug!(
                 "Runtime container {value} from {}", config_file.display()
             );
-            runtime_container = value;
+            settings.container = value;
+        }
+        if let Some(value) = config.runtime_wsl_image {
+            debug!(
+                "Runtime WSL2 image {value} from {}", config_file.display()
+            );
+            settings.wsl_image = Some(value);
         }
     }
-    Ok(runtime_container)
+    Ok(settings)
 }
 
 fn runtime_config_files(
@@ -124,10 +151,10 @@ fn drop_in_files(config_dir: &Path) -> Vec<PathBuf> {
     config_files
 }
 
-fn read_runtime_container(config_file: &Path) -> Result<Option<String>, String> {
+fn read_boxbuild_config(config_file: &Path) -> Result<BoxbuildConfig, String> {
     /*!
-    Read the runtime container setting from the given runtime
-    config file, None if the file does not set it
+    Read the boxbuild settings from the given runtime config file,
+    a setting which is not set or empty is None
     !*/
     let data = fs::read_to_string(config_file).map_err(|error| {
         format!("Failed to read {}: {error}", config_file.display())
@@ -140,10 +167,13 @@ fn read_runtime_container(config_file: &Path) -> Result<Option<String>, String> 
                 "Invalid runtime config file {}: {error}", config_file.display()
             )
         })?;
-    Ok(
-        config.unwrap_or_default().boxbuild.unwrap_or_default()
-            .runtime_container.filter(|value| ! value.is_empty())
-    )
+    let boxbuild = config.unwrap_or_default().boxbuild.unwrap_or_default();
+    Ok(BoxbuildConfig {
+        runtime_container: boxbuild.runtime_container
+            .filter(|value| ! value.is_empty()),
+        runtime_wsl_image: boxbuild.runtime_wsl_image
+            .filter(|value| ! value.is_empty()),
+    })
 }
 
 #[cfg(test)]
@@ -175,7 +205,8 @@ mod tests {
         ] {
             fs::write(&config_file, data).unwrap();
             assert_eq!(
-                read_runtime_container(&config_file).unwrap().as_deref(),
+                read_boxbuild_config(&config_file).unwrap()
+                    .runtime_container.as_deref(),
                 expected, "{data}"
             );
         }
@@ -185,11 +216,36 @@ mod tests {
             "boxbuild:\n  runtime_container:\n    nested: a\n",
         ] {
             fs::write(&config_file, data).unwrap();
-            assert!(read_runtime_container(&config_file).is_err(), "{data}");
+            assert!(read_boxbuild_config(&config_file).is_err(), "{data}");
         }
         assert!(
-            read_runtime_container(&tmp_dir.path().join("missing")).is_err()
+            read_boxbuild_config(&tmp_dir.path().join("missing")).is_err()
         );
+    }
+
+    #[test]
+    fn test_read_runtime_wsl_image() {
+        let tmp_dir = TestDir::new();
+        let config_file = tmp_dir.path().join("kiwi.yml");
+        for (data, expected) in [
+            ("boxbuild:\n  runtime_container: box\n", None),
+            ("boxbuild:\n  runtime_wsl_image: \"\"\n", None),
+            (
+                "boxbuild:\n  runtime_wsl_image: https://example.com/b.wsl\n",
+                Some("https://example.com/b.wsl")
+            ),
+            (
+                "boxbuild:\n  runtime_wsl_image: 'C:\\images\\b.wsl'\n",
+                Some(r"C:\images\b.wsl")
+            ),
+        ] {
+            fs::write(&config_file, data).unwrap();
+            assert_eq!(
+                read_boxbuild_config(&config_file).unwrap()
+                    .runtime_wsl_image.as_deref(),
+                expected, "{data}"
+            );
+        }
     }
 
     #[test]
@@ -234,17 +290,22 @@ mod tests {
     }
 
     #[test]
-    fn test_get_runtime_container_custom_config() {
+    fn test_get_runtime_settings_custom_config() {
         // The custom config takes precedence over the default
         // config files present on the host running the test
         let tmp_dir = TestDir::new();
         let config_file = tmp_dir.path().join("custom.yml");
         fs::write(
-            &config_file, "boxbuild:\n  runtime_container: custom/box\n"
+            &config_file,
+            "boxbuild:\n  runtime_container: custom/box\n  \
+            runtime_wsl_image: https://example.com/b.wsl\n"
         ).unwrap();
         assert_eq!(
-            get_runtime_container(config_file.to_str()).unwrap(),
-            "custom/box"
+            get_runtime_settings(config_file.to_str()).unwrap(),
+            RuntimeSettings {
+                container: "custom/box".to_string(),
+                wsl_image: Some("https://example.com/b.wsl".to_string())
+            }
         );
     }
 }

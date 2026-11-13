@@ -18,6 +18,45 @@
 pub const PODMAN_PATH: &str =
     "/usr/bin/podman";
 
+// On Windows the runtime is a WSL2 distribution instead of a
+// container, it is managed with wsl.exe and downloaded with the
+// curl.exe provided by Windows
+pub const WSL_PATH: &str =
+    "wsl.exe";
+pub const CURL_PATH: &str =
+    "curl.exe";
+
+// WSL2 image of the runtime, see the runtime_wsl_image setting
+// in the boxbuild section of the kiwi runtime config. The name
+// without version and build number always points to the latest
+// build, {arch} is replaced by the architecture of the host
+pub const RUNTIME_WSL_IMAGE: &str =
+    "https://download.opensuse.org/repositories/Virtualization:/Appliances:/SelfContained:/runtime/images/boxbuild.{arch}-WSL.wsl";
+
+// Name of the WSL2 distribution the runtime is registered as,
+// and the directory below %LOCALAPPDATA% which holds the
+// downloaded image and the files of the distribution
+pub const WSL_DISTRIBUTION: &str =
+    "kiwi-boxbuild";
+pub const WSL_DATA_DIR_NAME: &str =
+    "kiwi-boxbuild";
+pub const WSL_IMAGE_NAME: &str =
+    "boxbuild.wsl";
+pub const WSL_INSTALL_DIR_NAME: &str =
+    "distribution";
+
+// Windows drives are mounted below this directory in WSL2,
+// e.g C:\ is available as /mnt/c
+pub const WSL_MOUNT_ROOT: &str =
+    "/mnt";
+
+// Location of kiwi in the runtime and the environment variable
+// kiwi reads a custom boxes configuration file from
+pub const KIWI_PATH: &str =
+    "/usr/bin/kiwi-ng";
+pub const KIWI_BOXES_CONFIG_ENV: &str =
+    "KIWI_BOXED_PLUGIN_CFG";
+
 // Container which provides kiwi and the requirements of the
 // kiwi-ng system boxbuild command, see the runtime_container
 // setting in the boxbuild section of the kiwi runtime config

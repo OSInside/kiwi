@@ -25,12 +25,16 @@ use std::ffi::OsString;
 /// container provides kiwi and the requirements of the boxbuild
 /// command, only podman is required on the host.
 ///
-/// The runtime container is configured in the boxbuild section
-/// of the kiwi runtime config, e.g /etc/kiwi.yml or
-/// ~/.config/kiwi/config.yml:
+/// On Windows 11 the runtime is used as WSL2 distribution instead,
+/// which kiwi-boxbuild downloads and registers. This requires WSL2
+/// with nested virtualization. The built images are Linux images.
+///
+/// The runtime is configured in the boxbuild section of the kiwi
+/// runtime config, e.g /etc/kiwi.yml or ~/.config/kiwi/config.yml:
 ///
 /// boxbuild:
 ///   runtime_container: <container reference>
+///   runtime_wsl_image: <URL or file of the WSL2 image>
 #[derive(Parser, Debug)]
 #[clap(
     name = "kiwi-boxbuild",

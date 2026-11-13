@@ -23,6 +23,45 @@ use std::process::{Command, ExitStatus, Stdio};
 use crate::boxes;
 use crate::cli::{BoxbuildOptions, GlobalOptions};
 use crate::defaults;
+use crate::wsl;
+
+/// The environment the build runs in
+#[derive(Debug, PartialEq)]
+pub enum Runtime {
+    /// The runtime container run with podman, on Linux
+    Container(String),
+    /// The runtime registered as WSL2 distribution from the given
+    /// image URL or file, on Windows
+    Wsl(String),
+}
+
+impl Runtime {
+    pub fn for_host(container: &str, wsl_image: Option<&str>) -> Runtime {
+        /*!
+        Select the runtime for the operating system kiwi-boxbuild
+        is built for: the WSL2 distribution on Windows, the
+        runtime container on all other systems
+        !*/
+        Runtime::select(cfg!(windows), container, wsl_image)
+    }
+
+    pub fn select(
+        windows: bool, container: &str, wsl_image: Option<&str>
+    ) -> Runtime {
+        if windows {
+            Runtime::Wsl(wsl::image_location(wsl_image, boxes::host_arch()))
+        } else {
+            Runtime::Container(container.to_string())
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        match self {
+            Runtime::Container(container) => container,
+            Runtime::Wsl(image) => image
+        }
+    }
+}
 
 /// Options of the kiwi-ng system build command to run in the box
 #[derive(Debug, PartialEq)]
@@ -46,15 +85,16 @@ pub struct SharedPath {
 pub fn build_image(
     global: &GlobalOptions, boxbuild: &BoxbuildOptions,
     build_options: &[String], boxbuild_config: Option<&str>,
-    runtime_container: &str
+    runtime: &Runtime
 ) -> i32 {
     /*!
     Build the image description passed along with the build
     options in a box
 
     The build runs 'kiwi-ng system boxbuild' in an instance of the
-    runtime container, see boxbuild_call. The result of the build
-    and the build log is stored in the target directory
+    runtime container, see boxbuild_call, or on Windows in the WSL2
+    distribution of the runtime, see wsl::boxbuild_call. The result
+    of the build and the build log is stored in the target directory
     !*/
     let result = 255;
 
@@ -78,15 +118,11 @@ pub fn build_image(
         None => return result
     };
     let shared_path = match &boxbuild.shared_path {
-        Some(shared_path) => match parse_shared_path(shared_path) {
+        Some(shared_path) => match parse_shared_path(shared_path, runtime) {
             Some(shared_path) => Some(shared_path),
             None => return result
         },
         None => None
-    };
-    let boxes_dir = match boxes_dir() {
-        Some(boxes_dir) => boxes_dir,
-        None => return result
     };
     let boxes_config = match boxbuild_config {
         Some(boxbuild_config) => match real_file(boxbuild_config) {
@@ -94,14 +130,6 @@ pub fn build_image(
             None => return result
         },
         None => None
-    };
-    let shm_size = if boxbuild.virtiofs_sharing {
-        match shm_size(boxbuild.box_memory.as_deref()) {
-            Some(shm_size) => Some(shm_size),
-            None => return result
-        }
-    } else {
-        None
     };
 
     // The exit code of a former build in the same target
@@ -117,14 +145,52 @@ pub fn build_image(
         }
     }
 
-    let mut build_result = match boxbuild_call(
-        &description, &target_dir, &boxes_dir, boxes_config.as_deref(),
-        shared_path.as_ref(), shm_size, global, boxbuild, &build_options.options, runtime_container
-    ) {
+    let call = match runtime {
+        Runtime::Container(container) => {
+            let boxes_dir = match boxes_dir() {
+                Some(boxes_dir) => boxes_dir,
+                None => return result
+            };
+            let shm_size = if boxbuild.virtiofs_sharing {
+                match shm_size(boxbuild.box_memory.as_deref()) {
+                    Some(shm_size) => Some(shm_size),
+                    None => return result
+                }
+            } else {
+                None
+            };
+            boxbuild_call(
+                &description, &target_dir, &boxes_dir,
+                boxes_config.as_deref(), shared_path.as_ref(), shm_size,
+                global, boxbuild, &build_options.options, container
+            )
+        },
+        Runtime::Wsl(image) => {
+            if ! wsl::prepare_runtime(image) {
+                return result
+            }
+            if ! boxbuild.no_accel && ! wsl::kvm_available() {
+                error!(
+                    "KVM is not available in WSL2, which requires nested \
+                    virtualization. Enable it for WSL2 with a kernel that \
+                    supports it, or build without acceleration using \
+                    --no-accel, which is very slow"
+                );
+                return result
+            }
+            wsl::boxbuild_call(
+                &description, &target_dir, boxes_config.as_deref(),
+                shared_path.as_ref().map(|shared_path| &*shared_path.host),
+                global, boxbuild, &build_options.options
+            )
+        }
+    };
+    let mut build_result = match call {
         Some(mut call) => {
             info!(
-                "Building in box {} using {runtime_container}...",
-                boxbuild.boxname.as_deref().unwrap_or_default()
+                "Building in box {} using {}...",
+                boxbuild.boxname.as_deref().unwrap_or_default(),
+                runtime.name()
             );
             run_build(&mut call, "Build")
         },
@@ -143,20 +209,17 @@ pub fn build_image(
 
 pub fn list_boxes(
     global: &GlobalOptions, boxbuild_config: Option<&str>,
-    runtime_container: &str
+    runtime: &Runtime
 ) -> i32 {
     /*!
     Show the available boxes by 'kiwi-ng system boxbuild --list-boxes'
-    in an instance of the runtime container
+    in an instance of the runtime container, or on Windows in the
+    WSL2 distribution of the runtime
 
     The boxes kiwi prints as yaml document are shown as table,
     see boxes::format_box_list(). Output which cannot be read as
     list of boxes is shown as it is
     !*/
-    let boxes_dir = match boxes_dir() {
-        Some(boxes_dir) => boxes_dir,
-        None => return 255
-    };
     let boxes_config = match boxbuild_config {
         Some(boxbuild_config) => match real_file(boxbuild_config) {
             Some(boxes_config) => Some(boxes_config),
@@ -164,9 +227,24 @@ pub fn list_boxes(
         },
         None => None
     };
-    let mut call = match list_boxes_call(
-        &boxes_dir, boxes_config.as_deref(), global, runtime_container
-    ) {
+    let call = match runtime {
+        Runtime::Container(container) => {
+            let boxes_dir = match boxes_dir() {
+                Some(boxes_dir) => boxes_dir,
+                None => return 255
+            };
+            list_boxes_call(
+                &boxes_dir, boxes_config.as_deref(), global, container
+            )
+        },
+        Runtime::Wsl(image) => {
+            if ! wsl::prepare_runtime(image) {
+                return 255
+            }
+            wsl::list_boxes_call(boxes_config.as_deref(), global)
+        }
+    };
+    let mut call = match call {
         Some(call) => call,
         None => return 255
     };
@@ -288,7 +366,7 @@ fn boxbuild_call(
     Some(call)
 }
 
-fn global_args(global: &GlobalOptions) -> Vec<String> {
+pub(crate) fn global_args(global: &GlobalOptions) -> Vec<String> {
     /*!
     Translate the global options into kiwi-ng global arguments,
     kiwi-ng system boxbuild passes them along to the build in
@@ -313,7 +391,7 @@ fn global_args(global: &GlobalOptions) -> Vec<String> {
     args
 }
 
-fn boxbuild_args(
+pub(crate) fn boxbuild_args(
     boxbuild: &BoxbuildOptions, shared_path: Option<&Path>
 ) -> Vec<String> {
     /*!
@@ -403,7 +481,7 @@ fn split_build_options(build_options: &[String]) -> Option<BuildOptions> {
     }
 }
 
-fn parse_shared_path(spec: &str) -> Option<SharedPath> {
+fn parse_shared_path(spec: &str, runtime: &Runtime) -> Option<SharedPath> {
     /*!
     Provide the shared path given as HOST_PATH or HOST_PATH:BOX_PATH
 
@@ -413,12 +491,30 @@ fn parse_shared_path(spec: &str) -> Option<SharedPath> {
     for the build in the runtime container, see boxbuild_call. The
     same applies to the location of the host directory if it is
     shared at the same location
+
+    In the WSL2 distribution on Windows, the host directory is
+    shared at its location in WSL2, e.g C:\data at /mnt/c/data,
+    see wsl::boxbuild_call. A BOX_PATH is not supported there
     !*/
-    let (host, target) = match spec.split_once(':') {
-        Some((host, target)) => (host, Some(target)),
-        None => (spec, None)
+    let (host, target) = match runtime {
+        Runtime::Wsl(_) => wsl::split_shared_path(spec),
+        Runtime::Container(_) => match spec.split_once(':') {
+            Some((host, target)) => (host, Some(target)),
+            None => (spec, None)
+        }
     };
     let host = real_dir(host)?;
+    if let Runtime::Wsl(_) = runtime {
+        if let Some(target) = target {
+            error!(
+                "Box path '{target}' of shared path {spec} is not \
+                supported on Windows, the host path is shared at its \
+                location in WSL2"
+            );
+            return None
+        }
+        return Some(SharedPath { target: host.clone(), host })
+    }
     let target = match target {
         Some(target) => {
             let target = Path::new(target);
@@ -584,7 +680,10 @@ fn run_build(call: &mut Command, action: &str) -> i32 {
     match call.status() {
         Ok(status) => exit_code(status, action),
         Err(error) => {
-            error!("Failed to execute {}: {error}", defaults::PODMAN_PATH);
+            error!(
+                "Failed to execute {}: {error}",
+                call.get_program().to_string_lossy()
+            );
             255
         }
     }
@@ -616,7 +715,10 @@ fn run_output(call: &mut Command, action: &str) -> Result<String, i32> {
             }
         },
         Err(error) => {
-            error!("Failed to execute {}: {error}", defaults::PODMAN_PATH);
+            error!(
+                "Failed to execute {}: {error}",
+                call.get_program().to_string_lossy()
+            );
             Err(255)
         }
     }
@@ -989,25 +1091,26 @@ mod tests {
 
     #[test]
     fn test_parse_shared_path() {
+        let container = Runtime::Container("box".to_string());
         let tmp_dir = TestDir::new();
         let host = fs::canonicalize(tmp_dir.path()).unwrap();
         let host_name = host.to_string_lossy().to_string();
 
         // shared at the same location as on the host
-        assert_eq!(parse_shared_path(&host_name), Some(SharedPath {
+        assert_eq!(parse_shared_path(&host_name, &container), Some(SharedPath {
             host: host.clone(), target: host.clone()
         }));
 
         // shared at the given location in the box
         assert_eq!(
-            parse_shared_path(&format!("{host_name}:/repos")),
+            parse_shared_path(&format!("{host_name}:/repos"), &container),
             Some(SharedPath {
                 host: host.clone(), target: PathBuf::from("/repos")
             })
         );
 
         // the host path has to be an existing directory
-        assert!(parse_shared_path("/nonexistent:/repos").is_none());
+        assert!(parse_shared_path("/nonexistent:/repos", &container).is_none());
 
         // the box path has to be absolute and normalized and must
         // not interfere with the locations used by the build
@@ -1016,10 +1119,52 @@ mod tests {
             "/result/sub", "/root", "/root/.kiwi_boxes"
         ] {
             assert!(
-                parse_shared_path(&format!("{host_name}:{target}")).is_none(),
+                parse_shared_path(&format!("{host_name}:{target}"), &container).is_none(),
                 "{}", target
             );
         }
+    }
+
+    #[test]
+    fn test_parse_shared_path_wsl() {
+        // in WSL2 the host path is shared at its location there,
+        // a box path is not supported
+        let wsl = Runtime::Wsl("boxbuild.wsl".to_string());
+        let tmp_dir = TestDir::new();
+        let host = fs::canonicalize(tmp_dir.path()).unwrap();
+        let host_name = host.to_string_lossy().to_string();
+        assert_eq!(parse_shared_path(&host_name, &wsl), Some(SharedPath {
+            host: host.clone(), target: host.clone()
+        }));
+        assert!(
+            parse_shared_path(&format!("{host_name}:/repos"), &wsl).is_none()
+        );
+    }
+
+    #[test]
+    fn test_runtime_select() {
+        assert_eq!(
+            Runtime::select(false, "registry.example.com/box", None),
+            Runtime::Container("registry.example.com/box".to_string())
+        );
+        assert_eq!(
+            Runtime::select(true, "registry.example.com/box", None),
+            Runtime::Wsl(wsl::image_location(None, boxes::host_arch()))
+        );
+        assert_eq!(
+            Runtime::select(true, "box", Some("https://example.com/b.wsl")),
+            Runtime::Wsl("https://example.com/b.wsl".to_string())
+        );
+        assert_eq!(
+            Runtime::select(true, "box", Some("https://example.com/b.wsl"))
+                .name(),
+            "https://example.com/b.wsl"
+        );
+        // Linux builds use the runtime container
+        assert_eq!(
+            Runtime::for_host("box", None),
+            Runtime::select(cfg!(windows), "box", None)
+        );
     }
 
     #[test]
