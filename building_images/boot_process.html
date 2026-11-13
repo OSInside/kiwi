@@ -1,0 +1,801 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customizing the Boot Process &mdash; KIWI NG 11.1.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/layout.css?v=7382d2b6" />
+      <link rel="stylesheet" type="text/css" href="../_static/algolia.css?v=332d6a92" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6d28d1ce"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/layout.js?v=f66cd825"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Working from the Command Line" href="../commands.html" />
+    <link rel="prev" title="Scripts" href="scripts.html" />
+   
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans@1/css/ibm-plex-sans-all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-mono@1/css/ibm-plex-mono-all.min.css">
+</head>
+
+<body class="wy-body-for-nav">
+  <header class="kiwi-header">
+    <button type="button" class="kiwi-header-menu" data-toggle="wy-nav-top" aria-label="Navigation menu">
+      <span class="fa fa-bars" aria-hidden="true"></span>
+    </button>
+    <a class="kiwi-header-name" href="../index.html">
+      <img src="../_static/kiwi-logo.png" alt="" />
+      <span class="kiwi-header-product">KIWI NG</span>
+      <span class="kiwi-header-title">Documentation</span>
+    </a>
+    <div class="kiwi-header-search">
+<div role="search">
+  <div id="autocomplete"></div>
+</div>
+    </div>
+    <a class="kiwi-header-link" href="https://github.com/OSInside/kiwi">
+      <span class="fa fa-github" aria-hidden="true"></span>
+      <span class="kiwi-header-link-text">GitHub</span>
+    </a>
+  </header>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+  <a class="kiwi-nav-product" href="../index.html">KIWI NG</a>
+  <span class="kiwi-nav-version">11.1.15</span>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#components-of-an-image-description">Components of an Image Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#basic-workflow">Basic Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#concepts">Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-from-obs">Installation from OBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-from-distribution-repositories">Installation from Distribution Repositories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#choose-a-first-image">Choose a First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#build-your-first-image">Build your First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#run-your-image">Run your Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#tweak-and-customize-your-image">Tweak and Customize your Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../building_images.html">Building Images</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_process.html">The Build Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_process.html#the-prepare-step">The Prepare Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_process.html#the-create-step">The Create Step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build_results.html">Build Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_results.html#image-types">Image Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_results.html#further-result-files">Further Result Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_results.html#bundling-results">Bundling Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build_host.html">Setting up the Build Host</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_host.html#host-requirements">Host Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_host.html#the-runtime-configuration-file">The Runtime Configuration File</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="repositories.html">Repositories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="repositories.html#repository-paths">Repository Paths</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">Packages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-package-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">package</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-archive-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">archive</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-namedcollection-and-product-elements">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">namedCollection</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code> elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#removing-packages">Removing Packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="users.html">Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html">Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#script-template">Script Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#functions-and-variables-provided-by-kiwi-ng">Functions and Variables Provided by KIWI NG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#debugging-scripts">Debugging Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#configuration-tips">Configuration Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Customizing the Boot Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boot-image-parameters">Boot Image Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boot-debugging">Boot Debugging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Working from the Command Line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../commands/kiwi.html">kiwi-ng</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#global-options">Global Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_build.html">kiwi-ng system build</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_prepare.html">kiwi-ng system prepare</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_create.html">kiwi-ng system create</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_update.html">kiwi-ng system update</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_boxbuild.html">kiwi-ng system boxbuild</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#environment">Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_stash.html">kiwi-ng system stash</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stash.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stash.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stash.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_stackbuild.html">kiwi-ng system stackbuild</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stackbuild.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stackbuild.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stackbuild.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/result_list.html">kiwi-ng result list</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/result_bundle.html">kiwi-ng result bundle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/image_info.html">kiwi-ng image info</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/image_resize.html">kiwi-ng image resize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#writing-options">Writing Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../image_description.html">Image Description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../image_description/elements.html">Schema Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#image">&lt;image&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#include">&lt;include&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#description">&lt;description&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#certificates">&lt;certificates&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#preferences">&lt;preferences&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#containers">&lt;containers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#containers-container">&lt;containers&gt;&lt;container&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#repository">&lt;repository&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#packages">&lt;packages&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#users">&lt;users&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#drivers">&lt;drivers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#strip">&lt;strip&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#extension">&lt;extension&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#profiles">&lt;profiles&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#description-directory-layout">Description Directory Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#minimal-example">Minimal Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#top-level-schema-layout">Top-Level Schema Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#what-to-configure-first">What to Configure First</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#common-patterns">Common Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#complete-schema-reference">Complete Schema Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build_methods.html">Alternative Build Methods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../build_methods/build_self_contained.html">Building in a Self-Contained Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_self_contained.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_self_contained.html#building-in-container">Building in Container</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../build_methods/build_with_runtime_container.html">Building with kiwi-boxbuild</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#building-with-the-kiwi-boxbuild-command">Building with the kiwi-boxbuild command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#supported-boxbuild-options">Supported boxbuild options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#sharing-a-host-path-with-the-box">Sharing a host path with the box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#using-a-custom-boxes-configuration">Using a custom boxes configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#configuring-the-runtime-container">Configuring the runtime container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_with_runtime_container.html#building-on-windows-11">Building on Windows 11</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../build_methods/build_based_on_containers.html">Building based on Containers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_based_on_containers.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_based_on_containers.html#concept">Concept</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_based_on_containers.html#create-a-stash">Create a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_based_on_containers.html#rebuild-from-a-stash">Rebuild from a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_methods/build_based_on_containers.html#turn-a-container-into-a-vm-image">Turn a container into a VM image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../example_use_cases.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_live_iso.html">Build an ISO Hybrid Live Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_live_iso.html#overlay-or-dmsquash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">dmsquash</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_simple_disk.html">Build a Virtual Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_simple_disk.html#setting-up-the-bootloader-in-the-image">Setting up the Bootloader in the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_simple_disk.html#modifying-the-size-of-the-image">Modifying the Size of the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_simple_disk.html#customizing-the-virtual-machine">Customizing the Virtual Machine</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html">Build an Expandable Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#deployment-methods">Deployment Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#manual-deployment">Manual Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#cd-dvd-deployment">CD/DVD Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#network-deployment">Network Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#oem-customization">OEM Customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#installation-media-customization">Installation Media Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_container_image.html">Build a Container Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_wsl_container.html">Build a WSL Container Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_wsl_container.html#setup-of-the-wsl-distrolauncher">Setup of the WSL-DistroLauncher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_wsl_container.html#testing-the-wsl-image">Testing the WSL image</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_enclave.html">Build an AWS Nitro Enclave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_deployment.html">Deploy ISO Image on a USB Stick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_file_based_deployment.html">Deploy ISO Image as a File on a FAT32 Formatted USB Stick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_grub2_boot_from_iso.html">Booting Live ISO Images from Grub2</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_grub2_boot_from_iso.html#booting-install-iso-images-from-grub2">Booting Install ISO Images from Grub2</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_ec2.html">Image Description for Amazon EC2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_azure.html">Image Description for Microsoft Azure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_google.html">Image Description for Google Compute Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_vagrant.html">Image Description for Vagrant</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/disk_setup_for_vagrant.html#customizing-the-embedded-vagrantfile">Customizing the embedded Vagrantfile</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_luks.html">Image Description for an Encrypted Disk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_ramdisk_deployment.html">Deploy and Run a System in a Ramdisk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/custom_partitions.html">Custom Disk Partitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/custom_volumes.html">Custom Disk Volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/clone_partitions.html">Partition Clones</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/clone_partitions.html#use-case">Use Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/setup_network_bootserver.html">Setting Up a Network Boot Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/setup_network_bootserver.html#installing-and-configuring-dhcp-and-tftp-with-dnsmasq">Installing and Configuring DHCP and TFTP with dnsmasq</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/legacy_netboot_root_filesystem.html">Build PXE Root Filesystem Image for the legacy netboot infrastructure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/legacy_netboot_root_filesystem.html#pxe-client-setup-configuration">PXE Client Setup Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/network_overlay_boot.html">Booting a Root Filesystem from Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/network_live_iso_boot.html">Booting a Live ISO Image from Network</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/network_live_iso_boot.html#available-remote-boot-options">Available Remote Boot Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/network_live_iso_boot.html#persistent-live-system">Persistent Live System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/custom_fstab_extension.html">Add or Update the Fstab File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_with_profiles.html">Building Images with Profiles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_with_profiles.html#local-builds">Local Builds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_with_profiles.html#building-with-the-open-build-service">Building with the Open Build Service</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html">Building in the Open Build Service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html#advantages-of-using-the-open-build-service-obs">Advantages of using the Open Build Service (OBS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html#differences-between-building-locally-and-on-obs">Differences Between Building Locally and on OBS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html#recommendations">Recommendations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/use_suse_media.html">Using SUSE Product ISO To Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_without_debianbootstrap.html">Circumvent Debian Bootstrap</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_without_debianbootstrap.html#how-to-create-a-bootstrap-package">How to Create a bootstrap_package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/integration_testing.html">Building Build Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/architectures.html">Architectures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_from_python.html">Using KIWI NG in a Python Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html">Plugin Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#naming-conventions">Naming conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#example-plugin">Example plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/scripts_testing.html">Write Integration Tests for the Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/scripts_testing.html#test-setup">Test setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/schema_extensions.html">Extending KIWI NG with Custom Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#the-extension-section">The &lt;extension&gt; Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#relax-ng-schema-for-the-extension">RELAX NG Schema for the Extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#extension-schema-in-xml-catalog">Extension schema in XML catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#using-the-extension">Using the extension</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#fork-the-upstream-repository">Fork the upstream repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-local-clone-of-the-forked-repository">Create a local clone of the forked repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#install-required-operating-system-packages">Install Required Operating System Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-python-virtual-development-environment">Create a Python Virtual Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#running-the-unit-tests">Running the Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#coding-style">Coding Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#bumping-the-version">Bumping the Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#ai-policy">AI policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#creating-an-rpm-package">Creating an RPM Package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">KIWI NG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../building_images.html">Building Images</a></li>
+      <li class="breadcrumb-item active">Customizing the Boot Process</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+  
+           <div itemprop="articleBody">
+             
+  <section id="customizing-the-boot-process">
+<span id="working-with-kiwi-customizing-the-boot-process"></span><h1>Customizing the Boot Process<a class="headerlink" href="#customizing-the-boot-process" title="Link to this heading"></a></h1>
+<aside class="sidebar">
+<p class="sidebar-title">Abstract</p>
+<p>This page describes the initrd KIWI NG creates for an image, the
+KIWI NG modules it contains, how to add own boot code, and the boot
+parameters of the KIWI NG modules.</p>
+</aside>
+<p>Most Linux systems boot with an initial RAM disk, the <code class="file docutils literal notranslate"><span class="pre">initrd</span></code>,
+which the kernel loads after the firmware handed over the control.
+Depending on the image type, KIWI NG creates the initrd in the create
+step with <code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut</span></code>. KIWI NG provides the following dracut modules, which
+are added to the initrd as needed:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 50.0%" />
+<col style="width: 28.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>Package</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-dump</span></code></p></td>
+<td><p>Installs an image onto a selectable target disk. Used by install
+media, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">installiso</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">installstick</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">installpxe</span></code>
+attributes.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-oem-dump</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-dump-reboot</span></code></p></td>
+<td><p>Boots into the installed image after the installation.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-oem-dump</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-live</span></code></p></td>
+<td><p>Boots a live ISO image, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">iso</span></code> image type.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-live</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-overlay</span></code></p></td>
+<td><p>Boots disk images with <code class="xref py py-obj docutils literal notranslate"><span class="pre">overlayroot=&quot;true&quot;</span></code>: a compressed,
+read-only root partition with an overlayfs and a separate
+partition for persistent data.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-overlay</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-repart</span></code></p></td>
+<td><p>Resizes an OEM disk image on first boot to the limits of the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">oemconfig</span></code> section: repartitioning, resizing of RAID, LVM, LUKS
+and the filesystems.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-oem-repart</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-verity</span></code></p></td>
+<td><p>Sets up dm-verity for images with <code class="xref py py-obj docutils literal notranslate"><span class="pre">verity_blocks</span></code> or
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">embed_verity_metadata</span></code>, to verify the root device at boot.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-verity</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-lib</span></code></p></td>
+<td><p>Common functions of the other modules.</p></td>
+<td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dracut-kiwi-lib</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Custom boot images</p>
+<p>For the <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">pxe</span></code> types, KIWI NG also supports custom boot
+images instead of dracut, with <code class="xref py py-obj docutils literal notranslate"><span class="pre">initrd_system=&quot;kiwi&quot;</span></code> and a reference
+to a boot image description in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boot</span></code> attribute of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code>
+element. This is mostly used in heavily customized PXE environments.
+dracut is recommended, and KIWI NG does not ship boot image
+descriptions. There are examples for an <a class="reference external" href="https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-oem-boot-description">OEM boot description</a>
+and a <a class="reference external" href="https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-pxe-boot-description">PXE boot description</a>.</p>
+</div>
+<section id="boot-image-hook-scripts">
+<h2>Boot Image Hook-Scripts<a class="headerlink" href="#boot-image-hook-scripts" title="Link to this heading"></a></h2>
+<p>dracut boots with a defined sequence of systemd services, see
+<a class="reference external" href="http://man7.org/linux/man-pages/man7/dracut.bootup.7.html">dracut.bootup(7)</a>. Own boot
+code is added as a dracut module, provided by a package or by the
+overlay tree of the image description. The following example adds a
+script which runs before the root filesystem is mounted:</p>
+<ol class="arabic">
+<li><p>Create the directory of the module:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>root/usr/lib/dracut/modules.d/90my-module
+</pre></div>
+</div>
+</li>
+<li><p>Enable the module in <code class="file docutils literal notranslate"><span class="pre">root/etc/dracut.conf.d/90-my-module.conf</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">add_dracutmodules</span><span class="o">+=</span><span class="s2">" my-module "</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add the script as
+<code class="file docutils literal notranslate"><span class="pre">root/usr/lib/dracut/modules.d/90my-module/my-script.sh</span></code>.</p></li>
+<li><p>Add the module setup
+<code class="file docutils literal notranslate"><span class="pre">root/usr/lib/dracut/modules.d/90my-module/module-setup.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># called by dracut</span>
+check<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># check module integrity</span>
+<span class="o">}</span>
+
+<span class="c1"># called by dracut</span>
+depends<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># return list of modules depending on this one</span>
+<span class="o">}</span>
+
+<span class="c1"># called by dracut</span>
+installkernel<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># load required kernel modules when needed</span>
+<span class="w">    </span>instmods<span class="w"> </span>_kernel_module_list_
+<span class="o">}</span>
+
+<span class="c1"># called by dracut</span>
+install<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">declare</span><span class="w"> </span><span class="nv">moddir</span><span class="o">=</span><span class="si">${</span><span class="nv">moddir</span><span class="si">}</span>
+<span class="w">    </span>inst_multiple<span class="w"> </span>_tools_my_module_script_needs_
+
+<span class="w">    </span>inst_hook<span class="w"> </span>pre-mount<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">moddir</span><span class="si">}</span><span class="s2">/my-script.sh"</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>dracut adds the module to the initrd, and systemd calls the script as
+part of the <code class="file docutils literal notranslate"><span class="pre">dracut-pre-mount.service</span></code>.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inst_multiple</span></code> adds the tools the script needs to the initrd, as a
+space-separated list. Tools in <code class="file docutils literal notranslate"><span class="pre">/bin</span></code>, <code class="file docutils literal notranslate"><span class="pre">/sbin</span></code>,
+<code class="file docutils literal notranslate"><span class="pre">/usr/bin</span></code> or <code class="file docutils literal notranslate"><span class="pre">/usr/sbin</span></code> are given by name, other files,
+such as libraries, by their full path. Each of them must be part of the
+image, from a package, an archive or the overlay tree. For more ways to
+customize the initrd, see the <a class="reference external" href="https://dracut.wiki.kernel.org/index.php/Main_Page">dracut documentation</a>.</p>
+</section>
+<section id="boot-image-parameters">
+<h2>Boot Image Parameters<a class="headerlink" href="#boot-image-parameters" title="Link to this heading"></a></h2>
+<p>The following kernel parameters control the KIWI NG dracut modules. The
+list contains the most commonly used ones.</p>
+<section id="general">
+<h3>General<a class="headerlink" href="#general" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt class="kiwi-term" id="rd-kiwi-debug"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.debug</span></code><a class="headerlink" href="#rd-kiwi-debug" title="Link to this term"></a></dt><dd><p>Writes a debug log of the KIWI NG part of the boot process to
+<code class="file docutils literal notranslate"><span class="pre">/run/initramfs/log/boot.kiwi</span></code>.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-term"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.term</span></code><a class="headerlink" href="#rd-kiwi-term" title="Link to this term"></a></dt><dd><p>Sets the <code class="xref py py-obj docutils literal notranslate"><span class="pre">TERM</span></code> variable in the initrd, also for the dialogs of the
+KIWI NG modules, if the default terminal emulation does not fit.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-dialog-timeout-seconds-off"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.dialog.timeout=seconds|off</span></code><a class="headerlink" href="#rd-kiwi-dialog-timeout-seconds-off" title="Link to this term"></a></dt><dd><p>The timeout of the dialogs of the KIWI NG modules. The default is 60
+seconds, <code class="xref py py-obj docutils literal notranslate"><span class="pre">off</span></code> disables the timeout.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-allow-plymouth"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.allow_plymouth</span></code><a class="headerlink" href="#rd-kiwi-allow-plymouth" title="Link to this term"></a></dt><dd><p>Keeps plymouth running in the initrd. By default, KIWI NG stops it,
+as it can affect the available consoles.</p>
+</dd>
+</dl>
+</section>
+<section id="oem-installation-images">
+<h3>OEM Installation Images<a class="headerlink" href="#oem-installation-images" title="Link to this heading"></a></h3>
+<dl>
+<dt class="kiwi-term" id="rd-kiwi-install-devicepersistency-by"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.devicepersistency=by-*</span></code><a class="headerlink" href="#rd-kiwi-install-devicepersistency-by" title="Link to this term"></a></dt><dd><p>Lists the disks to install to by their <code class="xref py py-obj docutils literal notranslate"><span class="pre">by-*</span></code> device names, for
+example <code class="xref py py-obj docutils literal notranslate"><span class="pre">by-path</span></code>.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-installdevice"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.installdevice</span></code><a class="headerlink" href="#rd-kiwi-oem-installdevice" title="Link to this term"></a></dt><dd><p>The disk to install to. It overrides all other settings to select the
+disk, such as <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem-device-filter</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem-unattended-id</span></code> or
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.oem.maxdisk</span></code>, and is used without asking for confirmation.
+The device must exist and be a block device.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-maxdisk-size-kmgt"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.maxdisk=size[KMGT]</span></code><a class="headerlink" href="#rd-kiwi-oem-maxdisk-size-kmgt" title="Link to this term"></a></dt><dd><p>The maximum size of the disk an unattended installation installs to.
+By default it installs to the first disk not filtered out by
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">oem-device-filter</span></code>. For example, with big JBOD disks and a 480G
+RAID1 for the system, <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.oem.maxdisk=500G</span></code> installs to the
+RAID.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-smallest-disk"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.smallest_disk</span></code><a class="headerlink" href="#rd-kiwi-oem-smallest-disk" title="Link to this term"></a></dt><dd><p>An unattended installation installs to the smallest disk instead of
+the first one by name. USB flash drives are not considered. An
+alternative to <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.oem.maxdisk</span></code> for big JBOD setups.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-disk-consistency"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.disk.consistency</span></code><a class="headerlink" href="#rd-kiwi-oem-disk-consistency" title="Link to this term"></a></dt><dd><p>Stops the installation if another disk of the system has the same
+partition table UUID as the image, which means that the image is
+already installed on that disk. Two such disks cause device ID
+conflicts.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-sha512"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.sha512</span></code><a class="headerlink" href="#rd-kiwi-oem-sha512" title="Link to this term"></a></dt><dd><p>Expects sha512 instead of sha256 checksums, with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">sha512</span></code> file
+extension.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-pxe"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.pxe</span></code><a class="headerlink" href="#rd-kiwi-install-pxe" title="Link to this term"></a></dt><dd><p>Loads the image from the remote location given in
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.image</span></code>.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-image-uri"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.image=URI</span></code><a class="headerlink" href="#rd-kiwi-install-image-uri" title="Link to this term"></a></dt><dd><p>The remote location of the image for <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.pxe</span></code>.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-pass-bootparam"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.pass.bootparam</span></code><a class="headerlink" href="#rd-kiwi-install-pass-bootparam" title="Link to this term"></a></dt><dd><p>Passes the boot parameters of the installation on to the installed
+image, for example a first boot configuration. Parameters starting
+with <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi</span></code> are not passed on.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-efi-display-label-name"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.efi_display_label=name</span></code><a class="headerlink" href="#rd-kiwi-install-efi-display-label-name" title="Link to this term"></a></dt><dd><p>Creates an EFI boot entry with the given name after the installation,
+on EFI systems. An existing entry with this name is removed first. The
+entry points to the first EFI binary on the partition labeled <code class="xref py py-obj docutils literal notranslate"><span class="pre">EFI</span></code>,
+preferring vendor loaders such as <code class="xref py py-obj docutils literal notranslate"><span class="pre">EFIopensuseshim.efi</span></code> over
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">EFIBOOT</span></code>, and shim over other loaders. Requires <code class="xref py py-obj docutils literal notranslate"><span class="pre">efibootmgr</span></code> in the
+installation initrd.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-retain-last"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.retain_last</span></code><a class="headerlink" href="#rd-kiwi-install-retain-last" title="Link to this term"></a></dt><dd><p>Keeps the content of the last partition of the target disk, for
+example a data partition added with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">spare_part</span></code> attribute. This
+only works if the partition starts at the same address on the target
+disk as in the image.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-retain-past"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.retain_past</span></code><a class="headerlink" href="#rd-kiwi-install-retain-past" title="Link to this term"></a></dt><dd><p>Keeps the content of the last partition of the target disk if it
+starts after the end of the image. Unlike
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.retain_last</span></code>, the partition does not need to be part
+of the image.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Limitations</p>
+<p>There are no checks of the partition: KIWI NG takes the last
+partition reported by <code class="xref py py-obj docutils literal notranslate"><span class="pre">sfdisk</span></code> before the installation and
+recreates it afterwards. This can leave a gap between the system
+and the kept partition. Of several partitions after the system, only
+the last one is kept. Use with care.</p>
+</div>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-partition-based"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.partition_based</span></code><a class="headerlink" href="#rd-kiwi-install-partition-based" title="Link to this term"></a></dt><dd><p>Installs the image partition by partition instead of as one block.
+KIWI NG copies the partition table and the MBR boot code, transfers
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfs</span></code> partitions with the <a class="reference external" href="https://btrfs.readthedocs.io/en/latest/Seeding-device.html">btrfs seed/sprout process</a> and
+all other partitions block by block, and restores the filesystem UUID
+of btrfs afterwards. The main purpose is to use seed/sprout for the
+deployment.</p>
+<p>The btrfs root filesystem of the image must be flagged as a seeding
+device at build time. KIWI NG does this only for install images
+(<code class="xref py py-obj docutils literal notranslate"><span class="pre">installiso</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">installstick</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">installpxe</span></code>) with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfs</span></code>
+volume manager which set the parameter in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kernelcmdline</span></code>
+attribute. Passing it only at boot time is not sufficient:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">"oem"</span><span class="w"> </span><span class="na">filesystem=</span><span class="s">"btrfs"</span><span class="w"> </span><span class="na">installiso=</span><span class="s">"true"</span>
+<span class="w">      </span><span class="na">kernelcmdline=</span><span class="s">"console=ttyS0 rd.kiwi.install.partition_based"</span><span class="nt">&gt;</span>
+<span class="w">  </span>...
+<span class="nt">&lt;/type&gt;</span>
+</pre></div>
+</div>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfs</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfstune</span></code> must be part of the installation initrd. With
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.pxe</span></code>, the image is first loaded into main memory as
+<code class="file docutils literal notranslate"><span class="pre">/image.raw</span></code>, which must fit the complete uncompressed image.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Limitations</p>
+<ul class="simple">
+<li><p>The result is not bit-identical with the image, the checksum
+verification is therefore skipped.</p></li>
+<li><p>All partitions are installed, the parameter cannot be combined
+with <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.retain_last</span></code> or
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.retain_past</span></code>. The installation stops before
+writing to the disk if one of them is set.</p></li>
+<li><p>It is not faster than installing the image as one block, and
+slower with <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.pxe</span></code>.</p></li>
+<li><p>The seed/sprout messages are logged to <code class="file docutils literal notranslate"><span class="pre">/seed.log</span></code> in the
+installation initrd.</p></li>
+</ul>
+</div>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-install-clone-local"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.clone_local</span></code><a class="headerlink" href="#rd-kiwi-install-clone-local" title="Link to this term"></a></dt><dd><p>With <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.partition_based</span></code>: copies the image from the
+install media into main memory as <code class="file docutils literal notranslate"><span class="pre">/image.raw</span></code> first, and flags
+the btrfs filesystems of the copy as seeding devices. This allows a
+partition based installation of images which were not flagged at
+build time. The main memory must fit the complete uncompressed image.
+No effect for PXE installations, which always use a copy in memory.</p>
+</dd>
+</dl>
+</section>
+<section id="oem-disk-images">
+<h3>OEM Disk Images<a class="headerlink" href="#oem-disk-images" title="Link to this heading"></a></h3>
+<dl>
+<dt class="kiwi-term" id="rd-kiwi-oem-force-resize"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.force_resize</span></code><a class="headerlink" href="#rd-kiwi-oem-force-resize" title="Link to this term"></a></dt><dd><p>Resizes the disk on boot without checking for free space, also with
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;oem-resize-once&gt;</span></code>. If the disk is already resized, the resize has
+no effect. The partition UUIDs change with every resize.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-luks-reencrypt"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.luks.reencrypt</span></code><a class="headerlink" href="#rd-kiwi-oem-luks-reencrypt" title="Link to this term"></a></dt><dd><p>Re-encrypts a LUKS2-encrypted disk before a resize, with a new key
+pool and master key. Recommended if the image file is not protected,
+as its LUKS header allows to decrypt the data otherwise. Runs only if
+the LUKS header still matches the one of the image, and asks for the
+passphrase if the image was built with one.</p>
+</dd>
+<dt class="kiwi-term" id="rd-kiwi-oem-luks-reencrypt-randompass"><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.luks.reencrypt_randompass</span></code><a class="headerlink" href="#rd-kiwi-oem-luks-reencrypt-randompass" title="Link to this term"></a></dt><dd><p>With <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.oem.luks.reencrypt</span></code>: replaces the build time passphrase
+of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">luks</span></code> attribute with a random one-time passphrase, stored in
+memory in <code class="file docutils literal notranslate"><span class="pre">/run/.kiwi_reencrypt.keyfile</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The passphrase is lost on reboot. The boot process must store
+retrievable key information for the following boots, for example
+with a TPM.</p>
+</div>
+</dd>
+</dl>
+</section>
+<section id="live-iso-images">
+<h3>Live ISO Images<a class="headerlink" href="#live-iso-images" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt class="kiwi-term" id="rd-live-overlay-size"><code class="docutils literal notranslate"><span class="pre">rd.live.overlay.size</span></code><a class="headerlink" href="#rd-live-overlay-size" title="Link to this term"></a></dt><dd><p>The size of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">tmpfs</span></code> which holds the data written at runtime, if
+no persistent write partition is used. The default is <code class="xref py py-obj docutils literal notranslate"><span class="pre">50%</span></code> of the
+main memory.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-overlay-persistent"><code class="docutils literal notranslate"><span class="pre">rd.live.overlay.persistent</span></code><a class="headerlink" href="#rd-live-overlay-persistent" title="Link to this term"></a></dt><dd><p>Creates a persistent write partition.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-encrypt"><code class="docutils literal notranslate"><span class="pre">rd.live.encrypt</span></code><a class="headerlink" href="#rd-live-encrypt" title="Link to this term"></a></dt><dd><p>Encrypts the persistent write partition. The boot asks for a
+passphrase.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-overlay-cowfs"><code class="docutils literal notranslate"><span class="pre">rd.live.overlay.cowfs</span></code><a class="headerlink" href="#rd-live-overlay-cowfs" title="Link to this term"></a></dt><dd><p>The filesystem of the persistent write partition.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-cowfile-mbsize"><code class="docutils literal notranslate"><span class="pre">rd.live.cowfile.mbsize</span></code><a class="headerlink" href="#rd-live-cowfile-mbsize" title="Link to this term"></a></dt><dd><p>The size of the COW file in MB, 500 by default. If the ISO image is
+copied as a file onto a disk and booted with a GRUB loopback setup,
+for example with <code class="xref py py-obj docutils literal notranslate"><span class="pre">live-grub-stick</span></code>, there is usually no space for a
+write partition. The data is then written to the COW file
+<code class="file docutils literal notranslate"><span class="pre">live_system.cow</span></code> next to the ISO file.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-cowfile-path"><code class="docutils literal notranslate"><span class="pre">rd.live.cowfile.path</span></code><a class="headerlink" href="#rd-live-cowfile-path" title="Link to this term"></a></dt><dd><p>The path of the COW file below the loop mount point
+<code class="file docutils literal notranslate"><span class="pre">/run/initramfs/isoscan</span></code>, for live systems booted from an ISO
+file, see <a class="reference internal" href="../example_use_cases/iso_to_usb_stick_file_based_deployment.html#iso-as-file-to-usb-stick"><span class="std std-ref">Deploy ISO Image as a File on a FAT32 Formatted USB Stick</span></a>. The default is
+<code class="file docutils literal notranslate"><span class="pre">/run/initramfs/isoscan/live_system.cow</span></code>.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-dir"><code class="docutils literal notranslate"><span class="pre">rd.live.dir</span></code><a class="headerlink" href="#rd-live-dir" title="Link to this term"></a></dt><dd><p>The directory which holds the live system. The default is <code class="xref py py-obj docutils literal notranslate"><span class="pre">LiveOS</span></code>.</p>
+</dd>
+<dt class="kiwi-term" id="rd-live-squashimg"><code class="docutils literal notranslate"><span class="pre">rd.live.squashimg</span></code><a class="headerlink" href="#rd-live-squashimg" title="Link to this term"></a></dt><dd><p>The name of the squashfs image which holds the root filesystem. The
+default is <code class="xref py py-obj docutils literal notranslate"><span class="pre">squashfs.img</span></code>.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="boot-debugging">
+<h2>Boot Debugging<a class="headerlink" href="#boot-debugging" title="Link to this heading"></a></h2>
+<p>By default, the boot stops without a way to interact with the system if
+a fatal error occurs. With the following kernel parameters, the boot
+opens a limited shell instead:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rd.debug<span class="w"> </span>rd.kiwi.debug
+</pre></div>
+</div>
+<p>The KIWI NG log in the shell is available with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>less<span class="w"> </span>/run/initramfs/log/boot.kiwi
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+  <nav class="kiwi-page-toc" aria-label="On this page">
+    <p class="kiwi-page-toc-title">On this page</p>
+    <ul>
+<li><a class="reference internal" href="#">Customizing the Boot Process</a><ul>
+<li><a class="reference internal" href="#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
+<li><a class="reference internal" href="#boot-image-parameters">Boot Image Parameters</a><ul>
+<li><a class="reference internal" href="#general">General</a></li>
+<li><a class="reference internal" href="#oem-installation-images">OEM Installation Images</a></li>
+<li><a class="reference internal" href="#oem-disk-images">OEM Disk Images</a></li>
+<li><a class="reference internal" href="#live-iso-images">Live ISO Images</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#boot-debugging">Boot Debugging</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="scripts.html" class="btn btn-neutral float-left" title="Scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../commands.html" class="btn btn-neutral float-right" title="Working from the Command Line" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2026, Marcus Schäfer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+  <script src="https://cdn.jsdelivr.net/npm/@algolia/experiences/dist/experiences.js?appId=5B872QGQDR&apiKey=3e83220f165a4c43046379870bf6172b&experienceId=5B872QGQDR&env=prod"></script>
+
+</body>
+</html>

@@ -1,0 +1,774 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building with kiwi-boxbuild &mdash; KIWI NG 11.1.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/layout.css?v=7382d2b6" />
+      <link rel="stylesheet" type="text/css" href="../_static/algolia.css?v=332d6a92" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6d28d1ce"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/layout.js?v=f66cd825"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building based on Containers" href="build_based_on_containers.html" />
+    <link rel="prev" title="Building in a Self-Contained Environment" href="build_self_contained.html" />
+   
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans@1/css/ibm-plex-sans-all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-mono@1/css/ibm-plex-mono-all.min.css">
+</head>
+
+<body class="wy-body-for-nav">
+  <header class="kiwi-header">
+    <button type="button" class="kiwi-header-menu" data-toggle="wy-nav-top" aria-label="Navigation menu">
+      <span class="fa fa-bars" aria-hidden="true"></span>
+    </button>
+    <a class="kiwi-header-name" href="../index.html">
+      <img src="../_static/kiwi-logo.png" alt="" />
+      <span class="kiwi-header-product">KIWI NG</span>
+      <span class="kiwi-header-title">Documentation</span>
+    </a>
+    <div class="kiwi-header-search">
+<div role="search">
+  <div id="autocomplete"></div>
+</div>
+    </div>
+    <a class="kiwi-header-link" href="https://github.com/OSInside/kiwi">
+      <span class="fa fa-github" aria-hidden="true"></span>
+      <span class="kiwi-header-link-text">GitHub</span>
+    </a>
+  </header>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+  <a class="kiwi-nav-product" href="../index.html">KIWI NG</a>
+  <span class="kiwi-nav-version">11.1.15</span>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#components-of-an-image-description">Components of an Image Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#basic-workflow">Basic Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#concepts">Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-from-obs">Installation from OBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-from-distribution-repositories">Installation from Distribution Repositories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#choose-a-first-image">Choose a First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#build-your-first-image">Build your First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#run-your-image">Run your Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#tweak-and-customize-your-image">Tweak and Customize your Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../building_images.html">Building Images</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_process.html">The Build Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_process.html#the-prepare-step">The Prepare Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_process.html#the-create-step">The Create Step</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_results.html">Build Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_results.html#image-types">Image Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_results.html#further-result-files">Further Result Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_results.html#bundling-results">Bundling Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_host.html">Setting up the Build Host</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_host.html#host-requirements">Host Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_host.html#the-runtime-configuration-file">The Runtime Configuration File</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/repositories.html">Repositories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/repositories.html#repository-paths">Repository Paths</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/packages.html">Packages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/packages.html#the-package-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">package</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/packages.html#the-archive-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">archive</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/packages.html#the-namedcollection-and-product-elements">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">namedCollection</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code> elements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/packages.html#removing-packages">Removing Packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/users.html">Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/profiles.html">Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/scripts.html">Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/scripts.html#script-template">Script Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/scripts.html#functions-and-variables-provided-by-kiwi-ng">Functions and Variables Provided by KIWI NG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/scripts.html#debugging-scripts">Debugging Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/scripts.html#configuration-tips">Configuration Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/boot_process.html">Customizing the Boot Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/boot_process.html#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/boot_process.html#boot-image-parameters">Boot Image Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/boot_process.html#boot-debugging">Boot Debugging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Working from the Command Line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../commands/kiwi.html">kiwi-ng</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#global-options">Global Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_build.html">kiwi-ng system build</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_prepare.html">kiwi-ng system prepare</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_create.html">kiwi-ng system create</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_update.html">kiwi-ng system update</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_boxbuild.html">kiwi-ng system boxbuild</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#environment">Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_boxbuild.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_stash.html">kiwi-ng system stash</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stash.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stash.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stash.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_stackbuild.html">kiwi-ng system stackbuild</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stackbuild.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stackbuild.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_stackbuild.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/result_list.html">kiwi-ng result list</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/result_bundle.html">kiwi-ng result bundle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/image_info.html">kiwi-ng image info</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/image_resize.html">kiwi-ng image resize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../commands.html#writing-options">Writing Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../image_description.html">Image Description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../image_description/elements.html">Schema Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#image">&lt;image&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#include">&lt;include&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#description">&lt;description&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#certificates">&lt;certificates&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#preferences">&lt;preferences&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#containers">&lt;containers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#containers-container">&lt;containers&gt;&lt;container&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#repository">&lt;repository&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#packages">&lt;packages&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#users">&lt;users&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#drivers">&lt;drivers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#strip">&lt;strip&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#extension">&lt;extension&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#profiles">&lt;profiles&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#description-directory-layout">Description Directory Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#minimal-example">Minimal Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#top-level-schema-layout">Top-Level Schema Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#what-to-configure-first">What to Configure First</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#common-patterns">Common Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#complete-schema-reference">Complete Schema Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../build_methods.html">Alternative Build Methods</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_self_contained.html">Building in a Self-Contained Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_self_contained.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_self_contained.html#building-in-container">Building in Container</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Building with kiwi-boxbuild</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-with-the-kiwi-boxbuild-command">Building with the kiwi-boxbuild command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-boxbuild-options">Supported boxbuild options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sharing-a-host-path-with-the-box">Sharing a host path with the box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-a-custom-boxes-configuration">Using a custom boxes configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-runtime-container">Configuring the runtime container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-on-windows-11">Building on Windows 11</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="build_based_on_containers.html">Building based on Containers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_based_on_containers.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_based_on_containers.html#concept">Concept</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_based_on_containers.html#create-a-stash">Create a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_based_on_containers.html#rebuild-from-a-stash">Rebuild from a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_based_on_containers.html#turn-a-container-into-a-vm-image">Turn a container into a VM image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../example_use_cases.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_live_iso.html">Build an ISO Hybrid Live Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_live_iso.html#overlay-or-dmsquash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">dmsquash</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_simple_disk.html">Build a Virtual Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_simple_disk.html#setting-up-the-bootloader-in-the-image">Setting up the Bootloader in the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_simple_disk.html#modifying-the-size-of-the-image">Modifying the Size of the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_simple_disk.html#customizing-the-virtual-machine">Customizing the Virtual Machine</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html">Build an Expandable Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#deployment-methods">Deployment Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#manual-deployment">Manual Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#cd-dvd-deployment">CD/DVD Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#network-deployment">Network Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#oem-customization">OEM Customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_expandable_disk.html#installation-media-customization">Installation Media Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_container_image.html">Build a Container Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_wsl_container.html">Build a WSL Container Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_wsl_container.html#setup-of-the-wsl-distrolauncher">Setup of the WSL-DistroLauncher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_wsl_container.html#testing-the-wsl-image">Testing the WSL image</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_enclave.html">Build an AWS Nitro Enclave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_deployment.html">Deploy ISO Image on a USB Stick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_file_based_deployment.html">Deploy ISO Image as a File on a FAT32 Formatted USB Stick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_grub2_boot_from_iso.html">Booting Live ISO Images from Grub2</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/iso_to_usb_stick_grub2_boot_from_iso.html#booting-install-iso-images-from-grub2">Booting Install ISO Images from Grub2</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_ec2.html">Image Description for Amazon EC2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_azure.html">Image Description for Microsoft Azure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_google.html">Image Description for Google Compute Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_vagrant.html">Image Description for Vagrant</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/disk_setup_for_vagrant.html#customizing-the-embedded-vagrantfile">Customizing the embedded Vagrantfile</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_setup_for_luks.html">Image Description for an Encrypted Disk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/disk_ramdisk_deployment.html">Deploy and Run a System in a Ramdisk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/custom_partitions.html">Custom Disk Partitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/custom_volumes.html">Custom Disk Volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/clone_partitions.html">Partition Clones</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/clone_partitions.html#use-case">Use Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/setup_network_bootserver.html">Setting Up a Network Boot Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/setup_network_bootserver.html#installing-and-configuring-dhcp-and-tftp-with-dnsmasq">Installing and Configuring DHCP and TFTP with dnsmasq</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/legacy_netboot_root_filesystem.html">Build PXE Root Filesystem Image for the legacy netboot infrastructure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/legacy_netboot_root_filesystem.html#pxe-client-setup-configuration">PXE Client Setup Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/network_overlay_boot.html">Booting a Root Filesystem from Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/network_live_iso_boot.html">Booting a Live ISO Image from Network</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/network_live_iso_boot.html#available-remote-boot-options">Available Remote Boot Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/network_live_iso_boot.html#persistent-live-system">Persistent Live System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/custom_fstab_extension.html">Add or Update the Fstab File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_with_profiles.html">Building Images with Profiles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_with_profiles.html#local-builds">Local Builds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_with_profiles.html#building-with-the-open-build-service">Building with the Open Build Service</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html">Building in the Open Build Service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html#advantages-of-using-the-open-build-service-obs">Advantages of using the Open Build Service (OBS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html#differences-between-building-locally-and-on-obs">Differences Between Building Locally and on OBS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_in_buildservice.html#recommendations">Recommendations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/use_suse_media.html">Using SUSE Product ISO To Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/build_without_debianbootstrap.html">Circumvent Debian Bootstrap</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../example_use_cases/build_without_debianbootstrap.html#how-to-create-a-bootstrap-package">How to Create a bootstrap_package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../example_use_cases/integration_testing.html">Building Build Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/architectures.html">Architectures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_from_python.html">Using KIWI NG in a Python Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html">Plugin Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#naming-conventions">Naming conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#example-plugin">Example plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/scripts_testing.html">Write Integration Tests for the Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/scripts_testing.html#test-setup">Test setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/schema_extensions.html">Extending KIWI NG with Custom Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#the-extension-section">The &lt;extension&gt; Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#relax-ng-schema-for-the-extension">RELAX NG Schema for the Extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#extension-schema-in-xml-catalog">Extension schema in XML catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#using-the-extension">Using the extension</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#fork-the-upstream-repository">Fork the upstream repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-local-clone-of-the-forked-repository">Create a local clone of the forked repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#install-required-operating-system-packages">Install Required Operating System Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-python-virtual-development-environment">Create a Python Virtual Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#running-the-unit-tests">Running the Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#coding-style">Coding Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#bumping-the-version">Bumping the Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#ai-policy">AI policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#creating-an-rpm-package">Creating an RPM Package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">KIWI NG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../build_methods.html">Alternative Build Methods</a></li>
+      <li class="breadcrumb-item active">Building with kiwi-boxbuild</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+  
+           <div itemprop="articleBody">
+             
+  <section id="building-with-kiwi-boxbuild">
+<span id="runtime-container-boxbuild"></span><h1>Building with kiwi-boxbuild<a class="headerlink" href="#building-with-kiwi-boxbuild" title="Link to this heading"></a></h1>
+<aside class="sidebar">
+<p class="sidebar-title">Abstract</p>
+<p>This document describes the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> command. Like the
+KIWI NG <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> command described in <a class="reference internal" href="build_self_contained.html#self-contained"><span class="std std-ref">Building in a Self-Contained Environment</span></a>,
+it builds an image in a self-contained virtual machine, called
+a box, but requires nothing else than <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code> on a Linux build
+host, or WSL2 on a Windows 11 build host.</p>
+</aside>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> command pulls a small runtime container and calls
+the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-ng</span> <span class="pre">system</span> <span class="pre">boxbuild</span></code> command inside of it. The build itself
+happens in a box as described in <a class="reference internal" href="build_self_contained.html#self-contained"><span class="std std-ref">Building in a Self-Contained Environment</span></a>, which is
+started from within the runtime container.</p>
+<p>In contrast to calling <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-ng</span> <span class="pre">system</span> <span class="pre">boxbuild</span></code> directly, there is
+only the need for <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code> on the build host. The main KIWI NG
+requirements as well as the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-systemdeps-boxbuild</span></code> requirements,
+like QEMU, are already provided by the runtime container. Neither
+KIWI NG nor its dependencies have to be installed on the build host.
+This makes <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> useful on host system distributions for
+which no KIWI NG packages exist, or to keep the build host free from
+the KIWI NG tool chain. On Windows 11, <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> runs the
+runtime as WSL2 distribution instead of a container, see
+<a class="reference internal" href="#runtime-container-boxbuild-windows"><span class="std std-ref">Building on Windows 11</span></a>.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> command is provided by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>
+package. Add the KIWI NG repo from the Open Build Service. For details,
+see <a class="reference internal" href="../installation.html#installation-from-obs"><span class="std std-ref">Installation from OBS</span></a>. The package only requires <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>zypper<span class="w"> </span><span class="k">in</span><span class="w"> </span>kiwi-boxbuild
+</pre></div>
+</div>
+<p>The box is a KVM based virtual machine started from within the runtime
+container. Therefore, the runtime container runs as a privileged
+container, and the calling user needs access to the KVM device
+<code class="file docutils literal notranslate"><span class="pre">/dev/kvm</span></code> on the build host. For building as a non-root user,
+a rootless <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code> setup for this user is required.</p>
+</section>
+<section id="building-with-the-kiwi-boxbuild-command">
+<h2>Building with the kiwi-boxbuild command<a class="headerlink" href="#building-with-the-kiwi-boxbuild-command" title="Link to this heading"></a></h2>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> command is called in the same way as the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-ng</span> <span class="pre">system</span> <span class="pre">boxbuild</span></code> command. The KIWI NG global options <code class="xref py py-obj docutils literal notranslate"><span class="pre">--profile</span></code>,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">--type</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">--kiwi-file</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">--debug</span></code> are accepted directly by
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>, as these are passed along to the build in the box.
+As with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> command, everything after the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi</span></code> subcommand,
+or the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--</span></code> separator, is passed along to the <code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code> command running
+in the box. The following example builds the same image as the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> example from <a class="reference internal" href="build_self_contained.html#self-contained"><span class="std std-ref">Building in a Self-Contained Environment</span></a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/OSInside/kiwi-descriptions.git
+
+$<span class="w"> </span>kiwi-boxbuild<span class="w"> </span>--profile<span class="w"> </span>Virtual<span class="w"> </span>--box<span class="w"> </span>leap<span class="w"> </span>kiwi<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--description<span class="w"> </span>kiwi-descriptions/suse/x86_64/suse-leap-15.6<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--target-dir<span class="w"> </span>/tmp/myimage
+</pre></div>
+</div>
+<p>The available boxes are listed with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kiwi-boxbuild<span class="w"> </span>--list-boxes
+
+Available<span class="w"> </span>boxes,<span class="w"> </span><span class="k">select</span><span class="w"> </span>one<span class="w"> </span>with:<span class="w"> </span>kiwi-boxbuild<span class="w"> </span>--box<span class="w"> </span>NAME
+
+<span class="w">  </span>NAME<span class="w">        </span>ARCHITECTURES<span class="w">                    </span>MEMORY<span class="w">  </span>CPUS<span class="w">  </span>CONSOLE
+<span class="w">  </span>tumbleweed<span class="w">  </span>x86_64,<span class="w"> </span>aarch64,<span class="w"> </span>s390x<span class="w">           </span>8096M<span class="w">   </span><span class="m">4</span><span class="w">     </span>hvc0
+<span class="w">  </span>leap<span class="w">        </span>x86_64<span class="w">                           </span>8096M<span class="w">   </span><span class="m">4</span><span class="w">     </span>hvc0
+<span class="w">  </span>fedora<span class="w">      </span>x86_64<span class="w">                           </span>8096M<span class="w">   </span><span class="m">4</span><span class="w">     </span>hvc0
+<span class="w">  </span>ubuntu<span class="w">      </span>x86_64,<span class="w"> </span>aarch64<span class="w">                  </span>8096M<span class="w">   </span><span class="m">4</span><span class="w">     </span>hvc0
+<span class="w">  </span>universal<span class="w">   </span>x86_64,<span class="w"> </span>aarch64,<span class="w"> </span>s390x,<span class="w"> </span>ppc64le<span class="w">  </span>8096M<span class="w">   </span><span class="m">4</span><span class="w">     </span>hvc0
+</pre></div>
+</div>
+<p>The list is read from the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span> <span class="pre">--list-boxes</span></code> output in the runtime
+container. As the runtime container only provides QEMU for the host
+architecture, a box is only usable if it is provided for the host
+architecture. Boxes which are not provided for it are named below the
+list.</p>
+<p>When called, <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> performs the following steps:</p>
+<figure class="align-center" id="id1">
+<img alt="kiwi-boxbuild pulls the runtime container, starts it with the host directories mounted, calls kiwi-ng system boxbuild inside of it, and checks the build result." src="../_images/kiwi-boxbuild-steps.svg" />
+<figcaption>
+<p><span class="caption-text">The steps performed by <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> command, only the image description, the
+target directory and the optional shared path are shared with
+the box. No other data will be shared with the host.</p>
+</div>
+</section>
+<section id="supported-boxbuild-options">
+<h2>Supported boxbuild options<a class="headerlink" href="#supported-boxbuild-options" title="Link to this heading"></a></h2>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> provides the options of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> command which
+apply to a box started from within the runtime container. For
+a description of the options, see <a class="reference internal" href="../commands/system_boxbuild.html#kiwi-system-boxbuild"><span class="std std-ref">kiwi-ng system boxbuild</span></a> or
+call <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span> <span class="pre">--help</span></code>.</p>
+<p>The following options of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> command are not provided by
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>, as they are not expected to work in the runtime
+container:</p>
+<dl class="simple">
+<dt class="kiwi-term" id="container"><code class="docutils literal notranslate"><span class="pre">--container</span></code><a class="headerlink" href="#container" title="Link to this term"></a></dt><dd><p>The runtime container does not provide <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code> to run the box
+as a container. <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> always builds in a virtual machine.</p>
+</dd>
+<dt class="kiwi-term" id="sshfs-sharing-ssh-key-ssh-port"><code class="docutils literal notranslate"><span class="pre">--sshfs-sharing</span></code>, <code class="docutils literal notranslate"><span class="pre">--ssh-key</span></code>, <code class="docutils literal notranslate"><span class="pre">--ssh-port</span></code><a class="headerlink" href="#sshfs-sharing-ssh-key-ssh-port" title="Link to this term"></a></dt><dd><p>The runtime container does not provide <code class="xref py py-obj docutils literal notranslate"><span class="pre">sshfs</span></code>, and the box cannot
+connect to the build host through SSH.</p>
+</dd>
+<dt class="kiwi-term" id="p-sharing"><code class="docutils literal notranslate"><span class="pre">--9p-sharing</span></code><a class="headerlink" href="#p-sharing" title="Link to this term"></a></dt><dd><p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">9p</span></code> backend is used by default, if <code class="xref py py-obj docutils literal notranslate"><span class="pre">--virtiofs-sharing</span></code> is
+not specified.</p>
+</dd>
+<dt class="kiwi-term" id="x86-64-aarch64"><code class="docutils literal notranslate"><span class="pre">--x86_64</span></code>, <code class="docutils literal notranslate"><span class="pre">--aarch64</span></code><a class="headerlink" href="#x86-64-aarch64" title="Link to this term"></a></dt><dd><p>The runtime container only provides QEMU for the architecture of
+the build host. <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> always selects the box for the
+host architecture.</p>
+</dd>
+</dl>
+</section>
+<section id="sharing-a-host-path-with-the-box">
+<h2>Sharing a host path with the box<a class="headerlink" href="#sharing-a-host-path-with-the-box" title="Link to this heading"></a></h2>
+<p>With <code class="xref py py-obj docutils literal notranslate"><span class="pre">--shared-path</span> <span class="pre">HOST_PATH</span></code>, the given host directory is available
+at the same location inside of the box as it is present on the host.
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> also accepts <code class="xref py py-obj docutils literal notranslate"><span class="pre">--shared-path</span> <span class="pre">HOST_PATH:BOX_PATH</span></code> to make
+the host directory available at <code class="xref py py-obj docutils literal notranslate"><span class="pre">BOX_PATH</span></code> inside of the box instead:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kiwi-boxbuild<span class="w"> </span>--box<span class="w"> </span>leap<span class="w"> </span>--shared-path<span class="w"> </span>/data/repos:/repos<span class="w"> </span>kiwi<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--description<span class="w"> </span>kiwi-descriptions/suse/x86_64/suse-leap-15.6<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--target-dir<span class="w"> </span>/tmp/myimage
+</pre></div>
+</div>
+<p>The location of the shared path inside of the box must not interfere
+with the locations <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> uses inside of the runtime container,
+which are <code class="file docutils literal notranslate"><span class="pre">/description</span></code>, <code class="file docutils literal notranslate"><span class="pre">/result</span></code> and
+<code class="file docutils literal notranslate"><span class="pre">/root/.kiwi_boxes</span></code>.</p>
+</section>
+<section id="using-a-custom-boxes-configuration">
+<h2>Using a custom boxes configuration<a class="headerlink" href="#using-a-custom-boxes-configuration" title="Link to this heading"></a></h2>
+<p>The available boxes and their download locations are defined in the
+boxes configuration file <code class="file docutils literal notranslate"><span class="pre">kiwi_boxed_plugin.yml</span></code>, see
+<a class="reference internal" href="../commands/system_boxbuild.html#kiwi-system-boxbuild"><span class="std std-ref">kiwi-ng system boxbuild</span></a>. By default, the boxes configuration
+provided with KIWI NG in the runtime container is used. With
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">--boxbuild-config</span> <span class="pre">FILE</span></code>, the given host file is used instead. It is
+shared read-only with the runtime container as
+<code class="file docutils literal notranslate"><span class="pre">/etc/kiwi_boxed_plugin.yml</span></code>, for building as well as for
+listing the boxes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kiwi-boxbuild<span class="w"> </span>--boxbuild-config<span class="w"> </span>my_boxes.yml<span class="w"> </span>--list-boxes
+
+$<span class="w"> </span>kiwi-boxbuild<span class="w"> </span>--boxbuild-config<span class="w"> </span>my_boxes.yml<span class="w"> </span>--box<span class="w"> </span>mybox<span class="w"> </span>kiwi<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--description<span class="w"> </span>kiwi-descriptions/suse/x86_64/suse-leap-15.6<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--target-dir<span class="w"> </span>/tmp/myimage
+</pre></div>
+</div>
+</section>
+<section id="configuring-the-runtime-container">
+<h2>Configuring the runtime container<a class="headerlink" href="#configuring-the-runtime-container" title="Link to this heading"></a></h2>
+<p>By default, <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> uses the following runtime container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>registry.opensuse.org/virtualization/appliances/selfcontained/runtime/images/boxbuild:latest
+</pre></div>
+</div>
+<p>A different runtime container can be configured in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code>
+section of the KIWI NG runtime configuration file <code class="file docutils literal notranslate"><span class="pre">kiwi.yml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">boxbuild</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">runtime_container</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry.example.com/my/boxbuild:latest</span>
+</pre></div>
+</div>
+<p>The runtime configuration files are read in the same order as
+KIWI NG reads them, and a setting in a later file takes precedence:</p>
+<ol class="arabic simple">
+<li><p><code class="file docutils literal notranslate"><span class="pre">/usr/share/kiwi/kiwi.yml</span></code> and the <code class="file docutils literal notranslate"><span class="pre">*.yml</span></code> files in
+<code class="file docutils literal notranslate"><span class="pre">/usr/share/kiwi/kiwi.yml.d</span></code></p></li>
+<li><p><code class="file docutils literal notranslate"><span class="pre">/etc/kiwi.yml</span></code> and the <code class="file docutils literal notranslate"><span class="pre">*.yml</span></code> files in
+<code class="file docutils literal notranslate"><span class="pre">/etc/kiwi.yml.d</span></code></p></li>
+<li><p><code class="file docutils literal notranslate"><span class="pre">~/.config/kiwi/config.yml</span></code></p></li>
+<li><p>The file given with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--config</span></code> option of <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code></p></li>
+</ol>
+<p>The runtime container is expected to provide <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-ng</span></code> as its entry
+point, along with the requirements of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> command.</p>
+</section>
+<section id="building-on-windows-11">
+<span id="runtime-container-boxbuild-windows"></span><h2>Building on Windows 11<a class="headerlink" href="#building-on-windows-11" title="Link to this heading"></a></h2>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> can also be called on Windows 11. It detects that it
+runs on Windows and uses the runtime as WSL2 distribution instead of
+the runtime container, as there is no <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code> on Windows. The build
+itself happens in a box, a virtual machine started with QEMU/KVM
+inside of the WSL2 distribution, in the same way as on Linux.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>KIWI NG is an image builder for Linux images, also when it is called
+on Windows 11. WSL2 provides the Linux environment KIWI NG runs in,
+and the box is a Linux system. The image descriptions and the built
+images are the same as for a build on a Linux host. KIWI NG does not
+build Windows images.</p>
+</div>
+<section id="requirements-on-windows-11">
+<h3>Requirements on Windows 11<a class="headerlink" href="#requirements-on-windows-11" title="Link to this heading"></a></h3>
+<ul>
+<li><p>WSL2 in version 2.4.4 or later, which registers distributions from
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">wsl</span></code> image files. Check the version with <code class="xref py py-obj docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--version</span></code>, update
+it with <code class="xref py py-obj docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--update</span></code>.</p></li>
+<li><p>Nested virtualization in WSL2. The box is a KVM based virtual
+machine started inside of WSL2, which is itself a virtual machine.
+This requires a WSL2 kernel and setup that allow for nested
+virtualization:</p>
+<ul>
+<li><p>The CPU and the firmware must support virtualization, and it must
+be enabled.</p></li>
+<li><p>Nested virtualization must be enabled for WSL2 in the WSL
+configuration file <code class="file docutils literal notranslate"><span class="pre">%USERPROFILE%\.wslconfig</span></code>:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[wsl2]</span>
+<span class="na">nestedVirtualization</span><span class="o">=</span><span class="s">true</span>
+</pre></div>
+</div>
+</li>
+<li><p>The WSL2 kernel must provide KVM. If the default kernel does not,
+a custom kernel can be configured with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">kernel</span></code> setting in the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">[wsl2]</span></code> section of <code class="file docutils literal notranslate"><span class="pre">.wslconfig</span></code>.</p></li>
+</ul>
+<p>Nested virtualization is available if <code class="file docutils literal notranslate"><span class="pre">/dev/kvm</span></code> exists in
+WSL2. <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> checks this before the build and stops with an
+error if it is missing. With <code class="xref py py-obj docutils literal notranslate"><span class="pre">--no-accel</span></code>, the box runs without KVM,
+which works without nested virtualization but is very slow.</p>
+</li>
+<li><p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> executable for Windows, built from the sources
+in <code class="file docutils literal notranslate"><span class="pre">tools/kiwi-boxbuild</span></code> of the KIWI NG repository with
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">cargo</span> <span class="pre">build</span> <span class="pre">--release</span></code> on Windows.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">curl.exe</span></code>, which is part of Windows 11, to download the runtime.</p></li>
+</ul>
+</section>
+<section id="how-the-runtime-is-used">
+<h3>How the runtime is used<a class="headerlink" href="#how-the-runtime-is-used" title="Link to this heading"></a></h3>
+<p>On the first call, <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> downloads the WSL2 image of the
+runtime and registers it as the WSL2 distribution <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>.
+The image and the files of the distribution are stored in
+<code class="file docutils literal notranslate"><span class="pre">%LOCALAPPDATA%\kiwi-boxbuild</span></code>. On each call, <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>
+checks for a newer image, in the same way as <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code> pulls a newer
+runtime container. A newer image replaces the distribution.</p>
+<p>By default, the WSL2 image for the architecture of the host is used,
+for example for x86_64:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>https://download.opensuse.org/repositories/Virtualization:/Appliances:/SelfContained:/runtime/images/boxbuild.x86_64-WSL.wsl
+</pre></div>
+</div>
+<p>The boxes are downloaded into the distribution, see
+<a class="reference internal" href="#runtime-container-boxbuild-windows-limits"><span class="std std-ref">Limitations on Windows</span></a>.</p>
+</section>
+<section id="running-a-build">
+<h3>Running a Build<a class="headerlink" href="#running-a-build" title="Link to this heading"></a></h3>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> is called in the same way as on Linux, with Windows
+paths for the image description and the target directory, for example
+in PowerShell:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">&gt;</span> <span class="n">kiwi-boxbuild</span> <span class="p">-</span><span class="n">-profile</span> <span class="n">Virtual</span> <span class="p">-</span><span class="n">-box</span> <span class="n">leap</span> <span class="n">kiwi</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-description</span> <span class="n">C</span><span class="p">:\</span><span class="n">work</span><span class="p">\</span><span class="n">suse-leap</span><span class="p">-</span><span class="n">15</span><span class="p">.</span><span class="n">6</span> <span class="p">`</span>
+      <span class="p">-</span><span class="n">-target-dir</span> <span class="n">C</span><span class="p">:\</span><span class="n">work</span><span class="p">\</span><span class="n">result</span>
+</pre></div>
+</div>
+<p>WSL2 mounts the Windows drives below <code class="file docutils literal notranslate"><span class="pre">/mnt</span></code>, for example
+<code class="file docutils literal notranslate"><span class="pre">C:\work</span></code> is available as <code class="file docutils literal notranslate"><span class="pre">/mnt/c/work</span></code>. <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>
+passes all paths to KIWI NG by their location in WSL2. With
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">--shared-path</span> <span class="pre">HOST_PATH</span></code>, the host directory is shared at its location
+in WSL2, for example <code class="file docutils literal notranslate"><span class="pre">C:\repos</span></code> at <code class="file docutils literal notranslate"><span class="pre">/mnt/c/repos</span></code>.</p>
+</section>
+<section id="limitations-on-windows">
+<span id="runtime-container-boxbuild-windows-limits"></span><h3>Limitations on Windows<a class="headerlink" href="#limitations-on-windows" title="Link to this heading"></a></h3>
+<p>Compared to a build on Linux, the following limitations apply on
+Windows 11:</p>
+<dl class="simple">
+<dt class="kiwi-term" id="paths-on-windows-drives-only">Paths on Windows drives only<a class="headerlink" href="#paths-on-windows-drives-only" title="Link to this term"></a></dt><dd><p>The image description, the target directory, a shared path and a
+boxes configuration file given with <code class="xref py py-obj docutils literal notranslate"><span class="pre">--boxbuild-config</span></code> must be
+located on a Windows drive, as only these are mounted in WSL2.
+Network shares cannot be used.</p>
+</dd>
+<dt class="kiwi-term" id="no-box-path-for-a-shared-path">No box path for a shared path<a class="headerlink" href="#no-box-path-for-a-shared-path" title="Link to this term"></a></dt><dd><p>The form <code class="xref py py-obj docutils literal notranslate"><span class="pre">--shared-path</span> <span class="pre">HOST_PATH:BOX_PATH</span></code> is not supported, the
+host directory is always shared at its location in WSL2.</p>
+</dd>
+<dt class="kiwi-term" id="boxes-are-downloaded-again-after-a-runtime-update">Boxes are downloaded again after a runtime update<a class="headerlink" href="#boxes-are-downloaded-again-after-a-runtime-update" title="Link to this term"></a></dt><dd><p>The boxes are stored in the WSL2 distribution. When a newer WSL2
+image of the runtime replaces the distribution, the boxes are
+removed with it and downloaded again on the next build.</p>
+</dd>
+<dt class="kiwi-term" id="no-sizing-of-dev-shm-for-virtiofs">No sizing of /dev/shm for virtiofs<a class="headerlink" href="#no-sizing-of-dev-shm-for-virtiofs" title="Link to this term"></a></dt><dd><p>With <code class="xref py py-obj docutils literal notranslate"><span class="pre">--virtiofs-sharing</span></code>, KIWI NG backs the memory of the box by a
+file in <code class="file docutils literal notranslate"><span class="pre">/dev/shm</span></code>. On Linux, <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> sizes
+<code class="file docutils literal notranslate"><span class="pre">/dev/shm</span></code> of the runtime container to hold it. On Windows,
+<code class="file docutils literal notranslate"><span class="pre">/dev/shm</span></code> of the WSL2 distribution is used as it is, the
+memory of the box must fit into it.</p>
+</dd>
+<dt class="kiwi-term" id="builds-without-nested-virtualization-are-slow">Builds without nested virtualization are slow<a class="headerlink" href="#builds-without-nested-virtualization-are-slow" title="Link to this term"></a></dt><dd><p>Without nested virtualization, the box can only run without KVM
+acceleration, using <code class="xref py py-obj docutils literal notranslate"><span class="pre">--no-accel</span></code>, which makes a build very slow.</p>
+</dd>
+<dt class="kiwi-term" id="no-packaged-executable">No packaged executable<a class="headerlink" href="#no-packaged-executable" title="Link to this term"></a></dt><dd><p>There is no <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code> package for Windows, the executable has
+to be built from the sources, see
+<a class="reference internal" href="#runtime-container-boxbuild-windows"><span class="std std-ref">Building on Windows 11</span></a>.</p>
+</dd>
+</dl>
+</section>
+<section id="configuring-the-wsl2-image">
+<h3>Configuring the WSL2 image<a class="headerlink" href="#configuring-the-wsl2-image" title="Link to this heading"></a></h3>
+<p>A different WSL2 image of the runtime can be configured with the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_wsl_image</span></code> setting in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">boxbuild</span></code> section of the KIWI NG
+runtime configuration file, as URL or as path of a local <code class="xref py py-obj docutils literal notranslate"><span class="pre">wsl</span></code> file.
+A local file is registered as it is, without an update check:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">boxbuild</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">runtime_wsl_image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://example.com/images/boxbuild.x86_64-WSL.wsl</span>
+</pre></div>
+</div>
+<p>On Windows, the user configuration file is
+<code class="file docutils literal notranslate"><span class="pre">%USERPROFILE%\.config\kiwi\config.yml</span></code>, or the file given with
+the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--config</span></code> option of <code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi-boxbuild</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+  <nav class="kiwi-page-toc" aria-label="On this page">
+    <p class="kiwi-page-toc-title">On this page</p>
+    <ul>
+<li><a class="reference internal" href="#">Building with kiwi-boxbuild</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#building-with-the-kiwi-boxbuild-command">Building with the kiwi-boxbuild command</a></li>
+<li><a class="reference internal" href="#supported-boxbuild-options">Supported boxbuild options</a></li>
+<li><a class="reference internal" href="#sharing-a-host-path-with-the-box">Sharing a host path with the box</a></li>
+<li><a class="reference internal" href="#using-a-custom-boxes-configuration">Using a custom boxes configuration</a></li>
+<li><a class="reference internal" href="#configuring-the-runtime-container">Configuring the runtime container</a></li>
+<li><a class="reference internal" href="#building-on-windows-11">Building on Windows 11</a><ul>
+<li><a class="reference internal" href="#requirements-on-windows-11">Requirements on Windows 11</a></li>
+<li><a class="reference internal" href="#how-the-runtime-is-used">How the runtime is used</a></li>
+<li><a class="reference internal" href="#running-a-build">Running a Build</a></li>
+<li><a class="reference internal" href="#limitations-on-windows">Limitations on Windows</a></li>
+<li><a class="reference internal" href="#configuring-the-wsl2-image">Configuring the WSL2 image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="build_self_contained.html" class="btn btn-neutral float-left" title="Building in a Self-Contained Environment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="build_based_on_containers.html" class="btn btn-neutral float-right" title="Building based on Containers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2026, Marcus Schäfer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+  <script src="https://cdn.jsdelivr.net/npm/@algolia/experiences/dist/experiences.js?appId=5B872QGQDR&apiKey=3e83220f165a4c43046379870bf6172b&experienceId=5B872QGQDR&env=prod"></script>
+
+</body>
+</html>
