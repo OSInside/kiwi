@@ -429,7 +429,7 @@ a .rst-content tt {
 }
 
 /* Code blocks: Carbon code snippets, a gray box with a thin border,
-   syntax colors from the IBM color palette and a copy button in the
+   syntax colors color palette and a copy button in the
    upper right corner, see .static/layout.js */
 
 .rst-content div[class^="highlight"],
