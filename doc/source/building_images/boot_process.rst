@@ -190,6 +190,28 @@ OEM Installation Images
   Expects sha512 instead of sha256 checksums, with the `.sha512` file
   extension.
 
+``rd.kiwi.install.dump_retries=number``
+  The number of times a failed dump of the image to the target disk is
+  repeated, for example after a read error on the install media or a
+  failed download. The default is 2. A dump which still fails stops the
+  installation and shows the error messages of the dump. The partition
+  based dump of `rd.kiwi.install.partition_based` is not repeated.
+
+``rd.kiwi.install.dump_rescue``
+  Dumps a local image with `ddrescue` instead of `dd`, for install media
+  with unreliable reads, such as virtual media of a BMC. `ddrescue`
+  retries unreadable sectors up to five times, and a dump repeated by
+  `rd.kiwi.install.dump_retries` continues with the sectors not yet read.
+  The dump only succeeds if all sectors could be read, a summary of the
+  unreadable areas is shown otherwise. With `ddrescue`, no progress bar
+  is shown.
+
+  The installation initrd must provide `ddrescue` and `ddrescuelog`, for
+  example by adding the `gnu_ddrescue` package to the image. Without
+  this option they are not used, even if present. If the option is set
+  but the tools are missing, the installation stops before the target
+  disk is changed. A dump from a remote location is not affected.
+
 ``rd.kiwi.install.pxe``
   Loads the image from the remote location given in
   `rd.kiwi.install.image`.

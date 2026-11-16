@@ -392,6 +392,9 @@ function dump_image {
     local image_size
     local count=0
     local block_size=32k
+    local retries
+    local dump_retries_count
+    local progress_fifo
 
     # can we dump this
     check_image_fits_target "${image_target}"
@@ -458,6 +461,13 @@ function dump_image {
         fi
     fi
 
+    # ddrescue is used for local dumps only
+    if [ "${dump}" = "dump_local_image" ] || \
+        [ "${copy}" = "dump_local_image" ]
+    then
+        check_ddrescue_available
+    fi
+
     # last chance to stop us
     if [ "${kiwi_oemunattended}" = "false" ];then
         local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
@@ -469,53 +479,56 @@ function dump_image {
 
     # deploy
     echo "${load_text} [${image_target}]..."
+    retries=$(dump_retries)
+    # The partition based dump changes the source and target
+    # filesystems through the btrfs seed/sprout process, it can
+    # not be repeated after a failure
+    dump_retries_count="${retries}"
+    if [ "${dump}" = "dump_local_image_partition_based" ];then
+        dump_retries_count=0
+    fi
+    # ddrescue keeps the state of a dump in a mapfile, a new
+    # installation must not continue from a former state
+    rm -f \
+        "$(ddrescue_mapfile "${image_source_file}")" \
+        "$(ddrescue_mapfile "${image_target}")"
+    # The progress of a dump is shown by a gauge dialog, which
+    # requires pv. ddrescue reports its status in a format the
+    # gauge can not show, a local dump with ddrescue therefore
+    # blocks the console like a silent installation
+    unset progress_fifo
     if with_progress && [ "${kiwi_oemsilentinstall}" = "false" ]; then
-        # dump with dialog based progress information
-        setup_progress_fifo ${progress}
-        if [ -n "${copy}" ];then
-            eval \
-                "${copy}" \
-                "${image_source}" \
-                "${image_source_file}" \
-                "${count}" \
-                "${block_size}" \
-                "${progress}" \
-            &
-            run_progress_dialog "${load_text}" "${title_text}"
-            image_source="${image_source_file}"
+        if ! with_ddrescue || [ -n "${image_from_remote}" ];then
+            progress_fifo="${progress}"
         fi
-        eval \
-            "${dump}" \
+    fi
+    if [ -n "${copy}" ];then
+        if ! run_dump \
+            "${load_text}" "${title_text}" "${retries}" "${progress_fifo}" \
+            "${copy}" \
             "${image_source}" \
-            "${image_target}" \
-            "${count}" \
-            "${block_size}" \
-            "${progress}" \
-        &
-        run_progress_dialog "${load_text}" "${title_text}"
-    else
-        # dump with silently blocked console
-        if [ -n "${copy}" ];then
-            if ! eval \
-                "${copy}" \
-                "${image_source}" \
-                "${image_source_file}" \
-                "${count}" \
-                "${block_size}"
-            then
-                report_and_quit "Failed to copy image"
-            fi
-            image_source="${image_source_file}"
-        fi
-        if ! eval \
-            "${dump}" \
-            "${image_source}" \
-            "${image_target}" \
+            "${image_source_file}" \
             "${count}" \
             "${block_size}"
         then
-            report_and_quit "Failed to install image"
+            show_log_and_quit \
+                "Failed to copy image ${image_source} to ${image_source_file} after $((retries + 1)) attempts" \
+                "$(dump_log)"
         fi
+        image_source="${image_source_file}"
+    fi
+    if ! run_dump \
+        "${load_text}" "${title_text}" "${dump_retries_count}" \
+        "${progress_fifo}" \
+        "${dump}" \
+        "${image_source}" \
+        "${image_target}" \
+        "${count}" \
+        "${block_size}"
+    then
+        show_log_and_quit \
+            "Failed to install image ${image_source} to ${image_target} after $((dump_retries_count + 1)) attempts" \
+            "$(dump_log)"
     fi
 
     # recreate last partition from pre-dump table
@@ -735,6 +748,144 @@ function with_progress {
     return 0
 }
 
+function with_ddrescue {
+    # """
+    # check if a local image is dumped with ddrescue. ddrescue
+    # retries unreadable sectors of the source and records the state
+    # of each block in a mapfile, which tells if the copy is complete.
+    # ddrescue is only used if requested with rd.kiwi.install.dump_rescue
+    # and if the tools are present in the initrd. They are optional
+    # and only present if the image provides them, e.g. through the
+    # gnu_ddrescue package, see check_ddrescue_available
+    # """
+    getargbool 0 rd.kiwi.install.dump_rescue && ddrescue_available
+}
+
+function ddrescue_available {
+    command -v ddrescue &>/dev/null && command -v ddrescuelog &>/dev/null
+}
+
+function check_ddrescue_available {
+    # """
+    # stop the installation if rd.kiwi.install.dump_rescue requests
+    # ddrescue but the initrd does not provide it. The check runs
+    # before the target disk is changed
+    # """
+    if getargbool 0 rd.kiwi.install.dump_rescue && ! ddrescue_available;then
+        report_and_quit \
+            "rd.kiwi.install.dump_rescue is set, but ddrescue or ddrescuelog is missing in the initrd"
+    fi
+}
+
+function dump_retries {
+    # """
+    # print the number of retries of a failed dump, set with
+    # rd.kiwi.install.dump_retries=<number>, 2 by default
+    # """
+    local retries
+    retries=$(getarg rd.kiwi.install.dump_retries=)
+    if [[ "${retries}" =~ ^[0-9]+$ ]];then
+        echo "${retries}"
+    else
+        echo 2
+    fi
+}
+
+function dump_log {
+    # """
+    # print the log file which collects the error output of a dump
+    # """
+    echo /tmp/dump.log
+}
+
+function block_size_bytes {
+    # """
+    # print the given dd block size in bytes, the dump uses
+    # either 32k or a sector size in bytes
+    # """
+    local block_size=$1
+    if [ "${block_size}" = "32k" ];then
+        echo 32768
+    else
+        echo "${block_size}"
+    fi
+}
+
+function ddrescue_mapfile {
+    # """
+    # print the ddrescue mapfile for the given dump target
+    # """
+    local image_target=$1
+    echo "/tmp/dump.$(basename "${image_target}").map"
+}
+
+function progress_filter {
+    # """
+    # pass the progress numbers of pv -n read from stdin to stdout
+    # and append all other lines, the error messages of pv, to the
+    # given log file
+    # """
+    local log_file=$1
+    local line
+    while IFS= read -r line; do
+        if [[ "${line}" =~ ^[0-9]+$ ]];then
+            echo "${line}"
+        else
+            echo "${line}" >> "${log_file}"
+        fi
+    done
+}
+
+function run_dump {
+    # """
+    # run the given dump command with its arguments and retry it
+    # if it fails, up to the given number of retries. With a
+    # progress fifo, the command runs in the background with a
+    # gauge dialog showing its progress, and the fifo is passed
+    # as last argument. The error output of each attempt is
+    # collected in the dump log
+    # """
+    local text=$1
+    local title=$2
+    local retries=$3
+    local progress=$4
+    shift 4
+    local attempt=0
+    local dump_pid
+    while true; do
+        : > "$(dump_log)"
+        if [ -n "${progress}" ];then
+            setup_progress_fifo "${progress}"
+            (
+                # The gauge dialog reads the fifo until all writers
+                # closed it. If the command failed before it opened
+                # the fifo, the dialog would wait forever. The fifo
+                # is therefore kept open for writing until the
+                # command finished. Opening it blocks until the
+                # dialog opened it for reading
+                exec 3>"${progress}"
+                "$@" "${progress}"
+                result=$?
+                exec 3>&-
+                exit "${result}"
+            ) &
+            dump_pid=$!
+            run_progress_dialog "${text}" "${title}"
+            if wait "${dump_pid}";then
+                return 0
+            fi
+        elif "$@";then
+            return 0
+        fi
+        if [ "${attempt}" -ge "${retries}" ];then
+            return 1
+        fi
+        attempt=$((attempt + 1))
+        warn "${text} failed, retry ${attempt} of ${retries}..."
+        sleep 5
+    done
+}
+
 function fetch_local_partition_table {
     local image_source=$1
     local parttable=$2
@@ -847,37 +998,96 @@ function optimize_count_for_32k_blocksize {
 }
 
 function dump_local_image {
+    # """
+    # dump the local image source to the target. A read error on
+    # the source or a write error on the target fails the dump, the
+    # error messages are appended to the dump log
+    # """
     local image_source=$1
     local image_target=$2
     local count=$3
     local block_size=$4
     local progress=$5
+    local dump_log
+    dump_log=$(dump_log)
+    if with_ddrescue;then
+        dump_local_image_ddrescue \
+            "${image_source}" "${image_target}" "${count}" "${block_size}"
+        return
+    fi
     if [ "${count}" -gt 0 ];then
         count="count=${count}"
     else
         unset count
     fi
-    # shellcheck disable=SC2086
+    # The dump log is only appended to, never read in the pipe (SC2094)
+    # shellcheck disable=SC2086,SC2094
     if [ -e "${progress}" ];then
         (
-            pv -n "${image_source}" |\
-            dd bs="${block_size}" ${count} of="${image_target}" &>/dev/null
+            # Without pipefail a read error of pv would end the
+            # pipe like the regular end of the image, and dd would
+            # report success for the truncated dump
+            set -o pipefail
+            pv -n "${image_source}" 2> >(progress_filter "${dump_log}" >&2) |\
+            dd bs="${block_size}" ${count} of="${image_target}" \
+                2>>"${dump_log}" >/dev/null
         ) 2>"${progress}"
     else
         dd \
             if="${image_source}" bs="${block_size}" ${count} \
-            of="${image_target}" &>/dev/null
+            of="${image_target}" 2>>"${dump_log}" >/dev/null
+    fi
+}
+
+function dump_local_image_ddrescue {
+    # """
+    # dump the local image source to the target with ddrescue, which
+    # retries unreadable sectors up to five times and gives up if no
+    # read succeeded for one minute. ddrescue does not fail for
+    # sectors it could not read, it leaves them unwritten. The dump
+    # is therefore only complete if the mapfile reports all blocks
+    # as done. The mapfile is kept across retries of the dump, such
+    # that a retry continues with the blocks not yet read
+    # """
+    local image_source=$1
+    local image_target=$2
+    local count=$3
+    local block_size=$4
+    local mapfile
+    local size_option
+    local dump_log
+    dump_log=$(dump_log)
+    mapfile=$(ddrescue_mapfile "${image_target}")
+    if [ "${count}" -gt 0 ];then
+        size_option="--size=$((count * $(block_size_bytes "${block_size}")))"
+    fi
+    # ddrescue writes its status display to stdout, which is not
+    # suitable for the dump log, and errors to stderr
+    # shellcheck disable=SC2086
+    if ! ddrescue \
+        --force --retry-passes=5 --timeout=1m --cluster-size=32768 \
+        ${size_option} "${image_source}" "${image_target}" "${mapfile}" \
+        2>>"${dump_log}" >/dev/null
+    then
+        return 1
+    fi
+    if ! ddrescuelog --done-status "${mapfile}" 2>>"${dump_log}";then
+        {
+            echo "Not all blocks of ${image_source} could be read:"
+            ddrescuelog --show-status "${mapfile}"
+        } >>"${dump_log}" 2>&1
+        return 1
     fi
 }
 
 function clone_partition_table {
     local image_source=$1
     local image_target=$2
-    fetch_local_partition_table "${image_source}"
-    sfdisk "${image_target}" < /tmp/parttable
+    fetch_local_partition_table "${image_source}" >/dev/null
+    sfdisk "${image_target}" < /tmp/parttable || return 1
     # clone MBR bootloader code
-    dd if="${image_source}" of="${image_target}" bs=1 count=446
-    partx -u "${image_target}"
+    dd if="${image_source}" of="${image_target}" bs=1 count=446 || return 1
+    partx -u "${image_target}" || return 1
     udev_pending
 }
 
@@ -888,14 +1098,20 @@ function btrfs_seed_device_on_target {
     if [ -n "${source_device}" ]; then
         mkdir -p "${seed}"
         if getargbool 0 rd.kiwi.install.clone_local; then
-            btrfstune -S 1 "${source_device}"
+            btrfstune -S 1 "${source_device}" || return 1
         fi
-        mount "${source_device}" "${seed}"
-        btrfs device add "${target_device}" "${seed}"
-        umount "${seed}"
-        mount "${target_device}" "${seed}"
-        btrfs device delete "${source_device}" "${seed}"
-        umount "${seed}"
+        mount "${source_device}" "${seed}" || return 1
+        if ! btrfs device add "${target_device}" "${seed}"; then
+            umount "${seed}"
+            return 1
+        fi
+        umount "${seed}" || return 1
+        mount "${target_device}" "${seed}" || return 1
+        if ! btrfs device delete "${source_device}" "${seed}"; then
+            umount "${seed}"
+            return 1
+        fi
+        umount "${seed}" || return 1
     fi
 }
 
@@ -941,15 +1157,32 @@ function dump_local_image_partition_based {
     local btrfs_source_uuid_array
     local filesystem
     local part
+    local dump_log
+    dump_log=$(dump_log)
     # no partial dump in partition based mode
     unset count
 
     # clone partition table to target
-    clone_partition_table "${image_source}" "${image_target}"
+    if ! clone_partition_table \
+        "${image_source}" "${image_target}" >>"${dump_log}" 2>&1
+    then
+        echo "Failed to clone partition table to ${image_target}" \
+            >>"${dump_log}"
+        return 1
+    fi
 
     # map source image partitions
-    source_disk=$(losetup --show --find "${image_source}")
-    kpartx -a "${source_disk}"
+    if ! source_disk=$(losetup --show --find "${image_source}" 2>>"${dump_log}")
+    then
+        echo "Failed to set up loop device for ${image_source}" \
+            >>"${dump_log}"
+        return 1
+    fi
+    if ! kpartx -a "${source_disk}" >>"${dump_log}" 2>&1;then
+        echo "Failed to map partitions of ${image_source}" >>"${dump_log}"
+        losetup -d "${source_disk}"
+        return 1
+    fi
 
     # walk through source image partitions and store them
     for part in $(
@@ -983,46 +1216,69 @@ function dump_local_image_partition_based {
 
     # seed/sprout for btrfs based partitions
     for ((index=0; index<device_index; index++)); do
-        (
+        if ! (
             btrfs_seed_device_on_target \
                 "${btrfs_source_device_array[${index}]}" \
                 "${btrfs_target_device_array[${index}]}"
         ) 2>>/seed.log
+        then
+            {
+                echo "btrfs seed/sprout to" \
+                    "${btrfs_target_device_array[${index}]} failed:"
+                cat /seed.log
+            } >>"${dump_log}"
+            clean_partition_map "${source_disk}" &>/dev/null
+            return 1
+        fi
     done
 
     # dump standard partitions...
     if [ -e "${progress}" ];then
         (
+            # see dump_local_image why pipefail is required
+            set -o pipefail
             for ((index=0; index<device_index; index++)); do
                 if [ -n "${source_device_array[${index}]}" ];then
-                    pv -n "${source_device_array[${index}]}" |\
+                    # The dump log is only appended to (SC2094)
+                    # shellcheck disable=SC2094
+                    if ! pv -n "${source_device_array[${index}]}" \
+                        2> >(progress_filter "${dump_log}" >&2) |\
                         dd \
                         bs="${block_size}" \
-                        of="${target_device_array[${index}]}" &>/dev/null
+                        of="${target_device_array[${index}]}" \
+                        2>>"${dump_log}" >/dev/null
+                    then
+                        clean_partition_map "${source_disk}" &>/dev/null
+                        exit 1
+                    fi
                 fi
             done
-            clean_partition_map "${source_disk}" &>/dev/null
-            for ((index=0; index<device_index; index++)); do
-                btrfs_replay_uuid \
-                    "${btrfs_target_device_array[${index}]}" \
-                    "${btrfs_source_uuid_array[${index}]}" &>/dev/null
-            done
-        ) 2>"${progress}"
+        ) 2>"${progress}" || return 1
     else
         for ((index=0; index<device_index; index++)); do
             if [ -n "${source_device_array[${index}]}" ];then
-                dd \
+                if ! dd \
                     if="${source_device_array[${index}]}" bs="${block_size}" \
-                    of="${target_device_array[${index}]}" &>/dev/null
+                    of="${target_device_array[${index}]}" \
+                    2>>"${dump_log}" >/dev/null
+                then
+                    clean_partition_map "${source_disk}" &>/dev/null
+                    return 1
+                fi
             fi
         done
-        clean_partition_map "${source_disk}" &>/dev/null
-        for ((index=0; index<device_index; index++)); do
-            btrfs_replay_uuid \
-                "${btrfs_target_device_array[${index}]}" \
-                "${btrfs_source_uuid_array[${index}]}" &>/dev/null
-        done
     fi
+    clean_partition_map "${source_disk}" &>/dev/null
+    for ((index=0; index<device_index; index++)); do
+        if ! btrfs_replay_uuid \
+            "${btrfs_target_device_array[${index}]}" \
+            "${btrfs_source_uuid_array[${index}]}" >>"${dump_log}" 2>&1
+        then
+            echo "Failed to restore the btrfs UUID on" \
+                "${btrfs_target_device_array[${index}]}" >>"${dump_log}"
+            return 1
+        fi
+    done
 }
 
 function dump_remote_image {
@@ -1032,22 +1288,39 @@ function dump_remote_image {
     local block_size=$4
     local progress=$5
     local image_size
+    local dump_log
+    local result
+    dump_log=$(dump_log)
     image_size=$((blocks * blocksize))
     if [ "${count}" -gt 0 ];then
         count="count=${count}"
     else
         unset count
     fi
+    # Without pipefail a failed download would end the pipe like
+    # the regular end of the image, and dd would report success
+    # for the truncated dump
     # shellcheck disable=SC2086
     if [ -e "${progress}" ];then
         (
+            set -o pipefail
             fetch_file "${image_source}" "${image_size}" |\
-                dd bs="${block_size}" ${count} of="${image_target}" &>/dev/null
+                dd bs="${block_size}" ${count} of="${image_target}" \
+                2>>"${dump_log}" >/dev/null
         ) 2>"${progress}"
     else
-        fetch_file "${image_source}" |\
-            dd bs="${block_size}" ${count} of="${image_target}" &>/dev/null
+        (
+            set -o pipefail
+            fetch_file "${image_source}" |\
+                dd bs="${block_size}" ${count} of="${image_target}" \
+                2>>"${dump_log}" >/dev/null
+        )
     fi
+    result=$?
+    if [ "${result}" -ne 0 ] && [ -s /tmp/fetch.info ];then
+        cat /tmp/fetch.info >>"${dump_log}"
+    fi
+    return "${result}"
 }
 
 function check_image_integrity {
@@ -1058,6 +1331,7 @@ function check_image_integrity {
     local verify_text="Verifying ${image_target}"
     local title_text="Installation..."
     local verify_result
+    local verify_pid
     local shasum
     local sha_extension
     kiwi_oemskipverify=$(bool "${kiwi_oemskipverify}")
@@ -1087,7 +1361,11 @@ function check_image_integrity {
             pv --size $((blocks * blocksize)) --stop-at-size \
             -n "${image_target}" | "${shasum}" - > "${verify_result}"
         ) 2>${progress} &
+        verify_pid=$!
         run_progress_dialog "${verify_text}" "${title_text}"
+        # The dialog ends when pv closed the fifo, the checksum
+        # might not yet be written at this point
+        wait "${verify_pid}"
     else
         # verify with silently blocked console
         head --bytes=$((blocks * blocksize)) "${image_target}" |\

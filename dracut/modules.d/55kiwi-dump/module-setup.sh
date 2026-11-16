@@ -26,7 +26,7 @@ install() {
         tr lsblk dd sha256sum sha512sum head pv kexec \
         basename awk kpartx sort mount mountpoint readlink \
         btrfs btrfstune mount umount losetup cp
-    inst_multiple -o efibootmgr
+    inst_multiple -o efibootmgr ddrescue ddrescuelog
 
     # support booting the install ISO as a file on disk via
     # iso-scan/filename=, e.g. through a grub loopback setup
