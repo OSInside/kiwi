@@ -30,7 +30,7 @@
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>1024</oem-swapsize>
                 <oem-multipath-scan>false</oem-multipath-scan>
-                <oem-resize>false</oem-resize>
+                <oem-resize>true</oem-resize>
             </oemconfig>
             <systemdisk>
                 <volume name="home"/>
@@ -114,7 +114,7 @@
         <package name="NetworkManager"/>
         <package name="systemd-resolved"/>
     </packages>
-    <packages type="image" profiles="RetainLast">
+    <packages type="image" profiles="RetainLast,Standard">
         <package name="dracut-kiwi-oem-repart"/>
     </packages>
     <packages type="bootstrap">
