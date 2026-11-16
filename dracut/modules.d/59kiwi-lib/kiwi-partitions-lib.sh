@@ -104,7 +104,9 @@ function create_gpt_partitions {
     # put partition setup in a command list(cmd_list)
     for cmd in ${partition_setup};do
         # default values in sgdisk are used if 0 is provided
-        cmd=$(echo "${cmd}" | tr . 0)
+        if [ "${cmd}" = "." ]; then
+            cmd=0
+        fi
         cmd_list[$index]=${cmd}
         index=$((index + 1))
     done
