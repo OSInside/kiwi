@@ -215,6 +215,7 @@ class DiskBuilder:
         self.oem_systemsize = xml_state.get_oemconfig_oem_systemsize()
         self.oem_resize = xml_state.get_oemconfig_oem_resize()
         self.disk_resize_requested = xml_state.get_oemconfig_oem_resize()
+        self.btrfs_seed_requested = xml_state.btrfs_seed_requested()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.disk_start_sector = xml_state.get_disk_start_sector()
         self.disk_setup = DiskSetup(xml_state, root_dir)
@@ -1012,12 +1013,10 @@ class DiskBuilder:
                     if system:
                         self._setup_property_root_is_readonly_snapshot(system)
 
-            # set btrfs seed
-            if (
-                self._install_image_requested()
-                and self._partition_based_install_requested()
-                and self.volume_manager_name == 'btrfs'
-            ):
+            # set btrfs seed, the flag is cleared by the kiwi-repart
+            # dracut module on boot of the installed system, if the
+            # disk resize is enabled
+            if self.btrfs_seed_requested:
                 Command.run(
                     ['btrfstune', '-S', '1', device_map['root'].get_device()]
                 )
@@ -1032,16 +1031,6 @@ class DiskBuilder:
 
     def _install_image_requested(self) -> bool:
         return bool(self.install_iso or self.install_stick or self.install_pxe)
-
-    def _partition_based_install_requested(self) -> bool:
-        # follow the dracut getargbool semantics, the last
-        # occurrence of the option wins
-        requested = False
-        for option in self.cmdline.split():
-            name, _, value = option.partition('=')
-            if name == 'rd.kiwi.install.partition_based':
-                requested = value not in ('0', 'no', 'off')
-        return requested
 
     def _get_exclude_list_for_root_data_sync(self, device_map: Dict) -> list:
         exclude_list = (

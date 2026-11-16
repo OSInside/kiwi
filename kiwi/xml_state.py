@@ -216,6 +216,56 @@ class XMLState:
             # is wanted and will be set
             return True
 
+    def btrfs_seed_requested(self) -> bool:
+        """
+        Check if the btrfs root filesystem of the disk image is
+        flagged as seeding device. This is the case for install
+        images using the btrfs volume manager, which request the
+        partition based installation through rd.kiwi.install.partition_based
+        in the kernelcmdline. The installation uses the root
+        filesystem as source of the btrfs seed/sprout process. The
+        flag is cleared on boot of the installed system by the
+        kiwi-repart dracut module, which is only included if the
+        disk resize is enabled
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        install_image = bool(
+            self.build_type.get_installiso()
+            or self.build_type.get_installstick()
+            or self.build_type.get_installpxe()
+        )
+        return (
+            install_image
+            and self.get_volume_management() == 'btrfs'
+            and XMLState.partition_based_install_requested(
+                self.build_type.get_kernelcmdline() or ''
+            )
+        )
+
+    @staticmethod
+    def partition_based_install_requested(cmdline: str) -> bool:
+        """
+        Check if the given kernel command line requests the partition
+        based installation through rd.kiwi.install.partition_based.
+        The option follows the dracut getargbool semantics, the last
+        occurrence of the option wins
+
+        :param str cmdline: kernel command line
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        requested = False
+        for option in cmdline.split():
+            name, _, value = option.partition('=')
+            if name == 'rd.kiwi.install.partition_based':
+                requested = value not in ('0', 'no', 'off')
+        return requested
+
     def get_image_version(self) -> str:
         """
         Image version from preferences section.

@@ -409,6 +409,42 @@ class TestXMLState:
         state = XMLState(xml_data)
         assert state.get_volume_management() == 'btrfs'
 
+    def test_partition_based_install_requested(self):
+        for cmdline, requested in [
+            ('', False),
+            ('rd.kiwi.install.partition_based', True),
+            ('rd.kiwi.install.partition_based=1', True),
+            ('rd.kiwi.install.partition_based=0', False),
+            ('rd.kiwi.install.partition_based=off', False),
+            ('rd.kiwi.install.partition_based_foo', False),
+            (
+                'rd.kiwi.install.partition_based '
+                'rd.kiwi.install.partition_based=no',
+                False,
+            ),
+        ]:
+            assert (
+                XMLState.partition_based_install_requested(cmdline) is requested
+            )
+
+    def test_btrfs_seed_requested(self):
+        description = XMLDescription('../data/example_btrfs_config.xml')
+        state = XMLState(description.load())
+        # btrfs install image without partition based installation
+        assert state.btrfs_seed_requested() is False
+        state.build_type.set_kernelcmdline(
+            'splash rd.kiwi.install.partition_based'
+        )
+        assert state.btrfs_seed_requested() is True
+        # no install image
+        state.build_type.set_installiso(False)
+        assert state.btrfs_seed_requested() is False
+        state.build_type.set_installpxe(True)
+        assert state.btrfs_seed_requested() is True
+        # no btrfs volume manager
+        state.build_type.set_filesystem('xfs')
+        assert state.btrfs_seed_requested() is False
+
     def test_get_volume_management_lvm_prefer(self):
         description = XMLDescription('../data/example_lvm_preferred_config.xml')
         xml_data = description.load()

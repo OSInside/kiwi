@@ -265,7 +265,15 @@ OEM Installation Images
   device at build time. {kiwi} does this only for install images
   (`installiso`, `installstick` or `installpxe`) with the `btrfs`
   volume manager which set the parameter in the `kernelcmdline`
-  attribute. Passing it only at boot time is not sufficient:
+  attribute. The flag is installed on the target disk with any
+  installation method, also if the image is dumped as a whole. As a
+  seeding device can only be mounted read-only, the flag is cleared on
+  boot of the installed system, prior to a resize of the disk, also if
+  the root filesystem is located inside of LUKS or RAID. This is done
+  by the `kiwi-repart` dracut module, which is only part of the initrd
+  if the disk resize is enabled via `<oem-resize>`, the default, see
+  the warning below. Passing the parameter only at boot time is not
+  sufficient:
 
   .. code:: xml
 
@@ -273,6 +281,16 @@ OEM Installation Images
            kernelcmdline="console=ttyS0 rd.kiwi.install.partition_based">
        ...
      </type>
+
+  .. warning:: Seeding flag with the disk resize disabled
+
+     With `<oem-resize>false</oem-resize>`, the `kiwi-repart` dracut
+     module is not part of the initrd and the seeding flag is not
+     cleared. The root filesystem of the installed system can then
+     only be mounted read-only. In this case, clear the flag with
+     `btrfstune -f -S 0` on the unmounted root filesystem yourself,
+     for example from a rescue system or by own boot code in the
+     initrd, or enable the disk resize.
 
   `btrfs` and `btrfstune` must be part of the installation initrd. With
   `rd.kiwi.install.pxe`, the image is first loaded into main memory as

@@ -1920,39 +1920,18 @@ class TestDiskBuilder:
         self.disk_builder.install_iso = True
         seed_call = call(['btrfstune', '-S', '1', '/dev/root-device'])
 
-        # install image without partition based mode, no seed
+        # no seed requested, see XMLState.btrfs_seed_requested
+        self.disk_builder.btrfs_seed_requested = False
         with patch('builtins.open'):
             self.disk_builder.create_disk()
         assert seed_call not in mock_command.call_args_list
 
-        # install image with partition based mode, root is seed
+        # seed requested, root is seed
         mock_command.reset_mock()
-        self.disk_builder.cmdline = (
-            'console=ttyS0 rd.kiwi.install.partition_based'
-        )
+        self.disk_builder.btrfs_seed_requested = True
         with patch('builtins.open'):
             self.disk_builder.create_disk()
         assert seed_call in mock_command.call_args_list
-
-    def test_partition_based_install_requested(self):
-        for cmdline, requested in [
-            ('', False),
-            ('rd.kiwi.install.partition_based', True),
-            ('rd.kiwi.install.partition_based=1', True),
-            ('rd.kiwi.install.partition_based=0', False),
-            ('rd.kiwi.install.partition_based=off', False),
-            ('rd.kiwi.install.partition_based_foo', False),
-            (
-                'rd.kiwi.install.partition_based '
-                'rd.kiwi.install.partition_based=no',
-                False,
-            ),
-        ]:
-            self.disk_builder.cmdline = cmdline
-            assert (
-                self.disk_builder._partition_based_install_requested()
-                is requested
-            )
 
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')
