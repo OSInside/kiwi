@@ -30,7 +30,7 @@ from kiwi.boot.image import BootImage
 from kiwi.bootloader.config import create_boot_loader_config
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
-from kiwi.filesystem.squashfs import FileSystemSquashFs
+from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.firmware import FirmWare
 from kiwi.system.identifier import SystemIdentifier
@@ -131,6 +131,12 @@ class InstallImageBuilder:
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
         )
+        # the filesystem of the container which holds the disk
+        # image on the install ISO, squashfs or erofs
+        self.container_filesystem = (
+            xml_state.build_type.get_install_container_filesystem()
+            or 'squashfs'
+        )
         self.xz_options = (
             custom_args['xz_options']
             if custom_args and 'xz_options' in custom_args
@@ -200,8 +206,8 @@ class InstallImageBuilder:
         if self.initrd_system == 'kiwi':
             self._write_install_image_info_to_boot_image()
 
-        # the system image is stored as squashfs embedded file
-        log.info('Creating squashfs embedded disk image')
+        # the system image is stored as squashfs or erofs embedded file
+        log.info(f'Creating {self.container_filesystem} embedded disk image')
         Command.run(
             [
                 'cp',
@@ -211,13 +217,27 @@ class InstallImageBuilder:
             ]
         )
         squashed_image_file = ''.join(
-            [self.target_dir, '/', self.squashed_diskname, '.squashfs']
+            [
+                self.target_dir,
+                '/',
+                self.squashed_diskname,
+                '.',
+                self.container_filesystem,
+            ]
         )
-        with FileSystemSquashFs(
+        if self.container_filesystem == 'erofs':
+            compression = self.xml_state.build_type.get_erofscompression()
+        else:
+            compression = self.xml_state.build_type.get_squashfscompression()
+        with FileSystem.new(
+            name=self.container_filesystem,
             device_provider=DeviceProvider(),
             root_dir=self.squashed_contents.name,
             custom_args={
-                'compression': self.xml_state.build_type.get_squashfscompression()
+                'compression': compression,
+                'create_options': (
+                    self.xml_state.get_install_container_create_option_list()
+                ),
             },
         ) as squashed_image:
             squashed_image.create_on_file(squashed_image_file)

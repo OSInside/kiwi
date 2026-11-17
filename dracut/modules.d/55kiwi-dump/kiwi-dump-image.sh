@@ -1512,14 +1512,22 @@ function get_local_image_source_files {
     local sha_extension
     local image_source
     local image_sha
+    local image_container
     sha_extension=$(shasum_extension)
     mkdir -m 0755 -p "${iso_mount_point}"
     if ! mount -n "${iso_device}" "${iso_mount_point}"; then
         report_and_quit "Failed to mount install ISO device"
     fi
     mkdir -m 0755 -p "${image_mount_point}"
-    if ! mount -n "${iso_mount_point}"/*.squashfs ${image_mount_point};then
-        report_and_quit "Failed to mount install image squashfs filesystem"
+    # the disk image is stored in a squashfs or erofs container,
+    # see the install_container_filesystem attribute
+    for image_container in \
+        "${iso_mount_point}"/*.squashfs "${iso_mount_point}"/*.erofs
+    do
+        [ -e "${image_container}" ] && break
+    done
+    if ! mount -n "${image_container}" ${image_mount_point};then
+        report_and_quit "Failed to mount install image container ${image_container}"
     fi
     image_source="$(echo "${image_mount_point}"/*.raw)"
     image_sha="$(echo "${image_mount_point}"/*."${sha_extension}")"

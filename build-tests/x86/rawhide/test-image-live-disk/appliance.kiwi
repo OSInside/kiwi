@@ -85,7 +85,18 @@
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" filesystem="ext4" installiso="true" installboot="install" firmware="uefi" kernelcmdline="console=ttyS0" efipartsize="100" efifatimagesize="30">
+        <type image="oem"
+            filesystem="ext4"
+            installiso="true"
+            installboot="install"
+            firmware="uefi"
+            kernelcmdline="console=ttyS0"
+            efipartsize="100"
+            efifatimagesize="30"
+            install_container_filesystem="erofs"
+            install_container_fscreateoptions="-Efragments -C 1048576"
+            erofscompression="lzma,level=6"
+        >
             <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>

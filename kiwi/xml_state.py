@@ -3053,6 +3053,27 @@ class XMLState:
 
         return option_list
 
+    def get_install_container_create_option_list(self) -> List:
+        """
+        List of install ISO container filesystem creation options
+
+        The list contains elements with the information from the
+        install_container_fscreateoptions attribute string that got
+        split into its substring components. These options are passed
+        to the tool that builds the container which holds the disk
+        image on the install ISO (mksquashfs / mkfs.erofs)
+
+        :return: list with create options
+
+        :rtype: list
+        """
+        option_list = []
+        create_options = self.build_type.get_install_container_fscreateoptions()
+        if create_options:
+            option_list = create_options.split()
+
+        return option_list
+
     def get_luks_credentials(self) -> Optional[str]:
         """
         Return key or passphrase credentials to open the luks pool

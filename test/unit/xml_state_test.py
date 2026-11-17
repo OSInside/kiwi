@@ -1154,6 +1154,16 @@ class TestXMLState:
             '1048576',
         ]
 
+    @patch('kiwi.xml_parse.type_.get_install_container_fscreateoptions')
+    def test_get_install_container_create_option_list(self, mock_createopts):
+        mock_createopts.return_value = None
+        assert self.state.get_install_container_create_option_list() == []
+        mock_createopts.return_value = '-C 1048576'
+        assert self.state.get_install_container_create_option_list() == [
+            '-C',
+            '1048576',
+        ]
+
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_no_boot(self, mock_boot):
         mock_boot.return_value = None

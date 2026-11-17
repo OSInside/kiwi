@@ -6393,6 +6393,8 @@ class type_(GeneratedsSuper):
         install_continue_on_timeout=None,
         installprovidefailsafe=None,
         installiso=None,
+        install_container_filesystem=None,
+        install_container_fscreateoptions=None,
         installstick=None,
         installpxe=None,
         mediacheck=None,
@@ -6513,6 +6515,12 @@ class type_(GeneratedsSuper):
         )
         self.installprovidefailsafe = _cast(bool, installprovidefailsafe)
         self.installiso = _cast(bool, installiso)
+        self.install_container_filesystem = _cast(
+            None, install_container_filesystem
+        )
+        self.install_container_fscreateoptions = _cast(
+            None, install_container_fscreateoptions
+        )
         self.installstick = _cast(bool, installstick)
         self.installpxe = _cast(bool, installpxe)
         self.mediacheck = _cast(bool, mediacheck)
@@ -7090,6 +7098,22 @@ class type_(GeneratedsSuper):
 
     def set_installiso(self, installiso):
         self.installiso = installiso
+
+    def get_install_container_filesystem(self):
+        return self.install_container_filesystem
+
+    def set_install_container_filesystem(self, install_container_filesystem):
+        self.install_container_filesystem = install_container_filesystem
+
+    def get_install_container_fscreateoptions(self):
+        return self.install_container_fscreateoptions
+
+    def set_install_container_fscreateoptions(
+        self, install_container_fscreateoptions
+    ):
+        self.install_container_fscreateoptions = (
+            install_container_fscreateoptions
+        )
 
     def get_installstick(self):
         return self.installstick
@@ -8201,6 +8225,40 @@ class type_(GeneratedsSuper):
                 )
             )
         if (
+            self.install_container_filesystem is not None
+            and 'install_container_filesystem' not in already_processed
+        ):
+            already_processed.add('install_container_filesystem')
+            outfile.write(
+                ' install_container_filesystem=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.install_container_filesystem),
+                            input_name='install_container_filesystem',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.install_container_fscreateoptions is not None
+            and 'install_container_fscreateoptions' not in already_processed
+        ):
+            already_processed.add('install_container_fscreateoptions')
+            outfile.write(
+                ' install_container_fscreateoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(
+                                self.install_container_fscreateoptions
+                            ),
+                            input_name='install_container_fscreateoptions',
+                        )
+                    ),
+                )
+            )
+        if (
             self.installstick is not None
             and 'installstick' not in already_processed
         ):
@@ -9216,6 +9274,23 @@ class type_(GeneratedsSuper):
                 self.installiso = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('install_container_filesystem', node)
+        if (
+            value is not None
+            and 'install_container_filesystem' not in already_processed
+        ):
+            already_processed.add('install_container_filesystem')
+            self.install_container_filesystem = value
+            self.install_container_filesystem = ' '.join(
+                self.install_container_filesystem.split()
+            )
+        value = find_attr_value_('install_container_fscreateoptions', node)
+        if (
+            value is not None
+            and 'install_container_fscreateoptions' not in already_processed
+        ):
+            already_processed.add('install_container_fscreateoptions')
+            self.install_container_fscreateoptions = value
         value = find_attr_value_('installstick', node)
         if value is not None and 'installstick' not in already_processed:
             already_processed.add('installstick')

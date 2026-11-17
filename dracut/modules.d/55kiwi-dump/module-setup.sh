@@ -13,7 +13,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods squashfs loop iso9660 vfat nls_cp437 nls_iso8859-1
+    instmods squashfs erofs loop iso9660 vfat nls_cp437 nls_iso8859-1
 }
 
 # called by dracut
