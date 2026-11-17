@@ -1224,11 +1224,31 @@ function dump_local_image_partition_based {
         then
             {
                 echo "btrfs seed/sprout to" \
-                    "${btrfs_target_device_array[${index}]} failed:"
+                    "${btrfs_target_device_array[${index}]} failed," \
+                    "falling back to a block copy of the partition:"
                 cat /seed.log
             } >>"${dump_log}"
-            clean_partition_map "${source_disk}" &>/dev/null
-            return 1
+            warn "btrfs seed/sprout to ${btrfs_target_device_array[${index}]} failed, copying the partition block by block"
+            # The failed attempt might have left the source or the
+            # target mounted, the target must not be in use for the
+            # block copy
+            if mountpoint -q /seed && ! umount /seed >>"${dump_log}" 2>&1
+            then
+                echo "Failed to unmount /seed, no block copy possible" \
+                    >>"${dump_log}"
+                clean_partition_map "${source_disk}" &>/dev/null
+                return 1
+            fi
+            # A seed device is never written by btrfs, the source
+            # partition is therefore still intact and gets copied
+            # with the standard partitions. The block copy keeps the
+            # filesystem UUID of the source, it is therefore taken
+            # out of the UUID replay for the seed/sprout partitions
+            source_device_array[index]=${btrfs_source_device_array[${index}]}
+            target_device_array[index]=${btrfs_target_device_array[${index}]}
+            unset "btrfs_source_device_array[${index}]"
+            unset "btrfs_target_device_array[${index}]"
+            unset "btrfs_source_uuid_array[${index}]"
         fi
     done
 

@@ -259,7 +259,10 @@ OEM Installation Images
   <https://btrfs.readthedocs.io/en/latest/Seeding-device.html>`_ and
   all other partitions block by block, and restores the filesystem UUID
   of btrfs afterwards. The main purpose is to use seed/sprout for the
-  deployment.
+  deployment. If the seed/sprout process fails for a partition, {kiwi}
+  copies this partition block by block instead and continues the
+  installation. The messages of the failed process are written to the
+  installation log.
 
   The btrfs root filesystem of the image must be flagged as a seeding
   device at build time. {kiwi} does this only for install images
