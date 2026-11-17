@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type lookup_disk_device_from_root >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type create_partitions >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
@@ -11,22 +12,10 @@ type luks_system >/dev/null 2>&1 || . /lib/kiwi-luks-lib.sh
 # Functions
 #--------------------------------------
 function initialize {
-    local profile=/.profile
-
-    if test ! -f ${profile}; then
+    if ! import_profile; then
         warn "No profile setup found"
         warn "Settings from the kiwi description will be ignored"
     fi
-
-    test -f ${profile} && import_file ${profile}
-
-    # Optional env TERM setup
-    term=$(getarg "rd.kiwi.term=")
-    [ -n "${term}" ] && export TERM="${term}"
-
-    # Create dialog profile from current env
-    # Used in the systemd dialog unit
-    env >/dialog_profile
 
     # Lookup the partition setup while the device mappings on
     # top of the partitions are still active. They are looked

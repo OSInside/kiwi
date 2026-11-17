@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 type lib_initialize >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type report_and_quit >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type get_selected_disk >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh

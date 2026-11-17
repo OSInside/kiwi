@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 function setup_debug {
@@ -287,21 +288,25 @@ function bool {
     fi
 }
 
-function lib_initialize {
+function import_profile {
     # """
-    # Source profile variables into runtime environment
-    # The method will exit from the initrd if the profile
-    # file does not exist
+    # Import the image profile variables into the runtime
+    # environment, set up TERM from rd.kiwi.term, source the
+    # optional profile.extra and store the resulting environment
+    # for the systemd dialog unit. Returns 1 if there is no
+    # profile, the remaining setup is done anyway
     # """
     local term
-    local kiwi_oem_installdevice
+    local result=0
     local profile=/.profile
     local profile_extra=/.profile.extra
 
-    # Read and import mandatory image profile to env
-    test -f ${profile} || \
-        report_and_quit "No profile setup found"
-    import_file ${profile}
+    # Read and import image profile to env
+    if [ -f ${profile} ];then
+        import_file ${profile}
+    else
+        result=1
+    fi
 
     # Optional env TERM setup
     term=$(getarg "rd.kiwi.term=")
@@ -313,6 +318,20 @@ function lib_initialize {
     # Create dialog profile from current env
     # Used in the systemd dialog unit
     env >/dialog_profile
+
+    return "${result}"
+}
+
+function lib_initialize {
+    # """
+    # Source profile variables into runtime environment
+    # The method will exit from the initrd if the profile
+    # file does not exist
+    # """
+    local kiwi_oem_installdevice
+
+    # Read and import mandatory image profile to env
+    import_profile || report_and_quit "No profile setup found"
 
     # Handle kiwi specific env overwrites
     kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)

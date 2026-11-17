@@ -2,6 +2,7 @@
 # live images are specified with
 # root=live:CDLABEL=label
 # root=live:AOEINTERFACE=name
+# shellcheck disable=SC1091
 type getOverlayBaseDirectory >/dev/null 2>&1 || . /lib/kiwi-live-lib.sh
 
 [ -z "${root}" ] && root=$(getarg root=)

@@ -1,5 +1,6 @@
 #!/bin/bash -x
 
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type getOverlayBaseDirectory >/dev/null 2>&1 || . /lib/kiwi-live-lib.sh
 

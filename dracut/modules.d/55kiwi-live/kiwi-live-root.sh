@@ -1,5 +1,6 @@
 #!/bin/bash
 # called from /etc/udev/rules.d/99-live-kiwi.rules
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type mountIso >/dev/null 2>&1 || . /lib/kiwi-live-lib.sh
 

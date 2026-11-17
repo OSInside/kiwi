@@ -1,8 +1,10 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type setup_debug >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
 type get_block_device_kbsize >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
+type grow_filesystem >/dev/null 2>&1 || . /lib/kiwi-filesystem-lib.sh
 type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 
 #======================================
@@ -591,25 +593,6 @@ function get_esp_partition {
         awk '$2 == "EFI" { print $1; exit }'
 }
 
-function get_partition_number {
-    # """
-    # get the partition number of the given partition device
-    # """
-    local partition_device=$1
-    local partition_node
-    local partition_number
-    partition_node=$(readlink -f "${partition_device}")
-    partition_node=${partition_node##*/}
-    if [ -e "/sys/class/block/${partition_node}/partition" ];then
-        read -r partition_number \
-            < "/sys/class/block/${partition_node}/partition"
-    elif [[ "${partition_device}" =~ ([0-9]+)$ ]];then
-        # e.g. device mapper partitions created by kpartx
-        partition_number=${BASH_REMATCH[1]}
-    fi
-    echo "${partition_number}"
-}
-
 function find_efi_binary {
     # """
     # print the first EFI binary found in the given directories.
@@ -954,10 +937,22 @@ function fetch_remote_partition_table {
     echo "${parttable}"
 }
 
-function get_sector_size_from_table_dump {
+function get_last_partition_start {
+    # """
+    # print the start sector of the last partition of the given
+    # sfdisk dump, nothing if there is no partition. The dump is
+    # read twice, it must be a file
+    # """
     local parttable=$1
-    sector_size=$(grep sector-size: "${parttable}" | cut -f2 -d:)
-    echo "${sector_size}"
+    local entry
+    local start
+    if entry=$(
+        get_partition_entry "${parttable}" \
+            "$(get_last_partition_id_from_table_dump "${parttable}")"
+    );then
+        read -r _ start _ <<< "${entry}"
+        echo "${start}"
+    fi
 }
 
 function compatible_to_retain {
@@ -965,13 +960,9 @@ function compatible_to_retain {
     local image_target=$2
     local source_start
     local target_start
-    source_start=$(
-        tail -n 1 "${parttable}" | cut -f2 -d= | cut -f1 -d,
-    )
-    target_start=$(
-        sfdisk -d "${image_target}" 2>/dev/null |\
-        tail -n 1 | cut -f2 -d= | cut -f1 -d,
-    )
+    source_start=$(get_last_partition_start "${parttable}")
+    sfdisk -d "${image_target}" > /tmp/parttable_retain 2>/dev/null
+    target_start=$(get_last_partition_start /tmp/parttable_retain)
     if [ -z "${source_start}" ] || [ -z "${target_start}" ];then
         # no partition information for either source or target
         # broken or net new deployment on empty disk
@@ -991,20 +982,23 @@ function compatible_to_retain {
 }
 
 function get_disk_offset_retain_last_partition {
+    # """
+    # print the end sector of the partition in front of the last
+    # partition of the given sfdisk dump, 0 if there is none
+    # """
     local parttable=$1
-    local next_to_last
+    local partids
+    local entry
     local start
     local size
-    local offset
-    next_to_last=$(tail -n 2 "${parttable}" | head -n 1)
-    if [ -n "${next_to_last}" ];then
-        start=$(echo "${next_to_last}" | cut -f2 -d= | cut -f1 -d,)
-        size=$(echo "${next_to_last}" | cut -f3 -d= | cut -f1 -d,)
-        offset=$((start + size))
-        echo "${offset}"
-    else
+    read -r -a partids <<< "$(get_partition_ids "${parttable}" | tr '\n' ' ')"
+    if [ "${#partids[@]}" -lt 2 ];then
         echo 0
+        return
     fi
+    entry=$(get_partition_entry "${parttable}" "${partids[-2]}")
+    read -r _ start size <<< "${entry}"
+    echo $((start + ${size%%,*}))
 }
 
 function optimize_count_for_32k_blocksize {
@@ -1120,137 +1114,6 @@ function target_partition_table {
     echo /tmp/parttable_target
 }
 
-function get_partition_entry {
-    # """
-    # print number, start and size of the given partition from
-    # the given sfdisk dump, followed by its attributes, e.g.
-    # ", type=83, bootable". Returns 1 if there is no such
-    # partition. Without a partition number, all partitions are
-    # printed, one per line. Extended partitions of an msdos
-    # table are only containers of the logical partitions, which
-    # are listed on their own. They hold no data and are skipped
-    # """
-    local parttable=$1
-    local partid=$2
-    local line
-    local number
-    local start
-    local size
-    local attributes
-    local found=1
-    local entry='^.*[^0-9]([0-9]+)[[:space:]]*:[[:space:]]*'
-    entry="${entry}start=[[:space:]]*([0-9]+),[[:space:]]*"
-    entry="${entry}size=[[:space:]]*([0-9]+)(.*)$"
-    local extended='type=(5|f|85)(,|$)'
-    while IFS= read -r line;do
-        if [[ "${line}" =~ ${entry} ]];then
-            number=${BASH_REMATCH[1]}
-            start=${BASH_REMATCH[2]}
-            size=${BASH_REMATCH[3]}
-            attributes=${BASH_REMATCH[4]}
-            if [[ "${attributes}" =~ ${extended} ]];then
-                continue
-            fi
-            if [ -z "${partid}" ] || [ "${number}" = "${partid}" ];then
-                echo "${number} ${start} ${size}${attributes}"
-                found=0
-            fi
-        fi
-    done < "${parttable}"
-    return "${found}"
-}
-
-function get_partition_ids {
-    # """
-    # print the numbers of all data partitions of the given sfdisk dump
-    # """
-    local parttable=$1
-    local partid
-    local rest
-    while read -r partid rest;do
-        echo "${partid}"
-    done < <(get_partition_entry "${parttable}")
-}
-
-function get_last_partition_id_from_table_dump {
-    # """
-    # print the highest partition number of the given sfdisk dump
-    # """
-    local parttable=$1
-    local partid
-    local last=0
-    for partid in $(get_partition_ids "${parttable}");do
-        if [ "${partid}" -gt "${last}" ];then
-            last=${partid}
-        fi
-    done
-    echo "${last}"
-}
-
-function get_first_partition_start_from_table_dump {
-    # """
-    # print the lowest start sector of all partitions of the given
-    # sfdisk dump, including the extended partition of msdos tables
-    # """
-    local parttable=$1
-    local line
-    local start
-    local first=
-    while IFS= read -r line;do
-        if [[ "${line}" =~ :[[:space:]]*start=[[:space:]]*([0-9]+), ]];then
-            start=${BASH_REMATCH[1]}
-            if [ -z "${first}" ] || [ "${start}" -lt "${first}" ];then
-                first=${start}
-            fi
-        fi
-    done < "${parttable}"
-    echo "${first}"
-}
-
-function get_table_value_from_table_dump {
-    # """
-    # print the value of the given header key of the given sfdisk
-    # dump, e.g. label or label-id
-    # """
-    local parttable=$1
-    local key=$2
-    local line
-    while IFS= read -r line;do
-        if [[ "${line}" =~ ^${key}:[[:space:]]*(.*)$ ]];then
-            echo "${BASH_REMATCH[1]}"
-            return
-        fi
-    done < "${parttable}"
-}
-
-function get_partition_bytes {
-    # """
-    # print the size in bytes of the given partition entry as
-    # printed by get_partition_entry
-    # """
-    local entry=$1
-    local sector_size=$2
-    local partid
-    local start
-    local size
-    read -r partid start size <<< "${entry}"
-    size=${size%%,*}
-    echo $((size * sector_size))
-}
-
-function get_partition_start_bytes {
-    # """
-    # print the start in bytes of the given partition entry as
-    # printed by get_partition_entry
-    # """
-    local entry=$1
-    local sector_size=$2
-    local partid
-    local start
-    read -r partid start _ <<< "${entry}"
-    echo $((start * sector_size))
-}
-
 function merge_partition_table {
     # """
     # print the partition table of the target with the attributes
@@ -1326,7 +1189,7 @@ function dump_boot_code {
         first_start=$(get_first_partition_start_from_table_dump "${image_table}")
         if [ -n "${first_start}" ] && [ "${first_start}" -gt 1 ];then
             dd if="${image_source}" of="${image_target}" \
-                bs="${sector_size// /}" skip=1 seek=1 \
+                bs="${sector_size}" skip=1 seek=1 \
                 count=$((first_start - 1)) conv=notrunc || return 1
         fi
     fi
@@ -1486,60 +1349,6 @@ function check_partition_based_target {
             "Image partitions don't fit into partitions of ${image_target}" \
             "${check_log}"
     fi
-}
-
-function grow_filesystem {
-    # """
-    # grow the filesystem on the given partition to the size of
-    # the partition, if the filesystem supports it. Returns 1 if
-    # the resize failed, a filesystem which can't be resized is
-    # skipped with a message
-    # """
-    local device=$1
-    local mpoint=/fs-grow
-    local fstype
-    local uuid
-    local label
-    local result
-    fstype=$(blkid -p -s TYPE -o value "${device}")
-    case ${fstype} in
-    ext2|ext3|ext4)
-        e2fsck -p -f "${device}"
-        result=$?
-        # 1: errors corrected, 2: errors corrected, reboot required
-        if [ "${result}" -gt 2 ];then
-            return 1
-        fi
-        resize2fs -f "${device}" || return 1
-    ;;
-    xfs|btrfs)
-        if [ "${fstype}" = "btrfs" ] && \
-            btrfs inspect-internal dump-super "${device}" | grep -q SEEDING
-        then
-            info "${device}: btrfs seeding device is read-only, resize skipped"
-            return 0
-        fi
-        mkdir -p "${mpoint}"
-        mount "${device}" "${mpoint}" || return 1
-        if [ "${fstype}" = "btrfs" ];then
-            btrfs filesystem resize max "${mpoint}"
-        else
-            xfs_growfs "${mpoint}"
-        fi
-        result=$?
-        umount "${mpoint}" || return 1
-        return "${result}"
-    ;;
-    swap)
-        uuid=$(blkid -p -s UUID -o value "${device}")
-        label=$(blkid -p -s LABEL -o value "${device}")
-        mkswap ${uuid:+-U "${uuid}"} ${label:+-L "${label}"} "${device}" \
-            || return 1
-    ;;
-    *)
-        info "${device}: resize of ${fstype:-unknown} filesystem not supported, skipped"
-    ;;
-    esac
 }
 
 function grow_partition_based_filesystems {
@@ -1720,7 +1529,7 @@ function dump_local_image_partition_based {
             clean_partition_map "${source_disk}" &>/dev/null
             return 1
         fi
-        filesystem=$(blkid "${source_part}" -s TYPE -o value)
+        filesystem=$(probe_filesystem "${source_part}")
         uuid=$(blkid "${source_part}" -s UUID -o value)
         if [ "${filesystem}" = "btrfs" ];then
             btrfs_source_device_array[device_index]=${source_part}
