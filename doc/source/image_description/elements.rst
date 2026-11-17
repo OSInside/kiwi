@@ -1205,6 +1205,26 @@ installiso="true|false"
   The generated ISO image is a hybrid ISO that can be
   used as a disk on, e.g., a USB stick or as an ISO.
 
+install_container_filesystem="squashfs|erofs":
+  Specifies the filesystem of the container that holds the disk
+  image on the install ISO. By default, `squashfs` is used. The
+  compression is set by the `squashfscompression` or the
+  `erofscompression` attribute respectively. With `erofs`, the
+  kernel of the installation system must support erofs, and
+  `mkfs.erofs` must be present on the build host.
+  Only available for the `oem` type.
+
+install_container_fscreateoptions="string":
+  Specifies extra creation options, separated by whitespace, for the
+  tool that builds the install ISO container: `mksquashfs` or
+  `mkfs.erofs`, depending on `install_container_filesystem`. For
+  example, `install_container_fscreateoptions="-C 1048576"` sets
+  a larger erofs pcluster size. Options set here take precedence
+  over the `-comp` and `-Xbcj` defaults that kiwi uses for squashfs.
+  For erofs, set the compression with `erofscompression`, not with
+  the `-z` option.
+  Only available for the `oem` type.
+
 installstick="true|false":
   Specifies if an install stick image should be created.
   Only available for the `oem` type.

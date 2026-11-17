@@ -3184,6 +3184,34 @@ failsafe entry with special kernel parameters or not</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.install_container_filesystem.attribute">
+      <attribute name="install_container_filesystem">
+        <a:documentation>Specifies the filesystem of the container which holds
+the disk image on the install ISO. By default squashfs
+is used. The compression is set by the squashfscompression
+or erofscompression attribute respectively (oem only)</a:documentation>
+        <choice>
+          <value>squashfs</value>
+          <value>erofs</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="install_container_filesystem" is-a="image_type">
+        <sch:param name="attr" value="install_container_filesystem"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.install_container_fscreateoptions.attribute">
+      <attribute name="install_container_fscreateoptions">
+        <a:documentation>Specifies extra creation options passed to the tool that
+builds the container which holds the disk image on the
+install ISO (mksquashfs or mkfs.erofs depending on
+install_container_filesystem). Whitespace separated (oem only)</a:documentation>
+      </attribute>
+      <sch:pattern id="install_container_fscreateoptions" is-a="image_type">
+        <sch:param name="attr" value="install_container_fscreateoptions"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.installstick.attribute">
       <attribute name="installstick">
         <a:documentation>Specifies if a install stick should be created (oem only)</a:documentation>
@@ -3721,6 +3749,12 @@ partition if present</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.installiso.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.install_container_filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.install_container_fscreateoptions.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.installstick.attribute"/>

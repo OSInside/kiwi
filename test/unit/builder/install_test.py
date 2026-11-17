@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock, patch, call, mock_open, ANY, Mock
 from pytest import raises
+import pytest
 import unittest.mock as mock
 import kiwi.builder.install
 
@@ -71,6 +72,18 @@ class TestInstallImageBuilder:
         self.xml_state.get_installmedia_initrd_drivers = mock.Mock(
             return_value=['driver1', 'driver2']
         )
+        self.xml_state.build_type.get_install_container_filesystem = mock.Mock(
+            return_value=None
+        )
+        self.xml_state.build_type.get_squashfscompression = mock.Mock(
+            return_value='xz'
+        )
+        self.xml_state.build_type.get_erofscompression = mock.Mock(
+            return_value='lzma'
+        )
+        self.xml_state.get_install_container_create_option_list = mock.Mock(
+            return_value=[]
+        )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -114,8 +127,27 @@ class TestInstallImageBuilder:
         )
         assert install_image.arch == 'ix86'
 
+    def test_container_filesystem(self):
+        # squashfs by default
+        assert self.install_image.container_filesystem == 'squashfs'
+        # erofs if selected via install_container_filesystem
+        self.xml_state.build_type.get_install_container_filesystem.return_value = (
+            'erofs'
+        )
+        install_image = InstallImageBuilder(
+            self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
+        )
+        assert install_image.container_filesystem == 'erofs'
+
+    @pytest.mark.parametrize(
+        'container_filesystem,compression,create_options',
+        [
+            ('squashfs', 'xz', []),
+            ('erofs', 'lzma', ['-C', '1048576']),
+        ],
+    )
     @patch('kiwi.builder.install.FileSystemIsoFs')
-    @patch('kiwi.builder.install.FileSystemSquashFs')
+    @patch('kiwi.builder.install.FileSystem.new')
     @patch('kiwi.builder.install.DeviceProvider')
     @patch('kiwi.builder.install.create_boot_loader_config')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
@@ -134,9 +166,16 @@ class TestInstallImageBuilder:
         mock_setup_media_loader_directory,
         mock_create_boot_loader_config,
         mock_DeviceProvider,
-        mock_FileSystemSquashFs,
+        mock_FileSystem_new,
         mock_FileSystemIsoFs,
+        container_filesystem,
+        compression,
+        create_options,
     ):
+        self.install_image.container_filesystem = container_filesystem
+        self.xml_state.get_install_container_create_option_list = Mock(
+            return_value=create_options
+        )
         mock_get_ptuuid.return_value = 'some_PTUUID'
 
         temp_squashfs = Mock()
@@ -189,16 +228,18 @@ class TestInstallImageBuilder:
             call('IMAGE="result-image.raw"\n'),
             call('IMAGE="result-image.raw"\n'),
         ]
-        kiwi.builder.install.FileSystemSquashFs.assert_called_once_with(
-            custom_args={'compression': mock.ANY},
+        mock_FileSystem_new.assert_called_once_with(
+            name=container_filesystem,
+            custom_args={
+                'compression': compression,
+                'create_options': create_options,
+            },
             device_provider=mock_DeviceProvider.return_value,
             root_dir='temp-squashfs',
         )
-        squashed_image = (
-            mock_FileSystemSquashFs.return_value.__enter__.return_value
-        )
+        squashed_image = mock_FileSystem_new.return_value.__enter__.return_value
         squashed_image.create_on_file.assert_called_once_with(
-            'target_dir/result-image.raw.squashfs'
+            f'target_dir/result-image.raw.{container_filesystem}'
         )
         mock_create_boot_loader_config.assert_called_once_with(
             name='grub2',
@@ -246,7 +287,11 @@ class TestInstallImageBuilder:
                 ]
             ),
             call(
-                ['mv', 'target_dir/result-image.raw.squashfs', 'temp_media_dir']
+                [
+                    'mv',
+                    f'target_dir/result-image.raw.{container_filesystem}',
+                    'temp_media_dir',
+                ]
             ),
             call(['mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd']),
         ]

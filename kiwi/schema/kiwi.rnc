@@ -2206,6 +2206,28 @@ div {
             sch:param [ name = "attr" value = "installiso" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.install_container_filesystem.attribute =
+        ## Specifies the filesystem of the container which holds
+        ## the disk image on the install ISO. By default squashfs
+        ## is used. The compression is set by the squashfscompression
+        ## or erofscompression attribute respectively (oem only)
+        attribute install_container_filesystem {
+            "squashfs" | "erofs"
+        }
+        >> sch:pattern [ id = "install_container_filesystem" is-a = "image_type"
+            sch:param [ name = "attr" value = "install_container_filesystem" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.install_container_fscreateoptions.attribute =
+        ## Specifies extra creation options passed to the tool that
+        ## builds the container which holds the disk image on the
+        ## install ISO (mksquashfs or mkfs.erofs depending on
+        ## install_container_filesystem). Whitespace separated (oem only)
+        attribute install_container_fscreateoptions { text }
+        >> sch:pattern [ id = "install_container_fscreateoptions" is-a = "image_type"
+            sch:param [ name = "attr" value = "install_container_fscreateoptions" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.installstick.attribute =
         ## Specifies if a install stick should be created (oem only)
         attribute installstick { xsd:boolean }
@@ -2547,6 +2569,8 @@ div {
         k.type.install_continue_on_timeout.attribute? &
         k.type.installprovidefailsafe.attribute? &
         k.type.installiso.attribute? &
+        k.type.install_container_filesystem.attribute? &
+        k.type.install_container_fscreateoptions.attribute? &
         k.type.installstick.attribute? &
         k.type.installpxe.attribute? &
         k.type.mediacheck.attribute? &
