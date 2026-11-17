@@ -124,6 +124,35 @@ function check_filesystem {
     fi
 }
 
+function clear_btrfs_seeding_flag {
+    # """
+    # clear the seeding flag of the given unmounted btrfs filesystem.
+    # kiwi flags the root filesystem of the disk image as seeding
+    # device for the partition based installation, see
+    # rd.kiwi.install.partition_based, in which it is the source of
+    # the btrfs seed/sprout process. On the installed system or when
+    # the disk image boots as system directly, the flag must be
+    # cleared, as a seeding device can only be mounted read-only.
+    # The device is the filesystem itself, also if it is located
+    # inside of LUKS or RAID. Filesystems which are not btrfs or not
+    # flagged are not changed, btrfstune fails for a filesystem
+    # without the flag
+    # """
+    local device=$1
+    test -n "${device}" || return
+    if [ ! "$(probe_filesystem "${device}")" = "btrfs" ];then
+        return
+    fi
+    if ! btrfs inspect-internal dump-super "${device}" | grep -q "SEEDING"
+    then
+        return
+    fi
+    info "Clearing btrfs seeding flag on ${device}..."
+    if ! set_device_lock "${device}" btrfstune -f -S 0 "${device}"; then
+        die "Failed to clear btrfs seeding flag on ${device}"
+    fi
+}
+
 function probe_filesystem {
     local device=$1
     test -n "${device}" || return

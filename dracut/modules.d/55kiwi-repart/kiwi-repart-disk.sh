@@ -294,6 +294,12 @@ fi
 # wait for the root device to appear
 wait_for_storage_device "${last_device}"
 
+# a btrfs root flagged as seeding device would only be mounted
+# read-only, the flag is cleared whether or not the disk gets
+# resized. At this point the root device is the filesystem itself,
+# LUKS and RAID are already activated to find it
+clear_btrfs_seeding_flag "$(get_root_device)"
+
 # check if repart/resize is wanted
 if ! resize_wanted "${last_device}" "${disk}"; then
     return

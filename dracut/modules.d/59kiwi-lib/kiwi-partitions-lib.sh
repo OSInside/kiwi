@@ -104,7 +104,9 @@ function create_gpt_partitions {
     # put partition setup in a command list(cmd_list)
     for cmd in ${partition_setup};do
         # default values in sgdisk are used if 0 is provided
-        cmd=$(echo "${cmd}" | tr . 0)
+        if [ "${cmd}" = "." ]; then
+            cmd=0
+        fi
         cmd_list[$index]=${cmd}
         index=$((index + 1))
     done
@@ -402,9 +404,26 @@ function get_partition_uuid {
 }
 
 function relocate_gpt_at_end_of_disk {
-    if ! sfdisk --relocate gpt-bak-std "$1";then
-        die "Failed to write backup GPT at end of disk"
+    # """
+    # Move the backup GPT to the end of the disk, e.g. after the
+    # disk got enlarged. Writing to the disk causes udev events on
+    # which udev probes the disk and might re-read its partition
+    # table, which removes and re-adds the partition devices for a
+    # moment. Without synchronization this races with the write and
+    # with the following steps working on the partitions. Therefore
+    # pending udev events are processed prior to the write, the disk
+    # is locked during the write, which keeps udev from probing it,
+    # and the udev events caused by the write are processed before
+    # the function returns
+    # """
+    local disk_device=$1
+    udev_pending
+    if ! set_device_lock "${disk_device}" \
+        sgdisk --move-second-header "${disk_device}"
+    then
+        die "Failed to write backup GPT at end of disk ${disk_device}"
     fi
+    udev_pending
 }
 
 function disk_has_unallocated_space {

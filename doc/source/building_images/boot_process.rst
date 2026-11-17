@@ -190,6 +190,28 @@ OEM Installation Images
   Expects sha512 instead of sha256 checksums, with the `.sha512` file
   extension.
 
+``rd.kiwi.install.dump_retries=number``
+  The number of times a failed dump of the image to the target disk is
+  repeated, for example after a read error on the install media or a
+  failed download. The default is 2. A dump which still fails stops the
+  installation and shows the error messages of the dump. The partition
+  based dump of `rd.kiwi.install.partition_based` is not repeated.
+
+``rd.kiwi.install.dump_rescue``
+  Dumps a local image with `ddrescue` instead of `dd`, for install media
+  with unreliable reads, such as virtual media of a BMC. `ddrescue`
+  retries unreadable sectors up to five times, and a dump repeated by
+  `rd.kiwi.install.dump_retries` continues with the sectors not yet read.
+  The dump only succeeds if all sectors could be read, a summary of the
+  unreadable areas is shown otherwise. With `ddrescue`, no progress bar
+  is shown.
+
+  The installation initrd must provide `ddrescue` and `ddrescuelog`, for
+  example by adding the `gnu_ddrescue` package to the image. Without
+  this option they are not used, even if present. If the option is set
+  but the tools are missing, the installation stops before the target
+  disk is changed. A dump from a remote location is not affected.
+
 ``rd.kiwi.install.pxe``
   Loads the image from the remote location given in
   `rd.kiwi.install.image`.
@@ -237,13 +259,24 @@ OEM Installation Images
   <https://btrfs.readthedocs.io/en/latest/Seeding-device.html>`_ and
   all other partitions block by block, and restores the filesystem UUID
   of btrfs afterwards. The main purpose is to use seed/sprout for the
-  deployment.
+  deployment. If the seed/sprout process fails for a partition, {kiwi}
+  copies this partition block by block instead and continues the
+  installation. The messages of the failed process are written to the
+  installation log.
 
   The btrfs root filesystem of the image must be flagged as a seeding
   device at build time. {kiwi} does this only for install images
   (`installiso`, `installstick` or `installpxe`) with the `btrfs`
   volume manager which set the parameter in the `kernelcmdline`
-  attribute. Passing it only at boot time is not sufficient:
+  attribute. The flag is installed on the target disk with any
+  installation method, also if the image is dumped as a whole. As a
+  seeding device can only be mounted read-only, the flag is cleared on
+  boot of the installed system, prior to a resize of the disk, also if
+  the root filesystem is located inside of LUKS or RAID. This is done
+  by the `kiwi-repart` dracut module, which is only part of the initrd
+  if the disk resize is enabled via `<oem-resize>`, the default, see
+  the warning below. Passing the parameter only at boot time is not
+  sufficient:
 
   .. code:: xml
 
@@ -251,6 +284,16 @@ OEM Installation Images
            kernelcmdline="console=ttyS0 rd.kiwi.install.partition_based">
        ...
      </type>
+
+  .. warning:: Seeding flag with the disk resize disabled
+
+     With `<oem-resize>false</oem-resize>`, the `kiwi-repart` dracut
+     module is not part of the initrd and the seeding flag is not
+     cleared. The root filesystem of the installed system can then
+     only be mounted read-only. In this case, clear the flag with
+     `btrfstune -f -S 0` on the unmounted root filesystem yourself,
+     for example from a rescue system or by own boot code in the
+     initrd, or enable the disk resize.
 
   `btrfs` and `btrfstune` must be part of the installation initrd. With
   `rd.kiwi.install.pxe`, the image is first loaded into main memory as
