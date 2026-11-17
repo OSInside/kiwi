@@ -1015,6 +1015,11 @@ overlayroot="true|false":
   amount of space available for writing new data during the runtime
   of the system. The default value is set to `50%`, which means one
   half of the available RAM space can be used for writing new data.
+  If SELinux is enabled and the write area is a `tmpfs`, files and
+  directories created there by the initrd have no valid SELinux
+  label because the policy is loaded only after switch-root. For
+  this reason, {kiwi} adds a service which restores the SELinux
+  labels of the `tmpfs` write area early at boot of the system.
   By default, the persistent write partition is used. The size of that
   partition can be influenced via the optional `<size>` element in
   the `<type>` section or via the optional `<oem-resize>` element in
