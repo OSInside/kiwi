@@ -22,6 +22,12 @@ class TestRepositorPacman(object):
         with patch('builtins.open', create=True):
             self.repo = RepositoryPacman(root_bind)
 
+            # the CacheDir is not created by pacman
+            assert mock_path.call_args_list == [
+                call('/shared-dir/pacman/repos'),
+                call('/shared-dir/pacman/cache'),
+            ]
+
             assert runtime_pacman_config.set.call_args_list == [
                 call('options', 'Architecture', 'auto'),
                 call('options', 'CacheDir', '/shared-dir/pacman/cache'),
@@ -211,6 +217,7 @@ class TestRepositorPacman(object):
     def test_delete_repo_cache(self, mock_path):
         self.repo.delete_repo_cache('foo')
         mock_path.wipe.assert_called_once_with('/shared-dir/pacman/cache')
+        mock_path.create.assert_called_once_with('/shared-dir/pacman/cache')
 
     @patch('os.path.isfile')
     @patch('os.unlink')

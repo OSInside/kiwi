@@ -84,6 +84,8 @@ class RepositoryPacman(RepositoryBase):
             'repos-dir': manager_base + '/repos',
         }
         Path.create(self.shared_pacman_dir['repos-dir'])
+        # pacman does not create the configured CacheDir
+        Path.create(self.shared_pacman_dir['cache-dir'])
 
         self.pacman_args = [
             '--config',
@@ -225,6 +227,8 @@ class RepositoryPacman(RepositoryBase):
         :param str name: repository name
         """
         Path.wipe(self.shared_pacman_dir['cache-dir'])
+        # pacman does not create the configured CacheDir
+        Path.create(self.shared_pacman_dir['cache-dir'])
 
     def setup_package_database_configuration(self) -> None:
         """
