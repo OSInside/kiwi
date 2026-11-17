@@ -68,11 +68,46 @@ function mountReadOnlyRootImage {
     echo "${root_mount_point}"
 }
 
+function setupOverlaySELinuxRelabel {
+    # The SELinux policy is loaded after switch-root, so everything
+    # created in the tmpfs upper layer before has no valid label.
+    # Add a service which relabels it early in the booted system
+    local upper=$1
+    local unit_dir=/run/systemd/system
+    local unit_name=kiwi-overlay-selinux-relabel.service
+    local service="${unit_dir}/${unit_name}"
+    cat >"${service}" <<-EOF
+		[Unit]
+		Description=Restore SELinux labels of the overlayroot upper layer
+		DefaultDependencies=no
+		ConditionSecurity=selinux
+		ConditionPathExists=!/etc/initrd-release
+		After=systemd-remount-fs.service
+		Before=local-fs-pre.target sysinit.target
+		Before=systemd-tmpfiles-setup.service systemd-journal-flush.service
+		Before=systemd-sysusers.service systemd-firstboot.service
+		Before=systemd-random-seed.service systemd-udevd.service
+		Before=systemd-sysctl.service
+		[Service]
+		Type=oneshot
+		RemainAfterExit=yes
+		ExecStartPre=test -d ${upper}
+		ExecStart=sh -c 'cd ${upper} && find . -xdev -print0 | (cd / && xargs -0 restorecon -i -F)'
+	EOF
+    mkdir -p "${unit_dir}/sysinit.target.wants"
+    ln -sf "${service}" "${unit_dir}/sysinit.target.wants/${unit_name}"
+    info "Added ${unit_name} to restore SELinux labels of ${upper}"
+}
+
 function prepareTemporaryOverlay {
     local overlay_base
     overlay_base=$(getOverlayBaseDirectory)
     mkdir -m 0755 -p "${overlay_base}/overlayfs/rw"
     mkdir -m 0755 -p "${overlay_base}/overlayfs/work"
+    # a read-only root does not use the upper layer
+    if ! getargbool 0 rd.root.overlay.readonly; then
+        setupOverlaySELinuxRelabel "${overlay_base}/overlayfs/rw"
+    fi
 }
 
 function preparePersistentOverlay {
