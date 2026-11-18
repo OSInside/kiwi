@@ -1,6 +1,7 @@
 #!/bin/bash
 # install images are specified with
 # root=install:CDLABEL=label
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 [ -z "${root}" ] && root=$(getarg root=)

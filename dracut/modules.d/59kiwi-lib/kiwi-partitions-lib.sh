@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type udev_pending >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 
@@ -229,16 +230,17 @@ function get_partition_node_name {
 function get_partition_number {
     # """
     # Get the number of the given partition, by its kernel
-    # device name. The kernel provides the number for its
-    # partitions in sysfs. A device mapper partition, e.g of a
-    # multipath map, has the number in its device mapper uuid,
-    # which is of the form part<number>-<uuid of the disk map>
+    # device name or any symlink to it, e.g /dev/mapper/<name>.
+    # The kernel provides the number for its partitions in sysfs.
+    # A device mapper partition, e.g of a multipath map or created
+    # by kpartx, has the number in its device mapper uuid, which
+    # is of the form part<number>-<uuid of the disk map>
     # """
     local kname
     local sysfs_device
     local partition_number
     local dm_uuid
-    kname=$(basename "$1")
+    kname=$(basename "$(readlink -f "$1")")
     sysfs_device=/sys/class/block/${kname}
     if [ -e "${sysfs_device}/partition" ];then
         read -r partition_number < "${sysfs_device}/partition"
@@ -579,6 +581,156 @@ function resize_wanted {
 }
 
 #======================================
+# sfdisk dump Methods
+#--------------------------------------
+# The following methods read the partition table from a file
+# written by sfdisk --dump, which allows to inspect the table
+# of a disk, an image file or a table not yet written
+
+function get_sector_size_from_table_dump {
+    # """
+    # print the sector size of the given sfdisk dump
+    # """
+    local parttable=$1
+    get_table_value_from_table_dump "${parttable}" sector-size
+}
+
+function get_partition_entry {
+    # """
+    # print number, start and size of the given partition from
+    # the given sfdisk dump, followed by its attributes, e.g.
+    # ", type=83, bootable". Returns 1 if there is no such
+    # partition. Without a partition number, all partitions are
+    # printed, one per line. Extended partitions of an msdos
+    # table are only containers of the logical partitions, which
+    # are listed on their own. They hold no data and are skipped,
+    # unless with_extended is given as third argument
+    # """
+    local parttable=$1
+    local partid=$2
+    local with_extended=$3
+    local line
+    local number
+    local start
+    local size
+    local attributes
+    local found=1
+    local entry='^.*[^0-9]([0-9]+)[[:space:]]*:[[:space:]]*'
+    entry="${entry}start=[[:space:]]*([0-9]+),[[:space:]]*"
+    entry="${entry}size=[[:space:]]*([0-9]+)(.*)$"
+    local extended='type=(5|f|85)(,|$)'
+    while IFS= read -r line;do
+        if [[ "${line}" =~ ${entry} ]];then
+            number=${BASH_REMATCH[1]}
+            start=${BASH_REMATCH[2]}
+            size=${BASH_REMATCH[3]}
+            attributes=${BASH_REMATCH[4]}
+            if [ -z "${with_extended}" ] && \
+                [[ "${attributes}" =~ ${extended} ]]
+            then
+                continue
+            fi
+            if [ -z "${partid}" ] || [ "${number}" = "${partid}" ];then
+                echo "${number} ${start} ${size}${attributes}"
+                found=0
+            fi
+        fi
+    done < "${parttable}"
+    return "${found}"
+}
+
+function get_partition_ids {
+    # """
+    # print the numbers of all data partitions of the given sfdisk dump
+    # """
+    local parttable=$1
+    local partid
+    local rest
+    while read -r partid rest;do
+        echo "${partid}"
+    done < <(get_partition_entry "${parttable}")
+}
+
+function get_last_partition_id_from_table_dump {
+    # """
+    # print the highest partition number of the given sfdisk dump
+    # """
+    local parttable=$1
+    local partid
+    local last=0
+    for partid in $(get_partition_ids "${parttable}");do
+        if [ "${partid}" -gt "${last}" ];then
+            last=${partid}
+        fi
+    done
+    echo "${last}"
+}
+
+function get_first_partition_start_from_table_dump {
+    # """
+    # print the lowest start sector of all partitions of the given
+    # sfdisk dump, including the extended partition of msdos tables
+    # """
+    local parttable=$1
+    local line
+    local start
+    local first=
+    while IFS= read -r line;do
+        if [[ "${line}" =~ :[[:space:]]*start=[[:space:]]*([0-9]+), ]];then
+            start=${BASH_REMATCH[1]}
+            if [ -z "${first}" ] || [ "${start}" -lt "${first}" ];then
+                first=${start}
+            fi
+        fi
+    done < "${parttable}"
+    echo "${first}"
+}
+
+function get_table_value_from_table_dump {
+    # """
+    # print the value of the given header key of the given sfdisk
+    # dump, e.g. label or label-id
+    # """
+    local parttable=$1
+    local key=$2
+    local line
+    while IFS= read -r line;do
+        if [[ "${line}" =~ ^${key}:[[:space:]]*(.*)$ ]];then
+            echo "${BASH_REMATCH[1]}"
+            return
+        fi
+    done < "${parttable}"
+}
+
+function get_partition_bytes {
+    # """
+    # print the size in bytes of the given partition entry as
+    # printed by get_partition_entry
+    # """
+    local entry=$1
+    local sector_size=$2
+    local partid
+    local start
+    local size
+    read -r partid start size <<< "${entry}"
+    size=${size%%,*}
+    echo $((size * sector_size))
+}
+
+function get_partition_start_bytes {
+    # """
+    # print the start in bytes of the given partition entry as
+    # printed by get_partition_entry
+    # """
+    local entry=$1
+    local sector_size=$2
+    local partid
+    local start
+    read -r partid start _ <<< "${entry}"
+    echo $((start * sector_size))
+}
+
+#======================================
 # Methods considered private
 #--------------------------------------
 function _get_msdos_partition_start_sector {
@@ -587,8 +739,14 @@ function _get_msdos_partition_start_sector {
     # """
     local disk_device=$1
     local partid=$2
-    sfdisk --dump "${disk_device}" |\
-        grep "${partid} :" | cut -f1 -d, | cut -f2 -d= | tr -d " "
+    local entry
+    local start
+    entry=$(
+        get_partition_entry <(sfdisk --dump "${disk_device}") \
+            "${partid}" with_extended
+    )
+    read -r _ start _ <<< "${entry}"
+    echo "${start}"
 }
 
 function _to_guid {

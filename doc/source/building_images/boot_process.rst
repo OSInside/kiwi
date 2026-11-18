@@ -254,7 +254,13 @@ OEM Installation Images
 
 ``rd.kiwi.install.partition_based``
   Installs the image partition by partition instead of as one block.
-  {kiwi} copies the partition table and the MBR boot code, transfers
+  {kiwi} copies the boot code of the image, which is the MBR boot code
+  and, for msdos tables, the area between the MBR and the first
+  partition in which the boot loader embeds its core image. If the
+  target has no partition table, {kiwi} copies the partition table of
+  the image. If the target has a partition table, {kiwi} installs each
+  image partition into the target partition of the same number, see
+  below. {kiwi} transfers
   `btrfs` partitions with the `btrfs seed/sprout process
   <https://btrfs.readthedocs.io/en/latest/Seeding-device.html>`_ and
   all other partitions block by block, and restores the filesystem UUID
@@ -294,6 +300,36 @@ OEM Installation Images
      `btrfstune -f -S 0` on the unmounted root filesystem yourself,
      for example from a rescue system or by own boot code in the
      initrd, or enable the disk resize.
+
+  Installation into an existing partition table:
+
+  * The table type of the target (msdos or GPT) must match the one of
+    the image. For each image partition, the target must have a
+    partition of the same number which is at least as big. On msdos
+    tables, the first target partition must not start before the first
+    image partition, such that the boot code fits. If one of these
+    conditions is not met, the installation stops with an error message
+    before the target disk is changed.
+  * The start and size of the target partitions are kept. {kiwi}
+    applies the attributes of the image partitions, such as type,
+    partition UUID, name and the bootable flag, and the partition
+    table ID of the image to the target table. Target partitions with
+    a number not used by the image are kept untouched.
+  * If an image partition is smaller than its target partition, {kiwi}
+    grows the filesystem to the size of the target partition, which
+    is supported for `ext2`, `ext3`, `ext4`, `xfs`, `btrfs` and swap.
+    Other content, such as LUKS, LVM or a btrfs seeding device, is
+    kept in its original size. A failed resize is shown and logged to
+    :file:`/tmp/fs_resize.log` but does not stop the installation.
+    The last image partition is never resized, this is left to the
+    {kiwi} resizer on first boot or to any other resizer.
+  * The legacy BIOS boot code of a GPT image refers to the position of
+    the BIOS boot partition in the image. If the target partition
+    starts at another position, {kiwi} shows a warning, legacy BIOS
+    boot then fails. EFI boot is not affected.
+  * The {kiwi} resizer on first boot resizes the last partition of the
+    disk. If the target has partitions after the last image partition,
+    the last image partition is therefore not resized.
 
   `btrfs` and `btrfstune` must be part of the installation initrd. With
   `rd.kiwi.install.pxe`, the image is first loaded into main memory as

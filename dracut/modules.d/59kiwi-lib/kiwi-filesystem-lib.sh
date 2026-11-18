@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 function getOverlayBaseDirectory {
@@ -31,34 +32,44 @@ function getOverlayBaseDirectory {
 }
 
 function resize_filesystem {
+    # """
+    # grow the filesystem on the given device to the size of the
+    # device, see grow_filesystem. Stops the boot process if the
+    # resize failed
+    # """
+    if ! grow_filesystem "$1"; then
+        die "Failed to resize filesystem"
+    fi
+}
+
+function grow_filesystem {
+    # """
+    # grow the filesystem on the given device to the size of the
+    # device. A filesystem which can't be resized is skipped with
+    # a message. Returns 1 if the check or the resize failed
+    # """
     local device=$1
-    test -n "${device}" || return
-    local resize_fs
+    test -n "${device}" || return 0
     local mpoint=/fs-resize
     local fstype
+    local uuid
+    local label
+    local result
     fstype=$(probe_filesystem "${device}")
-    lock="set_device_lock ${device}"
     case ${fstype} in
-    ext2|ext3|ext4)
-        resize_fs="${lock} resize2fs -f -p ${device}"
+    ext2|ext3|ext4|xfs|swap)
     ;;
     btrfs)
-        resize_fs="mkdir -p ${mpoint} && mount ${device} ${mpoint} &&"
-        resize_fs="${resize_fs} ${lock} btrfs filesystem resize max ${mpoint}"
-        resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
-    ;;
-    xfs)
-        resize_fs="mkdir -p ${mpoint} && mount ${device} ${mpoint} &&"
-        resize_fs="${resize_fs} ${lock} xfs_growfs ${mpoint}"
-        resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
-    ;;
-    swap)
-        resize_fs="${lock} mkswap ${device} --label SWAP"
+        if _is_btrfs_seeding_device "${device}";then
+            # a seeding device can only be mounted read-only
+            warn "btrfs seeding device ${device} can't be resized... skipped"
+            return 0
+        fi
     ;;
     *)
         # don't know how to resize this filesystem
         warn "Don't know how to resize ${fstype}... skipped"
-        return
+        return 0
     ;;
     esac
     if ! _is_ramdisk_device "${device}"; then
@@ -68,60 +79,93 @@ function resize_filesystem {
             # expected condition prior resize of the filesystem and
             # should not prevent the following resize. As such the
             # filesystem check is not applied for btrfs prior resize
-            check_filesystem "${device}"
+            fsck_filesystem "${device}" || return 1
         fi
     fi
     info "Resizing ${fstype} filesystem on ${device}..."
-    if ! eval "${resize_fs}"; then
-        die "Failed to resize filesystem"
-    fi
+    case ${fstype} in
+    ext2|ext3|ext4)
+        set_device_lock "${device}" resize2fs -f -p "${device}"
+    ;;
+    btrfs|xfs)
+        mkdir -p "${mpoint}" || return 1
+        mount "${device}" "${mpoint}" || return 1
+        if [ "${fstype}" = "btrfs" ];then
+            set_device_lock "${device}" \
+                btrfs filesystem resize max "${mpoint}"
+        else
+            set_device_lock "${device}" xfs_growfs "${mpoint}"
+        fi
+        result=$?
+        umount "${mpoint}" && rmdir "${mpoint}" || return 1
+        return "${result}"
+    ;;
+    swap)
+        # keep the identity of the swap space, which might be
+        # referenced e.g. in fstab
+        uuid=$(blkid "${device}" -s UUID -o value)
+        label=$(blkid "${device}" -s LABEL -o value)
+        set_device_lock "${device}" \
+            mkswap ${uuid:+-U "${uuid}"} --label "${label:-SWAP}" "${device}"
+    ;;
+    esac
 }
 
 function check_filesystem {
+    # """
+    # check the filesystem on the given device, see fsck_filesystem.
+    # Stops the boot process if the check failed
+    # """
+    if ! fsck_filesystem "$1"; then
+        die "Failed to check filesystem"
+    fi
+}
+
+function fsck_filesystem {
+    # """
+    # check the filesystem on the given device. A filesystem which
+    # can't be checked is skipped with a message. Returns 1 if the
+    # check failed
+    # """
     local device=$1
-    test -n "${device}" || return
-    local check_fs
-    local check_fs_return_ok
+    test -n "${device}" || return 0
     local fstype
+    local result
     fstype=$(probe_filesystem "${device}")
-    lock="set_device_lock ${device}"
     case ${fstype} in
-    ext2|ext3|ext4)
-        # The exit code by e2fsck is the sum of the following conditions:
-        # 0    - No errors
-        # 1    - File system errors corrected
-        # 2    - File system errors corrected, system should be rebooted
-        # 4    - File system errors left uncorrected
-        # 8    - Operational error
-        # 16   - Usage or syntax error
-        # 32   - E2fsck canceled by user request
-        # 128  - Shared library error
-        check_fs="${lock} e2fsck -p -f ${device}"
-        check_fs_return_ok="test \$? -le 2"
-    ;;
-    btrfs)
-        # btrfs check returns a zero exit status if it succeeds.
-        # Non zero is returned in case of failure.
-        check_fs="${lock} btrfsck ${device}"
-        check_fs_return_ok="test \$? -eq 0"
+    ext2|ext3|ext4|btrfs)
     ;;
     xfs)
         # xfs_repair can be used to check the filesystem. However
         # for subsequent xfs_growfs no check is needed. Thus for
         # xfs we skip the checking
-        return
+        return 0
     ;;
     *)
         # don't know how to check this filesystem
         warn "Don't know how to check ${fstype}... skipped"
-        return
+        return 0
     ;;
     esac
     info "Checking ${fstype} filesystem on ${device}..."
-    eval "${check_fs}"
-    if ! eval "${check_fs_return_ok}"; then
-        die "Failed to check filesystem"
+    if [ "${fstype}" = "btrfs" ];then
+        # btrfs check returns a zero exit status if it succeeds.
+        # Non zero is returned in case of failure.
+        set_device_lock "${device}" btrfsck "${device}"
+        return
     fi
+    # The exit code by e2fsck is the sum of the following conditions:
+    # 0    - No errors
+    # 1    - File system errors corrected
+    # 2    - File system errors corrected, system should be rebooted
+    # 4    - File system errors left uncorrected
+    # 8    - Operational error
+    # 16   - Usage or syntax error
+    # 32   - E2fsck canceled by user request
+    # 128  - Shared library error
+    set_device_lock "${device}" e2fsck -p -f "${device}"
+    result=$?
+    test "${result}" -le 2
 }
 
 function clear_btrfs_seeding_flag {
@@ -143,8 +187,7 @@ function clear_btrfs_seeding_flag {
     if [ ! "$(probe_filesystem "${device}")" = "btrfs" ];then
         return
     fi
-    if ! btrfs inspect-internal dump-super "${device}" | grep -q "SEEDING"
-    then
+    if ! _is_btrfs_seeding_device "${device}";then
         return
     fi
     info "Clearing btrfs seeding flag on ${device}..."
@@ -172,4 +215,8 @@ function probe_filesystem {
 #--------------------------------------
 function _is_ramdisk_device {
     echo "$1" | grep -qi "/dev/ram"
+}
+
+function _is_btrfs_seeding_device {
+    btrfs inspect-internal dump-super "$1" | grep -q "SEEDING"
 }

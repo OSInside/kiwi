@@ -1,20 +1,12 @@
 #!/bin/bash
 # root=overlay:* was converted into a root=block:/dev/... node
+# shellcheck disable=SC1091
+type setup_debug >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type getOverlayBaseDirectory >/dev/null 2>&1 || . /lib/kiwi-filesystem-lib.sh
 
 #======================================
 # functions
 #--------------------------------------
-function setupDebugMode {
-    if getargbool 0 rd.kiwi.debug; then
-        local log=/run/initramfs/log
-        mkdir -p ${log}
-        exec > ${log}/boot.kiwi
-        exec 2>> ${log}/boot.kiwi
-        set -x
-    fi
-}
-
 function loadKernelModules {
     modprobe squashfs
 }
@@ -153,7 +145,7 @@ if [[ ! "${root_cmdline}" =~ "overlay:" ]];then
 fi
 
 # init debug log file if wanted
-setupDebugMode
+setup_debug
 
 # device nodes and types
 initGlobalDevices "${root#block:}"

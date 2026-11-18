@@ -1,8 +1,10 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type setup_debug >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
 type get_block_device_kbsize >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
+type grow_filesystem >/dev/null 2>&1 || . /lib/kiwi-filesystem-lib.sh
 type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 
 #======================================
@@ -468,15 +470,6 @@ function dump_image {
         check_ddrescue_available
     fi
 
-    # last chance to stop us
-    if [ "${kiwi_oemunattended}" = "false" ];then
-        local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
-        if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
-            local install_cancel_text="System installation canceled"
-            report_and_quit "${install_cancel_text}"
-        fi
-    fi
-
     # deploy
     echo "${load_text} [${image_target}]..."
     retries=$(dump_retries)
@@ -502,6 +495,9 @@ function dump_image {
             progress_fifo="${progress}"
         fi
     fi
+    # The copy only writes to main memory, it runs prior to the
+    # last chance to stop us, such that the partition table of a
+    # remote image can be checked against the target beforehand
     if [ -n "${copy}" ];then
         if ! run_dump \
             "${load_text}" "${title_text}" "${retries}" "${progress_fifo}" \
@@ -517,6 +513,29 @@ function dump_image {
         fi
         image_source="${image_source_file}"
     fi
+
+    # check if the image partitions can be installed
+    if [ "${dump}" = "dump_local_image_partition_based" ];then
+        check_partition_based_target "${image_source}" "${image_target}"
+    fi
+
+    # last chance to stop us
+    if [ "${kiwi_oemunattended}" = "false" ];then
+        local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
+        if [ "${dump}" = "dump_local_image_partition_based" ] && \
+            [ -e "$(target_partition_table)" ]
+        then
+            ack_dump_text="Destroying ALL data on partitions"
+            ack_dump_text="${ack_dump_text} $(
+                get_partition_ids "$(image_partition_table)" | tr '\n' ' '
+            )of ${image_target}, continue ?"
+        fi
+        if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
+            local install_cancel_text="System installation canceled"
+            report_and_quit "${install_cancel_text}"
+        fi
+    fi
+
     if ! run_dump \
         "${load_text}" "${title_text}" "${dump_retries_count}" \
         "${progress_fifo}" \
@@ -529,6 +548,11 @@ function dump_image {
         show_log_and_quit \
             "Failed to install image ${image_source} to ${image_target} after $((dump_retries_count + 1)) attempts" \
             "$(dump_log)"
+    fi
+
+    # grow filesystems installed into bigger partitions
+    if [ "${dump}" = "dump_local_image_partition_based" ];then
+        grow_partition_based_filesystems "${image_target}"
     fi
 
     # recreate last partition from pre-dump table
@@ -567,25 +591,6 @@ function get_esp_partition {
     udev_pending
     lsblk -p -n -r -o NAME,LABEL "${disk_device}" |\
         awk '$2 == "EFI" { print $1; exit }'
-}
-
-function get_partition_number {
-    # """
-    # get the partition number of the given partition device
-    # """
-    local partition_device=$1
-    local partition_node
-    local partition_number
-    partition_node=$(readlink -f "${partition_device}")
-    partition_node=${partition_node##*/}
-    if [ -e "/sys/class/block/${partition_node}/partition" ];then
-        read -r partition_number \
-            < "/sys/class/block/${partition_node}/partition"
-    elif [[ "${partition_device}" =~ ([0-9]+)$ ]];then
-        # e.g. device mapper partitions created by kpartx
-        partition_number=${BASH_REMATCH[1]}
-    fi
-    echo "${partition_number}"
 }
 
 function find_efi_binary {
@@ -932,10 +937,22 @@ function fetch_remote_partition_table {
     echo "${parttable}"
 }
 
-function get_sector_size_from_table_dump {
+function get_last_partition_start {
+    # """
+    # print the start sector of the last partition of the given
+    # sfdisk dump, nothing if there is no partition. The dump is
+    # read twice, it must be a file
+    # """
     local parttable=$1
-    sector_size=$(grep sector-size: "${parttable}" | cut -f2 -d:)
-    echo "${sector_size}"
+    local entry
+    local start
+    if entry=$(
+        get_partition_entry "${parttable}" \
+            "$(get_last_partition_id_from_table_dump "${parttable}")"
+    );then
+        read -r _ start _ <<< "${entry}"
+        echo "${start}"
+    fi
 }
 
 function compatible_to_retain {
@@ -943,13 +960,9 @@ function compatible_to_retain {
     local image_target=$2
     local source_start
     local target_start
-    source_start=$(
-        tail -n 1 "${parttable}" | cut -f2 -d= | cut -f1 -d,
-    )
-    target_start=$(
-        sfdisk -d "${image_target}" 2>/dev/null |\
-        tail -n 1 | cut -f2 -d= | cut -f1 -d,
-    )
+    source_start=$(get_last_partition_start "${parttable}")
+    sfdisk -d "${image_target}" > /tmp/parttable_retain 2>/dev/null
+    target_start=$(get_last_partition_start /tmp/parttable_retain)
     if [ -z "${source_start}" ] || [ -z "${target_start}" ];then
         # no partition information for either source or target
         # broken or net new deployment on empty disk
@@ -969,20 +982,23 @@ function compatible_to_retain {
 }
 
 function get_disk_offset_retain_last_partition {
+    # """
+    # print the end sector of the partition in front of the last
+    # partition of the given sfdisk dump, 0 if there is none
+    # """
     local parttable=$1
-    local next_to_last
+    local partids
+    local entry
     local start
     local size
-    local offset
-    next_to_last=$(tail -n 2 "${parttable}" | head -n 1)
-    if [ -n "${next_to_last}" ];then
-        start=$(echo "${next_to_last}" | cut -f2 -d= | cut -f1 -d,)
-        size=$(echo "${next_to_last}" | cut -f3 -d= | cut -f1 -d,)
-        offset=$((start + size))
-        echo "${offset}"
-    else
+    read -r -a partids <<< "$(get_partition_ids "${parttable}" | tr '\n' ' ')"
+    if [ "${#partids[@]}" -lt 2 ];then
         echo 0
+        return
     fi
+    entry=$(get_partition_entry "${parttable}" "${partids[-2]}")
+    read -r _ start size <<< "${entry}"
+    echo $((start + ${size%%,*}))
 }
 
 function optimize_count_for_32k_blocksize {
@@ -1080,21 +1096,376 @@ function dump_local_image_ddrescue {
     fi
 }
 
-function clone_partition_table {
+function image_partition_table {
+    # """
+    # print the sfdisk dump file of the image partition table,
+    # written by check_partition_based_target
+    # """
+    echo /tmp/parttable_image
+}
+
+function target_partition_table {
+    # """
+    # print the sfdisk dump file of the partition table which
+    # existed on the target prior the installation. The file only
+    # exists if the target has a partition table, written by
+    # check_partition_based_target
+    # """
+    echo /tmp/parttable_target
+}
+
+function merge_partition_table {
+    # """
+    # print the partition table of the target with the attributes
+    # of the image partitions applied to the target partitions of
+    # the same number, e.g. type, uuid, name and the bootable flag.
+    # The geometry of the target partitions is kept. The label-id
+    # of the image is applied too, such that the partition UUIDs
+    # of the installed system match with the ones of the image,
+    # as it is the case if the image partition table gets cloned.
+    # This is required e.g. for root=PARTUUID or for the check of
+    # oem-resize-once on first boot
+    # """
+    local image_table=$1
+    local target_table=$2
+    local line
+    local label_id
+    local node
+    local partid
+    local start
+    local size
+    local image_entry
+    local image_attributes
+    local entry='^(.*[^0-9])([0-9]+)[[:space:]]*:[[:space:]]*'
+    entry="${entry}start=[[:space:]]*([0-9]+),[[:space:]]*"
+    entry="${entry}size=[[:space:]]*([0-9]+)"
+    label_id=$(get_table_value_from_table_dump "${image_table}" label-id)
+    while IFS= read -r line;do
+        if [[ "${line}" =~ ^label-id: ]] && [ -n "${label_id}" ];then
+            echo "label-id: ${label_id}"
+            continue
+        fi
+        if [[ "${line}" =~ ${entry} ]];then
+            node="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+            partid=${BASH_REMATCH[2]}
+            start=${BASH_REMATCH[3]}
+            size=${BASH_REMATCH[4]}
+            if image_entry=$(get_partition_entry "${image_table}" "${partid}")
+            then
+                image_attributes=${image_entry#* * *,}
+                echo "${node} : start=${start}, size=${size},${image_attributes}"
+                continue
+            fi
+        fi
+        echo "${line}"
+    done < "${target_table}"
+}
+
+function dump_boot_code {
+    # """
+    # dump the boot code of the image to the target, which is
+    # the MBR boot code in front of the partition table and for
+    # msdos tables the area between the MBR and the first
+    # partition. On msdos tables the boot loader embeds its core
+    # image into this area, which is loaded by the MBR boot code.
+    # On GPT tables this area holds the partition table itself
+    # and the boot loader uses a BIOS boot partition instead,
+    # which is installed like any other partition. The partition
+    # table of the target is not changed
+    # """
     local image_source=$1
     local image_target=$2
-    fetch_local_partition_table "${image_source}" >/dev/null
-    sfdisk "${image_target}" < /tmp/parttable || return 1
-    # clone MBR bootloader code
-    dd if="${image_source}" of="${image_target}" bs=1 count=446 || return 1
+    local image_table
+    local sector_size
+    local first_start
+    image_table=$(image_partition_table)
+    # MBR boot code
+    dd if="${image_source}" of="${image_target}" \
+        bs=446 count=1 conv=notrunc || return 1
+    # boot loader embedding area
+    if [ "$(get_table_value_from_table_dump "${image_table}" label)" = "dos" ]
+    then
+        sector_size=$(get_sector_size_from_table_dump "${image_table}")
+        first_start=$(get_first_partition_start_from_table_dump "${image_table}")
+        if [ -n "${first_start}" ] && [ "${first_start}" -gt 1 ];then
+            dd if="${image_source}" of="${image_target}" \
+                bs="${sector_size}" skip=1 seek=1 \
+                count=$((first_start - 1)) conv=notrunc || return 1
+        fi
+    fi
+}
+
+function clone_partition_table {
+    # """
+    # clone the partition table and the boot code of the image
+    # to the target, used if the target has no partition table
+    # """
+    local image_source=$1
+    local image_target=$2
+    sfdisk "${image_target}" < "$(image_partition_table)" || return 1
+    dump_boot_code "${image_source}" "${image_target}" || return 1
     partx -u "${image_target}" || return 1
     udev_pending
 }
 
-function btrfs_seed_device_on_target {
+function update_partition_table {
+    # """
+    # apply the attributes of the image partitions to the existing
+    # partition table of the target and dump the boot code of the
+    # image, used if the target has a partition table
+    # """
+    local image_source=$1
+    local image_target=$2
+    local merged_table=/tmp/parttable_merged
+    merge_partition_table \
+        "$(image_partition_table)" "$(target_partition_table)" \
+        > "${merged_table}"
+    echo "Updating partition table of ${image_target}:"
+    cat "${merged_table}"
+    sfdisk "${image_target}" < "${merged_table}" || return 1
+    dump_boot_code "${image_source}" "${image_target}" || return 1
+    partx -u "${image_target}" || return 1
+    udev_pending
+}
+
+function check_partition_based_target {
+    # """
+    # read the partition table of the image and of the target.
+    # If the target has no partition table, the one of the image
+    # is cloned to the target. Otherwise the image partitions are
+    # installed into the existing partitions of the same number.
+    # This is only possible if the table types match, if there is
+    # a target partition for each image partition which is at
+    # least as big as the image partition and if the boot code
+    # fits in front of the first target partition. If not, the
+    # installation stops before anything is written to the target
+    # """
+    local image_source=$1
+    local image_target=$2
+    local image_table
+    local target_table
+    local check_log=/tmp/partition_check.log
+    local image_label
+    local target_label
+    local image_sector_size
+    local target_sector_size
+    local image_entry
+    local target_entry
+    local image_bytes
+    local target_bytes
+    local image_first_start
+    local target_first_start
+    local partid
+    local failed=0
+    image_table=$(image_partition_table)
+    target_table=$(target_partition_table)
+    rm -f "${image_table}" "${target_table}"
+    : > "${check_log}"
+    if ! sfdisk -d "${image_source}" > "${image_table}" 2>>"${check_log}"
+    then
+        show_log_and_quit \
+            "Failed to read partition table of ${image_source}" "${check_log}"
+    fi
+    if ! sfdisk -d "${image_target}" > "${target_table}" 2>/dev/null;then
+        rm -f "${target_table}"
+        if [ -n "$(blkid -p -s PTTYPE -o value "${image_target}")" ];then
+            report_and_quit \
+                "Partition table of ${image_target} exists but can't be read"
+        fi
+        echo "No partition table on ${image_target}, cloning the image table"
+        return
+    fi
+    echo "Partition table on ${image_target}, installing into its partitions"
+    image_label=$(get_table_value_from_table_dump "${image_table}" label)
+    target_label=$(get_table_value_from_table_dump "${target_table}" label)
+    if [ ! "${image_label}" = "${target_label}" ];then
+        report_and_quit \
+            "Table type of image(${image_label}) and ${image_target}(${target_label}) differ"
+    fi
+    if [[ ! "${target_label}" =~ ^(dos|gpt)$ ]];then
+        report_and_quit \
+            "Table type ${target_label} of ${image_target} not supported"
+    fi
+    image_sector_size=$(get_sector_size_from_table_dump "${image_table}")
+    target_sector_size=$(get_sector_size_from_table_dump "${target_table}")
+    for partid in $(get_partition_ids "${image_table}");do
+        image_entry=$(get_partition_entry "${image_table}" "${partid}")
+        image_bytes=$(
+            get_partition_bytes "${image_entry}" "${image_sector_size}"
+        )
+        if ! target_entry=$(get_partition_entry "${target_table}" "${partid}")
+        then
+            echo "Partition ${partid}: missing on ${image_target}," \
+                "need $((image_bytes / 1048576)) MB" >> "${check_log}"
+            failed=1
+            continue
+        fi
+        target_bytes=$(
+            get_partition_bytes "${target_entry}" "${target_sector_size}"
+        )
+        if [ "${image_bytes}" -gt "${target_bytes}" ];then
+            echo "Partition ${partid}: too small on ${image_target}," \
+                "need $((image_bytes / 1048576)) MB," \
+                "have $((target_bytes / 1048576)) MB" >> "${check_log}"
+            failed=1
+            continue
+        fi
+        echo "Partition ${partid}: OK," \
+            "need $((image_bytes / 1048576)) MB," \
+            "have $((target_bytes / 1048576)) MB" >> "${check_log}"
+        # The BIOS boot code of the image refers to the absolute
+        # position of the BIOS boot partition in the image
+        if [[ "${image_entry}" =~ type=21686148-6449-6E6F-744E-656564454649 ]]
+        then
+            if [ ! "$(get_partition_start_bytes "${image_entry}" "${image_sector_size}")" = \
+                "$(get_partition_start_bytes "${target_entry}" "${target_sector_size}")" ]
+            then
+                warn "BIOS boot partition ${partid} starts at another position on ${image_target}"
+                warn "Legacy BIOS boot will fail, EFI boot is not affected"
+            fi
+        fi
+    done
+    if [ "${image_label}" = "dos" ];then
+        image_first_start=$(
+            get_first_partition_start_from_table_dump "${image_table}"
+        )
+        target_first_start=$(
+            get_first_partition_start_from_table_dump "${target_table}"
+        )
+        if [ -n "${target_first_start}" ] && \
+            [ $((target_first_start * target_sector_size)) -lt \
+              $((image_first_start * image_sector_size)) ]
+        then
+            echo "Boot code: needs the space up to sector" \
+                "${image_first_start}, first partition on" \
+                "${image_target} starts at sector ${target_first_start}" \
+                >> "${check_log}"
+            failed=1
+        fi
+    fi
+    cat "${check_log}"
+    if [ "${failed}" -ne 0 ];then
+        show_log_and_quit \
+            "Image partitions don't fit into partitions of ${image_target}" \
+            "${check_log}"
+    fi
+}
+
+function grow_partition_based_filesystems {
+    # """
+    # grow the filesystems of the image partitions which were
+    # installed into bigger partitions of an existing partition
+    # table to the size of the partition. The last partition of
+    # the image is not resized, this is up to the kiwi resizer
+    # on first boot or to any other resizer. A failed resize is
+    # reported but does not stop the installation, the
+    # filesystem stays usable in its original size
+    # """
+    local image_target=$1
+    local image_table
+    local target_table
+    local resize_log=/tmp/fs_resize.log
+    local image_sector_size
+    local target_sector_size
+    local image_entry
+    local target_entry
+    local last_partid
+    local partid
+    local device
+    image_table=$(image_partition_table)
+    target_table=$(target_partition_table)
+    if [ ! -e "${target_table}" ];then
+        # image partition table was cloned, partition sizes match
+        return
+    fi
+    image_sector_size=$(get_sector_size_from_table_dump "${image_table}")
+    target_sector_size=$(get_sector_size_from_table_dump "${target_table}")
+    last_partid=$(get_last_partition_id_from_table_dump "${image_table}")
+    for partid in $(get_partition_ids "${image_table}");do
+        if [ "${partid}" = "${last_partid}" ];then
+            continue
+        fi
+        image_entry=$(get_partition_entry "${image_table}" "${partid}")
+        target_entry=$(get_partition_entry "${target_table}" "${partid}")
+        if [ ! "$(get_partition_bytes "${image_entry}" "${image_sector_size}")" -lt \
+            "$(get_partition_bytes "${target_entry}" "${target_sector_size}")" ]
+        then
+            continue
+        fi
+        if ! device=$(get_partition_node_name "${image_target}" "${partid}")
+        then
+            warn "Partition ${partid} of ${image_target} not found, resize skipped"
+            continue
+        fi
+        info "Resizing filesystem on ${device} to the partition size..."
+        if ! grow_filesystem "${device}" >>"${resize_log}" 2>&1;then
+            warn "Failed to resize filesystem on ${device}, see ${resize_log}"
+        fi
+    done
+}
+
+function btrfs_seed_progress {
+    # """
+    # write the progress of the btrfs device delete, which moves
+    # all data from the seed to the sprout device, to the given
+    # gauge dialog fifo until killed. btrfs does not report the
+    # progress of a device delete, it is therefore estimated from
+    # the sectors written to the target compared to the bytes used
+    # on the seed. The estimate stays below 100% until the device
+    # delete has finished
+    # """
     local source_device=$1
     local target_device=$2
+    local progress=$3
+    local text="Seeding btrfs from ${source_device} to ${target_device}..."
+    local stat
+    local total
+    local written
+    local written_start
+    local percent=0
+    stat="/sys/class/block/$(basename "$(readlink -f "${target_device}")")/stat"
+    total=$(
+        btrfs inspect-internal dump-super "${source_device}" 2>/dev/null |\
+        awk '/^bytes_used/ { print $2 }'
+    )
+    if ! [[ "${total}" =~ ^[0-9]+$ ]] || [ "${total}" -eq 0 ];then
+        total=$(blockdev --getsize64 "${source_device}" 2>/dev/null)
+    fi
+    exec 4>"${progress}"
+    if [ ! -e "${stat}" ] || ! [[ "${total}" =~ ^[0-9]+$ ]] || \
+        [ "${total}" -eq 0 ]
+    then
+        # no estimate possible, show what is going on
+        printf 'XXX\n0\n%s\nXXX\n' "${text}" >&4
+        return
+    fi
+    # the 7th field of the block device stat is the number of
+    # written sectors, a sector in this statistic is 512 bytes
+    written_start=$(awk '{ print $7 }' "${stat}")
+    while true; do
+        written=$(awk '{ print $7 }' "${stat}")
+        percent=$(( (written - written_start) * 512 * 100 / total ))
+        if [ "${percent}" -gt 99 ];then
+            percent=99
+        fi
+        printf 'XXX\n%d\n%s\nXXX\n' "${percent}" "${text}" >&4
+        sleep 1
+    done
+}
+
+function btrfs_seed_device_on_target {
+    # """
+    # install the btrfs filesystem of the source device to the
+    # target device using btrfs seed/sprout. If a gauge dialog
+    # fifo is given, the progress of moving the data from the
+    # seed to the sprout device is written to it
+    # """
+    local source_device=$1
+    local target_device=$2
+    local progress=$3
     local seed=/seed
+    local progress_pid
+    local result=0
     if [ -n "${source_device}" ]; then
         mkdir -p "${seed}"
         if getargbool 0 rd.kiwi.install.clone_local; then
@@ -1107,7 +1478,23 @@ function btrfs_seed_device_on_target {
         fi
         umount "${seed}" || return 1
         mount "${target_device}" "${seed}" || return 1
-        if ! btrfs device delete "${source_device}" "${seed}"; then
+        info "Seeding btrfs from ${source_device} to ${target_device}..."
+        if [ -n "${progress}" ] && [ -e "${progress}" ];then
+            btrfs_seed_progress \
+                "${source_device}" "${target_device}" "${progress}" &
+            progress_pid=$!
+        fi
+        btrfs device delete "${source_device}" "${seed}" || result=1
+        if [ -n "${progress_pid}" ];then
+            kill "${progress_pid}" &>/dev/null
+            wait "${progress_pid}" &>/dev/null
+            if [ "${result}" -eq 0 ];then
+                printf 'XXX\n100\n%s\nXXX\n' \
+                    "Seeded btrfs from ${source_device} to ${target_device}" \
+                    >"${progress}"
+            fi
+        fi
+        if [ "${result}" -ne 0 ];then
             umount "${seed}"
             return 1
         fi
@@ -1124,9 +1511,10 @@ function btrfs_replay_uuid {
 }
 
 function check_partition_based_compatibility {
-    # partition based mode always clones the complete partition
-    # table of the image to the target, which would wipe out the
-    # partition to retain
+    # partition based mode clones the complete partition table of
+    # the image to a target without partition table or installs all
+    # image partitions into the existing partitions of the target,
+    # both would wipe out the partition to retain
     if getargbool 0 rd.kiwi.install.partition_based; then
         if getargbool 0 rd.kiwi.install.retain_last || \
            getargbool 0 rd.kiwi.install.retain_past
@@ -1156,14 +1544,27 @@ function dump_local_image_partition_based {
     local btrfs_target_device_array
     local btrfs_source_uuid_array
     local filesystem
-    local part
+    local partid
+    local source_part
+    local target_part
+    local seed_count
     local dump_log
     dump_log=$(dump_log)
     # no partial dump in partition based mode
     unset count
 
-    # clone partition table to target
-    if ! clone_partition_table \
+    # Create the partition table on the target only if it has none,
+    # otherwise install into the existing partitions, which were
+    # checked to fit by check_partition_based_target
+    if [ -e "$(target_partition_table)" ];then
+        if ! update_partition_table \
+            "${image_source}" "${image_target}" >>"${dump_log}" 2>&1
+        then
+            echo "Failed to update partition table of ${image_target}" \
+                >>"${dump_log}"
+            return 1
+        fi
+    elif ! clone_partition_table \
         "${image_source}" "${image_target}" >>"${dump_log}" 2>&1
     then
         echo "Failed to clone partition table to ${image_target}" \
@@ -1184,42 +1585,46 @@ function dump_local_image_partition_based {
         return 1
     fi
 
-    # walk through source image partitions and store them
-    for part in $(
-        lsblk -p -n -r --sort SIZE -o NAME,TYPE "${source_disk}" |\
-        grep part | cut -f1 -d" "
-    );do
-        filesystem=$(blkid "${part}" -s TYPE -o value)
-        uuid=$(blkid "${part}" -s UUID -o value)
-        if [ "${filesystem}" = "btrfs" ];then
-            btrfs_source_device_array[device_index]=${part}
-            btrfs_source_uuid_array[device_index]=${uuid}
-        else
-            source_device_array[device_index]=${part}
+    # walk through the image partitions and store them together
+    # with the target partition of the same number. kpartx names
+    # the partition maps of the loop device <loop>p<number>
+    for partid in $(get_partition_ids "$(image_partition_table)");do
+        source_part="/dev/mapper/$(basename "${source_disk}")p${partid}"
+        if [ ! -b "${source_part}" ];then
+            echo "Partition ${partid} of ${image_source} not mapped" \
+                >>"${dump_log}"
+            clean_partition_map "${source_disk}" &>/dev/null
+            return 1
         fi
-        device_index=$((device_index + 1))
-    done
-
-    # walk through target image partitions and store them
-    device_index=0
-    for part in $(
-        lsblk -p -n -r --sort SIZE -o NAME,TYPE "${image_target}" |\
-        grep part | cut -f1 -d" "
-    );do
-        if [ -n "${btrfs_source_device_array[${device_index}]}" ];then
-            btrfs_target_device_array[device_index]=${part}
+        if ! target_part=$(
+            get_partition_node_name "${image_target}" "${partid}"
+        );then
+            echo "Partition ${partid} of ${image_target} not found" \
+                >>"${dump_log}"
+            clean_partition_map "${source_disk}" &>/dev/null
+            return 1
+        fi
+        filesystem=$(probe_filesystem "${source_part}")
+        uuid=$(blkid "${source_part}" -s UUID -o value)
+        if [ "${filesystem}" = "btrfs" ];then
+            btrfs_source_device_array[device_index]=${source_part}
+            btrfs_source_uuid_array[device_index]=${uuid}
+            btrfs_target_device_array[device_index]=${target_part}
         else
-            target_device_array[device_index]=${part}
+            source_device_array[device_index]=${source_part}
+            target_device_array[device_index]=${target_part}
         fi
         device_index=$((device_index + 1))
     done
 
     # seed/sprout for btrfs based partitions
+    seed_count=${#btrfs_source_device_array[@]}
     for ((index=0; index<device_index; index++)); do
         if ! (
             btrfs_seed_device_on_target \
                 "${btrfs_source_device_array[${index}]}" \
-                "${btrfs_target_device_array[${index}]}"
+                "${btrfs_target_device_array[${index}]}" \
+                "${progress}"
         ) 2>>/seed.log
         then
             {
@@ -1228,7 +1633,8 @@ function dump_local_image_partition_based {
                     "falling back to a block copy of the partition:"
                 cat /seed.log
             } >>"${dump_log}"
-            warn "btrfs seed/sprout to ${btrfs_target_device_array[${index}]} failed, copying the partition block by block"
+            # "btrfs seed/sprout to ${btrfs_target_device_array[${index}]} failed,
+            # copying the partition by the standard partition block dump method"
             # The failed attempt might have left the source or the
             # target mounted, the target must not be in use for the
             # block copy
@@ -1257,6 +1663,14 @@ function dump_local_image_partition_based {
         (
             # see dump_local_image why pipefail is required
             set -o pipefail
+            # the seed/sprout changed the text of the gauge dialog,
+            # pv only updates the percentage
+            if [ "${seed_count}" -gt 0 ] && \
+                [ "${#source_device_array[@]}" -gt 0 ]
+            then
+                printf 'XXX\n0\n%s\nXXX\n' \
+                    "Installing partitions to ${image_target}..." >&2
+            fi
             for ((index=0; index<device_index; index++)); do
                 if [ -n "${source_device_array[${index}]}" ];then
                     # The dump log is only appended to (SC2094)

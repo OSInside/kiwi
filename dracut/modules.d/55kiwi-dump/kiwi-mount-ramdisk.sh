@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 type setup_debug >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
