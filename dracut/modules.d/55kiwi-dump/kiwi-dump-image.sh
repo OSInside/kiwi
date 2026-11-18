@@ -1404,10 +1404,68 @@ function grow_partition_based_filesystems {
     done
 }
 
-function btrfs_seed_device_on_target {
+function btrfs_seed_progress {
+    # """
+    # write the progress of the btrfs device delete, which moves
+    # all data from the seed to the sprout device, to the given
+    # gauge dialog fifo until killed. btrfs does not report the
+    # progress of a device delete, it is therefore estimated from
+    # the sectors written to the target compared to the bytes used
+    # on the seed. The estimate stays below 100% until the device
+    # delete has finished
+    # """
     local source_device=$1
     local target_device=$2
+    local progress=$3
+    local text="Seeding btrfs from ${source_device} to ${target_device}..."
+    local stat
+    local total
+    local written
+    local written_start
+    local percent=0
+    stat="/sys/class/block/$(basename "$(readlink -f "${target_device}")")/stat"
+    total=$(
+        btrfs inspect-internal dump-super "${source_device}" 2>/dev/null |\
+        awk '/^bytes_used/ { print $2 }'
+    )
+    if ! [[ "${total}" =~ ^[0-9]+$ ]] || [ "${total}" -eq 0 ];then
+        total=$(blockdev --getsize64 "${source_device}" 2>/dev/null)
+    fi
+    exec 4>"${progress}"
+    if [ ! -e "${stat}" ] || ! [[ "${total}" =~ ^[0-9]+$ ]] || \
+        [ "${total}" -eq 0 ]
+    then
+        # no estimate possible, show what is going on
+        printf 'XXX\n0\n%s\nXXX\n' "${text}" >&4
+        return
+    fi
+    # the 7th field of the block device stat is the number of
+    # written sectors, a sector in this statistic is 512 bytes
+    written_start=$(awk '{ print $7 }' "${stat}")
+    while true; do
+        written=$(awk '{ print $7 }' "${stat}")
+        percent=$(( (written - written_start) * 512 * 100 / total ))
+        if [ "${percent}" -gt 99 ];then
+            percent=99
+        fi
+        printf 'XXX\n%d\n%s\nXXX\n' "${percent}" "${text}" >&4
+        sleep 1
+    done
+}
+
+function btrfs_seed_device_on_target {
+    # """
+    # install the btrfs filesystem of the source device to the
+    # target device using btrfs seed/sprout. If a gauge dialog
+    # fifo is given, the progress of moving the data from the
+    # seed to the sprout device is written to it
+    # """
+    local source_device=$1
+    local target_device=$2
+    local progress=$3
     local seed=/seed
+    local progress_pid
+    local result=0
     if [ -n "${source_device}" ]; then
         mkdir -p "${seed}"
         if getargbool 0 rd.kiwi.install.clone_local; then
@@ -1420,7 +1478,23 @@ function btrfs_seed_device_on_target {
         fi
         umount "${seed}" || return 1
         mount "${target_device}" "${seed}" || return 1
-        if ! btrfs device delete "${source_device}" "${seed}"; then
+        info "Seeding btrfs from ${source_device} to ${target_device}..."
+        if [ -n "${progress}" ] && [ -e "${progress}" ];then
+            btrfs_seed_progress \
+                "${source_device}" "${target_device}" "${progress}" &
+            progress_pid=$!
+        fi
+        btrfs device delete "${source_device}" "${seed}" || result=1
+        if [ -n "${progress_pid}" ];then
+            kill "${progress_pid}" &>/dev/null
+            wait "${progress_pid}" &>/dev/null
+            if [ "${result}" -eq 0 ];then
+                printf 'XXX\n100\n%s\nXXX\n' \
+                    "Seeded btrfs from ${source_device} to ${target_device}" \
+                    >"${progress}"
+            fi
+        fi
+        if [ "${result}" -ne 0 ];then
             umount "${seed}"
             return 1
         fi
@@ -1473,6 +1547,7 @@ function dump_local_image_partition_based {
     local partid
     local source_part
     local target_part
+    local seed_count
     local dump_log
     dump_log=$(dump_log)
     # no partial dump in partition based mode
@@ -1543,11 +1618,13 @@ function dump_local_image_partition_based {
     done
 
     # seed/sprout for btrfs based partitions
+    seed_count=${#btrfs_source_device_array[@]}
     for ((index=0; index<device_index; index++)); do
         if ! (
             btrfs_seed_device_on_target \
                 "${btrfs_source_device_array[${index}]}" \
-                "${btrfs_target_device_array[${index}]}"
+                "${btrfs_target_device_array[${index}]}" \
+                "${progress}"
         ) 2>>/seed.log
         then
             {
@@ -1556,7 +1633,8 @@ function dump_local_image_partition_based {
                     "falling back to a block copy of the partition:"
                 cat /seed.log
             } >>"${dump_log}"
-            warn "btrfs seed/sprout to ${btrfs_target_device_array[${index}]} failed, copying the partition block by block"
+            # "btrfs seed/sprout to ${btrfs_target_device_array[${index}]} failed,
+            # copying the partition by the standard partition block dump method"
             # The failed attempt might have left the source or the
             # target mounted, the target must not be in use for the
             # block copy
@@ -1585,6 +1663,14 @@ function dump_local_image_partition_based {
         (
             # see dump_local_image why pipefail is required
             set -o pipefail
+            # the seed/sprout changed the text of the gauge dialog,
+            # pv only updates the percentage
+            if [ "${seed_count}" -gt 0 ] && \
+                [ "${#source_device_array[@]}" -gt 0 ]
+            then
+                printf 'XXX\n0\n%s\nXXX\n' \
+                    "Installing partitions to ${image_target}..." >&2
+            fi
             for ((index=0; index<device_index; index++)); do
                 if [ -n "${source_device_array[${index}]}" ];then
                     # The dump log is only appended to (SC2094)
