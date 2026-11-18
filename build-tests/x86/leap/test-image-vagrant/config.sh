@@ -3,24 +3,6 @@ set -exuo pipefail
 
 declare kiwi_profiles=${kiwi_profiles}
 
-#======================================
-# Disable recommends
-#--------------------------------------
-sed -i 's/.*solver.onlyRequires.*/solver.onlyRequires = true/g' \
-    /etc/zypp/zypp.conf
-
-#======================================
-# Exclude docs installation
-#--------------------------------------
-sed -i 's/.*rpm.install.excludedocs.*/rpm.install.excludedocs = yes/g' \
-    /etc/zypp/zypp.conf
-
-#======================================
-# Exclude the installation of multiversion kernels
-#--------------------------------------
-sed -i 's/^multiversion/# multiversion/' \
-    /etc/zypp/zypp.conf
-
 #==========================================
 # remove package docs
 #------------------------------------------
