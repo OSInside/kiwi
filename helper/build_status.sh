@@ -9,6 +9,7 @@ for project in \
     Virtualization:Appliances:SelfContained:ubuntu \
     Virtualization:Appliances:SelfContained:universal \
     Virtualization:Appliances:SelfContained:staging \
+    Virtualization:Appliances:SelfContained:runtime \
     Virtualization:Appliances:Images:Testing_x86:tumbleweed \
     Virtualization:Appliances:Images:Testing_x86:rawhide \
     Virtualization:Appliances:Images:Testing_ppc:rawhide \
