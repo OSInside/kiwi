@@ -111,6 +111,9 @@
         <package name="kernel-kvmsmall"/>
         <package name="kernel-firmware-all"/>
         <package name="timezone"/>
+        <package name="nbd"/>
+        <package name="nbdkit"/>
+        <package name="nbdkit-curl-plugin"/>
         <package name="dracut-kiwi-live"/>
     </packages>
     <packages type="bootstrap">
