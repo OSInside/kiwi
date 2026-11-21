@@ -52,3 +52,22 @@ class TestFileSystemEroFs:
                 'root_dir',
             ]
         )
+
+    @patch('kiwi.filesystem.erofs.Command.run')
+    def test_create_on_file_reproducible(self, mock_command):
+        Defaults.set_platform_name('x86_64')
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            self.erofs.create_on_file('myimage', 'label')
+        mock_command.assert_called_once_with(
+            [
+                'mkfs.erofs',
+                '-z',
+                'zstd,level=21',
+                '-L',
+                'label',
+                '-U',
+                '2453562e-7073-2098-d091-fd7a04dc5434',
+                'myimage',
+                'root_dir',
+            ]
+        )

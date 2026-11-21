@@ -24,7 +24,17 @@ class TestFileSystemExt4:
             self.ext4.create_on_device('label', 100, uuid='uuid')
             call = mock_command.call_args_list[0]
             assert mock_command.call_args_list[0] == call(
-                ['mkfs.ext4', '-L', 'label', '-U', 'uuid', '/dev/foo', '100']
+                [
+                    'mkfs.ext4',
+                    '-L',
+                    'label',
+                    '-U',
+                    'uuid',
+                    '-E',
+                    'hash_seed=uuid',
+                    '/dev/foo',
+                    '100',
+                ]
             )
             mock_command.reset_mock()
             self.ext4.create_on_device('label', 100)
@@ -35,6 +45,8 @@ class TestFileSystemExt4:
                     'label',
                     '-U',
                     '2453562e-7073-2098-d091-fd7a04dc5434',
+                    '-E',
+                    'hash_seed=2453562e-7073-2098-d091-fd7a04dc5434',
                     '/dev/foo',
                     '100',
                 ]

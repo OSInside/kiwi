@@ -37,6 +37,7 @@ from kiwi.firmware import FirmWare
 from kiwi.path import Path
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.system.kernel import Kernel
+from kiwi.utils.reproducible import Reproducible
 from kiwi.utils.sparse import SparseFile
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
@@ -1160,7 +1161,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ),
         )
         SparseFile.create(path, f'{fat_image_mbsize}M')
-        Command.run(['mkdosfs', '-n', 'BOOT', path])
+        mkdosfs_options = ['-n', 'BOOT']
+        volume_id = Reproducible.get_seeded_hex('efi-fat-image')
+        if volume_id:
+            # mkdosfs < 4.3 does not honor SOURCE_DATE_EPOCH.
+            # mcopy honors SOURCE_DATE_EPOCH
+            mkdosfs_options = ['--invariant', '-i', volume_id[:8]] + (
+                mkdosfs_options
+            )
+        Command.run(['mkdosfs'] + mkdosfs_options + [path])
         Command.run(
             ['mcopy', '-Do', '-s', '-i', path, efi_folder.name, '::EFI']
         )

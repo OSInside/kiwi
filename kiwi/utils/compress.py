@@ -23,6 +23,7 @@ from typing import List, Optional
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.defaults import Defaults
+from kiwi.utils.reproducible import Reproducible
 
 from kiwi.exceptions import KiwiFileNotFound, KiwiCompressionFormatUnknown
 
@@ -77,6 +78,9 @@ class Compress:
         options = ['-9']
         if self.keep_source:
             options.append('--keep')
+        if Reproducible.get_source_date_epoch() is not None:
+            # do not store the original file name and timestamp
+            options.append('--no-name')
         Command.run(['gzip', '-f'] + options + [self.source_filename])
         self.compressed_filename = self.source_filename + '.gz'
         return self.compressed_filename

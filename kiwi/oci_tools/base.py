@@ -24,6 +24,7 @@ from typing import Any, List, Mapping, Optional, Type
 from kiwi.path import Path
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.sync import DataSync
+from kiwi.utils.reproducible import Reproducible
 
 
 class OCIBase:
@@ -41,10 +42,10 @@ class OCIBase:
 
     def __init__(self) -> None:
         self.oci_root_dir: Optional[str] = None
-        sde = os.environ.get('SOURCE_DATE_EPOCH')
-        if sde:
+        sde = Reproducible.get_source_date_epoch()
+        if sde is not None:
             self.creation_date = datetime.fromtimestamp(
-                int(sde), tz=timezone.utc
+                sde, tz=timezone.utc
             ).strftime('%Y-%m-%dT%H:%M:%S+00:00')
         else:
             self.creation_date = datetime.utcnow().strftime(

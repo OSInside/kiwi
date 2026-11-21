@@ -26,6 +26,7 @@ from kiwi.system.result import Result
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.storage.subformat.template.vagrant_config import VagrantConfigTemplate
 from kiwi.command import Command
+from kiwi.archive.tar import ArchiveTar
 
 from kiwi.exceptions import KiwiFormatSetupError
 
@@ -159,6 +160,9 @@ class DiskFormatVagrantBase(DiskFormatBase):
                 'tar',
                 '-C',
                 temp_image_dir.name,
+            ]
+            + ArchiveTar.get_reproducible_options()
+            + [
                 '-czf',
                 self.get_target_file_path_for_format(self.image_format),
                 os.path.basename(metadata_json),

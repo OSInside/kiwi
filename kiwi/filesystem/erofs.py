@@ -20,6 +20,7 @@ from typing import List, Optional
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
+from kiwi.utils.reproducible import Reproducible
 
 
 class FileSystemEroFs(FileSystemBase):
@@ -60,6 +61,15 @@ class FileSystemEroFs(FileSystemBase):
         if label:
             call_args.append('-L')
             call_args.append(label)
+
+        if (
+            Reproducible.get_source_date_epoch() is not None
+            and '-U' not in call_args
+        ):
+            # mkfs.erofs honors SOURCE_DATE_EPOCH for timestamps
+            # but creates a random UUID if not specified
+            call_args.append('-U')
+            call_args.append(self._generate_seed_uuid(label or ''))
 
         Command.run(
             ['mkfs.erofs']

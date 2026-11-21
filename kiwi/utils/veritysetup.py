@@ -25,6 +25,7 @@ from kiwi.utils.signature import Signature
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.utils.block import BlockID
+from kiwi.utils.reproducible import Reproducible
 
 from kiwi.exceptions import KiwiOffsetError
 
@@ -71,6 +72,15 @@ class VeritySetup:
 
         :rtype: dict
         """
+        reproducible_options = []
+        seed = f'verity-{self.data_blocks}-{self.verity_hash_offset}'
+        salt = Reproducible.get_seeded_hex(seed)
+        if salt:
+            # veritysetup creates a random salt and UUID
+            reproducible_options = [
+                f'--salt={salt}',
+                f'--uuid={Reproducible.get_seeded_uuid(seed)}',
+            ]
         verity_call = Command.run(
             [
                 'veritysetup',
@@ -88,6 +98,7 @@ class VeritySetup:
                 if self.data_blocks
                 else []
             )
+            + reproducible_options
         )
         for line in verity_call.output.split(os.linesep):
             try:

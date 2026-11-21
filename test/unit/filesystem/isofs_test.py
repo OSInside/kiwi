@@ -26,14 +26,16 @@ class TestFileSystemIsoFs:
         assert self.isofs.custom_args['mount_options'] == []
         assert self.isofs.custom_args['some_args'] == 'data'
 
+    @patch('kiwi.filesystem.isofs.Reproducible.clamp_mtime')
     @patch('kiwi.filesystem.isofs.IsoTools')
-    def test_create_on_file(self, mock_IsoTools):
+    def test_create_on_file(self, mock_IsoTools, mock_clamp_mtime):
         iso_tool = mock.Mock()
         iso_tool.has_iso_hybrid_capability = mock.Mock(return_value=True)
         iso_tool.get_tool_name = mock.Mock(return_value='/usr/bin/xorriso')
         mock_IsoTools.new.return_value = iso_tool
         self.isofs.create_on_file('myimage', None)
 
+        mock_clamp_mtime.assert_called_once_with('root_dir')
         iso_tool.init_iso_creation_parameters.assert_called_once_with({})
 
         iso_tool.create_iso.assert_called_once_with('myimage')

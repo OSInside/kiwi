@@ -382,6 +382,20 @@ class TestBootLoaderConfigGrub2:
                 ['mcopy', '-Do', '-s', '-i', 'tmp-esp-image', 'tmpdir', '::EFI']
             ),
         ]
+        mock_command.reset_mock()
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            self.bootloader._create_embedded_fat_efi_image('tmp-esp-image')
+        assert mock_command.call_args_list[0] == call(
+            [
+                'mkdosfs',
+                '--invariant',
+                '-i',
+                'd01ff8e4',
+                '-n',
+                'BOOT',
+                'tmp-esp-image',
+            ]
+        )
 
     @patch('glob.iglob')
     @patch('shutil.copy2')

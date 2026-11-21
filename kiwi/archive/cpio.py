@@ -15,10 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 from typing import List, Optional
 
 # project
 from kiwi.command import Command
+from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.utils.reproducible import Reproducible
+
+log = logging.getLogger('kiwi')
 
 
 class ArchiveCpio:
@@ -62,7 +67,20 @@ class ArchiveCpio:
             find_excludes.append('-print')
             find_command += find_excludes
 
-        bash_command = find_command + ['|'] + cpio_command
+        sort_command = []
+        if Reproducible.get_source_date_epoch() is not None:
+            if CommandCapabilities.check_version(
+                'cpio', (2, 12), raise_on_error=False
+            ):
+                # sort archive members and do not store
+                # host specific device and inode numbers
+                sort_command = ['|', 'LC_ALL=C', 'sort']
+                cpio_command.insert(1, '--reproducible')
+            else:
+                log.warning(
+                    'cpio >= 2.12 required for reproducible archives: skipped'
+                )
+        bash_command = find_command + sort_command + ['|'] + cpio_command
         Command.run(['bash', '-c', ' '.join(bash_command)])
 
     def extract(self, dest_dir: str) -> None:

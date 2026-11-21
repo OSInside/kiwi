@@ -279,3 +279,72 @@ class TestArchiveTar:
                 'bar',
             ]
         )
+
+    @patch('kiwi.archive.tar.CommandCapabilities.check_version')
+    def test_get_reproducible_options(self, mock_check_version):
+        mock_check_version.return_value = True
+        with patch.dict('os.environ', {}, clear=True):
+            assert ArchiveTar.get_reproducible_options() == []
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+            assert ArchiveTar.get_reproducible_options() == [
+                '--sort=name',
+                '--mtime=@42',
+                '--clamp-mtime',
+                '--format=posix',
+                '--pax-option=exthdr.name=%d/PaxHeaders/%f,'
+                'delete=atime,delete=ctime',
+            ]
+            assert ArchiveTar.get_reproducible_options(posix=False) == [
+                '--sort=name',
+                '--mtime=@42',
+                '--clamp-mtime',
+            ]
+            mock_check_version.return_value = False
+            assert ArchiveTar.get_reproducible_options() == []
+        mock_check_version.assert_called_with(
+            'tar', (1, 29), raise_on_error=False
+        )
+
+    @patch('kiwi.archive.tar.Command.run')
+    @patch('os.listdir')
+    @patch('kiwi.archive.tar.ArchiveTar.get_reproducible_options')
+    def test_create_reproducible(
+        self, mock_get_reproducible_options, mock_os_dir, mock_command
+    ):
+        mock_get_reproducible_options.return_value = ['--sort=name']
+        mock_os_dir.return_value = ['foo']
+        self.archive.create('source-dir')
+        self.archive.create_gnu_gzip_compressed('source-dir')
+        assert mock_command.call_args_list == [
+            call(
+                [
+                    'tar',
+                    '-C',
+                    'source-dir',
+                    '--xattrs',
+                    '--xattrs-include=*',
+                    '--sort=name',
+                    '-c',
+                    '-f',
+                    'foo.tar',
+                    'foo',
+                ]
+            ),
+            call(
+                [
+                    'tar',
+                    '-C',
+                    'source-dir',
+                    '--format=gnu',
+                    '-cSz',
+                    '-f',
+                    'foo.tar.gz',
+                    '--sort=name',
+                    'foo',
+                ]
+            ),
+        ]
+        assert mock_get_reproducible_options.call_args_list == [
+            call(),
+            call(posix=False),
+        ]

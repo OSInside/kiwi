@@ -42,6 +42,27 @@ class TestPartitionerGpt:
 
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
+    def test_create_reproducible(self, mock_flag, mock_command):
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            self.partitioner.create('name', 100, 't.linux')
+        mock_command.assert_called_once_with(
+            [
+                'sgdisk',
+                '--align-end',
+                '-n',
+                '1:0:+100M',
+                '-c',
+                '1:name',
+                '-u',
+                '1:5141d4b6-b187-5c6d-9524-62b3ff45d5dd',
+                '-U',
+                '2d490613-2a93-5169-916f-cffa3160d877',
+                '/dev/loop0',
+            ]
+        )
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create_custom_start_sector(self, mock_flag, mock_command):
         disk_provider = Mock()
         disk_provider.get_device = Mock(return_value='/dev/loop0')

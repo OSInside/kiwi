@@ -15,6 +15,7 @@ Building Images
 
    building_images/build_process
    building_images/build_results
+   building_images/reproducible_builds
    building_images/build_host
    building_images/repositories
    building_images/packages
@@ -36,6 +37,10 @@ the components of an image description, see
 :doc:`building_images/build_results`
    The image types, the files a build creates, and how to bundle them
    for a release.
+
+:doc:`building_images/reproducible_builds`
+   How to create bit identical images from the same root tree, and
+   the differences which remain.
 
 :doc:`building_images/build_host`
    The tools the build host needs for the different image types, and
