@@ -509,3 +509,7 @@ class TestBootLoaderConfigBase:
     def test_write_meta_data(self):
         # just pass
         self.bootloader.write_meta_data()
+
+    def test_setup_disk_image_config_on_tree(self):
+        with raises(NotImplementedError):
+            self.bootloader.setup_disk_image_config_on_tree('root', 'cmdline')

@@ -136,8 +136,10 @@ Filesystems that are populated through a mount
    EFI system partition image created for the `systemd-boot`
    bootloader, which is mounted to install the bootloader.
 
-   If a bit identical root filesystem is required, use a read-only
-   root filesystem that is created from the root tree without a mount:
+   If a bit identical disk image is required, create it with
+   `systemd-repart`, which populates the filesystems without a mount,
+   see :ref:`disk_builder_repart`. Alternatively, use a read-only root
+   filesystem that is created from the root tree without a mount:
    SquashFS or EROFS, for example with `overlayroot="true"` for disk
    images or the `iso` image type.
 

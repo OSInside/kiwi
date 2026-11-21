@@ -826,12 +826,17 @@ class SystemSetup:
             return filename
         return ''
 
-    def call_disk_script(self) -> None:
+    def call_disk_script(self, root_is_mountpoint: bool = True) -> None:
         """
         Call disk.sh script chrooted
+
+        :param bool root_is_mountpoint:
+            bind mount the root directory onto itself if it is
+            not a mountpoint
         """
         self._call_script(
-            defaults.POST_DISK_SYNC_SCRIPT, root_is_mountpoint=True
+            defaults.POST_DISK_SYNC_SCRIPT,
+            root_is_mountpoint=root_is_mountpoint,
         )
 
     def call_pre_disk_script(self) -> None:

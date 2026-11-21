@@ -1787,6 +1787,17 @@ div {
             sch:param [ name = "attr" value = "efiparttable" ]
             sch:param [ name = "types" value = "oem iso" ]
         ]
+    k.type.disk_builder.attribute =
+        ## Specifies the tool to create the disk image. kiwi creates
+        ## the disk on a loop device and copies the data into the
+        ## mounted filesystems. systemd-repart creates the partitions
+        ## and filesystems including their data without loop devices
+        ## and mounts. If not set defaults to kiwi.
+        attribute disk_builder { "kiwi" | "systemd-repart" }
+        >> sch:pattern [ id = "disk_builder" is-a = "image_type"
+            sch:param [ name = "attr" value = "disk_builder" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.bootprofile.attribute =
         ## Specifies the boot profile defined in the boot image
         ## description. When kiwi builds the boot image the
@@ -2536,6 +2547,7 @@ div {
         k.type.efifatimagesize.attribute? &
         k.type.eficsm.attribute? &
         k.type.efiparttable.attribute? &
+        k.type.disk_builder.attribute? &
         k.type.dosparttable_extended_layout.attribute? &
         k.type.bootprofile.attribute? &
         k.type.btrfs_quota_groups.attribute? &

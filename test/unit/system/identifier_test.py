@@ -41,3 +41,15 @@ class TestSystemIdentifier:
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             assert self.identifier.write_to_disk(mock_device_provider) is None
+
+    def test_write_to_file(self, tmp_path):
+        disk = tmp_path / 'disk.raw'
+        disk.write_bytes(b'\xff' * 1024)
+        self.identifier.image_id = '0x0a0b0c0d'
+        self.identifier.write_to_file(str(disk))
+        data = disk.read_bytes()
+        assert len(data) == 1024
+        assert data[440:444] == b'\x0d\x0c\x0b\x0a'
+        assert data[:440] == b'\xff' * 440
+        self.identifier.image_id = None
+        self.identifier.write_to_file('does-not-exist')

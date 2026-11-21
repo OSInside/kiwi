@@ -6360,6 +6360,7 @@ class type_(GeneratedsSuper):
         efifatimagesize=None,
         eficsm=None,
         efiparttable=None,
+        disk_builder=None,
         dosparttable_extended_layout=None,
         bootprofile=None,
         btrfs_quota_groups=None,
@@ -6472,6 +6473,7 @@ class type_(GeneratedsSuper):
         self.efifatimagesize = _cast(int, efifatimagesize)
         self.eficsm = _cast(bool, eficsm)
         self.efiparttable = _cast(None, efiparttable)
+        self.disk_builder = _cast(None, disk_builder)
         self.dosparttable_extended_layout = _cast(
             bool, dosparttable_extended_layout
         )
@@ -6896,6 +6898,12 @@ class type_(GeneratedsSuper):
 
     def set_efiparttable(self, efiparttable):
         self.efiparttable = efiparttable
+
+    def get_disk_builder(self):
+        return self.disk_builder
+
+    def set_disk_builder(self, disk_builder):
+        self.disk_builder = disk_builder
 
     def get_dosparttable_extended_layout(self):
         return self.dosparttable_extended_layout
@@ -7770,6 +7778,22 @@ class type_(GeneratedsSuper):
                         self.gds_format_string(
                             quote_attrib(self.efiparttable),
                             input_name='efiparttable',
+                        )
+                    ),
+                )
+            )
+        if (
+            self.disk_builder is not None
+            and 'disk_builder' not in already_processed
+        ):
+            already_processed.add('disk_builder')
+            outfile.write(
+                ' disk_builder=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.disk_builder),
+                            input_name='disk_builder',
                         )
                     ),
                 )
@@ -9034,6 +9058,11 @@ class type_(GeneratedsSuper):
             already_processed.add('efiparttable')
             self.efiparttable = value
             self.efiparttable = ' '.join(self.efiparttable.split())
+        value = find_attr_value_('disk_builder', node)
+        if value is not None and 'disk_builder' not in already_processed:
+            already_processed.add('disk_builder')
+            self.disk_builder = value
+            self.disk_builder = ' '.join(self.disk_builder.split())
         value = find_attr_value_('dosparttable_extended_layout', node)
         if (
             value is not None

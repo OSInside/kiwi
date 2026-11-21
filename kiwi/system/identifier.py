@@ -87,5 +87,19 @@ class SystemIdentifier:
                 disk.seek(440, 0)
                 disk.write(packed_id)
 
+    def write_to_file(self, filename: str) -> None:
+        """
+        Write current hex identifier to MBR at offset 0x1b8 of
+        the given disk image file. Unlike write_to_disk the file
+        is not truncated
+
+        :param str filename: disk image file path
+        """
+        if self.image_id:
+            packed_id = struct.pack('<I', int(self.image_id, 16))
+            with open(filename, 'r+b') as disk:
+                disk.seek(440, 0)
+                disk.write(packed_id)
+
     def _rand(self) -> int:
         return random.randrange(1, 0xFE)

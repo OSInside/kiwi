@@ -8,6 +8,7 @@ from ..test_helper import argv_kiwi_tests
 
 from collections import OrderedDict
 from collections import namedtuple
+from types import SimpleNamespace
 from builtins import bytes
 
 from kiwi.defaults import Defaults
@@ -18,8 +19,16 @@ from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.xml_state import DracutT
+from kiwi.utils.reproducible import Reproducible
+from kiwi.storage.repart import (
+    SystemdRepart,
+    RepartPartition,
+    RepartBtrfsLayout,
+)
+from kiwi.xml_state import volume_type
 
 from kiwi.exceptions import (
+    KiwiDiskBuilderRepartError,
     KiwiDiskBootImageError,
     KiwiInstallMediaError,
     KiwiVolumeManagerSetupError,
@@ -2289,3 +2298,525 @@ class TestDiskBuilder:
             assert partitioner.partition_id == 128
             partitioner.create('p.lxlvm', 100, 't.lvm')
         assert partitioner.partition_id == 129
+
+    def _setup_repart_builder(self):
+        self.disk_builder.disk_builder = 'systemd-repart'
+        self.disk_builder.bootloader = 'systemd_boot'
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.requested_filesystem = 'ext4'
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.mdraid = None
+        self.disk_builder.luks = None
+        self.disk_builder.integrity = None
+        self.disk_builder.root_filesystem_verity_blocks = None
+        self.disk_builder.custom_partitions = {}
+        self.disk_builder.spare_part_mbsize = None
+        self.disk_builder.root_clone_count = 0
+        self.disk_builder.boot_clone_count = 0
+        self.disk_builder.custom_root_creation_args = []
+        self.disk_builder.unpartitioned_bytes = 0
+        self.disk_builder.btrfs_seed_requested = False
+        self.disk_builder.apply_dps_codes = True
+        self.disk_builder.blocksize = 4096
+        self.disk_builder.swap_mbytes = 128
+        self.disk_builder.persistency_type = 'by-uuid'
+        self.disk_builder.custom_root_mount_args = ['noatime']
+        self.disk_builder.custom_efi_mount_args = []
+        self.disk_builder.cmdline = 'splash'
+        self.disk_builder.xml_state.build_type.set_editbootinstall(None)
+        self.disk_setup.need_boot_partition.return_value = False
+        self.firmware.get_partition_table_type.return_value = 'gpt'
+        self.firmware.get_efi_partition_size.return_value = 20
+        kiwi.builder.disk.create_boot_loader_config = MagicMock()
+        kiwi.builder.disk.create_boot_loader_config.return_value.__enter__.return_value = (
+            self.bootloader_config
+        )
+
+    def test_create_disk_repart_unsupported(self):
+        self.disk_builder.disk_builder = 'systemd-repart'
+        self.disk_builder.bootloader = 'zipl'
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder.create_disk()
+        assert "bootloader 'zipl'" in format(issue.value)
+
+    def test_check_repart_requirements(self):
+        self._setup_repart_builder()
+        self.disk_builder._check_repart_requirements()
+        self.firmware.get_partition_table_type.return_value = 'msdos'
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder._check_repart_requirements()
+        assert format(issue.value) == (
+            'systemd-repart disk builder does not support: '
+            'partition table other than gpt'
+        )
+        self.firmware.efi_mode.return_value = ''
+        self.disk_builder.initrd_system = 'kiwi'
+        self.disk_builder.requested_filesystem = 'squashfs'
+        self.disk_builder.luks = 'secret'
+        self.disk_builder.root_clone_count = 1
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder._check_repart_requirements()
+        assert format(issue.value) == (
+            'systemd-repart disk builder does not support: '
+            "firmware without EFI, initrd system 'kiwi', "
+            "filesystem 'squashfs', luks, partition clones"
+        )
+
+    def test_check_repart_requirements_grub2(self):
+        self._setup_repart_builder()
+        self.disk_builder.bootloader = 'grub2'
+        self.firmware.legacy_bios_mode.return_value = False
+        self.disk_builder._check_repart_requirements()
+        self.firmware.legacy_bios_mode.return_value = True
+        self.disk_builder.xen_server = True
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder._check_repart_requirements()
+        assert format(issue.value) == (
+            'systemd-repart disk builder does not support: '
+            'legacy BIOS boot, eficsm must be false, xen hypervisor boot'
+        )
+        # legacy BIOS boot is ignored for systemd-boot
+        self.disk_builder.bootloader = 'systemd_boot'
+        self.disk_builder.xen_server = False
+        self.disk_builder._check_repart_requirements()
+
+    def _setup_repart_btrfs_volumes(self):
+        self._setup_repart_builder()
+        self.disk_builder.requested_filesystem = 'btrfs'
+        self.disk_builder.volume_manager_name = 'btrfs'
+        self.disk_builder.btrfs_default_volume_requested = True
+        self.disk_builder.volumes = [
+            volume_type(
+                name='home',
+                parent='',
+                size='freespace:500',
+                realpath='home',
+                mountpoint='home',
+                fullsize=False,
+                label=None,
+                attributes=['enable-for-filesystem-check'],
+                is_root_volume=False,
+            ),
+            volume_type(
+                name='',
+                parent='',
+                size=None,
+                realpath='/',
+                mountpoint=None,
+                fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=True,
+            ),
+        ]
+        build_type = self.disk_builder.xml_state.build_type
+        build_type.set_btrfs_root_is_subvolume(True)
+        build_type.set_btrfs_root_is_snapper_snapshot(True)
+        build_type.set_btrfs_root_is_readonly_snapshot(True)
+        build_type.set_btrfs_quota_groups(False)
+
+    def test_check_repart_requirements_volume_management(self):
+        self._setup_repart_btrfs_volumes()
+        self.disk_builder._check_repart_requirements()
+        self.disk_builder.xml_state.build_type.set_btrfs_quota_groups(True)
+        self.disk_builder.volumes[0] = self.disk_builder.volumes[0]._replace(
+            attributes=['quota=1G', 'no-copy-on-write']
+        )
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder._check_repart_requirements()
+        assert format(issue.value) == (
+            'systemd-repart disk builder does not support: '
+            'btrfs quota groups, volume quota, volumes without copy-on-write'
+        )
+        self.disk_builder.volume_manager_name = 'lvm'
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder._check_repart_requirements()
+        assert format(issue.value) == (
+            'systemd-repart disk builder does not support: '
+            "volume management 'lvm', volume quota, "
+            'volumes without copy-on-write'
+        )
+
+    def test_get_repart_btrfs_layout(self):
+        self._setup_repart_builder()
+        assert self.disk_builder._get_repart_btrfs_layout() is None
+        self._setup_repart_btrfs_volumes()
+        layout = self.disk_builder._get_repart_btrfs_layout()
+        assert layout.root_path == '/@/.snapshots/1/snapshot'
+        assert layout.root_is_readonly_snapshot is True
+        assert layout.default_volume_requested is True
+
+    def test_get_repart_boot_cmdline_btrfs(self):
+        self._setup_repart_btrfs_volumes()
+        layout = RepartBtrfsLayout(
+            self.disk_builder.volumes, True, default_volume_requested=False
+        )
+        assert self.disk_builder._get_repart_boot_cmdline('0815', layout) == (
+            'splash root=PARTUUID=0815 rootflags=subvol=@'
+        )
+        self.disk_builder.cmdline = 'root=LABEL=ROOT rootflags=noatime'
+        assert self.disk_builder._get_repart_boot_cmdline('0815', layout) == (
+            'root=LABEL=ROOT rootflags=noatime'
+        )
+
+    def test_write_repart_fstab_to_system_image_btrfs_root_subvolume(self):
+        self._setup_repart_btrfs_volumes()
+        layout = RepartBtrfsLayout(
+            self.disk_builder.volumes, True, default_volume_requested=False
+        )
+        root = RepartPartition('root', 'root', 'ROOT', '0815', 'btrfs')
+        self.disk_builder._write_repart_fstab_to_system_image([root], layout)
+        # the root subvolume is not the default subvolume, the
+        # root tree must be mounted by subvol= option
+        assert self.fstab.add_entry.call_args_list[0] == call(
+            'PARTUUID=0815 / btrfs noatime,subvol=@ 0 1'
+        )
+
+    @patch('kiwi.builder.disk.SnapshotManagerSnapper')
+    @patch('kiwi.builder.disk.os.chmod')
+    @patch('kiwi.builder.disk.Path.create')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.DataSync')
+    @patch('kiwi.builder.disk.Temporary')
+    @patch('kiwi.builder.disk.SystemIdentifier')
+    @patch('kiwi.builder.disk.SystemdRepart')
+    @patch('os.path.isdir')
+    @patch.object(DiskBuilder, '_create_boot_files')
+    @patch.object(DiskBuilder, '_write_recovery_metadata_to_boot_image')
+    def test_build_disk_with_repart_btrfs_volumes(
+        self,
+        mock_write_recovery_metadata_to_boot_image,
+        mock_create_boot_files,
+        mock_os_path_isdir,
+        mock_SystemdRepart,
+        mock_SystemIdentifier,
+        mock_Temporary,
+        mock_DataSync,
+        mock_Command_run,
+        mock_Path_create,
+        mock_os_chmod,
+        mock_SnapshotManagerSnapper,
+    ):
+        self._setup_repart_btrfs_volumes()
+        self.disk_builder.bootloader = 'grub2'
+        self.disk_builder.swap_mbytes = 0
+        mock_os_path_isdir.return_value = False
+        temporary_dirs = iter(['staging', 'snapshots'])
+        mock_Temporary.return_value.new_dir.side_effect = (
+            lambda: SimpleNamespace(name=next(temporary_dirs))
+        )
+        mock_Command_run.return_value.output = 'fs-uuid\n'
+        mock_SystemdRepart.get_filesystem_uuid.return_value = 'fs-uuid'
+        self.setup.script_exists.return_value = False
+        repart = mock_SystemdRepart.return_value
+        repart.get_partition_id_map.return_value = {'efi': 1, 'root': 2}
+        partitions = []
+        repart.add_partition.side_effect = partitions.append
+        repart.partitions = partitions
+        repart.create.side_effect = lambda size: [
+            {'uuid': partition.uuid, 'offset': 0} for partition in partitions
+        ]
+        with patch('builtins.open', mock_open()) as m_open:
+            self.disk_builder._build_disk_with_repart(1024)
+
+        root = partitions[-1]
+        assert root.filesystem == 'btrfs'
+        assert root.copy_files == [
+            'snapshots/.snapshots:/@/.snapshots',
+            'staging:/@/.snapshots/1/snapshot',
+            'staging/home:/@/home',
+        ]
+        assert root.exclude_files == ['staging/boot/efi/']
+        assert root.exclude_files_target == ['/@/.snapshots/1/snapshot/home/']
+        assert root.make_directories == [
+            '/@/.snapshots/1/snapshot/boot/efi',
+            '/@',
+            '/@/.snapshots',
+            '/@/home',
+            '/@/.snapshots/1/snapshot',
+            '/@/.snapshots/1/snapshot/.snapshots',
+        ]
+        assert root.subvolumes == [
+            '/@',
+            '/@/.snapshots',
+            '/@/home',
+            '/@/.snapshots/1/snapshot:ro',
+        ]
+        assert root.default_subvolume == '/@/.snapshots/1/snapshot'
+        efi = partitions[0]
+        assert self.fstab.add_entry.call_args_list == [
+            call(f'PARTUUID={efi.uuid} /boot/efi vfat defaults 0 0'),
+            call(f'PARTUUID={root.uuid} / btrfs noatime,ro 0 0'),
+            call(f'PARTUUID={root.uuid} /home btrfs noatime,subvol=@/home 0 2'),
+            call(
+                f'PARTUUID={root.uuid} /.snapshots btrfs '
+                'noatime,subvol=@/.snapshots 0 0'
+            ),
+        ]
+        # the snapshot is the default subvolume, no rootflags needed
+        m_open.return_value.__enter__.return_value.write.assert_any_call(
+            f'splash root=PARTUUID={root.uuid}\n'
+        )
+        assert call('staging/home') in mock_Path_create.call_args_list
+        assert call('snapshots/.snapshots') in mock_Path_create.call_args_list
+        mock_os_chmod.assert_called_once_with('snapshots/.snapshots', 0o750)
+        mock_SnapshotManagerSnapper.setup_first_snapshot_on_tree.assert_called_once_with(
+            'staging', 'snapshots/.snapshots'
+        )
+        btrfs_path = kiwi.builder.disk.create_boot_loader_config.call_args[1][
+            'custom_args'
+        ]['btrfs_path']
+        assert btrfs_path('/boot') == '/@/.snapshots/1/snapshot/boot'
+
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.DataSync')
+    @patch('kiwi.builder.disk.Temporary')
+    @patch('kiwi.builder.disk.SystemIdentifier')
+    @patch('kiwi.builder.disk.SystemdRepart.create')
+    @patch('os.path.isdir')
+    @patch.object(DiskBuilder, '_create_boot_files')
+    @patch.object(DiskBuilder, '_write_recovery_metadata_to_boot_image')
+    def test_create_disk_repart(
+        self,
+        mock_write_recovery_metadata_to_boot_image,
+        mock_create_boot_files,
+        mock_os_path_isdir,
+        mock_SystemdRepart_create,
+        mock_SystemIdentifier,
+        mock_Temporary,
+        mock_DataSync,
+        mock_Command_run,
+    ):
+        self._setup_repart_builder()
+        mock_os_path_isdir.return_value = True
+        mock_Temporary.return_value.new_dir.return_value.name = 'staging'
+        mock_Command_run.return_value.output = 'rootfs-uuid\n'
+        self.setup.script_exists.return_value = True
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            efi_uuid = Reproducible.get_seeded_uuid('repart-partition-efi')
+            swap_uuid = Reproducible.get_seeded_uuid('repart-partition-swap')
+            root_uuid = Reproducible.get_seeded_uuid('repart-partition-root')
+            mock_SystemdRepart_create.return_value = [
+                {'uuid': efi_uuid, 'offset': 1048576},
+                {'uuid': root_uuid, 'offset': 22020096},
+            ]
+            with patch('builtins.open', mock_open()) as m_open:
+                self.disk_builder.create_disk()
+
+        mock_Temporary.assert_called_once_with(
+            prefix='kiwi_repart_root.', path='target_dir'
+        )
+        m_open.assert_any_call('boot_dir/config.partids', 'w')
+        m_open.assert_any_call('boot_dir/config.bootoptions', 'w')
+        file_handle = m_open.return_value.__enter__.return_value
+        assert call('kiwi_EfiPart="1"\n') in file_handle.write.call_args_list
+        assert call('kiwi_SwapPart="2"\n') in file_handle.write.call_args_list
+        assert call('kiwi_RootPart="3"\n') in file_handle.write.call_args_list
+        file_handle.write.assert_any_call(f'splash root=PARTUUID={root_uuid}\n')
+        assert self.fstab.add_entry.call_args_list == [
+            call(f'PARTUUID={efi_uuid} /boot/efi vfat defaults 0 0'),
+            call(f'PARTUUID={swap_uuid} swap swap defaults 0 0'),
+            call(f'PARTUUID={root_uuid} / ext4 noatime 0 1'),
+        ]
+        self.setup.create_fstab.assert_called_once_with(self.fstab)
+        self.setup.call_edit_boot_config_script.assert_called_once_with(
+            'ext4', 3
+        )
+        assert mock_DataSync.call_args_list == [
+            call('root_dir/', 'staging'),
+            call('root_dir/image/', 'staging/image'),
+        ]
+        self.setup.call_disk_script.assert_called_once_with(
+            root_is_mountpoint=False
+        )
+        self.setup.call_pre_disk_script.assert_called_once_with()
+        self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
+            SystemdRepart.get_filesystem_uuid(
+                RepartPartition('root', 'root', 'ROOT', root_uuid, 'ext4')
+            ),
+            SystemdRepart.get_filesystem_uuid(
+                RepartPartition('efi', 'esp', 'EFI', efi_uuid, 'vfat')
+            ),
+        )
+        self.bootloader_config.setup_disk_image_config_on_tree.assert_called_once_with(
+            'staging', f'splash root=PARTUUID={root_uuid}', self.boot_image_task
+        )
+        self.setup.cleanup.assert_called_once_with()
+        mock_SystemdRepart_create.assert_called_once_with(1024)
+        mock_SystemIdentifier.return_value.write_to_file.assert_called_once_with(
+            self.disk_builder.diskname
+        )
+        mock_Command_run.assert_called_once_with(
+            [
+                'blkid',
+                '-p',
+                '-O',
+                '22020096',
+                '-s',
+                'UUID',
+                '-o',
+                'value',
+                self.disk_builder.diskname,
+            ]
+        )
+        assert self.disk_builder.xml_state.get_root_partition_uuid() == (
+            root_uuid
+        )
+        assert self.disk_builder.xml_state.get_root_filesystem_uuid() == (
+            'rootfs-uuid'
+        )
+
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.DataSync')
+    @patch('kiwi.builder.disk.Temporary')
+    @patch('kiwi.builder.disk.SystemIdentifier')
+    @patch('kiwi.builder.disk.SystemdRepart')
+    @patch('os.path.isdir')
+    @patch.object(DiskBuilder, '_create_boot_files')
+    @patch.object(DiskBuilder, '_write_recovery_metadata_to_boot_image')
+    def test_build_disk_with_repart_by_label(
+        self,
+        mock_write_recovery_metadata_to_boot_image,
+        mock_create_boot_files,
+        mock_os_path_isdir,
+        mock_SystemdRepart,
+        mock_SystemIdentifier,
+        mock_Temporary,
+        mock_DataSync,
+        mock_Command_run,
+    ):
+        self._setup_repart_builder()
+        self.disk_builder.swap_mbytes = 0
+        self.disk_builder.blocksize = None
+        self.disk_builder.apply_dps_codes = False
+        self.disk_builder.persistency_type = 'by-label'
+        self.disk_builder.cmdline = 'root=/dev/sda3'
+        mock_os_path_isdir.return_value = False
+        mock_Temporary.return_value.new_dir.return_value.name = 'staging'
+        mock_Command_run.return_value.output = ''
+        self.setup.script_exists.return_value = False
+        repart = mock_SystemdRepart.return_value
+        repart.get_partition_id_map.return_value = {'efi': 1, 'root': 2}
+        partitions = []
+        repart.add_partition.side_effect = partitions.append
+        repart.partitions = partitions
+        with patch.dict('os.environ', {}, clear=True):
+            with patch('builtins.open', mock_open()):
+                self.disk_builder._build_disk_with_repart(1024)
+            root = partitions[-1]
+            repart.create.return_value = [{'uuid': root.uuid, 'offset': 0}]
+            with patch('builtins.open', mock_open()):
+                self.disk_builder._build_disk_with_repart(1024)
+        mock_SystemdRepart.assert_called_with(
+            self.disk_builder.diskname, 'x86_64', None
+        )
+        assert root.partition_type == 'linux-generic'
+        assert root.uuid != partitions[0].uuid
+        assert self.fstab.add_entry.call_args_list[:2] == [
+            call('LABEL=EFI /boot/efi vfat defaults 0 0'),
+            call('LABEL=ROOT / ext4 noatime 0 1'),
+        ]
+        self.bootloader_config.setup_disk_image_config_on_tree.assert_called_with(
+            'staging', 'root=/dev/sda3', self.boot_image_task
+        )
+        mock_DataSync.assert_called_with('root_dir/', 'staging')
+        self.setup.setup_selinux_file_contexts.assert_called_with()
+        assert not self.setup.call_disk_script.called
+        assert self.disk_builder.xml_state.get_root_filesystem_uuid() is None
+
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.DataSync')
+    @patch('kiwi.builder.disk.Temporary')
+    @patch('kiwi.builder.disk.SystemIdentifier')
+    @patch('kiwi.builder.disk.SystemdRepart.create')
+    @patch('os.path.isdir')
+    @patch.object(DiskBuilder, '_create_boot_files')
+    @patch.object(DiskBuilder, '_write_recovery_metadata_to_boot_image')
+    def test_build_disk_with_repart_grub2(
+        self,
+        mock_write_recovery_metadata_to_boot_image,
+        mock_create_boot_files,
+        mock_os_path_isdir,
+        mock_SystemdRepart_create,
+        mock_SystemIdentifier,
+        mock_Temporary,
+        mock_DataSync,
+        mock_Command_run,
+    ):
+        self._setup_repart_builder()
+        self.disk_builder.bootloader = 'grub2'
+        mock_os_path_isdir.return_value = False
+        mock_Temporary.return_value.new_dir.return_value.name = 'staging'
+        self.setup.script_exists.return_value = False
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            efi_uuid = Reproducible.get_seeded_uuid('repart-partition-efi')
+            root_uuid = Reproducible.get_seeded_uuid('repart-partition-root')
+        efi_fs_uuid = SystemdRepart.get_filesystem_uuid(
+            RepartPartition('efi', 'esp', 'EFI', efi_uuid, 'vfat')
+        )
+        root_fs_uuid = SystemdRepart.get_filesystem_uuid(
+            RepartPartition('root', 'root', 'ROOT', root_uuid, 'ext4')
+        )
+        mock_SystemdRepart_create.return_value = [
+            {'uuid': efi_uuid, 'offset': 1048576},
+            {'uuid': root_uuid, 'offset': 156237824},
+        ]
+        filesystem_uuids = {'1048576': efi_fs_uuid, '156237824': root_fs_uuid}
+
+        def blkid(command):
+            return Mock(output=f'{filesystem_uuids[command[3]]}\n')
+
+        mock_Command_run.side_effect = blkid
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            with patch('builtins.open', mock_open()):
+                self.disk_builder._build_disk_with_repart(1024)
+
+        assert (
+            kiwi.builder.disk.create_boot_loader_config.call_args[1][
+                'custom_args'
+            ]['offline']
+            is True
+        )
+        self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
+            root_fs_uuid, efi_fs_uuid
+        )
+        assert [
+            command[0][0][3] for command in mock_Command_run.call_args_list
+        ] == ['156237824', '1048576']
+        assert self.disk_builder.xml_state.get_root_filesystem_uuid() == (
+            root_fs_uuid
+        )
+
+        # filesystem UUID not as expected by the grub2 config
+        filesystem_uuids['156237824'] = 'other-uuid'
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            with patch('builtins.open', mock_open()):
+                with raises(KiwiDiskBuilderRepartError) as issue:
+                    self.disk_builder._build_disk_with_repart(1024)
+        assert format(issue.value) == (
+            "Unexpected root filesystem UUID 'other-uuid' created by "
+            f"systemd-repart, the grub2 config expects {root_fs_uuid!r}"
+        )
+
+        # filesystem not found in the systemd-repart result
+        mock_SystemdRepart_create.return_value = []
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            with patch('builtins.open', mock_open()):
+                with raises(KiwiDiskBuilderRepartError) as issue:
+                    self.disk_builder._build_disk_with_repart(1024)
+        assert "Unexpected root filesystem UUID ''" in format(issue.value)
+
+    def test_disk_builder_from_description(self, tmp_path):
+        with open('../data/example_disk_config.xml') as source:
+            xml_data = source.read().replace(
+                '<type image="oem"',
+                '<type image="oem" disk_builder="systemd-repart"',
+                1,
+            )
+        description_file = tmp_path / 'config.xml'
+        description_file.write_text(xml_data)
+        xml_state = XMLState(XMLDescription(str(description_file)).load())
+        assert xml_state.build_type.get_disk_builder() == 'systemd-repart'
+        disk_builder = DiskBuilder(xml_state, 'target_dir', 'root_dir')
+        assert disk_builder.disk_builder == 'systemd-repart'
+        assert self.disk_builder.disk_builder == 'kiwi'

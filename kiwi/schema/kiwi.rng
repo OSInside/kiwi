@@ -2609,6 +2609,23 @@ table type.</a:documentation>
         <sch:param name="types" value="oem iso"/>
       </sch:pattern>
     </define>
+    <define name="k.type.disk_builder.attribute">
+      <attribute name="disk_builder">
+        <a:documentation>Specifies the tool to create the disk image. kiwi creates
+the disk on a loop device and copies the data into the
+mounted filesystems. systemd-repart creates the partitions
+and filesystems including their data without loop devices
+and mounts. If not set defaults to kiwi.</a:documentation>
+        <choice>
+          <value>kiwi</value>
+          <value>systemd-repart</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="disk_builder" is-a="image_type">
+        <sch:param name="attr" value="disk_builder"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.bootprofile.attribute">
       <attribute name="bootprofile">
         <a:documentation>Specifies the boot profile defined in the boot image
@@ -3652,6 +3669,9 @@ partition if present</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.efiparttable.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.disk_builder.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.dosparttable_extended_layout.attribute"/>

@@ -230,6 +230,47 @@ class BootLoaderTemplateGrub2:
             + os.linesep
         )
 
+        self.header_disk = (
+            dedent(
+                '''
+            # kiwi generated grub2 config file
+            search ${search_params}
+            set default=${default_boot}
+        '''
+            ).strip()
+            + os.linesep
+        )
+
+        self.menu_entry_disk = (
+            dedent(
+                '''
+            menuentry "${title}" --class os --unrestricted {
+                set gfxpayload=keep
+                echo Loading kernel...
+                linux ($$root)${kernel_file} ${boot_options}
+                echo Loading initrd...
+                initrd ($$root)${initrd_file}
+            }
+        '''
+            ).strip()
+            + os.linesep
+        )
+
+        self.menu_entry_disk_failsafe = (
+            dedent(
+                '''
+            menuentry "Failsafe -- ${title}" --class os --unrestricted {
+                set gfxpayload=keep
+                echo Loading kernel...
+                linux ($$root)${kernel_file} ${failsafe_boot_options}
+                echo Loading initrd...
+                initrd ($$root)${initrd_file}
+            }
+        '''
+            ).strip()
+            + os.linesep
+        )
+
         self.menu_entry_failsafe_multiboot = (
             dedent(
                 '''
@@ -414,6 +455,55 @@ class BootLoaderTemplateGrub2:
             template_data += self.menu_mediacheck_entry
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
+        if has_graphics:
+            template_data += self.menu_entry_console_switch
+        return Template(template_data)
+
+    def get_disk_template(
+        self,
+        failsafe: bool = True,
+        has_graphics: bool = True,
+        has_serial: bool = False,
+        has_btrfs_relative_path: bool = False,
+        kernel_count: int = 1,
+    ) -> Template:
+        """
+        Bootloader configuration template for disk images whose
+        grub.cfg can't be created by grub2-mkconfig, e.g. if the
+        disk is created by systemd-repart without access to the
+        disk devices. kernel_file and initrd_file are absolute
+        paths on the filesystem that provides the root device
+
+        :param bool failsafe: with failsafe true|false
+        :param bool has_graphics: supports graphics terminal
+        :param bool has_serial: supports serial terminal
+        :param bool has_btrfs_relative_path: btrfs relative path lookup
+        :param int kernel_count:
+            number of kernels to create a boot menu entry for,
+            see _get_kernel_menu_entries()
+
+        :return: instance of :class:`Template`
+
+        :rtype: Template
+        """
+        if has_btrfs_relative_path:
+            template_data = self.header_btrfs_relative_path
+            template_data += self.header_disk
+        else:
+            template_data = self.header_disk
+        template_data += self.timeout
+        template_data += self.timeout_style
+        if has_graphics:
+            template_data += self.header_gfxmode
+            template_data += self.header_theme
+        if has_serial:
+            template_data += self.header_serial
+        template_data += self.header_terminal_setup
+        template_data += self._get_kernel_menu_entries(
+            self.menu_entry_disk, kernel_count
+        )
+        if failsafe:
+            template_data += self.menu_entry_disk_failsafe
         if has_graphics:
             template_data += self.menu_entry_console_switch
         return Template(template_data)

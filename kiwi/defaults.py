@@ -130,6 +130,25 @@ CA_UPDATE_MAP = {
     },
 }
 
+# root filesystems the systemd-repart disk builder can create
+REPART_ROOT_FILESYSTEMS = ['ext2', 'ext3', 'ext4', 'xfs', 'btrfs']
+
+# bootloaders the systemd-repart disk builder can setup, EFI only
+REPART_BOOTLOADERS = ['systemd_boot', 'grub2']
+
+# volume management the systemd-repart disk builder supports, the
+# volumes are created as btrfs subvolumes by systemd-repart
+REPART_VOLUME_MANAGERS = [None, 'btrfs']
+
+# OS platform name to EFI architecture name
+EFI_ARCHITECTURES = {
+    'x86_64': 'x64',
+    'aarch64': 'aa64',
+    'armv7l': 'arm',
+    'riscv64': 'riscv64',
+    'loongarch64': 'loongarch64',
+}
+
 log = logging.getLogger('kiwi')
 
 

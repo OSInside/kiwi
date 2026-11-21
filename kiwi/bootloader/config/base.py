@@ -21,7 +21,7 @@ import re
 import logging
 from collections import namedtuple
 from types import TracebackType
-from typing import Dict, List, Optional, Type, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 # project
 from kiwi.mount_manager import MountManager
@@ -306,6 +306,24 @@ class BootLoaderConfigBase(ABC):
         if self.xml_state.build_type.get_installprovidefailsafe() is False:
             return False
         return True
+
+    def setup_disk_image_config_on_tree(
+        self,
+        root_dir: str,
+        cmdline: str,
+        boot_image: Optional[Any] = None,
+    ) -> None:
+        """
+        Create boot config in the given root tree of a disk image
+        without access to the disk devices
+
+        :param str root_dir: root tree of the disk image
+        :param str cmdline: kernel command line including root=
+        :param BootImageBase boot_image: optional boot image
+
+        Implementation in specialized bootloader class
+        """
+        raise NotImplementedError
 
     def get_boot_cmdline(
         self, boot_device: Optional[str], write_device: Optional[str] = None
