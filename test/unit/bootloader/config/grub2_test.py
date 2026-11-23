@@ -2737,3 +2737,16 @@ class TestBootLoaderConfigGrub2:
     def test_setup_live_boot_images(self, mock_setup_install_boot_images):
         self.bootloader.setup_live_boot_images(self.mbrid)
         mock_setup_install_boot_images.assert_called_once_with(self.mbrid, None)
+
+    def test_efi_file_exists(self, tmp_path):
+        efi_boot = tmp_path / 'EFI' / 'BOOT'
+        efi_boot.mkdir(parents=True)
+        (efi_boot / 'BOOTX64.EFI').write_text('shim')
+        assert self.bootloader._efi_file_exists(str(efi_boot / 'BOOTX64.EFI'))
+        assert self.bootloader._efi_file_exists(str(efi_boot / 'bootx64.efi'))
+        assert not self.bootloader._efi_file_exists(
+            str(efi_boot / 'bootia32.efi')
+        )
+        assert not self.bootloader._efi_file_exists(
+            str(tmp_path / 'does-not-exist' / 'bootx64.efi')
+        )

@@ -1015,7 +1015,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     target_grub_image_name = os.sep.join(
                         [self.efi_boot_path, grub_image.targetname]
                     )
-                if not os.path.isfile(target_grub_image_name):
+                if not self._efi_file_exists(target_grub_image_name):
                     log.info(f'--> Using grub image: {grub_image.filename}')
                     Command.run(
                         ['cp', grub_image.filename, target_grub_image_name]
@@ -1025,7 +1025,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 target_efi_image_name = os.sep.join(
                     [self.efi_boot_path, shim_image.binaryname]
                 )
-                if not os.path.isfile(target_efi_image_name):
+                if not self._efi_file_exists(target_efi_image_name):
                     log.info(f'--> Using shim image: {shim_image.filename}')
                     Command.run(
                         ['cp', shim_image.filename, target_efi_image_name]
@@ -1037,10 +1037,36 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 target_mok_manager = os.sep.join(
                     [self.efi_boot_path, os.path.basename(mok_manager)]
                 )
-                if not os.path.isfile(target_mok_manager):
+                if not self._efi_file_exists(target_mok_manager):
                     log.info(f'--> Using mok image: {mok_manager}')
                     Command.run(['cp', mok_manager, self.efi_boot_path])
         self._create_efi_config_search(uuid, efi_uuid, mbrid)
+
+    @staticmethod
+    def _efi_file_exists(file_path: str) -> bool:
+        """
+        Check if the given file exists, comparing the file name
+        case insensitive. The EFI system partition is FAT based and
+        thus case insensitive. Data synced from the distribution
+        might already provide e.g. BOOTX64.EFI and we must not add
+        a bootx64.efi duplicate next to it as such a duplicate
+        conflicts on any case insensitive filesystem, e.g. when an
+        ISO image gets extracted to a FAT formatted USB stick
+
+        :param str file_path: file path to check
+
+        :return: True if the file exists in any case, otherwise False
+
+        :rtype: bool
+        """
+        if os.path.isfile(file_path):
+            return True
+        dir_name, file_name = os.path.split(file_path)
+        try:
+            entries = os.listdir(dir_name)
+        except OSError:
+            return False
+        return file_name.lower() in (entry.lower() for entry in entries)
 
     def _setup_efi_image(
         self,
