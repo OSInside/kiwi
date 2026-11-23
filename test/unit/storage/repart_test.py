@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from unittest.mock import patch, Mock
+from unittest.mock import patch, call, Mock
 from pytest import fixture
 
 from kiwi.storage.repart import (
@@ -233,87 +233,64 @@ class TestSystemdRepart:
             ),
         }
 
-    @patch('kiwi.storage.repart.Command.run')
-    def test_check_mkfs_source_date_epoch_support(self, mock_Command_run):
-        # mke2fs prints its version to stderr
-        mock_Command_run.return_value = Mock(
-            output='', error='mke2fs 1.47.0 (5-Feb-2023)\n'
-        )
+    @patch('kiwi.storage.repart.CommandCapabilities.check_version')
+    def test_check_mkfs_source_date_epoch_support(self, mock_check_version):
+        mock_check_version.return_value = False
         with self._caplog.at_level(logging.WARNING):
             SystemdRepart._check_mkfs_source_date_epoch_support('ext4')
-        assert (
-            'mke2fs 1.47.0 does not support SOURCE_DATE_EPOCH, the ext4 '
-            'filesystem is not reproducible. Use e2fsprogs >= 1.47.1'
-        ) in self._caplog.text
-        mock_Command_run.assert_called_once_with(
-            ['mke2fs', '-V'], raise_on_error=False
-        )
+            SystemdRepart._check_mkfs_source_date_epoch_support('btrfs')
+            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
+        # mke2fs prints its version to stderr
+        assert mock_check_version.call_args_list == [
+            call(
+                'mke2fs',
+                (1, 47, 1),
+                version_flags=['-V'],
+                raise_on_error=False,
+                silent=True,
+                channel='stderr',
+            ),
+            call(
+                'mkfs.btrfs',
+                (7, 3),
+                version_flags=['--version'],
+                raise_on_error=False,
+                silent=True,
+                channel='stdout',
+            ),
+            call(
+                'mkfs.xfs',
+                (6, 18),
+                version_flags=['-V'],
+                raise_on_error=False,
+                silent=True,
+                channel='stdout',
+            ),
+        ]
+        assert [record.getMessage() for record in self._caplog.records] == [
+            'mke2fs is older than 1.47.1 or its version is unknown. It '
+            'does not support SOURCE_DATE_EPOCH, the ext4 filesystem is '
+            'not reproducible. Use e2fsprogs >= 1.47.1 for a bit '
+            'identical disk image',
+            'mkfs.btrfs is older than 7.3 or its version is unknown. It '
+            'does not support SOURCE_DATE_EPOCH, the btrfs filesystem is '
+            'not reproducible. Use btrfs-progs >= 7.3 for a bit '
+            'identical disk image',
+            'mkfs.xfs is older than 6.18 or its version is unknown. It '
+            'does not support SOURCE_DATE_EPOCH, the xfs filesystem is '
+            'not reproducible. Use xfsprogs >= 6.18 for a bit '
+            'identical disk image',
+        ]
         self._caplog.clear()
-        mock_Command_run.return_value = Mock(
-            output='', error='mke2fs 1.47.1 (20-May-2024)\n'
-        )
+        mock_check_version.reset_mock()
+        mock_check_version.return_value = True
         with self._caplog.at_level(logging.WARNING):
             SystemdRepart._check_mkfs_source_date_epoch_support('ext3')
         assert not self._caplog.records
-
-        # btrfs-progs
-        mock_Command_run.reset_mock()
-        mock_Command_run.return_value = Mock(
-            output='mkfs.btrfs, part of btrfs-progs v6.14\n'
-            '-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD\n',
-            error='',
-        )
-        with self._caplog.at_level(logging.WARNING):
-            SystemdRepart._check_mkfs_source_date_epoch_support('btrfs')
-        assert (
-            'mkfs.btrfs 6.14 does not support SOURCE_DATE_EPOCH, the btrfs '
-            'filesystem is not reproducible. Use btrfs-progs >= 7.3'
-        ) in self._caplog.text
-        mock_Command_run.assert_called_once_with(
-            ['mkfs.btrfs', '--version'], raise_on_error=False
-        )
-        self._caplog.clear()
-        mock_Command_run.return_value = Mock(
-            output='mkfs.btrfs, part of btrfs-progs v7.3\n', error=''
-        )
-        with self._caplog.at_level(logging.WARNING):
-            SystemdRepart._check_mkfs_source_date_epoch_support('btrfs')
-        assert not self._caplog.records
-
-        # xfsprogs
-        mock_Command_run.reset_mock()
-        mock_Command_run.return_value = Mock(
-            output='mkfs.xfs version 6.17.0\n', error=''
-        )
-        with self._caplog.at_level(logging.WARNING):
-            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
-        assert (
-            'mkfs.xfs 6.17.0 does not support SOURCE_DATE_EPOCH, the xfs '
-            'filesystem is not reproducible. Use xfsprogs >= 6.18'
-        ) in self._caplog.text
-        mock_Command_run.assert_called_once_with(
-            ['mkfs.xfs', '-V'], raise_on_error=False
-        )
-        self._caplog.clear()
-        mock_Command_run.return_value = Mock(
-            output='mkfs.xfs version 6.19.0\n', error=''
-        )
-        with self._caplog.at_level(logging.WARNING):
-            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
-        assert not self._caplog.records
-
-        # tool not found
-        mock_Command_run.return_value = None
-        with self._caplog.at_level(logging.WARNING):
-            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
-        assert 'mkfs.xfs version does not support SOURCE_DATE_EPOCH' in (
-            self._caplog.text
-        )
-
         # filesystem without version requirement
-        mock_Command_run.reset_mock()
+        mock_check_version.reset_mock()
         SystemdRepart._check_mkfs_source_date_epoch_support('vfat')
-        assert not mock_Command_run.called
+        assert not mock_check_version.called
 
     @patch('kiwi.storage.repart.Path.wipe')
     @patch('kiwi.storage.repart.Command.run')

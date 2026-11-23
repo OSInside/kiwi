@@ -16,19 +16,19 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import re
 import hmac
 import json
 import uuid
 import hashlib
 import logging
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import Dict, List, Literal, NamedTuple, Optional, Tuple
 
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.path import Path
 from kiwi.utils.temporary import Temporary
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.reproducible import Reproducible
 from kiwi.xml_state import volume_type
 
@@ -49,16 +49,37 @@ REPART_ARCHITECTURES = {
 # options from, followed by the filesystem name in upper case
 REPART_MKFS_OPTIONS = 'SYSTEMD_REPART_MKFS_OPTIONS_'
 
-# mkfs tool, its version option, the first version that creates the
-# filesystem reproducible with SOURCE_DATE_EPOCH and the package that
-# provides the tool, by repart filesystem name. btrfs and XFS also
-# need the DETERMINISTIC_SEED environment variable for this
-REPART_MKFS_REPRODUCIBLE: Dict[str, Tuple[str, str, Tuple[int, ...], str]] = {
-    'ext2': ('mke2fs', '-V', (1, 47, 1), 'e2fsprogs'),
-    'ext3': ('mke2fs', '-V', (1, 47, 1), 'e2fsprogs'),
-    'ext4': ('mke2fs', '-V', (1, 47, 1), 'e2fsprogs'),
-    'btrfs': ('mkfs.btrfs', '--version', (7, 3), 'btrfs-progs'),
-    'xfs': ('mkfs.xfs', '-V', (6, 18), 'xfsprogs'),
+
+class RepartMkfsTool(NamedTuple):
+    """
+    mkfs tool of a filesystem and the first version of it that
+    creates the filesystem reproducible with SOURCE_DATE_EPOCH.
+    For btrfs and XFS the DETERMINISTIC_SEED environment variable
+    is needed in addition
+
+    :param str tool: mkfs tool name, e.g. mke2fs
+    :param str version_flag: option to print the version
+    :param str channel: output channel the version is printed to
+    :param tuple min_version: first reproducible version
+    :param str package: package that provides the tool
+    """
+
+    tool: str
+    version_flag: str
+    channel: Literal['stdout', 'stderr']
+    min_version: Tuple[int, ...]
+    package: str
+
+
+# mkfs tool by repart filesystem name
+REPART_MKFS_REPRODUCIBLE: Dict[str, RepartMkfsTool] = {
+    'ext2': RepartMkfsTool('mke2fs', '-V', 'stderr', (1, 47, 1), 'e2fsprogs'),
+    'ext3': RepartMkfsTool('mke2fs', '-V', 'stderr', (1, 47, 1), 'e2fsprogs'),
+    'ext4': RepartMkfsTool('mke2fs', '-V', 'stderr', (1, 47, 1), 'e2fsprogs'),
+    'btrfs': RepartMkfsTool(
+        'mkfs.btrfs', '--version', 'stdout', (7, 3), 'btrfs-progs'
+    ),
+    'xfs': RepartMkfsTool('mkfs.xfs', '-V', 'stdout', (6, 18), 'xfsprogs'),
 }
 
 # filesystems whose mkfs tool takes the DETERMINISTIC_SEED environment
@@ -563,36 +584,28 @@ class SystemdRepart:
         """
         Warn if the mkfs tool of the given filesystem is older than
         the first version that creates the filesystem reproducible,
-        see REPART_MKFS_REPRODUCIBLE. The version is read from
-        stdout and stderr because mke2fs prints it to stderr, thus
-        CommandCapabilities.check_version can't be used
+        see REPART_MKFS_REPRODUCIBLE
 
         :param str filesystem: repart filesystem name, e.g. ext4
         """
-        if filesystem not in REPART_MKFS_REPRODUCIBLE:
-            return
-        tool, version_option, min_version, package = REPART_MKFS_REPRODUCIBLE[
-            filesystem
-        ]
-        version_call = Command.run([tool, version_option], raise_on_error=False)
-        version_info = (
-            f'{version_call.output}{version_call.error}' if version_call else ''
-        )
-        match = re.search(r'(\d+(\.\d+)+)', version_info)
-        if (
-            not match
-            or tuple(int(number) for number in match.group(1).split('.'))
-            < min_version
+        mkfs = REPART_MKFS_REPRODUCIBLE.get(filesystem)
+        if mkfs and not CommandCapabilities.check_version(
+            mkfs.tool,
+            mkfs.min_version,
+            version_flags=[mkfs.version_flag],
+            raise_on_error=False,
+            silent=True,
+            channel=mkfs.channel,
         ):
             log.warning(
-                '{0} {1} does not support SOURCE_DATE_EPOCH, the {2} '
-                'filesystem is not reproducible. Use {3} >= {4} for a '
-                'bit identical disk image'.format(
-                    tool,
-                    match.group(1) if match else 'version',
+                '{0} is older than {1} or its version is unknown. It does '
+                'not support SOURCE_DATE_EPOCH, the {2} filesystem is not '
+                'reproducible. Use {3} >= {1} for a bit identical '
+                'disk image'.format(
+                    mkfs.tool,
+                    '.'.join(str(number) for number in mkfs.min_version),
                     filesystem,
-                    package,
-                    '.'.join(str(number) for number in min_version),
+                    mkfs.package,
                 )
             )
 
