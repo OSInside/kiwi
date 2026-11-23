@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import hmac
 import json
 import uuid
@@ -44,8 +45,25 @@ REPART_ARCHITECTURES = {
     's390x': 's390x',
 }
 
-# environment variable systemd-repart takes extra mkfs.btrfs options from
-REPART_MKFS_OPTIONS_BTRFS = 'SYSTEMD_REPART_MKFS_OPTIONS_BTRFS'
+# prefix of the environment variables systemd-repart takes extra mkfs
+# options from, followed by the filesystem name in upper case
+REPART_MKFS_OPTIONS = 'SYSTEMD_REPART_MKFS_OPTIONS_'
+
+# mkfs tool, its version option, the first version that creates the
+# filesystem reproducible with SOURCE_DATE_EPOCH and the package that
+# provides the tool, by repart filesystem name. btrfs and XFS also
+# need the DETERMINISTIC_SEED environment variable for this
+REPART_MKFS_REPRODUCIBLE: Dict[str, Tuple[str, str, Tuple[int, ...], str]] = {
+    'ext2': ('mke2fs', '-V', (1, 47, 1), 'e2fsprogs'),
+    'ext3': ('mke2fs', '-V', (1, 47, 1), 'e2fsprogs'),
+    'ext4': ('mke2fs', '-V', (1, 47, 1), 'e2fsprogs'),
+    'btrfs': ('mkfs.btrfs', '--version', (7, 3), 'btrfs-progs'),
+    'xfs': ('mkfs.xfs', '-V', (6, 18), 'xfsprogs'),
+}
+
+# filesystems whose mkfs tool takes the DETERMINISTIC_SEED environment
+# variable to derive its internal UUIDs and random values
+REPART_DETERMINISTIC_SEED = ['btrfs', 'xfs']
 
 
 class RepartPartition(NamedTuple):
@@ -414,12 +432,7 @@ class SystemdRepart:
 
         :rtype: str
         """
-        digest = hmac.new(
-            uuid.UUID(partition.uuid).bytes,
-            b'file-system-uuid',
-            hashlib.sha256,
-        ).digest()
-        fs_uuid = uuid.UUID(bytes=digest[:16], version=4)
+        fs_uuid = SystemdRepart._get_filesystem_uuid(partition)
         if partition.filesystem == 'vfat':
             volume_id = fs_uuid.hex[:8].upper()
             return f'{volume_id[:4]}-{volume_id[4:]}'
@@ -459,22 +472,138 @@ class SystemdRepart:
             repart_call.append(f'--architecture={self.architecture}')
         repart_call.append(f'--sector-size={self.sector_size}')
         repart_call.append(self.diskname)
-        mkfs_options = [
-            option
-            for partition in self.partitions
-            for option in self._get_subvolume_setup(partition)[1]
-        ]
-        custom_env = None
-        if mkfs_options:
-            custom_env = dict(os.environ)
-            custom_env[REPART_MKFS_OPTIONS_BTRFS] = ' '.join(
-                [custom_env.get(REPART_MKFS_OPTIONS_BTRFS, '')] + mkfs_options
-            ).strip()
         log.info('Creating disk image with systemd-repart')
         Path.wipe(self.diskname)
         return json.loads(
-            Command.run(repart_call, custom_env=custom_env).output
+            Command.run(
+                repart_call, custom_env=self._get_mkfs_environment()
+            ).output
         )
+
+    def _get_mkfs_environment(self) -> Optional[Dict[str, str]]:
+        """
+        Environment for the systemd-repart call. systemd-repart
+        appends the content of the SYSTEMD_REPART_MKFS_OPTIONS_<FS>
+        environment variable to the mkfs call of each filesystem of
+        type <FS>. The partitions of the disk builder use each of
+        these filesystem types at most once. If SOURCE_DATE_EPOCH
+        is set and a btrfs or XFS filesystem is created,
+        DETERMINISTIC_SEED is set, see _get_reproducible_mkfs_options
+
+        :return: environment or None if no changes are needed
+
+        :rtype: dict
+        """
+        reproducible = Reproducible.get_source_date_epoch() is not None
+        mkfs_options: Dict[str, List[str]] = {}
+        deterministic_seed = False
+        for partition in self.partitions:
+            options = self._get_subvolume_setup(partition)[1]
+            if reproducible:
+                self._check_mkfs_source_date_epoch_support(partition.filesystem)
+                options += self._get_reproducible_mkfs_options(partition)
+                if partition.filesystem in REPART_DETERMINISTIC_SEED:
+                    deterministic_seed = True
+            if options:
+                mkfs_options.setdefault(partition.filesystem, []).extend(
+                    options
+                )
+        if not mkfs_options and not deterministic_seed:
+            return None
+        custom_env = dict(os.environ)
+        for filesystem, options in mkfs_options.items():
+            variable = f'{REPART_MKFS_OPTIONS}{filesystem.upper()}'
+            custom_env[variable] = ' '.join(
+                [custom_env.get(variable, '')] + options
+            ).strip()
+        if deterministic_seed:
+            custom_env['DETERMINISTIC_SEED'] = '1'
+        return custom_env
+
+    @staticmethod
+    def _get_reproducible_mkfs_options(partition: RepartPartition) -> List[str]:
+        """
+        mkfs options to create the filesystem of the given partition
+        reproducible. systemd-repart passes SOURCE_DATE_EPOCH to the
+        mkfs tools but not all of them use it for every random or
+        time based value:
+
+        * mkfs.vfat < 4.3 sets the volume label timestamp to the
+          current time. --invariant uses a constant instead but also
+          a constant volume ID, the volume ID systemd-repart passes
+          is therefore repeated after --invariant
+        * mke2fs creates a random directory hash seed, the filesystem
+          UUID is used as seed. mke2fs only uses the last -E option
+          given, the options systemd-repart passes with its own -E
+          option are therefore repeated
+        * mkfs.btrfs and mkfs.xfs create random UUIDs for internal
+          structures, e.g. device and subvolume UUIDs or inode
+          generation numbers, unless the DETERMINISTIC_SEED environment
+          variable is set to 1. No mkfs option is needed for them
+
+        :param RepartPartition partition: partition
+
+        :return: list of mkfs options
+
+        :rtype: list
+        """
+        if partition.filesystem == 'vfat':
+            fs_uuid = SystemdRepart._get_filesystem_uuid(partition)
+            return ['--invariant', '-i', fs_uuid.hex[:8].upper()]
+        if partition.filesystem in ('ext2', 'ext3', 'ext4'):
+            fs_uuid = SystemdRepart._get_filesystem_uuid(partition)
+            return [
+                '-E',
+                f'nodiscard,lazy_itable_init=1,hash_seed={fs_uuid}',
+            ]
+        return []
+
+    @staticmethod
+    def _check_mkfs_source_date_epoch_support(filesystem: str) -> None:
+        """
+        Warn if the mkfs tool of the given filesystem is older than
+        the first version that creates the filesystem reproducible,
+        see REPART_MKFS_REPRODUCIBLE. The version is read from
+        stdout and stderr because mke2fs prints it to stderr, thus
+        CommandCapabilities.check_version can't be used
+
+        :param str filesystem: repart filesystem name, e.g. ext4
+        """
+        if filesystem not in REPART_MKFS_REPRODUCIBLE:
+            return
+        tool, version_option, min_version, package = REPART_MKFS_REPRODUCIBLE[
+            filesystem
+        ]
+        version_call = Command.run([tool, version_option], raise_on_error=False)
+        version_info = (
+            f'{version_call.output}{version_call.error}' if version_call else ''
+        )
+        match = re.search(r'(\d+(\.\d+)+)', version_info)
+        if (
+            not match
+            or tuple(int(number) for number in match.group(1).split('.'))
+            < min_version
+        ):
+            log.warning(
+                '{0} {1} does not support SOURCE_DATE_EPOCH, the {2} '
+                'filesystem is not reproducible. Use {3} >= {4} for a '
+                'bit identical disk image'.format(
+                    tool,
+                    match.group(1) if match else 'version',
+                    filesystem,
+                    package,
+                    '.'.join(str(number) for number in min_version),
+                )
+            )
+
+    @staticmethod
+    def _get_filesystem_uuid(partition: RepartPartition) -> uuid.UUID:
+        digest = hmac.new(
+            uuid.UUID(partition.uuid).bytes,
+            b'file-system-uuid',
+            hashlib.sha256,
+        ).digest()
+        return uuid.UUID(bytes=digest[:16], version=4)
 
     @staticmethod
     def _get_subvolume_setup(

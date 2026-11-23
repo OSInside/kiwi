@@ -180,6 +180,196 @@ class TestSystemdRepart:
     @patch('kiwi.storage.repart.Path.wipe')
     @patch('kiwi.storage.repart.Command.run')
     @patch('kiwi.storage.repart.Temporary')
+    def test_create_reproducible_mkfs_options(
+        self, mock_Temporary, mock_Command_run, mock_wipe, tmp_path
+    ):
+        mock_Temporary.return_value.new_dir.return_value.name = str(tmp_path)
+
+        def command_run(call, **kwargs):
+            if call[0] == 'mke2fs':
+                return Mock(error='mke2fs 1.47.3 (8-Jul-2025)\n')
+            return Mock(output='[]')
+
+        mock_Command_run.side_effect = command_run
+        repart = SystemdRepart('disk.raw', 'x86_64', 512)
+        repart.add_partition(
+            RepartPartition(
+                name='efi',
+                partition_type='esp',
+                label='EFI',
+                uuid='c5c167b6-18d4-4a2a-bd63-35fd3799c2bc',
+                filesystem='vfat',
+            )
+        )
+        repart.add_partition(
+            RepartPartition(
+                name='root',
+                partition_type='root',
+                label='ROOT',
+                uuid='e8871034-3f7f-4cb3-a772-4646679a9ecd',
+                filesystem='ext4',
+            )
+        )
+        with patch.dict(
+            'os.environ',
+            {
+                'SOURCE_DATE_EPOCH': '0',
+                'SYSTEMD_REPART_MKFS_OPTIONS_EXT4': '-I 256',
+            },
+            clear=True,
+        ):
+            with self._caplog.at_level(logging.WARNING):
+                repart.create(42)
+        assert not self._caplog.records
+        assert mock_Command_run.call_args_list[0][0][0] == ['mke2fs', '-V']
+        # the volume ID and the hash seed match the filesystem UUIDs
+        # systemd-repart assigns, see test_get_filesystem_uuid
+        assert mock_Command_run.call_args[1]['custom_env'] == {
+            'SOURCE_DATE_EPOCH': '0',
+            'SYSTEMD_REPART_MKFS_OPTIONS_VFAT': '--invariant -i 07D331C2',
+            'SYSTEMD_REPART_MKFS_OPTIONS_EXT4': (
+                '-I 256 -E nodiscard,lazy_itable_init=1,'
+                'hash_seed=eb272619-2296-4fd3-b9a5-9151b07c10ed'
+            ),
+        }
+
+    @patch('kiwi.storage.repart.Command.run')
+    def test_check_mkfs_source_date_epoch_support(self, mock_Command_run):
+        # mke2fs prints its version to stderr
+        mock_Command_run.return_value = Mock(
+            output='', error='mke2fs 1.47.0 (5-Feb-2023)\n'
+        )
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('ext4')
+        assert (
+            'mke2fs 1.47.0 does not support SOURCE_DATE_EPOCH, the ext4 '
+            'filesystem is not reproducible. Use e2fsprogs >= 1.47.1'
+        ) in self._caplog.text
+        mock_Command_run.assert_called_once_with(
+            ['mke2fs', '-V'], raise_on_error=False
+        )
+        self._caplog.clear()
+        mock_Command_run.return_value = Mock(
+            output='', error='mke2fs 1.47.1 (20-May-2024)\n'
+        )
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('ext3')
+        assert not self._caplog.records
+
+        # btrfs-progs
+        mock_Command_run.reset_mock()
+        mock_Command_run.return_value = Mock(
+            output='mkfs.btrfs, part of btrfs-progs v6.14\n'
+            '-EXPERIMENTAL -INJECT -STATIC +LZO +ZSTD\n',
+            error='',
+        )
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('btrfs')
+        assert (
+            'mkfs.btrfs 6.14 does not support SOURCE_DATE_EPOCH, the btrfs '
+            'filesystem is not reproducible. Use btrfs-progs >= 7.3'
+        ) in self._caplog.text
+        mock_Command_run.assert_called_once_with(
+            ['mkfs.btrfs', '--version'], raise_on_error=False
+        )
+        self._caplog.clear()
+        mock_Command_run.return_value = Mock(
+            output='mkfs.btrfs, part of btrfs-progs v7.3\n', error=''
+        )
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('btrfs')
+        assert not self._caplog.records
+
+        # xfsprogs
+        mock_Command_run.reset_mock()
+        mock_Command_run.return_value = Mock(
+            output='mkfs.xfs version 6.17.0\n', error=''
+        )
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
+        assert (
+            'mkfs.xfs 6.17.0 does not support SOURCE_DATE_EPOCH, the xfs '
+            'filesystem is not reproducible. Use xfsprogs >= 6.18'
+        ) in self._caplog.text
+        mock_Command_run.assert_called_once_with(
+            ['mkfs.xfs', '-V'], raise_on_error=False
+        )
+        self._caplog.clear()
+        mock_Command_run.return_value = Mock(
+            output='mkfs.xfs version 6.19.0\n', error=''
+        )
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
+        assert not self._caplog.records
+
+        # tool not found
+        mock_Command_run.return_value = None
+        with self._caplog.at_level(logging.WARNING):
+            SystemdRepart._check_mkfs_source_date_epoch_support('xfs')
+        assert 'mkfs.xfs version does not support SOURCE_DATE_EPOCH' in (
+            self._caplog.text
+        )
+
+        # filesystem without version requirement
+        mock_Command_run.reset_mock()
+        SystemdRepart._check_mkfs_source_date_epoch_support('vfat')
+        assert not mock_Command_run.called
+
+    @patch('kiwi.storage.repart.Path.wipe')
+    @patch('kiwi.storage.repart.Command.run')
+    @patch('kiwi.storage.repart.Temporary')
+    def test_create_reproducible_deterministic_seed(
+        self, mock_Temporary, mock_Command_run, mock_wipe, tmp_path
+    ):
+        mock_Temporary.return_value.new_dir.return_value.name = str(tmp_path)
+
+        def command_run(call, **kwargs):
+            if call[0] == 'mkfs.xfs':
+                return Mock(output='mkfs.xfs version 6.19.0\n', error='')
+            return Mock(output='[]')
+
+        mock_Command_run.side_effect = command_run
+        repart = SystemdRepart('disk.raw', 'x86_64', 512)
+        repart.add_partition(
+            RepartPartition(
+                name='root',
+                partition_type='root',
+                label='ROOT',
+                uuid='e8871034-3f7f-4cb3-a772-4646679a9ecd',
+                filesystem='xfs',
+            )
+        )
+        with patch.dict('os.environ', {}, clear=True):
+            repart.create(42)
+        # without SOURCE_DATE_EPOCH nothing changes
+        assert mock_Command_run.call_args[1]['custom_env'] is None
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}, clear=True):
+            repart.create(42)
+        assert not [
+            record
+            for record in self._caplog.records
+            if record.levelno >= logging.WARNING
+        ]
+        # mkfs.xfs needs no extra options, only DETERMINISTIC_SEED
+        assert mock_Command_run.call_args[1]['custom_env'] == {
+            'SOURCE_DATE_EPOCH': '0',
+            'DETERMINISTIC_SEED': '1',
+        }
+
+    def test_get_reproducible_mkfs_options_other_filesystem(self):
+        partition = RepartPartition(
+            name='root',
+            partition_type='root',
+            label='ROOT',
+            uuid='e8871034-3f7f-4cb3-a772-4646679a9ecd',
+            filesystem='xfs',
+        )
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            assert SystemdRepart._get_reproducible_mkfs_options(partition) == []
+
+    @patch('kiwi.storage.repart.Path.wipe')
+    @patch('kiwi.storage.repart.Command.run')
+    @patch('kiwi.storage.repart.Temporary')
     def test_create_btrfs_subvolumes(
         self, mock_Temporary, mock_Command_run, mock_wipe, tmp_path
     ):
@@ -256,6 +446,23 @@ class TestSystemdRepart:
             'MakeDirectories=/@/.snapshots/1/snapshot/boot/efi\n'
             'Subvolumes=/@ /@/.snapshots /@/home\n'
         )
+
+        # reproducible build: mkfs.btrfs derives its internal UUIDs
+        # from the filesystem UUID with DETERMINISTIC_SEED
+        mock_Command_run.side_effect = lambda call, **kwargs: (
+            Mock(output='mkfs.btrfs, part of btrfs-progs v7.3\n', error='')
+            if call[0] == 'mkfs.btrfs'
+            else Mock(output='[]')
+        )
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}, clear=True):
+            repart.create(42)
+        assert mock_Command_run.call_args[1]['custom_env'] == {
+            'SOURCE_DATE_EPOCH': '0',
+            'DETERMINISTIC_SEED': '1',
+            'SYSTEMD_REPART_MKFS_OPTIONS_BTRFS': (
+                '--subvol default-ro:/@/.snapshots/1/snapshot'
+            ),
+        }
 
     def test_get_subvolume_setup(self):
         partition = RepartPartition(

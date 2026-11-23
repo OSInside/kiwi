@@ -816,6 +816,13 @@ class DiskBuilder:
         # cleanup build metadata
         staging_system.cleanup()
 
+        # files created by the build, e.g. the initrd and the
+        # bootloader setup, carry the time of the build and
+        # systemd-repart copies the timestamps into the filesystems
+        Reproducible.clamp_mtime(staging_root)
+        if snapshots_dir:
+            Reproducible.clamp_mtime(snapshots_dir)
+
         # create disk with partitions and filesystems
         repart_result = repart.create(disksize_mbytes)
 

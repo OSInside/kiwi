@@ -1582,10 +1582,17 @@ class SystemSetup:
     def _export_rpm_package_verification(self, filename: str) -> None:
         log.info('Export rpm verification metadata')
         dbpath_option = ['--dbpath', self._get_rpm_database_location()]
-        query_call = Command.run(
-            command=['rpm', '--root', self.root_dir, '-Va'] + dbpath_option,
-            raise_on_error=False,
-        )
+        # rpm runs the %verifyscript sections chrooted in the root
+        # tree. Without /dev mounted, redirects to e.g /dev/null create
+        # regular files in the root tree which end up in the image
+        with MountManager(
+            device='/dev', mountpoint=self.root_dir + '/dev'
+        ) as shared_mount:
+            shared_mount.bind_mount()
+            query_call = Command.run(
+                command=['rpm', '--root', self.root_dir, '-Va'] + dbpath_option,
+                raise_on_error=False,
+            )
         with open(filename, 'w', encoding='utf-8') as verified:
             verified.write(query_call.output)
 

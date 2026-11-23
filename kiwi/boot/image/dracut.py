@@ -435,15 +435,22 @@ class BootImageDracut(BootImageBase):
                     os.unlink(f'{self.boot_root_directory}/{filename}')
 
     def _get_modules(self) -> List[str]:
-        cmd = Command.run(
-            [
-                'chroot',
-                self.boot_root_directory,
-                'dracut',
-                '--list-modules',
-                '--no-kernel',
-            ]
-        )
+        # dracut logs to /dev/kmsg and redirects to /dev/null. Without
+        # /dev mounted this creates regular files with changing content
+        # in the root tree which end up in the image
+        with MountManager(
+            device='/dev', mountpoint=self.boot_root_directory + '/dev'
+        ) as device_mount:
+            device_mount.bind_mount()
+            cmd = Command.run(
+                [
+                    'chroot',
+                    self.boot_root_directory,
+                    'dracut',
+                    '--list-modules',
+                    '--no-kernel',
+                ]
+            )
         return cmd.output.splitlines()
 
     def _get_drivers(self) -> List[str]:

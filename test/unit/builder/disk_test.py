@@ -2473,6 +2473,7 @@ class TestDiskBuilder:
         )
 
     @patch('kiwi.builder.disk.SnapshotManagerSnapper')
+    @patch('kiwi.builder.disk.Reproducible.clamp_mtime')
     @patch('kiwi.builder.disk.os.chmod')
     @patch('kiwi.builder.disk.Path.create')
     @patch('kiwi.builder.disk.Command.run')
@@ -2495,6 +2496,7 @@ class TestDiskBuilder:
         mock_Command_run,
         mock_Path_create,
         mock_os_chmod,
+        mock_clamp_mtime,
         mock_SnapshotManagerSnapper,
     ):
         self._setup_repart_btrfs_volumes()
@@ -2560,6 +2562,10 @@ class TestDiskBuilder:
         assert call('staging/home') in mock_Path_create.call_args_list
         assert call('snapshots/.snapshots') in mock_Path_create.call_args_list
         mock_os_chmod.assert_called_once_with('snapshots/.snapshots', 0o750)
+        assert mock_clamp_mtime.call_args_list == [
+            call('staging'),
+            call('snapshots/.snapshots'),
+        ]
         mock_SnapshotManagerSnapper.setup_first_snapshot_on_tree.assert_called_once_with(
             'staging', 'snapshots/.snapshots'
         )
@@ -2568,6 +2574,7 @@ class TestDiskBuilder:
         ]['btrfs_path']
         assert btrfs_path('/boot') == '/@/.snapshots/1/snapshot/boot'
 
+    @patch('kiwi.builder.disk.Reproducible.clamp_mtime')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.DataSync')
     @patch('kiwi.builder.disk.Temporary')
@@ -2586,6 +2593,7 @@ class TestDiskBuilder:
         mock_Temporary,
         mock_DataSync,
         mock_Command_run,
+        mock_clamp_mtime,
     ):
         self._setup_repart_builder()
         mock_os_path_isdir.return_value = True
@@ -2642,6 +2650,7 @@ class TestDiskBuilder:
             'staging', f'splash root=PARTUUID={root_uuid}', self.boot_image_task
         )
         self.setup.cleanup.assert_called_once_with()
+        mock_clamp_mtime.assert_called_once_with('staging')
         mock_SystemdRepart_create.assert_called_once_with(1024)
         mock_SystemIdentifier.return_value.write_to_file.assert_called_once_with(
             self.disk_builder.diskname
@@ -2724,6 +2733,7 @@ class TestDiskBuilder:
         assert not self.setup.call_disk_script.called
         assert self.disk_builder.xml_state.get_root_filesystem_uuid() is None
 
+    @patch('kiwi.builder.disk.Reproducible.clamp_mtime')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.DataSync')
     @patch('kiwi.builder.disk.Temporary')
@@ -2742,6 +2752,7 @@ class TestDiskBuilder:
         mock_Temporary,
         mock_DataSync,
         mock_Command_run,
+        mock_clamp_mtime,
     ):
         self._setup_repart_builder()
         self.disk_builder.bootloader = 'grub2'

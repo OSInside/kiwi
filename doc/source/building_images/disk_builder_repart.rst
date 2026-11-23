@@ -260,4 +260,46 @@ The setup in the staging directory works as follows:
 
 With `SOURCE_DATE_EPOCH` set, the partition UUIDs and the seed for all
 other identifiers `systemd-repart` creates are derived from
-`SOURCE_DATE_EPOCH`, see :ref:`reproducible_builds`.
+`SOURCE_DATE_EPOCH`, see :ref:`reproducible_builds`. The modification
+times of the files in the staging directory are clamped to
+`SOURCE_DATE_EPOCH`. `systemd-repart` passes `SOURCE_DATE_EPOCH` to
+the mkfs tools, but not all of them use it for every time based or
+random value, therefore {kiwi} sets the following additional options
+and environment variables:
+
+* `mkfs.vfat` before version 4.3 writes the current time into the
+  volume label. {kiwi} passes `--invariant` together with the volume
+  ID `systemd-repart` assigns through the
+  `SYSTEMD_REPART_MKFS_OPTIONS_VFAT` environment variable.
+* `mke2fs` creates a random directory hash seed. {kiwi} passes the
+  filesystem UUID as `hash_seed` through the
+  `SYSTEMD_REPART_MKFS_OPTIONS_EXT2`, `_EXT3` or `_EXT4` environment
+  variable.
+* `mkfs.btrfs` creates random device, chunk tree and subvolume UUIDs
+  and `mkfs.xfs` creates random inode generation numbers. {kiwi} sets
+  the `DETERMINISTIC_SEED=1` environment variable, which makes both
+  tools derive these values from the filesystem UUID.
+
+Not all versions of the mkfs tools use `SOURCE_DATE_EPOCH` and
+`DETERMINISTIC_SEED`. Older versions write the current time into the
+superblock and into the inodes, which includes the inode change time
+of every file copied into the filesystem, and create random values.
+This also applies to the directories `systemd-repart` creates or
+modifies itself, like the filesystem root directory or the parent
+directories of `CopyFiles=` and `MakeDirectories=` targets that do not
+exist in the source. They carry the time of the build, and only the
+mkfs tool clamps it to `SOURCE_DATE_EPOCH`. The root filesystem is
+therefore only bit identical if the build host provides at least the
+following versions:
+
+======================  ===========  ================
+Filesystem              Package      Minimum version
+======================  ===========  ================
+ext2, ext3, ext4        e2fsprogs    1.47.1
+btrfs                   btrfs-progs  7.3
+XFS                     xfsprogs     6.18
+======================  ===========  ================
+
+{kiwi} issues a warning if an older version is found. The disk image
+is still created, but it is not bit identical to an image created
+from the same root tree in another run.
