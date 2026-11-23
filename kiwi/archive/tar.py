@@ -16,12 +16,16 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from typing import List, Optional
 
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.utils.reproducible import Reproducible
+
+log = logging.getLogger('kiwi')
 
 
 class ArchiveTar:
@@ -57,6 +61,41 @@ class ArchiveTar:
         else:
             self.xattrs_options = []
 
+    @staticmethod
+    def get_reproducible_options(posix: bool = True) -> List[str]:
+        """
+        Provide tar options for reproducible archives if
+        SOURCE_DATE_EPOCH is set. The options sort the archive
+        members by name and clamp the modification time of
+        members newer than SOURCE_DATE_EPOCH. For POSIX archives
+        the atime and ctime records as well as the PID based
+        name of the extended headers gets removed
+
+        :param bool posix: create options for a POSIX archive
+
+        :return: list of tar options, empty if not applicable
+
+        :rtype: list
+        """
+        sde = Reproducible.get_source_date_epoch()
+        if sde is None:
+            return []
+        if not CommandCapabilities.check_version(
+            'tar', (1, 29), raise_on_error=False
+        ):
+            log.warning(
+                'tar >= 1.29 required for reproducible archives: skipped'
+            )
+            return []
+        options = ['--sort=name', f'--mtime=@{sde}', '--clamp-mtime']
+        if posix:
+            options += [
+                '--format=posix',
+                '--pax-option=exthdr.name=%d/PaxHeaders/%f,'
+                'delete=atime,delete=ctime',
+            ]
+        return options
+
     def create(
         self,
         source_dir: str,
@@ -76,6 +115,7 @@ class ArchiveTar:
             ['tar', '-C', source_dir]
             + options
             + self.xattrs_options
+            + self.get_reproducible_options()
             + ['-c', '-f', self.filename]
             + self._get_archive_items(source_dir, exclude)
         )
@@ -100,6 +140,7 @@ class ArchiveTar:
             ['tar', '-C', source_dir, '-r', '--file=' + self.filename]
             + options
             + self.xattrs_options
+            + self.get_reproducible_options()
             + files_to_append
         )
         return self.filename
@@ -127,6 +168,7 @@ class ArchiveTar:
             ['tar', '-C', source_dir]
             + options
             + self.xattrs_options
+            + self.get_reproducible_options()
             + ['-c', '--to-stdout']
             + self._get_archive_items(source_dir, exclude)
             + ['|', 'xz', '-f']
@@ -155,6 +197,7 @@ class ArchiveTar:
                 '-f',
                 self.filename + '.gz',
             ]
+            + self.get_reproducible_options(posix=False)
             + self._get_archive_items(source_dir, exclude)
         )
         return self.filename + '.gz'

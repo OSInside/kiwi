@@ -20,6 +20,7 @@ from typing import List, Optional, Union
 
 # project
 from kiwi.command import Command
+from kiwi.utils.reproducible import Reproducible
 from kiwi.partitioner.base import PartitionerBase
 
 from kiwi.exceptions import KiwiPartitionerGptFlagError
@@ -82,6 +83,18 @@ class PartitionerGpt(PartitionerBase):
             # A start  sector value of 0 specifies the default value
             # defined in sgdisk
             self.start_sector = 0
+        reproducible_guids = []
+        partition_guid = Reproducible.get_seeded_uuid(
+            f'gpt-partition-{self.partition_id}'
+        )
+        if partition_guid:
+            # sgdisk creates random disk and partition GUIDs
+            reproducible_guids += [
+                '-u',
+                f'{self.partition_id}:{partition_guid}',
+                '-U',
+                format(Reproducible.get_seeded_uuid('gpt-disk')),
+            ]
         Command.run(
             [
                 'sgdisk',
@@ -96,8 +109,9 @@ class PartitionerGpt(PartitionerBase):
                 ),
                 '-c',
                 ':'.join([format(self.partition_id), name]),
-                self.disk_device,
             ]
+            + reproducible_guids
+            + [self.disk_device]
         )
         self.set_flag(self.partition_id, type_name)
         if flags:

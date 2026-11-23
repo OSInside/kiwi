@@ -23,6 +23,7 @@ import kiwi.defaults as defaults
 
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
+from kiwi.utils.reproducible import Reproducible
 
 
 class FileSystemFat16(FileSystemBase):
@@ -67,6 +68,11 @@ class FileSystemFat16(FileSystemBase):
                     unit=defaults.UNIT.kb,
                 )
             )
+        if Reproducible.get_source_date_epoch() is not None:
+            # mkdosfs < 4.3 does not honor SOURCE_DATE_EPOCH and
+            # sets the volume label timestamp to the current time.
+            # The volume ID from -i takes precedence if given
+            call_args.insert(0, '--invariant')
         Command.run(['mkdosfs', '-F16', '-I'] + call_args + device_args)
 
     def set_uuid(self) -> None:

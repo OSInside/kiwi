@@ -22,6 +22,7 @@ import kiwi.defaults as defaults
 
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
+from kiwi.utils.reproducible import Reproducible
 
 
 class FileSystemSwap(FileSystemBase):
@@ -42,11 +43,20 @@ class FileSystemSwap(FileSystemBase):
         :param string label: label name
         :param int size: unused
         :param str unit: unused
-        :param str uuid: unused
+        :param str uuid: UUID name
         """
         device = self.device_provider.get_device()
         call_args = self.custom_args['create_options'].copy()
+        if (
+            not uuid
+            and label
+            and Reproducible.get_source_date_epoch() is not None
+        ):
+            uuid = self._generate_seed_uuid(label)
         if label:
             call_args.append('-L')
             call_args.append(label)
+        if uuid:
+            call_args.append('-U')
+            call_args.append(uuid)
         Command.run(['mkswap'] + call_args + [device])

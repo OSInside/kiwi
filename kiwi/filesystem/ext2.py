@@ -57,6 +57,7 @@ class FileSystemExt2(FileSystemBase):
         if uuid:
             call_args.append('-U')
             call_args.append(uuid)
+            self._add_ext_hash_seed(call_args, uuid)
         if size:
             device_args.append(
                 self._fs_size(

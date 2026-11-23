@@ -16,13 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-import os
 import random
 import struct
 from typing import Optional
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.utils.reproducible import Reproducible
 
 log = logging.getLogger('kiwi')
 
@@ -38,10 +38,10 @@ class SystemIdentifier:
 
     def __init__(self) -> None:
         self.image_id: Optional[str] = None
-        sde = os.environ.get('SOURCE_DATE_EPOCH')
-        if sde:
+        sde = Reproducible.get_source_date_epoch()
+        if sde is not None:
             log.info(f'Using SystemIdentifier seed SOURCE_DATE_EPOCH:{sde}')
-            random.seed(int(sde))
+            random.seed(sde)
 
     def get_id(self) -> Optional[str]:
         """

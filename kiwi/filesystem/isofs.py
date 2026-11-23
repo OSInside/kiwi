@@ -21,6 +21,7 @@ from typing import List, Optional
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.iso_tools import IsoTools
+from kiwi.utils.reproducible import Reproducible
 
 log = logging.getLogger('kiwi')
 
@@ -56,4 +57,8 @@ class FileSystemIsoFs(FileSystemBase):
         if efi_loader:
             iso_tool.add_efi_loader_parameters(efi_loader, meta_data)
 
+        # xorriso honors SOURCE_DATE_EPOCH but keeps the mtime of
+        # files newer than SOURCE_DATE_EPOCH, e.g. files created
+        # as part of the media setup
+        Reproducible.clamp_mtime(self.root_dir)
         iso_tool.create_iso(self.filename)

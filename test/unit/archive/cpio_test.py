@@ -40,3 +40,32 @@ class TestArchiveCpio:
             'cd dest-dir && cat foo.cpio | cpio -i --make-directories'
         )
         mock_command.assert_called_once_with(['bash', '-c', bash_command])
+
+    @patch('kiwi.archive.cpio.CommandCapabilities.check_version')
+    @patch('kiwi.archive.cpio.Command.run')
+    def test_create_reproducible(self, mock_command, mock_check_version):
+        mock_check_version.return_value = True
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+            self.archive.create('source-dir')
+        mock_command.assert_called_once_with(
+            [
+                'bash',
+                '-c',
+                'cd source-dir && find . | LC_ALL=C sort | '
+                'cpio --reproducible --quiet -o -H newc > foo.cpio',
+            ]
+        )
+        mock_check_version.assert_called_once_with(
+            'cpio', (2, 12), raise_on_error=False
+        )
+        mock_command.reset_mock()
+        mock_check_version.return_value = False
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+            self.archive.create('source-dir')
+        mock_command.assert_called_once_with(
+            [
+                'bash',
+                '-c',
+                'cd source-dir && find . | cpio --quiet -o -H newc > foo.cpio',
+            ]
+        )

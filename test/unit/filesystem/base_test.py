@@ -222,3 +222,27 @@ class TestFileSystemBase:
         mock_uuid.uuid4.return_value = 'some'
         with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': ''}):
             assert self.fsbase._generate_seed_uuid('label') == 'some'
+
+    def test_add_ext_hash_seed(self):
+        call_args = ['-L', 'label']
+        with patch.dict('os.environ', {}, clear=True):
+            self.fsbase._add_ext_hash_seed(call_args, 'uuid')
+            assert call_args == ['-L', 'label']
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            self.fsbase._add_ext_hash_seed(call_args, None)
+            assert call_args == ['-L', 'label']
+            self.fsbase._add_ext_hash_seed(call_args, 'uuid')
+            assert call_args == ['-L', 'label', '-E', 'hash_seed=uuid']
+            call_args = ['-E', 'foo', '-E', 'lazy_itable_init=0', '-L', 'x']
+            self.fsbase._add_ext_hash_seed(call_args, 'uuid')
+            assert call_args == [
+                '-E',
+                'foo',
+                '-E',
+                'lazy_itable_init=0,hash_seed=uuid',
+                '-L',
+                'x',
+            ]
+            call_args = ['-E', 'hash_seed=custom']
+            self.fsbase._add_ext_hash_seed(call_args, 'uuid')
+            assert call_args == ['-E', 'hash_seed=custom']

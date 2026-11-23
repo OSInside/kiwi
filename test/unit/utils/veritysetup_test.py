@@ -4,6 +4,7 @@ from pytest import raises
 from unittest.mock import patch, Mock, MagicMock, call
 
 from kiwi.utils.veritysetup import VeritySetup
+from kiwi.utils.reproducible import Reproducible
 from kiwi.exceptions import KiwiOffsetError
 
 import kiwi.defaults as defaults
@@ -43,6 +44,27 @@ class TestVeritySetup:
                 '--hash-block-size=4096',
                 '--data-blocks=10',
                 '--data-block-size=4096',
+            ]
+        )
+
+    @patch('kiwi.utils.veritysetup.Command.run')
+    def test_format_reproducible(self, mock_Command_run):
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            self.veritysetup.format()
+            salt = Reproducible.get_seeded_hex('verity-10-4096')
+            uuid = Reproducible.get_seeded_uuid('verity-10-4096')
+        mock_Command_run.assert_called_once_with(
+            [
+                'veritysetup',
+                'format',
+                'image_file',
+                'image_file',
+                '--hash-offset=4096',
+                '--hash-block-size=4096',
+                '--data-blocks=10',
+                '--data-block-size=4096',
+                f'--salt={salt}',
+                f'--uuid={uuid}',
             ]
         )
 

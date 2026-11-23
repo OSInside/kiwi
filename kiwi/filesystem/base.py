@@ -34,6 +34,7 @@ from kiwi.mount_manager import MountManager
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.utils.veritysetup import VeritySetup
+from kiwi.utils.reproducible import Reproducible
 
 from kiwi.exceptions import KiwiFileSystemSyncError
 
@@ -391,10 +392,10 @@ class FileSystemBase:
         Create random UUID. If SOURCE_DATE_EPOCH is present use
         SOURCE_DATE_EPOCH + label name as seed
         """
-        sde = os.environ.get('SOURCE_DATE_EPOCH')
-        if sde:
+        sde = Reproducible.get_source_date_epoch()
+        if sde is not None:
             label_seed = reduce(lambda x, y: x + y, map(ord, label))
-            epoch_seed = label_seed + int(sde)
+            epoch_seed = label_seed + sde
             log.info(
                 'Using UUID seed SOURCE_DATE_EPOCH:{0} + LABEL:{1}={2}'.format(
                     sde, label, label_seed
@@ -405,6 +406,26 @@ class FileSystemBase:
             return format(uuid.UUID(int=rd.getrandbits(random_bits)))
         else:
             return format(uuid.uuid4())
+
+    def _add_ext_hash_seed(
+        self, call_args: List[str], uuid: Optional[str]
+    ) -> None:
+        """
+        If SOURCE_DATE_EPOCH is present, add the given UUID as
+        seed for the ext directory hash. Without it mke2fs creates
+        a random seed on every call. An -E option already present
+        in call_args gets extended because older mke2fs versions
+        only use the last -E option given
+        """
+        if not uuid or Reproducible.get_source_date_epoch() is None:
+            return
+        hash_seed = f'hash_seed={uuid}'
+        for index in reversed(range(len(call_args) - 1)):
+            if call_args[index] == '-E':
+                if 'hash_seed=' not in call_args[index + 1]:
+                    call_args[index + 1] += f',{hash_seed}'
+                return
+        call_args += ['-E', hash_seed]
 
     def _map_size(self, size: float, from_unit: str, to_unit: str) -> float:
         """

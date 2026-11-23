@@ -50,6 +50,14 @@ class TestCompress:
         assert self.compress.compressed_filename == 'some-file.gz'
 
     @patch('kiwi.command.Command.run')
+    def test_gzip_reproducible(self, mock_command):
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+            self.compress.gzip()
+        mock_command.assert_called_once_with(
+            ['gzip', '-f', '-9', '--keep', '--no-name', 'some-file']
+        )
+
+    @patch('kiwi.command.Command.run')
     @patch('kiwi.utils.compress.Temporary.new_file')
     @patch('kiwi.utils.compress.Compress.get_format')
     def test_uncompress(self, mock_format, mock_temp, mock_command):
