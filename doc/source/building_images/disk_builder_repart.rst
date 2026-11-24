@@ -62,6 +62,8 @@ are:
   `filesystem="btrfs"`, including the root subvolume, the snapper
   snapshot layout and the read-only root snapshot, see
   :ref:`repart_btrfs_volumes`.
+* Btrfs compression, requested with `btrfs_compression`, see
+  :ref:`repart_btrfs_compression`.
 * A swap partition, requested with `<oem-swap>` and `<oem-swapsize>`
   in the `<oemconfig>` section.
 * The `disk.sh`, `pre_disk_sync.sh` and `editbootconfig` scripts.
@@ -214,6 +216,38 @@ with `btrfs_set_default_volume="true"` or a snapper snapshot. Without
 it {kiwi} writes the paths of the grub2 configuration, the kernel and
 the initrd as they are located in the filesystem, for example
 :file:`/@/boot/grub2/grub.cfg`.
+
+.. _repart_btrfs_compression:
+
+Btrfs Compression
+-----------------
+
+With `btrfs_compression`, the data `systemd-repart` copies into the
+btrfs root filesystem is compressed. {kiwi} writes the algorithm and
+the optional level, specified as `algorithm[:level]`, to the
+`Compression=` and `CompressionLevel=` settings of the root
+partition, which `systemd-repart` implements by the `--compress`
+option of `mkfs.btrfs`:
+
+.. code:: xml
+
+   <type image="oem" filesystem="btrfs" firmware="uefi"
+         btrfs_compression="zstd:3"
+         disk_builder="systemd-repart">
+       <bootloader name="systemd_boot"/>
+   </type>
+
+The build host needs `systemd-repart` with support for `Compression=`
+and `CompressionLevel=`, which is available since systemd version
+257, and a `mkfs.btrfs` that supports the `--compress` option. Older
+versions of `systemd-repart` ignore these settings, therefore {kiwi}
+refuses to create the disk with them.
+
+The compression settings only apply while the filesystem is created.
+As with the default disk builder, :file:`/etc/fstab` mounts the root
+filesystem and each volume with the `compress=` option, for example
+`compress=zstd:3`, such that data written by the system booted from
+the image is compressed as well.
 
 .. _repart_grub2:
 

@@ -56,6 +56,7 @@ from kiwi.storage.repart import (
 )
 from kiwi.snapshot_manager.snapper import SnapshotManagerSnapper
 from kiwi.utils.reproducible import Reproducible
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.sync import DataSync
 from kiwi.storage.clone_device import CloneDevice
 from kiwi.firmware import FirmWare
@@ -219,6 +220,22 @@ class DiskBuilder:
         self.luks_os = xml_state.build_type.get_luksOS()
         self.xen_server = xml_state.is_xen_server()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
+        self.btrfs_compression = (
+            xml_state.get_btrfs_compression()
+            if self.requested_filesystem == 'btrfs'
+            else None
+        )
+        if self.btrfs_compression:
+            # the data written to the root filesystem is compressed
+            # through the compress mount option, which also takes
+            # care of the compression in the system booted from the
+            # image as it is part of the fstab entries
+            self.custom_root_mount_args = [
+                ','.join(
+                    self.custom_root_mount_args
+                    + [self._get_btrfs_compress_mount_option()]
+                )
+            ]
         self.requested_boot_filesystem = (
             xml_state.build_type.get_bootfilesystem()
         )
@@ -567,6 +584,21 @@ class DiskBuilder:
                         self.storage_map['integrity_root'],
                     )
 
+    def _get_btrfs_compress_mount_option(self) -> str:
+        """
+        btrfs compress mount option for the requested compression,
+        compress=algorithm[:level]
+
+        :return: mount option
+
+        :rtype: str
+        """
+        assert self.btrfs_compression is not None
+        option = f'compress={self.btrfs_compression.algorithm}'
+        if self.btrfs_compression.level is not None:
+            option += f':{self.btrfs_compression.level}'
+        return option
+
     def _check_repart_requirements(self) -> None:
         """
         Check that the image description only requests features
@@ -605,6 +637,12 @@ class DiskBuilder:
             else []
         )
         features = {
+            'btrfs compression with systemd-repart < 257': (
+                self.btrfs_compression
+                and not CommandCapabilities.check_version(
+                    'systemd-repart', (257,), raise_on_error=False
+                )
+            ),
             'btrfs quota groups': (
                 self.volume_manager_name == 'btrfs'
                 and self.xml_state.build_type.get_btrfs_quota_groups()
@@ -726,6 +764,14 @@ class DiskBuilder:
             ),
             default_subvolume=(
                 btrfs_layout.get_default_subvolume() if btrfs_layout else None
+            ),
+            compression=(
+                self.btrfs_compression.algorithm
+                if self.btrfs_compression
+                else None
+            ),
+            compression_level=(
+                self.btrfs_compression.level if self.btrfs_compression else None
             ),
         )
         repart.add_partition(root_partition)

@@ -6363,6 +6363,7 @@ class type_(GeneratedsSuper):
         disk_builder=None,
         dosparttable_extended_layout=None,
         bootprofile=None,
+        btrfs_compression=None,
         btrfs_quota_groups=None,
         btrfs_root_is_snapper_snapshot=None,
         btrfs_root_is_subvolume=None,
@@ -6478,6 +6479,7 @@ class type_(GeneratedsSuper):
             bool, dosparttable_extended_layout
         )
         self.bootprofile = _cast(None, bootprofile)
+        self.btrfs_compression = _cast(None, btrfs_compression)
         self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
         self.btrfs_root_is_snapper_snapshot = _cast(
             bool, btrfs_root_is_snapper_snapshot
@@ -6916,6 +6918,12 @@ class type_(GeneratedsSuper):
 
     def set_bootprofile(self, bootprofile):
         self.bootprofile = bootprofile
+
+    def get_btrfs_compression(self):
+        return self.btrfs_compression
+
+    def set_btrfs_compression(self, btrfs_compression):
+        self.btrfs_compression = btrfs_compression
 
     def get_btrfs_quota_groups(self):
         return self.btrfs_quota_groups
@@ -7437,6 +7445,24 @@ class type_(GeneratedsSuper):
 
     validate_number_type_patterns_ = [['^\\d+$']]
 
+    def validate_btrfs_compression_type(self, value):
+        # Validate type btrfs-compression-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                self.validate_btrfs_compression_type_patterns_, value
+            ):
+                warnings_.warn(
+                    'Value "%s" does not match xsd pattern restrictions: %s'
+                    % (
+                        value.encode('utf-8'),
+                        self.validate_btrfs_compression_type_patterns_,
+                    )
+                )
+
+    validate_btrfs_compression_type_patterns_ = [
+        ['^(zstd(:([1-9]|1[0-5]))?|zlib(:[1-9])?|lzo)$']
+    ]
+
     def validate_blocks_type(self, value):
         # Validate type blocks-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -7825,6 +7851,15 @@ class type_(GeneratedsSuper):
                         )
                     ),
                 )
+            )
+        if (
+            self.btrfs_compression is not None
+            and 'btrfs_compression' not in already_processed
+        ):
+            already_processed.add('btrfs_compression')
+            outfile.write(
+                ' btrfs_compression=%s'
+                % (quote_attrib(self.btrfs_compression),)
             )
         if (
             self.btrfs_quota_groups is not None
@@ -9079,6 +9114,14 @@ class type_(GeneratedsSuper):
         if value is not None and 'bootprofile' not in already_processed:
             already_processed.add('bootprofile')
             self.bootprofile = value
+        value = find_attr_value_('btrfs_compression', node)
+        if value is not None and 'btrfs_compression' not in already_processed:
+            already_processed.add('btrfs_compression')
+            self.btrfs_compression = value
+            self.btrfs_compression = ' '.join(self.btrfs_compression.split())
+            self.validate_btrfs_compression_type(
+                self.btrfs_compression
+            )  # validate type btrfs-compression-type
         value = find_attr_value_('btrfs_quota_groups', node)
         if value is not None and 'btrfs_quota_groups' not in already_processed:
             already_processed.add('btrfs_quota_groups')

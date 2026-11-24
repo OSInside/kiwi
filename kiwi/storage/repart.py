@@ -109,6 +109,12 @@ class RepartPartition(NamedTuple):
         suffix :ro creates a read-only subvolume
     :param str default_subvolume:
         btrfs default subvolume path, one of the subvolumes
+    :param str compression:
+        compression algorithm for the data copied into the
+        filesystem, e.g zstd for btrfs
+    :param int compression_level:
+        compression level of the compression algorithm, only
+        effective with compression
     """
 
     name: str
@@ -123,6 +129,8 @@ class RepartPartition(NamedTuple):
     exclude_files_target: Optional[List[str]] = None
     subvolumes: Optional[List[str]] = None
     default_subvolume: Optional[str] = None
+    compression: Optional[str] = None
+    compression_level: Optional[int] = None
 
 
 class RepartBtrfsVolume(NamedTuple):
@@ -693,6 +701,12 @@ class SystemdRepart:
         subvolumes = SystemdRepart._get_subvolume_setup(partition)[0]
         if subvolumes:
             definition.append('Subvolumes={0}'.format(' '.join(subvolumes)))
+        if partition.compression:
+            definition.append(f'Compression={partition.compression}')
+            if partition.compression_level is not None:
+                definition.append(
+                    f'CompressionLevel={partition.compression_level}'
+                )
         log.debug('systemd-repart definition %s', os.path.basename(filename))
         log.debug('--------------conf start------------')
         for line in definition:

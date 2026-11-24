@@ -441,6 +441,55 @@ class TestSystemdRepart:
             ),
         }
 
+    @patch('kiwi.storage.repart.Path.wipe')
+    @patch('kiwi.storage.repart.Command.run')
+    @patch('kiwi.storage.repart.Temporary')
+    def test_create_btrfs_compression(
+        self, mock_Temporary, mock_Command_run, mock_wipe, tmp_path
+    ):
+        mock_Temporary.return_value.new_dir.return_value.name = str(tmp_path)
+        mock_Command_run.return_value = Mock(output='[]')
+        repart = SystemdRepart('disk.raw', 'x86_64', 512)
+        repart.add_partition(
+            RepartPartition(
+                name='root',
+                partition_type='root',
+                label='ROOT',
+                uuid='root-uuid',
+                filesystem='btrfs',
+                compression='zstd',
+                compression_level=3,
+            )
+        )
+        repart.add_partition(
+            RepartPartition(
+                name='data',
+                partition_type='linux-generic',
+                label='DATA',
+                uuid='data-uuid',
+                filesystem='btrfs',
+                compression='lzo',
+            )
+        )
+        repart.create(42)
+        assert (tmp_path / '01-root.conf').read_text() == (
+            '[Partition]\n'
+            'Type=root\n'
+            'Label=ROOT\n'
+            'UUID=root-uuid\n'
+            'Format=btrfs\n'
+            'Compression=zstd\n'
+            'CompressionLevel=3\n'
+        )
+        assert (tmp_path / '02-data.conf').read_text() == (
+            '[Partition]\n'
+            'Type=linux-generic\n'
+            'Label=DATA\n'
+            'UUID=data-uuid\n'
+            'Format=btrfs\n'
+            'Compression=lzo\n'
+        )
+
     def test_get_subvolume_setup(self):
         partition = RepartPartition(
             name='root',
