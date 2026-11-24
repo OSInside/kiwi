@@ -663,7 +663,6 @@ class DiskBuilder:
             'spare partition': self.spare_part_mbsize,
             'boot partition': self.disk_setup.need_boot_partition(),
             'partition clones': self.root_clone_count or self.boot_clone_count,
-            'filesystem create options': self.custom_root_creation_args,
             'unpartitioned space': self.unpartitioned_bytes,
             'btrfs seed': self.btrfs_seed_requested,
             'editbootinstall script': (
@@ -773,6 +772,7 @@ class DiskBuilder:
             compression_level=(
                 self.btrfs_compression.level if self.btrfs_compression else None
             ),
+            mkfs_options=self.custom_root_creation_args or None,
         )
         repart.add_partition(root_partition)
         partition_ids = repart.get_partition_id_map()
