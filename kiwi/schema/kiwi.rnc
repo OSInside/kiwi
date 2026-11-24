@@ -34,6 +34,7 @@ number-type = xsd:token {pattern = "\d+"}
 blocks-type = xsd:token {pattern = "(\d*|all)"}
 volume-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G|all)"}
 partition-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G)"}
+btrfs-compression-type = xsd:token {pattern = "(zstd(:([1-9]|1[0-5]))?|zlib(:[1-9])?|lzo)"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.:]+(,[a-zA-Z0-9_\-\.:]+)*"}
 kernel-flavor-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
@@ -1598,6 +1599,25 @@ div {
             is-a = "image_btrfs_type_requirement"
             sch:param [ name = "attr" value = "btrfs_set_default_volume" ]
         ]
+    k.type.btrfs_compression.attribute =
+        ## Compress the data of the btrfs root filesystem with the
+        ## given algorithm and optional compression level, specified
+        ## as algorithm[:level]. Supported are zstd with levels 1-15,
+        ## zlib with levels 1-9 and lzo without level, e.g zstd:3.
+        ## The compression is applied to the data written to the root
+        ## filesystem when the image is created and is also set up as
+        ## compress mount option in the fstab of the image. By default
+        ## the data is not compressed
+        attribute btrfs_compression { btrfs-compression-type }
+        >> sch:pattern [ id = "btrfs_compression" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_compression" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "no_lvm_btrfs_compression"
+            is-a = "image_btrfs_type_requirement"
+            sch:param [ name = "attr" value = "btrfs_compression" ]
+        ]
     k.type.btrfs_root_is_subvolume.attribute =
         ## Tell kiwi to create a root volume to host (/) inside.
         ## The name of this subvolume is by default set to: '@'
@@ -2550,6 +2570,7 @@ div {
         k.type.disk_builder.attribute? &
         k.type.dosparttable_extended_layout.attribute? &
         k.type.bootprofile.attribute? &
+        k.type.btrfs_compression.attribute? &
         k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapper_snapshot.attribute? &
         k.type.btrfs_root_is_subvolume.attribute? &

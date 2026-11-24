@@ -90,6 +90,11 @@ class DracutT(NamedTuple):
     drivers: List[str]
 
 
+class BtrfsCompressionT(NamedTuple):
+    algorithm: str
+    level: Optional[int]
+
+
 class FileT(NamedTuple):
     target: str
     owner: str
@@ -2971,6 +2976,28 @@ class XMLState:
                 % (boot_attribute, boot_attribute_format)
             )
         return boot_attribute_expression.group(1).lower()
+
+    def get_btrfs_compression(self) -> Optional[BtrfsCompressionT]:
+        """
+        Compression of the btrfs root filesystem
+
+        The btrfs_compression attribute is specified as
+        algorithm[:level], e.g zstd:3, the level is optional
+
+        :return:
+            BtrfsCompressionT with the algorithm and the level,
+            the level is None if not specified, or None if no
+            compression is requested
+
+        :rtype: BtrfsCompressionT
+        """
+        compression = self.build_type.get_btrfs_compression()
+        if not compression:
+            return None
+        algorithm, _, level = compression.partition(':')
+        return BtrfsCompressionT(
+            algorithm=algorithm, level=int(level) if level else None
+        )
 
     def get_fs_mount_option_list(self) -> List:
         """

@@ -71,6 +71,11 @@
       <param name="pattern">(\d+|\d+M|\d+G)</param>
     </data>
   </define>
+  <define name="btrfs-compression-type">
+    <data type="token">
+      <param name="pattern">(zstd(:([1-9]|1[0-5]))?|zlib(:[1-9])?|lzo)</param>
+    </data>
+  </define>
   <define name="vhd-tag-type">
     <data type="token">
       <param name="pattern">[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}</param>
@@ -2365,6 +2370,26 @@ used to turn it off</a:documentation>
         <sch:param name="attr" value="btrfs_set_default_volume"/>
       </sch:pattern>
     </define>
+    <define name="k.type.btrfs_compression.attribute">
+      <attribute name="btrfs_compression">
+        <a:documentation>Compress the data of the btrfs root filesystem with the
+given algorithm and optional compression level, specified
+as algorithm[:level]. Supported are zstd with levels 1-15,
+zlib with levels 1-9 and lzo without level, e.g zstd:3.
+The compression is applied to the data written to the root
+filesystem when the image is created and is also set up as
+compress mount option in the fstab of the image. By default
+the data is not compressed</a:documentation>
+        <ref name="btrfs-compression-type"/>
+      </attribute>
+      <sch:pattern id="btrfs_compression" is-a="image_type">
+        <sch:param name="attr" value="btrfs_compression"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+      <sch:pattern id="no_lvm_btrfs_compression" is-a="image_btrfs_type_requirement">
+        <sch:param name="attr" value="btrfs_compression"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.btrfs_root_is_subvolume.attribute">
       <attribute name="btrfs_root_is_subvolume">
         <a:documentation>Tell kiwi to create a root volume to host (/) inside.
@@ -3678,6 +3703,9 @@ partition if present</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bootprofile.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_compression.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_quota_groups.attribute"/>

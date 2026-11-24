@@ -6,7 +6,7 @@ from unittest.mock import patch, Mock, MagicMock
 from pytest import raises, fixture
 
 from kiwi.defaults import Defaults
-from kiwi.xml_state import XMLState
+from kiwi.xml_state import BtrfsCompressionT, XMLState
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.xml_description import XMLDescription
 
@@ -1132,6 +1132,20 @@ class TestXMLState:
 
     def test_get_fs_mount_option_list(self):
         assert self.state.get_fs_mount_option_list() == ['async']
+
+    def test_get_btrfs_compression(self):
+        assert self.state.get_btrfs_compression() is None
+
+    @patch('kiwi.xml_parse.type_.get_btrfs_compression')
+    def test_get_btrfs_compression_custom(self, mock_get_btrfs_compression):
+        mock_get_btrfs_compression.return_value = 'zstd:3'
+        assert self.state.get_btrfs_compression() == BtrfsCompressionT(
+            algorithm='zstd', level=3
+        )
+        mock_get_btrfs_compression.return_value = 'lzo'
+        assert self.state.get_btrfs_compression() == BtrfsCompressionT(
+            algorithm='lzo', level=None
+        )
 
     def test_get_efi_mount_option_list(self):
         assert self.state.get_efi_mount_option_list() == []

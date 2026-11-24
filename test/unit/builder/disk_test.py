@@ -18,7 +18,7 @@ from kiwi.builder.disk import DiskBuilder
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner.gpt import PartitionerGpt
-from kiwi.xml_state import DracutT
+from kiwi.xml_state import BtrfsCompressionT, DracutT
 from kiwi.utils.reproducible import Reproducible
 from kiwi.storage.repart import (
     SystemdRepart,
@@ -185,6 +185,39 @@ class TestDiskBuilder:
             XMLState(description.load()), 'target_dir', 'root_dir'
         )
         assert disk_builder.arch == 'ix86'
+
+    @patch('kiwi.xml_parse.type_.get_filesystem')
+    @patch('kiwi.xml_parse.type_.get_fsmountoptions')
+    @patch('kiwi.xml_parse.type_.get_btrfs_compression')
+    def test_setup_btrfs_compression(
+        self,
+        mock_get_btrfs_compression,
+        mock_get_fsmountoptions,
+        mock_get_filesystem,
+    ):
+        mock_get_filesystem.return_value = 'btrfs'
+        mock_get_fsmountoptions.return_value = 'async'
+        mock_get_btrfs_compression.return_value = 'zstd:3'
+        disk_builder = DiskBuilder(self.xml_state, 'target_dir', 'root_dir')
+        assert disk_builder.btrfs_compression == BtrfsCompressionT('zstd', 3)
+        # the compress option is part of the one element mount
+        # option list used for the install time mounts and fstab
+        assert disk_builder.custom_root_mount_args == ['async,compress=zstd:3']
+        assert disk_builder.volume_manager_custom_parameters[
+            'fs_mount_options'
+        ] == ['async,compress=zstd:3']
+        assert disk_builder.filesystem_custom_parameters['mount_options'] == [
+            'async,compress=zstd:3'
+        ]
+        mock_get_fsmountoptions.return_value = None
+        mock_get_btrfs_compression.return_value = 'lzo'
+        disk_builder = DiskBuilder(self.xml_state, 'target_dir', 'root_dir')
+        assert disk_builder.custom_root_mount_args == ['compress=lzo']
+        # compression is a btrfs only feature
+        mock_get_filesystem.return_value = 'ext4'
+        disk_builder = DiskBuilder(self.xml_state, 'target_dir', 'root_dir')
+        assert disk_builder.btrfs_compression is None
+        assert disk_builder.custom_root_mount_args == []
 
     @patch('kiwi.xml_parse.type_.get_efimountoptions')
     def test_write_generic_fstab_efi_mount_options(
@@ -2437,6 +2470,25 @@ class TestDiskBuilder:
             'volumes without copy-on-write'
         )
 
+    @patch('kiwi.builder.disk.CommandCapabilities.check_version')
+    def test_check_repart_requirements_btrfs_compression(
+        self, mock_check_version
+    ):
+        self._setup_repart_btrfs_volumes()
+        self.disk_builder.btrfs_compression = BtrfsCompressionT('zstd', 3)
+        mock_check_version.return_value = True
+        self.disk_builder._check_repart_requirements()
+        mock_check_version.assert_called_once_with(
+            'systemd-repart', (257,), raise_on_error=False
+        )
+        mock_check_version.return_value = False
+        with raises(KiwiDiskBuilderRepartError) as issue:
+            self.disk_builder._check_repart_requirements()
+        assert format(issue.value) == (
+            'systemd-repart disk builder does not support: '
+            'btrfs compression with systemd-repart < 257'
+        )
+
     def test_get_repart_btrfs_layout(self):
         self._setup_repart_builder()
         assert self.disk_builder._get_repart_btrfs_layout() is None
@@ -2502,6 +2554,7 @@ class TestDiskBuilder:
         self._setup_repart_btrfs_volumes()
         self.disk_builder.bootloader = 'grub2'
         self.disk_builder.swap_mbytes = 0
+        self.disk_builder.btrfs_compression = BtrfsCompressionT('zstd', 3)
         mock_os_path_isdir.return_value = False
         temporary_dirs = iter(['staging', 'snapshots'])
         mock_Temporary.return_value.new_dir.side_effect = (
@@ -2545,7 +2598,10 @@ class TestDiskBuilder:
             '/@/.snapshots/1/snapshot:ro',
         ]
         assert root.default_subvolume == '/@/.snapshots/1/snapshot'
+        assert root.compression == 'zstd'
+        assert root.compression_level == 3
         efi = partitions[0]
+        assert efi.compression is None
         assert self.fstab.add_entry.call_args_list == [
             call(f'PARTUUID={efi.uuid} /boot/efi vfat defaults 0 0'),
             call(f'PARTUUID={root.uuid} / btrfs noatime,ro 0 0'),

@@ -543,6 +543,21 @@ dosparttable_extended_layout="true|false":
   Only available for the `oem` type.
 
 
+btrfs_compression="zstd[:1-15]|zlib[:1-9]|lzo":
+  For OEM disk images using the btrfs filesystem, this requests to
+  compress the data of the root filesystem with the given algorithm.
+  An optional compression level can be appended after a colon,
+  for example `zstd:3`. The levels 1 to 15 are supported for `zstd`
+  and 1 to 9 for `zlib`, `lzo` has no levels. Without a level the
+  btrfs default level of the algorithm is used. The compression
+  applies to the data written to the root filesystem when the image
+  is created. In addition, kiwi adds the `compress=` mount option to
+  the root filesystem and volume entries in the `/etc/fstab` file,
+  such that data written by the system booted from the image is
+  compressed as well. By default, no compression is used.
+  Only available for the `oem` type.
+
+
 btrfs_quota_groups="true|false":
   A boolean parameter to activate filesystem quotas if
   the filesystem is `btrfs`. By default, quotas are inactive.
