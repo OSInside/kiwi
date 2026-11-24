@@ -136,8 +136,12 @@ Filesystems that are populated through a mount
    EFI system partition image created for the `systemd-boot`
    bootloader, which is mounted to install the bootloader.
 
-   If a bit identical root filesystem is required, use a read-only
-   root filesystem that is created from the root tree without a mount:
+   If a bit identical disk image is required, create it with
+   `systemd-repart`, which populates the filesystems without a mount,
+   see :ref:`disk_builder_repart`. This requires mkfs tools on the
+   build host that support `SOURCE_DATE_EPOCH`: e2fsprogs 1.47.1,
+   btrfs-progs 7.3 and xfsprogs 6.18 or newer. Alternatively, use a read-only root
+   filesystem that is created from the root tree without a mount:
    SquashFS or EROFS, for example with `overlayroot="true"` for disk
    images or the `iso` image type.
 
@@ -145,8 +149,9 @@ Files created in the create step
    Files that {kiwi} writes into the root tree in the create step, like
    the bootloader configuration, carry the current time as their
    modification time. SquashFS, EROFS, ISO 9660 and tar archives clamp
-   these times to `SOURCE_DATE_EPOCH`. Filesystems populated through a
-   mount and cpio archives keep them.
+   these times to `SOURCE_DATE_EPOCH`. The systemd-repart disk builder
+   clamps them in its staging directory as well. Filesystems populated
+   through a mount and cpio archives keep them.
 
 LUKS encryption
    `cryptsetup` creates a random volume key, random key slot salts and

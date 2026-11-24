@@ -15,10 +15,13 @@ class TestBootImageKiwi:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
+    @patch('kiwi.boot.image.dracut.MountManager')
     @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.dracut.Kernel')
     @patch('kiwi.boot.image.base.os.path.exists')
-    def setup(self, mock_exists, mock_kernel_class, mock_cmd):
+    def setup(
+        self, mock_exists, mock_kernel_class, mock_cmd, mock_MountManager
+    ):
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         kernel_type = namedtuple('kernel_type', ['version'])
@@ -44,6 +47,13 @@ class TestBootImageKiwi:
         self.boot_image = BootImageDracut(
             self.xml_state, 'some-target-dir', 'system-directory'
         )
+        # dracut --list-modules runs with /dev mounted
+        mock_MountManager.assert_called_once_with(
+            device='/dev', mountpoint='system-directory/dev'
+        )
+        device_mount = mock_MountManager.return_value.__enter__.return_value
+        device_mount.bind_mount.assert_called_once_with()
+        mock_MountManager.return_value.__exit__.assert_called_once()
         assert mock_cmd.call_args_list == [
             call(
                 [

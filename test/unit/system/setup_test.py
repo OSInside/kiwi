@@ -1814,8 +1814,9 @@ class TestSystemSetup:
         def is_mounted():
             return is_mounted_return.pop()
 
-        shared_mount = Mock()
+        shared_mount = MagicMock()
         shared_mount.is_mounted.side_effect = is_mounted
+        shared_mount.__enter__.return_value = shared_mount
         mock_MountManager.return_value = shared_mount
         rpmdb = Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
@@ -1847,11 +1848,14 @@ class TestSystemSetup:
             raise_on_error=False,
         )
 
-        mock_MountManager.assert_called_once_with(
-            device='/dev', mountpoint='root_dir/dev'
-        )
-        shared_mount.bind_mount.assert_called_once_with()
+        # /dev is mounted for the database lookup and for rpm -Va
+        assert mock_MountManager.call_args_list == [
+            call(device='/dev', mountpoint='root_dir/dev'),
+            call(device='/dev', mountpoint='root_dir/dev'),
+        ]
+        assert shared_mount.bind_mount.call_args_list == [call(), call()]
         shared_mount.umount_lazy.assert_called_once_with()
+        shared_mount.__exit__.assert_called_once()
         rpmdb.has_rpm.return_value = False
         is_mounted_return = [True, False]
         mock_command.reset_mock()
@@ -1872,7 +1876,7 @@ class TestSystemSetup:
             ],
             raise_on_error=False,
         )
-        shared_mount.bind_mount.assert_called_once_with()
+        assert shared_mount.bind_mount.call_args_list == [call(), call()]
         shared_mount.umount_lazy.assert_called_once_with()
 
     @patch('kiwi.system.setup.Command.run')

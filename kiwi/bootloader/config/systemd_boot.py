@@ -19,7 +19,7 @@ import os
 import logging
 from string import Template
 from contextlib import ExitStack
-from typing import Dict, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 # project
 from kiwi.path import Path
@@ -34,7 +34,11 @@ from kiwi.utils.os_release import OsRelease
 from kiwi.utils.sparse import SparseFile
 
 from kiwi.system.kernel import Kernel
-from kiwi.exceptions import KiwiTemplateError, KiwiBootLoaderTargetError
+from kiwi.exceptions import (
+    KiwiTemplateError,
+    KiwiBootLoaderTargetError,
+    KiwiFileNotFound,
+)
 
 import kiwi.defaults as defaults
 
@@ -94,22 +98,53 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             boot_options.get('system_partitions'),
         )
         assert self.root_mount is not None
+        self._setup_loader_in(
+            self.root_mount.mountpoint, boot_options.get('boot_image')
+        )
+
+    def setup_disk_image_config_on_tree(
+        self,
+        root_dir: str,
+        cmdline: str,
+        boot_image: Optional[BootImageBase] = None,
+    ) -> None:
+        """
+        Setup the ESP for systemd-boot in the boot/efi directory of
+        the given root tree. Unlike setup_disk_image_config this
+        does not access disk devices and does not call bootctl,
+        which requires a mounted ESP. Used if the disk image is
+        created from the root tree, e.g. by systemd-repart
+
+        :param str root_dir: root tree of the disk image
+        :param str cmdline: kernel command line including root=
+        :param BootImageBase boot_image: boot image to create an UKI
+        """
+        self.custom_args['kernel'] = ''
+        self.custom_args['initrd'] = ''
+        self.cmdline = f'{self.cmdline} {cmdline}'.strip()
+        self._setup_loader_in(root_dir, boot_image, offline=True)
+
+    def _setup_loader_in(
+        self,
+        root_dir: str,
+        boot_image: Optional[BootImageBase],
+        offline: bool = False,
+    ) -> None:
         dracut_setup = self.xml_state.get_dracut_config('setup')
-        self._run_bootctl(self.root_mount.mountpoint)
+        self._run_bootctl(root_dir, offline)
         if dracut_setup.uefi:
-            boot_image = boot_options.get('boot_image')
             if boot_image:
                 log.info('Creating UKI EFI binary')
                 Command.run(
                     [
                         'mv',
                         boot_image.create_uki(self.cmdline),
-                        f'{self.root_mount.mountpoint}/boot/efi/EFI/Linux/',
+                        f'{root_dir}/boot/efi/EFI/Linux/',
                     ]
                 )
         else:
             log.info('Creating loader entry')
-            self.set_loader_entry(self.root_mount.mountpoint, self.target.disk)
+            self.set_loader_entry(root_dir, self.target.disk)
 
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
@@ -178,22 +213,30 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
 
         Command.run(['mv', f'{path}.img', path])
 
-    def _run_bootctl(self, root_dir: str) -> None:
+    def _run_bootctl(self, root_dir: str, offline: bool = False) -> None:
         """
         Setup ESP for systemd-boot using bootctl
+
+        :param str root_dir: root tree with the ESP below boot/efi
+        :param bool offline:
+            install the systemd-boot files without bootctl, see
+            _install_systemd_boot_files
         """
-        Command.run(
-            [
-                'chroot',
-                root_dir,
-                'bootctl',
-                'install',
-                '--esp-path=/boot/efi',
-                '--no-variables',
-                '--entry-token',
-                'os-id',
-            ]
-        )
+        if offline:
+            self._install_systemd_boot_files(root_dir)
+        else:
+            Command.run(
+                [
+                    'chroot',
+                    root_dir,
+                    'bootctl',
+                    'install',
+                    '--esp-path=/boot/efi',
+                    '--no-variables',
+                    '--entry-token',
+                    'os-id',
+                ]
+            )
         self._write_kernel_cmdline_file(root_dir)
 
         # copy kernel and initrd of each kernel flavor
@@ -231,6 +274,45 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             root_dir + '/boot/efi/loader/loader.conf',
             self._get_template_parameters(default_entry),
         )
+
+    def _install_systemd_boot_files(self, root_dir: str) -> None:
+        """
+        Install systemd-boot into the ESP below root_dir/boot/efi
+        like 'bootctl install --no-variables --entry-token os-id'
+        does on an empty ESP. bootctl itself can't be used because
+        it requires the ESP to be a mounted filesystem
+
+        :param str root_dir: root tree with the ESP below boot/efi
+        """
+        efi_arch = defaults.EFI_ARCHITECTURES.get(self.arch, self.arch)
+        loader = (
+            f'{root_dir}/usr/lib/systemd/boot/efi/systemd-boot{efi_arch}.efi'
+        )
+        if os.path.exists(f'{loader}.signed'):
+            # bootctl prefers the signed variant as well
+            loader = f'{loader}.signed'
+        if not os.path.exists(loader):
+            raise KiwiFileNotFound(
+                f'systemd-boot EFI binary {loader} not found'
+            )
+        log.info(f'Installing systemd-boot from {loader}')
+        esp = f'{root_dir}/boot/efi'
+        Path.create(f'{esp}/EFI/systemd')
+        Path.create(f'{esp}/EFI/BOOT')
+        Command.run(
+            ['cp', loader, f'{esp}/EFI/systemd/systemd-boot{efi_arch}.efi']
+        )
+        Command.run(
+            ['cp', loader, f'{esp}/EFI/BOOT/BOOT{efi_arch.upper()}.EFI']
+        )
+        entry_token = OsRelease(root_dir).get('ID')
+        Path.create(f'{esp}/{entry_token}')
+        Path.create(f'{esp}/loader/entries')
+        with open(f'{esp}/loader/entries.srel', 'w') as entries_srel:
+            entries_srel.write('type1\n')
+        Path.create(f'{root_dir}/etc/kernel')
+        with open(f'{root_dir}/etc/kernel/entry-token', 'w') as token:
+            token.write(f'{entry_token}\n')
 
     def _get_entry_name(self, root_dir: str, flavor: str = '') -> str:
         """

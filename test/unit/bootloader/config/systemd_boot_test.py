@@ -8,6 +8,7 @@ from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderTargetError,
     KiwiKernelLookupError,
+    KiwiFileNotFound,
 )
 
 
@@ -363,3 +364,108 @@ class TestBootLoaderSystemdBoot:
         ]
         mock_run_bootctl.assert_called_once_with('root_dir')
         mock_set_loader_entry.assert_called_once_with('root_dir', target.live)
+
+    @patch.object(BootLoaderSystemdBoot, '_setup_loader_in')
+    def test_setup_disk_image_config_on_tree(self, mock_setup_loader_in):
+        self.bootloader.cmdline = 'rootflags=foo'
+        self.bootloader.setup_disk_image_config_on_tree(
+            'staging', 'quiet root=PARTUUID=uuid', self.boot_image
+        )
+        assert self.bootloader.cmdline == (
+            'rootflags=foo quiet root=PARTUUID=uuid'
+        )
+        assert self.bootloader.custom_args['kernel'] == ''
+        assert self.bootloader.custom_args['initrd'] == ''
+        mock_setup_loader_in.assert_called_once_with(
+            'staging', self.boot_image, offline=True
+        )
+
+    @patch('kiwi.bootloader.config.systemd_boot.Command.run')
+    @patch.object(BootLoaderSystemdBoot, '_run_bootctl')
+    def test_setup_loader_in_offline_uki(
+        self, mock_run_bootctl, mock_Command_run
+    ):
+        self.state.get_dracut_config.return_value = DracutT(
+            uefi=True, modules=[], drivers=[]
+        )
+        self.boot_image.create_uki.return_value = 'uki-file'
+        self.bootloader._setup_loader_in('staging', self.boot_image, True)
+        mock_run_bootctl.assert_called_once_with('staging', True)
+        mock_Command_run.assert_called_once_with(
+            ['mv', 'uki-file', 'staging/boot/efi/EFI/Linux/']
+        )
+
+    @patch('kiwi.bootloader.config.systemd_boot.Path.create')
+    @patch('kiwi.bootloader.config.systemd_boot.Command.run')
+    @patch.object(BootLoaderSystemdBoot, '_install_systemd_boot_files')
+    @patch.object(BootLoaderSystemdBoot, '_write_kernel_cmdline_file')
+    @patch.object(BootLoaderSystemdBoot, '_write_config_file')
+    @patch.object(BootLoaderSystemdBoot, '_get_template_parameters')
+    def test_run_bootctl_offline(
+        self,
+        mock_get_template_parameters,
+        mock_write_config_file,
+        mock_write_kernel_cmdline_file,
+        mock_install_systemd_boot_files,
+        mock_Command_run,
+        mock_Path_create,
+    ):
+        self.state.get_dracut_config.return_value = DracutT(
+            uefi=True, modules=[], drivers=[]
+        )
+        self.bootloader._run_bootctl('staging', offline=True)
+        mock_install_systemd_boot_files.assert_called_once_with('staging')
+        mock_write_kernel_cmdline_file.assert_called_once_with('staging')
+        assert not mock_Command_run.called
+
+    def _create_root_tree(self, tmp_path, loader_names):
+        efi_dir = tmp_path / 'usr/lib/systemd/boot/efi'
+        efi_dir.mkdir(parents=True)
+        for name in loader_names:
+            (efi_dir / name).write_text('loader')
+        (tmp_path / 'etc').mkdir()
+        (tmp_path / 'etc/os-release').write_text('ID=opensuse-tumbleweed\n')
+        return efi_dir
+
+    @patch('kiwi.bootloader.config.systemd_boot.Command.run')
+    def test_install_systemd_boot_files(self, mock_Command_run, tmp_path):
+        efi_dir = self._create_root_tree(
+            tmp_path, ['systemd-bootx64.efi', 'systemd-bootx64.efi.signed']
+        )
+        self.bootloader.arch = 'x86_64'
+        self.bootloader._install_systemd_boot_files(str(tmp_path))
+        loader = f'{efi_dir}/systemd-bootx64.efi.signed'
+        esp = f'{tmp_path}/boot/efi'
+        assert mock_Command_run.call_args_list == [
+            call(['cp', loader, f'{esp}/EFI/systemd/systemd-bootx64.efi']),
+            call(['cp', loader, f'{esp}/EFI/BOOT/BOOTX64.EFI']),
+        ]
+        assert (tmp_path / 'boot/efi/opensuse-tumbleweed').is_dir()
+        assert (tmp_path / 'boot/efi/loader/entries').is_dir()
+        assert (tmp_path / 'boot/efi/loader/entries.srel').read_text() == (
+            'type1\n'
+        )
+        assert (tmp_path / 'etc/kernel/entry-token').read_text() == (
+            'opensuse-tumbleweed\n'
+        )
+
+    @patch('kiwi.bootloader.config.systemd_boot.Command.run')
+    def test_install_systemd_boot_files_unsigned(
+        self, mock_Command_run, tmp_path
+    ):
+        efi_dir = self._create_root_tree(tmp_path, ['systemd-bootaa64.efi'])
+        self.bootloader.arch = 'aarch64'
+        self.bootloader._install_systemd_boot_files(str(tmp_path))
+        assert mock_Command_run.call_args_list[1] == call(
+            [
+                'cp',
+                f'{efi_dir}/systemd-bootaa64.efi',
+                f'{tmp_path}/boot/efi/EFI/BOOT/BOOTAA64.EFI',
+            ]
+        )
+
+    def test_install_systemd_boot_files_not_found(self, tmp_path):
+        self._create_root_tree(tmp_path, [])
+        self.bootloader.arch = 'x86_64'
+        with raises(KiwiFileNotFound):
+            self.bootloader._install_systemd_boot_files(str(tmp_path))

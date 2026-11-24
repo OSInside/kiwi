@@ -1,3 +1,4 @@
+import os
 import datetime
 from unittest.mock import patch, call, Mock, mock_open
 from pytest import raises, fixture
@@ -423,3 +424,54 @@ class TestSnapshotManagerSnapper:
     def test_get_default_snapshot_name(self):
         default_snapshot = '/@/.snapshots/1/snapshot'
         assert self.snapper.get_default_snapshot_name() == default_snapshot
+
+    @patch('kiwi.snapshot_manager.snapper.Path.create')
+    def test_setup_first_snapshot_on_tree(self, mock_Path_create, tmp_path):
+        # Path.create is patched for all tests of this module
+        mock_Path_create.side_effect = lambda path: os.makedirs(
+            path, exist_ok=True
+        )
+        snapshot_root = tmp_path / 'root'
+        template = snapshot_root / 'usr/share/snapper/config-templates/default'
+        template.parent.mkdir(parents=True)
+        template.write_text('SUBVOLUME="/"\n')
+        snapshots_dir = tmp_path / '.snapshots'
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '86400'}):
+            SnapshotManagerSnapper.setup_first_snapshot_on_tree(
+                str(snapshot_root), str(snapshots_dir)
+            )
+        assert (snapshot_root / 'etc/snapper/configs/root').read_text() == (
+            'SUBVOLUME="/"\n'
+        )
+        assert (snapshot_root / 'etc/sysconfig/snapper').read_text() == (
+            'SNAPPER_CONFIGS="root"\n'
+        )
+        info = minidom.parse(str(snapshots_dir / '1/info.xml'))
+        assert [
+            (node.tagName, node.firstChild.data)
+            for node in info.documentElement.childNodes
+            if node.nodeType == node.ELEMENT_NODE
+        ] == [
+            ('type', 'single'),
+            ('num', '1'),
+            ('description', 'first root filesystem'),
+            ('date', '1970-01-02 00:00:00'),
+        ]
+
+        # an existing config is kept, without snapper template and
+        # without SOURCE_DATE_EPOCH only info.xml is written
+        (snapshot_root / 'etc/snapper/configs/root').write_text('custom\n')
+        with patch.dict('os.environ', {}, clear=True):
+            SnapshotManagerSnapper.setup_first_snapshot_on_tree(
+                str(snapshot_root), str(snapshots_dir)
+            )
+        assert (snapshot_root / 'etc/snapper/configs/root').read_text() == (
+            'custom\n'
+        )
+        template.unlink()
+        other_root = tmp_path / 'other'
+        SnapshotManagerSnapper.setup_first_snapshot_on_tree(
+            str(other_root), str(snapshots_dir)
+        )
+        assert not other_root.exists()
+        assert (snapshots_dir / '1/info.xml').exists()

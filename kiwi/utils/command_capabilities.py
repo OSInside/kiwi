@@ -18,7 +18,7 @@
 import os
 import re
 import logging
-from typing import List
+from typing import List, Literal
 
 # project
 from kiwi.command import Command
@@ -97,6 +97,7 @@ class CommandCapabilities:
         root: str = '',
         raise_on_error: bool = True,
         silent: bool = False,
+        channel: Literal['stdout', 'stderr'] = 'stdout',
     ) -> bool:
         """
         Checks if the given command version is equal or higher than
@@ -108,6 +109,10 @@ class CommandCapabilities:
         :param str root: root directory of the env to validate
         :param bool raise_on_error: control error behavior
         :param bool silent: don't log parsing failures
+        :param str channel:
+            output channel of the command call the version is read
+            from, stdout or stderr. Some commands, e.g mke2fs, print
+            their version to stderr
 
         :raises KiwiCommandCapabilitiesError: if raise_on_error is True and
             command execution fails or version can't be parsed.
@@ -124,7 +129,10 @@ class CommandCapabilities:
         version_info = None
         try:
             command = Command.run(arguments)
-            for line in command.output.splitlines():
+            version_output = (
+                command.error if channel == 'stderr' else command.output
+            )
+            for line in version_output.splitlines():
                 matches = re.findall(r'([0-9]+(\.[0-9]+)*)', line)
                 if matches:
                     match = max([m[0] for m in matches], key=len)

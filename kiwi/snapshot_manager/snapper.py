@@ -27,6 +27,7 @@ from kiwi.command import Command
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.path import Path
 from kiwi.defaults import Defaults
+from kiwi.utils.reproducible import Reproducible
 from kiwi.snapshot_manager.base import SnapshotManagerBase
 from kiwi.mount_manager import MountManager
 from kiwi.utils.sysconfig import SysConfig
@@ -151,27 +152,10 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         else:
             # with snapper <= 0.12.0 the snapshot configuration is
             # crafted manually
-            date_info = datetime.datetime.now()
-            snapshot = ElementTree.Element('snapshot')
-
-            snapshot_type = ElementTree.SubElement(snapshot, 'type')
-            snapshot_type.text = 'single'
-
-            snapshot_number = ElementTree.SubElement(snapshot, 'num')
-            snapshot_number.text = '1'
-
-            snapshot_description = ElementTree.SubElement(
-                snapshot, 'description'
+            self._write_first_snapshot_info(
+                os.path.join(snapshot_path, '../info.xml'),
+                datetime.datetime.now(),
             )
-            snapshot_description.text = 'first root filesystem'
-
-            snapshot_date = ElementTree.SubElement(snapshot, 'date')
-            snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
-
-            with open(
-                os.path.join(snapshot_path, '../info.xml'), 'w'
-            ) as snapshot_info_file:
-                snapshot_info_file.write(self._xml_pretty(snapshot))
 
         if self.custom_args['quota_groups']:
             snapper_default_conf = Defaults.get_snapper_config_template_file(
@@ -192,6 +176,48 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         with ChrootManager(snapshot_path) as chroot:
             chroot.run(['snapper', '--no-dbus', 'modify', '--default', '1'])
 
+    @staticmethod
+    def setup_first_snapshot_on_tree(
+        snapshot_root: str, snapshots_dir: str
+    ) -> None:
+        """
+        Arranges the snapshot configuration of a root tree which is
+        not stored on a mounted btrfs filesystem, e.g. if the
+        filesystem is created from the root tree by systemd-repart.
+        snapper can't be used without a mounted btrfs filesystem,
+        thus the snapper root configuration is created from the
+        snapper config template if snapper is installed and the
+        info.xml of the first snapshot is written to snapshots_dir,
+        which represents the .snapshots subvolume. The date of the
+        snapshot is taken from SOURCE_DATE_EPOCH if set
+
+        :param str snapshot_root: root tree of the first snapshot
+        :param str snapshots_dir: directory to create 1/info.xml in
+        """
+        snapper_default_conf = Defaults.get_snapper_config_template_file(
+            snapshot_root
+        )
+        if snapper_default_conf:
+            Path.create(os.sep.join([snapshot_root, 'etc/sysconfig']))
+            config_file = SnapshotManagerSnapper._set_snapper_sysconfig_file(
+                snapshot_root
+            )
+            if not os.path.exists(config_file):
+                Path.create(os.path.dirname(config_file))
+                shutil.copyfile(snapper_default_conf, config_file)
+        source_date_epoch = Reproducible.get_source_date_epoch()
+        Path.create(os.sep.join([snapshots_dir, '1']))
+        SnapshotManagerSnapper._write_first_snapshot_info(
+            os.sep.join([snapshots_dir, '1', 'info.xml']),
+            (
+                datetime.datetime.fromtimestamp(
+                    source_date_epoch, datetime.timezone.utc
+                )
+                if source_date_epoch is not None
+                else datetime.datetime.now(datetime.timezone.utc)
+            ),
+        )
+
     def get_default_snapshot_name(self) -> str:
         """
         Gets the name of the default snapshot for snapper
@@ -202,7 +228,31 @@ class SnapshotManagerSnapper(SnapshotManagerBase):
         """
         return self.default_snapshot_name
 
-    def _xml_pretty(self, toplevel_element: ElementTree.Element) -> str:
+    @staticmethod
+    def _write_first_snapshot_info(
+        filename: str, date_info: datetime.datetime
+    ) -> None:
+        snapshot = ElementTree.Element('snapshot')
+
+        snapshot_type = ElementTree.SubElement(snapshot, 'type')
+        snapshot_type.text = 'single'
+
+        snapshot_number = ElementTree.SubElement(snapshot, 'num')
+        snapshot_number.text = '1'
+
+        snapshot_description = ElementTree.SubElement(snapshot, 'description')
+        snapshot_description.text = 'first root filesystem'
+
+        snapshot_date = ElementTree.SubElement(snapshot, 'date')
+        snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
+
+        with open(filename, 'w') as snapshot_info_file:
+            snapshot_info_file.write(
+                SnapshotManagerSnapper._xml_pretty(snapshot)
+            )
+
+    @staticmethod
+    def _xml_pretty(toplevel_element: ElementTree.Element) -> str:
         xml_data_unformatted = ElementTree.tostring(toplevel_element, 'utf-8')
         xml_data_domtree = minidom.parseString(xml_data_unformatted)
         return xml_data_domtree.toprettyxml(indent="    ")

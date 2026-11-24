@@ -126,6 +126,25 @@ class TestCommandCapabilities:
         )
 
     @patch('kiwi.command.Command.run')
+    def test_check_version_stderr(self, mock_run):
+        command_type = namedtuple('command', ['output', 'error'])
+        mock_run.return_value = command_type(
+            output='', error='mke2fs 1.47.0 (5-Feb-2023)\n'
+        )
+        assert CommandCapabilities.check_version(
+            'mke2fs', (1, 47), version_flags=['-V'], channel='stderr'
+        )
+        assert not CommandCapabilities.check_version(
+            'mke2fs', (1, 47, 1), version_flags=['-V'], channel='stderr'
+        )
+        mock_run.assert_called_with(['mke2fs', '-V'])
+        # the version is not read from stderr by default
+        with raises(KiwiCommandCapabilitiesError):
+            CommandCapabilities.check_version(
+                'mke2fs', (1, 47), version_flags=['-V']
+            )
+
+    @patch('kiwi.command.Command.run')
     def test_check_version_complex_pattern(self, mock_run):
         command_type = namedtuple('command', ['output'])
         mock_run.return_value = command_type(

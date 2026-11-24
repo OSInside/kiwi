@@ -248,6 +248,13 @@ class KiwiDiskBootImageError(KiwiError):
     """
 
 
+class KiwiDiskBuilderRepartError(KiwiError):
+    """
+    Exception raised if the image description requests a feature
+    which is not supported by the systemd-repart disk builder.
+    """
+
+
 class KiwiDiskFormatSetupError(KiwiError):
     """
     Exception raised if an attempt was made to create a disk format

@@ -24,12 +24,13 @@ import logging
 import glob
 import shutil
 from collections import OrderedDict
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 # project
 from kiwi.xml_state import HostKeyCertificateT
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
+from kiwi.boot.image.base import BootImageBase
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiFileNotFound
@@ -80,7 +81,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
             .. code:: python
 
-                {'grub_directory_name': 'grub|grub2'}
+                {
+                    'grub_directory_name': 'grub|grub2',
+                    'offline': True|False,
+                    'btrfs_path': Callable[[str], str]
+                }
+
+            With offline set to True the boot setup does not access
+            the disk devices, see setup_disk_image_config_on_tree.
+            btrfs_path returns the location of a path of the root
+            tree in a btrfs root filesystem with subvolumes, e.g
+            /@/boot for /boot, see _get_lookup_path
         """
         self.host_key_certificates: List[HostKeyCertificateT] = (
             self.xml_state.get_host_key_certificates()
@@ -131,6 +142,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if self.custom_args and 'config_options' in self.custom_args:
             self.config_options = self.custom_args['config_options']
+
+        self.offline = bool(
+            self.custom_args and self.custom_args.get('offline')
+        )
+        self.btrfs_path: Optional[Callable[[str], str]] = (
+            self.custom_args.get('btrfs_path') if self.custom_args else None
+        )
 
         self.terminal_output = (
             self.xml_state.get_build_type_bootloader_console()[0] or 'console'
@@ -208,6 +226,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.cmdline: Optional[str] = None
         self.iso_boot = False
         self.early_boot_script_efi: Optional[str] = None
+        self.boot_uuid: Optional[str] = None
 
     def write(self) -> None:
         """
@@ -388,6 +407,124 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.efi_mount.mountpoint, self.early_boot_script_efi
             )
         self._umount_system()
+
+    def setup_disk_image_config_on_tree(
+        self,
+        root_dir: str,
+        cmdline: str,
+        boot_image: Optional[BootImageBase] = None,
+    ) -> None:
+        """
+        Create the grub2 config of an EFI disk image in the given
+        root tree, without access to the disk devices. Used if the
+        disk image is created from the root tree, e.g. by
+        systemd-repart. grub2-mkconfig can't be used because it
+        looks up the root device from the mounted root filesystem.
+        Therefore the grub.cfg file is created from a template,
+        with a menu entry for the kernel of each kernel flavor.
+        etc/default/grub is setup such that grub2-mkconfig creates
+        the config on the booted system the same way it does for
+        a disk image created by the kiwi disk builder.
+
+        The grub2 EFI images and the early boot script in the ESP
+        below root_dir/boot/efi are created by setup_disk_boot_images
+        which has to be called before. Its boot_uuid must be the
+        UUID of the root filesystem.
+
+        :param str root_dir: root tree of the disk image
+        :param str cmdline: kernel command line including root=
+        :param BootImageBase boot_image: boot image to create an UKI
+        """
+        self.cmdline = cmdline
+        self.cmdline_failsafe = ' '.join(
+            [cmdline, Defaults.get_failsafe_kernel_options()]
+        )
+        self._setup_default_grub(root_dir)
+        self._setup_loader_variables(
+            self.xml_state.get_build_type_bootloader_environment_variables(),
+            root_dir,
+        )
+
+        dracut_setup = self.xml_state.get_dracut_config('setup')
+        if dracut_setup.uefi:
+            # The early boot script in the ESP chainloads the UKI,
+            # see _create_early_boot_script_for_uki_chainload
+            if boot_image:
+                log.info('Creating UKI EFI binary')
+                efi_uki_path = f'{root_dir}/boot/efi/EFI/Linux/'
+                Path.create(efi_uki_path)
+                Command.run(
+                    ['mv', boot_image.create_uki(self.cmdline), efi_uki_path]
+                )
+        else:
+            self._write_disk_config_on_tree(root_dir)
+
+        if self.firmware.efi_mode() and self.early_boot_script_efi:
+            self._copy_grub_config_to_efi_path(
+                os.sep.join([root_dir, 'boot', 'efi']),
+                self.early_boot_script_efi,
+            )
+
+    def _write_disk_config_on_tree(self, root_dir: str) -> None:
+        """
+        Write boot/<grub>/grub.cfg from the disk template to the
+        given root tree, see setup_disk_image_config_on_tree
+
+        :param str root_dir: root tree of the disk image
+        """
+        log.info('Creating grub2 disk config file from template')
+        assert self.cmdline is not None
+        assert self.cmdline_failsafe is not None
+        bootpath = self._get_lookup_path(self.get_boot_path())
+        if self.boot_uuid:
+            search_params = f'--no-floppy --fs-uuid --set=root {self.boot_uuid}'
+        else:
+            search_params = '--no-floppy --file --set=root /boot/mbrid'
+        parameters: Dict[str, Optional[Union[str, int]]] = {
+            'search_params': search_params,
+            'default_boot': '0',
+            'boot_options': self.cmdline,
+            'failsafe_boot_options': self.cmdline_failsafe,
+            'gfxmode': self.gfxmode,
+            'theme': self.theme,
+            'boot_timeout': self.timeout,
+            'boot_timeout_style': self.timeout_style or 'menu',
+            'serial_line_setup': self.serial_line_setup or '',
+            'bootpath': bootpath,
+            'boot_directory_name': self.boot_directory_name,
+            'terminal_input': self.terminal_input,
+            'terminal_output': self.terminal_output,
+        }
+        title = self.get_menu_entry_title(plain=True)
+        for index, flavor in enumerate(self.get_kernel_flavors()):
+            suffix = f'_{index}' if index else ''
+            boot_names = BootImageBase(
+                self.xml_state, root_dir, root_dir
+            ).get_boot_names(flavor)
+            parameters[f'title{suffix}'] = self.get_kernel_flavor_title(
+                title, flavor
+            )
+            parameters[f'kernel_file{suffix}'] = self._get_lookup_path(
+                os.sep + os.path.relpath(boot_names.kernel_filename, root_dir)
+            )
+            parameters[f'initrd_file{suffix}'] = os.path.normpath(
+                os.sep.join([bootpath, boot_names.initrd_name])
+            )
+        template = self.grub2.get_disk_template(
+            self.failsafe_boot,
+            'gfxterm' in self.terminal_output,
+            'serial' in self.terminal_output or 'serial' in self.terminal_input,
+            self._has_btrfs_relative_path(),
+            kernel_count=len(self.get_kernel_flavors()),
+        )
+        try:
+            config = template.substitute(parameters)
+        except Exception as e:
+            raise KiwiTemplateError(f'{type(e).__name__}: {format(e)}')
+        config_dir = os.sep.join([root_dir, 'boot', self.boot_directory_name])
+        Path.create(config_dir)
+        with open(config_dir + '/grub.cfg', 'w') as config_file:
+            config_file.write(config)
 
     def setup_install_image_config(
         self,
@@ -680,9 +817,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         the filesystem
 
         :param string boot_uuid: boot device UUID
+        :param string efi_uuid: EFI device UUID
         :param string lookup_path: custom module lookup path
         """
         log.info('Creating grub2 bootloader images')
+        self.boot_uuid = boot_uuid
 
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()
@@ -699,7 +838,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
-            if not self._get_shim_install():
+            # shim-install requires access to the disk device, thus
+            # it can't be used in offline mode
+            if self.offline or not self._get_shim_install():
                 self._setup_secure_boot_efi_image(
                     lookup_path=lookup_path, uuid=boot_uuid, efi_uuid=efi_uuid
                 )
@@ -814,7 +955,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 log.debug(zipl_config)
                 zipl_config_file.write(zipl_config)
 
-    def _setup_default_grub(self) -> None:
+    def _setup_default_grub(self, root_dir: Optional[str] = None) -> None:
         """
         Create or update etc/default/grub by parameters required
         according to the root filesystem setup
@@ -836,8 +977,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_DISABLE_LINUX_UUID
         * GRUB_DISABLE_LINUX_PARTUUID
         * GRUB_ENABLE_LINUX_LABEL
+
+        :param str root_dir: root tree, defaults to the root_dir
         """
         assert self.cmdline is not None
+        root_dir = root_dir or self.root_dir
         # elements to set only if not already in etc/default/grub
         grub_default_if_not_set_entries = {'GRUB_DEFAULT': 'saved'}
         # elements to set in any case
@@ -898,7 +1042,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 ''.join(['/boot/', self.boot_directory_name, '/themes']),
                 self.theme,
             )
-            if os.path.exists(os.sep.join([self.root_dir, theme_background])):
+            if os.path.exists(os.sep.join([root_dir, theme_background])):
                 grub_default_entries['GRUB_BACKGROUND'] = theme_background
         if self.xml_state.build_type.get_btrfs_root_is_snapper_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
@@ -949,7 +1093,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         if grub_default_entries:
             log.info('Writing grub2 defaults file')
-            grub_default_location = ''.join([self.root_dir, '/etc/default/'])
+            grub_default_location = ''.join([root_dir, '/etc/default/'])
             if os.path.exists(grub_default_location):
                 grub_default_file = ''.join([grub_default_location, 'grub'])
                 grub_default = SysConfig(grub_default_file)
@@ -1262,7 +1406,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '-c',
                 root_efi_path + 'earlyboot.cfg',
                 '-p',
-                os.path.join(self.get_boot_path(), self.boot_directory_name),
+                os.path.join(
+                    self._get_lookup_path(self.get_boot_path()),
+                    self.boot_directory_name,
+                ),
                 '-d',
                 module_path.replace(self.root_dir, ''),
             ]
@@ -1401,7 +1548,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             early_boot.write(
                 'set prefix=($root){0}{1}'.format(
                     os.path.join(
-                        self.get_boot_path(), self.boot_directory_name
+                        self._get_lookup_path(self.get_boot_path()),
+                        self.boot_directory_name,
                     ),
                     os.linesep,
                 )
@@ -1410,7 +1558,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '{0} ($root){1}/grub.cfg{2}'.format(
                     self.grub_load,
                     os.path.join(
-                        self.get_boot_path(), self.boot_directory_name
+                        self._get_lookup_path(self.get_boot_path()),
+                        self.boot_directory_name,
                     ),
                     os.linesep,
                 )
@@ -1906,6 +2055,31 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         return template_path
 
+    def _get_lookup_path(self, path: str) -> str:
+        """
+        Path grub2 uses to lookup the given path of the root tree on
+        the boot filesystem. Without the btrfs_relative_path lookup
+        grub2 resolves paths from the toplevel of a btrfs filesystem.
+        If the root tree is stored in subvolumes, e.g /@, a path is
+        therefore looked up at its location in the filesystem, as
+        provided by the btrfs_path custom argument. This is done in
+        offline mode only, otherwise grub2-mkconfig creates the paths
+        from the mounted filesystem
+
+        :param str path: path in the root tree, e.g /boot
+
+        :return: path name, e.g /@/boot
+
+        :rtype: str
+        """
+        if (
+            self.offline
+            and self.btrfs_path
+            and not self._has_btrfs_relative_path()
+        ):
+            return self.btrfs_path(path)
+        return path
+
     def _has_btrfs_relative_path(self) -> bool:
         if (
             self.xml_state.build_type.get_btrfs_set_default_volume()
@@ -2033,16 +2207,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 return loader_entry_name[: -len('.conf')]
         return ''
 
-    def _setup_loader_variables(self, variable_list: List[str]) -> None:
+    def _setup_loader_variables(
+        self, variable_list: List[str], root_dir: Optional[str] = None
+    ) -> None:
         """
         Run grub2-editenv for writing an updated environment blob
+
+        :param list variable_list: list of name=value items
+        :param str root_dir:
+            root tree, defaults to the mounted root filesystem
         """
-        if self.root_mount and variable_list:
+        if not root_dir and self.root_mount:
+            root_dir = self.root_mount.mountpoint
+        if root_dir and variable_list:
             log.info(f'Set grub environment variables: {variable_list}')
             Command.run(
                 [
                     'chroot',
-                    self.root_mount.mountpoint,
+                    root_dir,
                     'grub2-editenv',
                     '-',
                     'set',

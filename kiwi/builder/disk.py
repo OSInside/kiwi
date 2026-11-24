@@ -17,8 +17,18 @@
 #
 from contextlib import ExitStack
 import os
+import uuid
 import logging
-from typing import Dict, List, Optional, Tuple, TypedDict, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    TypedDict,
+    Union,
+)
 
 # project
 import kiwi.defaults as defaults
@@ -39,6 +49,14 @@ from kiwi.boot.image import BootImage
 from kiwi.boot.image.base import BootImageBase
 from kiwi.storage.setup import DiskSetup
 from kiwi.storage.loop_device import LoopDevice
+from kiwi.storage.repart import (
+    SystemdRepart,
+    RepartPartition,
+    RepartBtrfsLayout,
+)
+from kiwi.snapshot_manager.snapper import SnapshotManagerSnapper
+from kiwi.utils.reproducible import Reproducible
+from kiwi.utils.sync import DataSync
 from kiwi.storage.clone_device import CloneDevice
 from kiwi.firmware import FirmWare
 from kiwi.storage.disk import Disk
@@ -66,6 +84,7 @@ from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import (
     KiwiDiskBootImageError,
+    KiwiDiskBuilderRepartError,
     KiwiInstallMediaError,
     KiwiVolumeManagerSetupError,
 )
@@ -218,6 +237,7 @@ class DiskBuilder:
         self.btrfs_seed_requested = xml_state.btrfs_seed_requested()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.disk_start_sector = xml_state.get_disk_start_sector()
+        self.disk_builder = xml_state.build_type.get_disk_builder() or 'kiwi'
         self.disk_setup = DiskSetup(xml_state, root_dir)
         self.unpartitioned_bytes = (
             xml_state.get_build_type_unpartitioned_bytes()
@@ -357,6 +377,9 @@ class DiskBuilder:
                 'Volume management together with root overlay is not supported'
             )
 
+        if self.disk_builder == 'systemd-repart':
+            self._check_repart_requirements()
+
         # setup recovery archive, cleanup and create archive if requested
         self.system_setup.create_recovery_archive()
 
@@ -371,66 +394,10 @@ class DiskBuilder:
         )
 
         # create the disk
-        log.info('Creating raw disk image %s', self.diskname)
-        with LoopDevice(
-            self.diskname, disksize_mbytes, self.blocksize
-        ) as loop_provider:
-            loop_provider.create()
-
-            # create the disk partitioner, still unmapped
-            with self._disk_instance(loop_provider) as disk:
-                # create disk partitions and instance device map
-                device_map = self._build_and_map_disk_partitions(
-                    disk, disksize_mbytes
-                )
-
-                # update device and disk id map if no root write partition
-                if (
-                    self.root_filesystem_is_overlay
-                    and self.root_filesystem_has_write_partition is False
-                ):
-                    device_map['root'] = device_map['readonly']
-                    disk.public_partition_id_map['kiwi_RootPart'] = (
-                        disk.public_partition_id_map['kiwi_ROPart']
-                    )
-
-                with ExitStack() as stack:
-                    if self.mdraid:
-                        # create raid on current root device
-                        raid_root = self._raid_instance(device_map)
-                        stack.push(raid_root)
-                        device_map = self._map_raid(device_map, disk, raid_root)
-
-                    if self.integrity:
-                        # create integrity on current root device
-                        integrity_root = self._integrity_instance(device_map)
-                        stack.push(integrity_root)
-                        device_map = self._map_integrity(
-                            device_map, integrity_root
-                        )
-
-                    if self.luks is not None:
-                        # create luks on current root device
-                        luks_root = self._luks_instance(device_map)
-                        stack.push(luks_root)
-                        device_map = self._map_luks(device_map, luks_root)
-
-                    # create system layout for root system
-                    device_map = self._create_system_instance(device_map, stack)
-                    # build bootable disk
-                    self._build_main_system(
-                        stack,
-                        device_map,
-                        disk,
-                        self.storage_map['system'],
-                        self.storage_map['system_boot'],
-                        self.storage_map['system_efi'],
-                        self.storage_map['system_spare'],
-                        self.storage_map['system_custom_parts'] or {},
-                        self.storage_map['luks_root'],
-                        self.storage_map['raid_root'],
-                        self.storage_map['integrity_root'],
-                    )
+        if self.disk_builder == 'systemd-repart':
+            self._build_disk_with_repart(disksize_mbytes)
+        else:
+            self._build_disk_with_loop_device(disksize_mbytes)
 
         # store image bundle_format in result
         if self.bundle_format:
@@ -530,6 +497,552 @@ class DiskBuilder:
             shasum=False,
         )
         return self.result
+
+    def _build_disk_with_loop_device(self, disksize_mbytes: int) -> None:
+        """
+        Create the disk on a loop device, create the filesystems
+        on the mapped partitions and sync the data into them
+
+        :param int disksize_mbytes: disk size
+        """
+        # create the disk
+        log.info('Creating raw disk image %s', self.diskname)
+        with LoopDevice(
+            self.diskname, disksize_mbytes, self.blocksize
+        ) as loop_provider:
+            loop_provider.create()
+
+            # create the disk partitioner, still unmapped
+            with self._disk_instance(loop_provider) as disk:
+                # create disk partitions and instance device map
+                device_map = self._build_and_map_disk_partitions(
+                    disk, disksize_mbytes
+                )
+
+                # update device and disk id map if no root write partition
+                if (
+                    self.root_filesystem_is_overlay
+                    and self.root_filesystem_has_write_partition is False
+                ):
+                    device_map['root'] = device_map['readonly']
+                    disk.public_partition_id_map['kiwi_RootPart'] = (
+                        disk.public_partition_id_map['kiwi_ROPart']
+                    )
+
+                with ExitStack() as stack:
+                    if self.mdraid:
+                        # create raid on current root device
+                        raid_root = self._raid_instance(device_map)
+                        stack.push(raid_root)
+                        device_map = self._map_raid(device_map, disk, raid_root)
+
+                    if self.integrity:
+                        # create integrity on current root device
+                        integrity_root = self._integrity_instance(device_map)
+                        stack.push(integrity_root)
+                        device_map = self._map_integrity(
+                            device_map, integrity_root
+                        )
+
+                    if self.luks is not None:
+                        # create luks on current root device
+                        luks_root = self._luks_instance(device_map)
+                        stack.push(luks_root)
+                        device_map = self._map_luks(device_map, luks_root)
+
+                    # create system layout for root system
+                    device_map = self._create_system_instance(device_map, stack)
+                    # build bootable disk
+                    self._build_main_system(
+                        stack,
+                        device_map,
+                        disk,
+                        self.storage_map['system'],
+                        self.storage_map['system_boot'],
+                        self.storage_map['system_efi'],
+                        self.storage_map['system_spare'],
+                        self.storage_map['system_custom_parts'] or {},
+                        self.storage_map['luks_root'],
+                        self.storage_map['raid_root'],
+                        self.storage_map['integrity_root'],
+                    )
+
+    def _check_repart_requirements(self) -> None:
+        """
+        Check that the image description only requests features
+        the systemd-repart disk builder supports
+
+        :raises KiwiDiskBuilderRepartError: if not supported
+        """
+        unsupported = []
+        if self.bootloader not in defaults.REPART_BOOTLOADERS:
+            unsupported.append(f'bootloader {self.bootloader!r}')
+        if not self.firmware.efi_mode():
+            unsupported.append('firmware without EFI')
+        elif self.firmware.get_partition_table_type() != 'gpt':
+            unsupported.append('partition table other than gpt')
+        elif self.bootloader == 'grub2' and self.firmware.legacy_bios_mode():
+            # grub2 is setup for EFI only, there is no BIOS boot
+            # partition and no grub2 boot code is installed
+            unsupported.append('legacy BIOS boot, eficsm must be false')
+        if self.bootloader == 'grub2' and self.xen_server:
+            unsupported.append('xen hypervisor boot')
+        if self.initrd_system != 'dracut':
+            unsupported.append(f'initrd system {self.initrd_system!r}')
+        if self.requested_filesystem not in defaults.REPART_ROOT_FILESYSTEMS:
+            unsupported.append(f'filesystem {self.requested_filesystem!r}')
+        if self.volume_manager_name not in defaults.REPART_VOLUME_MANAGERS:
+            unsupported.append(
+                f'volume management {self.volume_manager_name!r}'
+            )
+        volume_attributes = (
+            [
+                attribute
+                for volume in self.volumes
+                for attribute in volume.attributes
+            ]
+            if self.volume_manager_name
+            else []
+        )
+        features = {
+            'btrfs quota groups': (
+                self.volume_manager_name == 'btrfs'
+                and self.xml_state.build_type.get_btrfs_quota_groups()
+            ),
+            'volume quota': any(
+                attribute.startswith('quota=')
+                for attribute in volume_attributes
+            ),
+            'volumes without copy-on-write': (
+                'no-copy-on-write' in volume_attributes
+            ),
+            'mdraid': self.mdraid,
+            'luks': self.luks is not None,
+            'standalone integrity': self.integrity,
+            'overlayroot': self.root_filesystem_is_overlay,
+            'verity': self.root_filesystem_verity_blocks,
+            'custom partitions': self.custom_partitions,
+            'spare partition': self.spare_part_mbsize,
+            'boot partition': self.disk_setup.need_boot_partition(),
+            'partition clones': self.root_clone_count or self.boot_clone_count,
+            'filesystem create options': self.custom_root_creation_args,
+            'unpartitioned space': self.unpartitioned_bytes,
+            'btrfs seed': self.btrfs_seed_requested,
+            'editbootinstall script': (
+                self.xml_state.build_type.get_editbootinstall()
+            ),
+        }
+        unsupported += [name for name, value in features.items() if value]
+        if unsupported:
+            raise KiwiDiskBuilderRepartError(
+                'systemd-repart disk builder does not support: {0}'.format(
+                    ', '.join(unsupported)
+                )
+            )
+
+    def _build_disk_with_repart(self, disksize_mbytes: int) -> None:
+        """
+        Create the disk with systemd-repart. The root tree is
+        copied to a staging directory in which all steps that
+        otherwise run in the mounted disk image take place.
+        systemd-repart then creates the partitions and the
+        filesystems including their data from the staging
+        directory, without loop devices and mounts. With the
+        btrfs volume manager systemd-repart creates the volumes
+        as subvolumes of the btrfs root filesystem, see
+        RepartBtrfsLayout
+
+        :param int disksize_mbytes: disk size
+        """
+        log.info(
+            'Creating raw disk image %s with systemd-repart', self.diskname
+        )
+        staging = Temporary(
+            prefix='kiwi_repart_root.', path=self.target_dir
+        ).new_dir()
+        staging_root = staging.name
+        repart = SystemdRepart(
+            self.diskname,
+            self.arch,
+            int(self.blocksize) if self.blocksize else None,
+        )
+        efi_partition = RepartPartition(
+            name='efi',
+            partition_type='esp',
+            label=self.disk_setup.get_efi_label(),
+            uuid=self._get_repart_partition_uuid('efi'),
+            filesystem='vfat',
+            mbsize=self.firmware.get_efi_partition_size(),
+            copy_files=[f'{staging_root}/boot/efi:/'],
+        )
+        repart.add_partition(efi_partition)
+        if self.swap_mbytes:
+            repart.add_partition(
+                RepartPartition(
+                    name='swap',
+                    partition_type='swap',
+                    label='SWAP',
+                    uuid=self._get_repart_partition_uuid('swap'),
+                    filesystem='swap',
+                    mbsize=self.swap_mbytes,
+                )
+            )
+        btrfs_layout = self._get_repart_btrfs_layout()
+        root_copy_files = [f'{staging_root}:/']
+        root_exclude_files_target: List[str] = []
+        root_make_directories = ['/boot/efi']
+        snapshots_dir = ''
+        if btrfs_layout:
+            root_copy_files, root_exclude_files_target = (
+                btrfs_layout.get_copy_files(staging_root)
+            )
+            root_make_directories = [
+                btrfs_layout.get_path('/boot/efi')
+            ] + btrfs_layout.get_make_directories()
+            if btrfs_layout.snapshots_path:
+                # the .snapshots subvolume content, created along
+                # with the staging directory. It is copied first
+                # such that the copy of the root tree into the first
+                # snapshot does not create its parent directories
+                snapshots = Temporary(
+                    prefix='kiwi_repart_snapshots.', path=self.target_dir
+                ).new_dir()
+                snapshots_dir = os.sep.join([snapshots.name, '.snapshots'])
+                root_copy_files.insert(
+                    0, f'{snapshots_dir}:{btrfs_layout.snapshots_path}'
+                )
+        root_partition = RepartPartition(
+            name='root',
+            partition_type='root' if self.apply_dps_codes else 'linux-generic',
+            label=self.disk_setup.get_root_label(),
+            uuid=self._get_repart_partition_uuid('root'),
+            filesystem=self.requested_filesystem,
+            copy_files=root_copy_files,
+            exclude_files=[f'{staging_root}/boot/efi/'],
+            exclude_files_target=root_exclude_files_target or None,
+            make_directories=root_make_directories,
+            subvolumes=(
+                btrfs_layout.get_subvolumes() if btrfs_layout else None
+            ),
+            default_subvolume=(
+                btrfs_layout.get_default_subvolume() if btrfs_layout else None
+            ),
+        )
+        repart.add_partition(root_partition)
+        partition_ids = repart.get_partition_id_map()
+        partition_id_map: Dict[str, Union[int, str]] = {
+            'kiwi_EfiPart': partition_ids['efi'],
+            'kiwi_RootPart': partition_ids['root'],
+            'kiwi_BootPart': partition_ids['root'],
+        }
+        if 'swap' in partition_ids:
+            partition_id_map['kiwi_SwapPart'] = partition_ids['swap']
+
+        # store root partition uuid for profile
+        self.xml_state.set_root_partition_uuid(root_partition.uuid)
+
+        # create a random image identifier
+        self.mbrid = SystemIdentifier()
+        self.mbrid.calculate_id()
+
+        # create first stage metadata to boot image
+        self._write_partition_id_config_to_boot_image(partition_id_map)
+        self._write_recovery_metadata_to_boot_image()
+        self.system_setup.export_modprobe_setup(
+            self.boot_image.boot_root_directory
+        )
+
+        # create first stage metadata to system image
+        self._write_image_identifier_to_system_image()
+        self._write_repart_fstab_to_system_image(
+            repart.partitions, btrfs_layout
+        )
+        self._setup_dracut_modules()
+
+        # create initrd(s) and second stage metadata to system image
+        self._create_boot_files()
+        cmdline = self._get_repart_boot_cmdline(
+            root_partition.uuid, btrfs_layout
+        )
+        log.info('Creating config.bootoptions')
+        with open(
+            self.boot_image.boot_root_directory + '/config.bootoptions', 'w'
+        ) as boot_options:
+            boot_options.write(f'{cmdline}{os.linesep}')
+        self.system_setup.call_edit_boot_config_script(
+            self.requested_filesystem, partition_ids['root']
+        )
+
+        # run pre sync script hook
+        if self.system_setup.script_exists(defaults.PRE_DISK_SYNC_SCRIPT):
+            SystemSetup(self.xml_state, self.root_dir).call_pre_disk_script()
+
+        # copy system data to staging directory
+        self._sync_system_to_staging(staging_root)
+        if btrfs_layout:
+            self._setup_repart_btrfs_staging(
+                btrfs_layout, staging_root, snapshots_dir
+            )
+
+        # run post sync actions in the staging directory
+        staging_system = SystemSetup(self.xml_state, staging_root)
+        if self.system_setup.script_exists(defaults.POST_DISK_SYNC_SCRIPT):
+            # run post sync script hook and security context
+            staging_system.call_disk_script(root_is_mountpoint=False)
+        else:
+            # setup security context
+            staging_system.setup_selinux_file_contexts()
+
+        # setup boot loader in the staging directory. The filesystem
+        # UUIDs systemd-repart will assign are known in advance and
+        # allow the bootloader to lookup the filesystems by UUID
+        filesystem_uuids = {
+            partition.name: SystemdRepart.get_filesystem_uuid(partition)
+            for partition in (root_partition, efi_partition)
+        }
+        with self._bootloader_instance(
+            self.diskname,
+            staging_root,
+            offline=True,
+            btrfs_path=btrfs_layout.get_path if btrfs_layout else None,
+        ) as bootloader_config:
+            bootloader_config.setup_disk_boot_images(
+                filesystem_uuids['root'], filesystem_uuids['efi']
+            )
+            bootloader_config.setup_disk_image_config_on_tree(
+                staging_root, cmdline, self.boot_image
+            )
+
+        # cleanup build metadata
+        staging_system.cleanup()
+
+        # files created by the build, e.g. the initrd and the
+        # bootloader setup, carry the time of the build and
+        # systemd-repart copies the timestamps into the filesystems
+        Reproducible.clamp_mtime(staging_root)
+        if snapshots_dir:
+            Reproducible.clamp_mtime(snapshots_dir)
+
+        # create disk with partitions and filesystems
+        repart_result = repart.create(disksize_mbytes)
+
+        # write MBR id
+        self.mbrid.write_to_file(self.diskname)
+
+        # store root filesystem uuid for disk formats
+        rootfs_uuid = self._get_repart_filesystem_uuid(
+            repart_result, root_partition
+        )
+        if rootfs_uuid:
+            self.xml_state.set_root_filesystem_uuid(rootfs_uuid)
+
+        # the grub2 config references the filesystems by the UUIDs
+        # calculated in advance, make sure they match
+        if self.bootloader == 'grub2':
+            for partition in (root_partition, efi_partition):
+                filesystem_uuid = (
+                    rootfs_uuid
+                    if partition is root_partition
+                    else self._get_repart_filesystem_uuid(
+                        repart_result, partition
+                    )
+                )
+                if filesystem_uuid != filesystem_uuids[partition.name]:
+                    raise KiwiDiskBuilderRepartError(
+                        'Unexpected {0} filesystem UUID {1!r} created by '
+                        'systemd-repart, the grub2 config expects {2!r}'.format(
+                            partition.name,
+                            filesystem_uuid,
+                            filesystem_uuids[partition.name],
+                        )
+                    )
+
+    def _get_repart_filesystem_uuid(
+        self, repart_result: List[Dict], partition: RepartPartition
+    ) -> str:
+        """
+        Filesystem UUID of the given partition in the disk image
+        created by systemd-repart
+
+        :param list repart_result: systemd-repart JSON result
+        :param RepartPartition partition: partition to lookup
+
+        :return: filesystem UUID or empty string if not found
+
+        :rtype: str
+        """
+        for result in repart_result:
+            if result.get('uuid') == partition.uuid:
+                return Command.run(
+                    [
+                        'blkid',
+                        '-p',
+                        '-O',
+                        format(result['offset']),
+                        '-s',
+                        'UUID',
+                        '-o',
+                        'value',
+                        self.diskname,
+                    ]
+                ).output.strip()
+        return ''
+
+    @staticmethod
+    def _get_repart_partition_uuid(name: str) -> str:
+        return Reproducible.get_seeded_uuid(f'repart-partition-{name}') or (
+            format(uuid.uuid4())
+        )
+
+    def _get_repart_boot_cmdline(
+        self,
+        root_partition_uuid: str,
+        btrfs_layout: Optional[RepartBtrfsLayout] = None,
+    ) -> str:
+        """
+        Kernel command line for a systemd-repart created disk. The
+        filesystem UUIDs are not known before systemd-repart has
+        created the filesystems, thus the partition UUID is used.
+        A btrfs root tree which is not stored in the default
+        subvolume is mounted by the rootflags=subvol= parameter
+        """
+        cmdline = self.cmdline
+        if 'root=' not in cmdline:
+            cmdline = f'{cmdline} root=PARTUUID={root_partition_uuid}'.strip()
+        root_mount_option = (
+            btrfs_layout.get_root_mount_option() if btrfs_layout else None
+        )
+        if root_mount_option and 'rootflags=' not in cmdline:
+            cmdline = f'{cmdline} rootflags={root_mount_option}'
+        return cmdline
+
+    def _get_repart_btrfs_layout(self) -> Optional[RepartBtrfsLayout]:
+        """
+        Subvolume layout of the root filesystem if the btrfs volume
+        manager is used
+
+        :return: RepartBtrfsLayout instance or None
+
+        :rtype: RepartBtrfsLayout
+        """
+        if self.volume_manager_name != 'btrfs':
+            return None
+        build_type = self.xml_state.build_type
+        return RepartBtrfsLayout(
+            self.volumes,
+            build_type.get_btrfs_root_is_subvolume(),
+            bool(build_type.get_btrfs_root_is_snapper_snapshot()),
+            bool(build_type.get_btrfs_root_is_readonly_snapshot()),
+            self.btrfs_default_volume_requested,
+        )
+
+    @staticmethod
+    def _setup_repart_btrfs_staging(
+        btrfs_layout: RepartBtrfsLayout, staging_root: str, snapshots_dir: str
+    ) -> None:
+        """
+        Prepare the staging directory for the btrfs subvolume
+        layout. The mount point of each volume must exist in the
+        staging directory, as the btrfs volume manager does it in
+        the root tree. If the root tree is stored in a snapper
+        snapshot, the snapper configuration is created in the
+        staging directory and the .snapshots subvolume content in
+        snapshots_dir
+
+        :param RepartBtrfsLayout btrfs_layout: subvolume layout
+        :param str staging_root: staging directory
+        :param str snapshots_dir: .snapshots subvolume content
+        """
+        for volume in btrfs_layout.volumes:
+            Path.create(os.path.normpath(staging_root + volume.mountpoint))
+        if btrfs_layout.root_is_snapshot:
+            log.info('Creating first snapshot setup')
+            Path.create(snapshots_dir)
+            os.chmod(snapshots_dir, 0o750)
+            SnapshotManagerSnapper.setup_first_snapshot_on_tree(
+                staging_root, snapshots_dir
+            )
+
+    def _write_repart_fstab_to_system_image(
+        self,
+        partitions: List[RepartPartition],
+        btrfs_layout: Optional[RepartBtrfsLayout] = None,
+    ) -> None:
+        """
+        Write etc/fstab for a systemd-repart created disk. The
+        filesystem UUIDs are not known before systemd-repart has
+        created the filesystems, thus the partition UUID is used
+        unless by-label is requested. With a btrfs subvolume
+        layout each volume is mounted from the root partition
+        """
+        log.info('Creating generic system etc/fstab')
+        mount_setup = {
+            'root': ('/', self.custom_root_mount_args, '0 1'),
+            'efi': ('/boot/efi', self.custom_efi_mount_args, '0 0'),
+            'swap': ('swap', [], '0 0'),
+        }
+        for partition in partitions:
+            mount_point, options, check = mount_setup[partition.name]
+            if self.persistency_type == 'by-label':
+                device_id = f'LABEL={partition.label}'
+            else:
+                device_id = f'PARTUUID={partition.uuid}'
+            volumes = []
+            if partition.name == 'root' and btrfs_layout:
+                volumes = btrfs_layout.get_mount_volumes()
+                root_mount_option = btrfs_layout.get_root_mount_option()
+                options = list(options or [])
+                if root_mount_option:
+                    options.append(root_mount_option)
+                if btrfs_layout.root_is_readonly_snapshot:
+                    options.append('ro')
+                    check = '0 0'
+            self.fstab.add_entry(
+                ' '.join(
+                    [
+                        device_id,
+                        mount_point,
+                        partition.filesystem,
+                        ','.join(options or ['defaults']),
+                        check,
+                    ]
+                )
+            )
+            for volume in volumes:
+                volume_options = list(self.custom_root_mount_args or []) + [
+                    'subvol={0}'.format(volume.path.lstrip(os.sep))
+                ]
+                self.fstab.add_entry(
+                    ' '.join(
+                        [
+                            device_id,
+                            volume.mountpoint,
+                            partition.filesystem,
+                            ','.join(volume_options),
+                            '0 2' if volume.filesystem_check else '0 0',
+                        ]
+                    )
+                )
+        self.system_setup.create_fstab(self.fstab)
+
+    def _sync_system_to_staging(self, staging_root: str) -> None:
+        log.info('Syncing system to staging directory %s', staging_root)
+        data = DataSync(self.root_dir + os.sep, staging_root)
+        data.sync_data(
+            exclude=self._get_exclude_list_for_root_data_sync({}),
+            options=Defaults.get_sync_options(),
+        )
+        image_metadata = os.sep.join(
+            [self.root_dir, defaults.IMAGE_METADATA_DIR]
+        )
+        if os.path.isdir(image_metadata):
+            # provide the image description scripts, e.g disk.sh
+            # which are excluded from the root data sync
+            data = DataSync(
+                image_metadata + os.sep,
+                os.sep.join([staging_root, defaults.IMAGE_METADATA_DIR]),
+            )
+            data.sync_data(options=Defaults.get_sync_options())
 
     def create_disk_format(self, result_instance: Result) -> Result:
         """
@@ -635,23 +1148,31 @@ class DiskBuilder:
             apply_dps_codes=bool(self.apply_dps_codes),
         )
 
-    def _bootloader_instance(self, disk: Disk) -> BootLoaderConfigBase:
-        custom_args = {
-            'targetbase': disk.storage_provider.get_device(),
+    def _bootloader_instance(
+        self,
+        targetbase: str,
+        root_dir: Optional[str] = None,
+        offline: bool = False,
+        btrfs_path: Optional[Callable[[str], str]] = None,
+    ) -> BootLoaderConfigBase:
+        root_dir = root_dir or self.root_dir
+        custom_args: Dict[str, Any] = {
+            'targetbase': targetbase,
             'crypto_disk': True if self.luks is not None else False,
             'boot_is_crypto': self.boot_is_crypto,
             'config_options': self.xml_state.get_bootloader_config_options(),
             'target_dir': self.target_dir,
+            'offline': offline,
         }
         if self.bootloader.startswith('grub'):
-            custom_args.update(
-                Defaults.get_grub_custom_arguments(self.root_dir)
-            )
+            custom_args.update(Defaults.get_grub_custom_arguments(root_dir))
+            if btrfs_path:
+                custom_args['btrfs_path'] = btrfs_path
         return create_boot_loader_config(
             name=self.bootloader,
             xml_state=self.xml_state,
-            root_dir=self.root_dir,
-            boot_dir=self.root_dir,
+            root_dir=root_dir,
+            boot_dir=root_dir,
             custom_args=custom_args,
         )
 
@@ -859,7 +1380,9 @@ class DiskBuilder:
         self.mbrid.calculate_id()
 
         # create first stage metadata to boot image
-        self._write_partition_id_config_to_boot_image(disk)
+        self._write_partition_id_config_to_boot_image(
+            disk.get_public_partition_id_map()
+        )
 
         self._write_recovery_metadata_to_boot_image()
 
@@ -883,29 +1406,14 @@ class DiskBuilder:
 
         self._write_generic_fstab_to_system_image(device_map, system)
 
-        if self.initrd_system == 'dracut':
-            for module in self.dracut_add_modules:
-                self.boot_image.include_module(module)
-            for module in self.dracut_omit_modules:
-                self.boot_image.omit_module(module)
-            for driver in self.dracut_add_drivers:
-                self.boot_image.include_driver(driver)
-            for driver in self.dracut_omit_drivers:
-                self.boot_image.omit_driver(driver)
-            if self.root_filesystem_is_multipath is False:
-                self.boot_image.omit_module('multipath')
-            if self.root_filesystem_is_overlay:
-                self.boot_image.include_module('kiwi-overlay')
-                self.boot_image.write_system_config_file(
-                    config={'modules': ['kiwi-overlay']}
-                )
-            if self.disk_resize_requested:
-                self.boot_image.include_module('kiwi-repart')
+        self._setup_dracut_modules()
 
         # create initrd(s) and second stage metadata to system image
         self._create_boot_files()
 
-        with self._bootloader_instance(disk) as bootloader_config:
+        with self._bootloader_instance(
+            disk.storage_provider.get_device()
+        ) as bootloader_config:
             # write bootloader meta data to system image
             if self.bootloader != 'custom':
                 self._write_bootloader_meta_data_to_system_image(
@@ -1028,6 +1536,26 @@ class DiskBuilder:
             self.system_setup.call_edit_boot_install_script(
                 self.diskname, boot_device.get_device()
             )
+
+    def _setup_dracut_modules(self) -> None:
+        if self.initrd_system == 'dracut':
+            for module in self.dracut_add_modules:
+                self.boot_image.include_module(module)
+            for module in self.dracut_omit_modules:
+                self.boot_image.omit_module(module)
+            for driver in self.dracut_add_drivers:
+                self.boot_image.include_driver(driver)
+            for driver in self.dracut_omit_drivers:
+                self.boot_image.omit_driver(driver)
+            if self.root_filesystem_is_multipath is False:
+                self.boot_image.omit_module('multipath')
+            if self.root_filesystem_is_overlay:
+                self.boot_image.include_module('kiwi-overlay')
+                self.boot_image.write_system_config_file(
+                    config={'modules': ['kiwi-overlay']}
+                )
+            if self.disk_resize_requested:
+                self.boot_image.include_module('kiwi-repart')
 
     def _install_image_requested(self) -> bool:
         return bool(self.install_iso or self.install_stick or self.install_pxe)
@@ -1441,7 +1969,9 @@ class DiskBuilder:
 
         return device_map
 
-    def _write_partition_id_config_to_boot_image(self, disk: Disk) -> None:
+    def _write_partition_id_config_to_boot_image(
+        self, partition_id_map: Dict[str, Union[int, str]]
+    ) -> None:
         """
         Write the partition name to partition number map to
         config.partids in the boot system. With dracut the boot
@@ -1454,7 +1984,6 @@ class DiskBuilder:
         filename = ''.join(
             [self.boot_image.boot_root_directory, '/config.partids']
         )
-        partition_id_map = disk.get_public_partition_id_map()
         with open(filename, 'w') as partids:
             for id_name, id_value in list(partition_id_map.items()):
                 partids.write(

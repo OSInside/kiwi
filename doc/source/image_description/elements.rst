@@ -522,6 +522,16 @@ efiparttable="msdos|gpt":
   Only available for the `oem` and `iso` types.
 
 
+disk_builder="kiwi|systemd-repart":
+  Specifies the tool to create the disk image. With `kiwi`, the
+  default, the disk is created on a loop device and the data is
+  copied into the mounted filesystems. With `systemd-repart` the
+  partitions and filesystems including their data are created
+  without loop devices and mounts, see :ref:`disk_builder_repart`
+  for the supported image descriptions.
+  Only available for the `oem` type.
+
+
 dosparttable_extended_layout="true|false":
   For OEM disk images, specifies to make use of logical partitions
   inside of an extended one. If set to true and if the msdos table type

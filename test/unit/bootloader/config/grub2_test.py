@@ -18,6 +18,7 @@ from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.utils.sysconfig import SysConfig
 from kiwi.xml_state import DracutT
+from kiwi.boot.image.base import boot_names_type
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
@@ -1878,6 +1879,293 @@ class TestBootLoaderConfigGrub2:
                     ]
                 )
             ]
+
+    @patch.object(BootLoaderConfigGrub2, '_setup_secure_boot_efi_image')
+    @patch.object(BootLoaderConfigGrub2, '_get_shim_install')
+    @patch.object(BootLoaderConfigGrub2, '_copy_bios_modules_to_boot_directory')
+    def test_setup_disk_boot_images_secure_boot_offline(
+        self,
+        mock_copy_bios_modules_to_boot_directory,
+        mock_get_shim_install,
+        mock_setup_secure_boot_efi_image,
+    ):
+        # shim-install requires the disk device, in offline mode
+        # the fallback setup is used even if shim-install exists
+        mock_get_shim_install.return_value = 'shim-install'
+        self.firmware.efi_mode = Mock(return_value='uefi')
+        self.bootloader.setup_disk_boot_images('uuid', 'efi-uuid')
+        assert not mock_setup_secure_boot_efi_image.called
+        assert self.bootloader.boot_uuid == 'uuid'
+        self.bootloader.offline = True
+        self.bootloader.setup_disk_boot_images('uuid', 'efi-uuid')
+        mock_setup_secure_boot_efi_image.assert_called_once_with(
+            lookup_path=None, uuid='uuid', efi_uuid='efi-uuid'
+        )
+
+    def test_post_init_offline(self):
+        assert self.bootloader.offline is False
+        bootloader = BootLoaderConfigGrub2(
+            self.state, 'root_dir', None, {'offline': True}
+        )
+        assert bootloader.offline is True
+
+    def test_get_lookup_path(self):
+        self.state.build_type.get_btrfs_set_default_volume = Mock(
+            return_value=None
+        )
+        self.state.build_type.get_btrfs_root_is_snapper_snapshot = Mock(
+            return_value=None
+        )
+        bootloader = BootLoaderConfigGrub2(
+            self.state,
+            'root_dir',
+            None,
+            {'offline': True, 'btrfs_path': lambda path: f'/@{path}'},
+        )
+        assert bootloader._get_lookup_path('/boot') == '/@/boot'
+        # grub2 looks up paths relative to the default subvolume
+        self.state.build_type.get_btrfs_set_default_volume.return_value = True
+        assert bootloader._get_lookup_path('/boot') == '/boot'
+        # btrfs_path is only used in offline mode
+        self.state.build_type.get_btrfs_set_default_volume.return_value = None
+        bootloader.offline = False
+        assert bootloader._get_lookup_path('/boot') == '/boot'
+        # no btrfs_path
+        assert self.bootloader.btrfs_path is None
+        self.bootloader.offline = True
+        assert self.bootloader._get_lookup_path('/boot') == '/boot'
+
+    @patch.object(BootLoaderConfigGrub2, '_has_btrfs_relative_path')
+    def test_create_early_boot_script_for_uuid_search_btrfs_path(
+        self, mock_has_btrfs_relative_path, tmp_path
+    ):
+        mock_has_btrfs_relative_path.return_value = False
+        self.bootloader.offline = True
+        self.bootloader.btrfs_path = lambda path: f'/@{path}'
+        early_boot_script = tmp_path / 'grub.cfg'
+        self.bootloader._create_early_boot_script_for_uuid_search(
+            str(early_boot_script), 'uuid'
+        )
+        assert early_boot_script.read_text().endswith(
+            'search --fs-uuid --set=root uuid\n'
+            'set prefix=($root)/@/boot/grub2\n'
+            'source ($root)/@/boot/grub2/grub.cfg\n'
+        )
+
+    @patch('kiwi.bootloader.config.grub2.BootImageBase')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
+    @patch.object(BootLoaderConfigGrub2, '_has_btrfs_relative_path')
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    def test_setup_disk_image_config_on_tree_btrfs_path(
+        self,
+        mock_setup_default_grub,
+        mock_has_btrfs_relative_path,
+        mock_get_boot_path,
+        mock_BootImageBase,
+        tmp_path,
+    ):
+        root_dir = self._setup_disk_image_config_on_tree(
+            tmp_path, mock_BootImageBase
+        )
+        mock_get_boot_path.return_value = '/boot'
+        mock_has_btrfs_relative_path.return_value = False
+        self.state.get_build_type_bootloader_environment_variables = Mock(
+            return_value=[]
+        )
+        self.firmware.efi_mode = Mock(return_value='')
+        self.bootloader.offline = True
+        self.bootloader.btrfs_path = lambda path: f'/@/.snapshots/1{path}'
+
+        self.bootloader.setup_disk_image_config_on_tree(root_dir, 'splash')
+
+        config = (tmp_path / 'boot' / 'grub2' / 'grub.cfg').read_text()
+        assert (
+            'linux ($root)/@/.snapshots/1/usr/lib/modules/6.12-default/vmlinuz'
+        ) in config
+        assert 'initrd ($root)/@/.snapshots/1/boot/initrd-6.12-default\n' in (
+            config
+        )
+        assert (
+            'set font=($root)/@/.snapshots/1/boot/grub2/fonts/unicode.pf2'
+        ) in config
+
+    def _setup_disk_image_config_on_tree(self, tmp_path, mock_BootImageBase):
+        root_dir = str(tmp_path)
+        (tmp_path / 'boot' / 'grub2').mkdir(parents=True)
+
+        def get_boot_names(flavor):
+            name = flavor or 'default'
+            return boot_names_type(
+                kernel_name=f'vmlinuz-6.12-{name}',
+                initrd_name=f'initrd-6.12-{name}',
+                kernel_version=f'6.12-{name}',
+                kernel_filename=(
+                    f'{root_dir}/usr/lib/modules/6.12-{name}/vmlinuz'
+                ),
+            )
+
+        mock_BootImageBase.return_value.get_boot_names.side_effect = (
+            get_boot_names
+        )
+        self.state.get_dracut_config = Mock(
+            return_value=DracutT(uefi=False, modules=[], drivers=[])
+        )
+        self.bootloader.grub2 = BootLoaderTemplateGrub2()
+        self.bootloader.terminal_output = 'gfxterm'
+        self.bootloader.failsafe_boot = True
+        return root_dir
+
+    @patch('kiwi.bootloader.config.grub2.BootImageBase')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_disk_image_config_on_tree(
+        self,
+        mock_Command_run,
+        mock_copy_grub_config_to_efi_path,
+        mock_setup_default_grub,
+        mock_get_boot_path,
+        mock_BootImageBase,
+        tmp_path,
+    ):
+        root_dir = self._setup_disk_image_config_on_tree(
+            tmp_path, mock_BootImageBase
+        )
+        mock_get_boot_path.return_value = '/boot'
+        self.state.get_build_type_bootloader_environment_variables = Mock(
+            return_value=['some=value']
+        )
+        self.firmware.efi_mode = Mock(return_value='uefi')
+        self.bootloader.early_boot_script_efi = 'efi/EFI/BOOT/grub.cfg'
+        self.bootloader.boot_uuid = 'rootfs-uuid'
+
+        self.bootloader.setup_disk_image_config_on_tree(
+            root_dir, 'splash root=PARTUUID=0816'
+        )
+
+        failsafe_cmdline = ' '.join(
+            [
+                'splash root=PARTUUID=0816',
+                Defaults.get_failsafe_kernel_options(),
+            ]
+        )
+        assert self.bootloader.cmdline == 'splash root=PARTUUID=0816'
+        assert self.bootloader.cmdline_failsafe == failsafe_cmdline
+        mock_setup_default_grub.assert_called_once_with(root_dir)
+        mock_Command_run.assert_called_once_with(
+            ['chroot', root_dir, 'grub2-editenv', '-', 'set', 'some=value']
+        )
+        mock_BootImageBase.assert_called_with(self.state, root_dir, root_dir)
+        config = (tmp_path / 'boot' / 'grub2' / 'grub.cfg').read_text()
+        assert 'search --no-floppy --fs-uuid --set=root rootfs-uuid\n' in config
+        assert (
+            'linux ($root)/usr/lib/modules/6.12-default/vmlinuz '
+            'splash root=PARTUUID=0816\n'
+        ) in config
+        assert 'initrd ($root)/boot/initrd-6.12-default\n' in config
+        assert f'/vmlinuz {failsafe_cmdline}\n' in config
+        mock_copy_grub_config_to_efi_path.assert_called_once_with(
+            f'{root_dir}/boot/efi', 'efi/EFI/BOOT/grub.cfg'
+        )
+
+    @patch('kiwi.bootloader.config.grub2.BootImageBase')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_disk_image_config_on_tree_kernel_flavors(
+        self,
+        mock_Command_run,
+        mock_copy_grub_config_to_efi_path,
+        mock_setup_default_grub,
+        mock_get_boot_path,
+        mock_BootImageBase,
+        tmp_path,
+    ):
+        root_dir = self._setup_disk_image_config_on_tree(
+            tmp_path, mock_BootImageBase
+        )
+        mock_get_boot_path.return_value = '/boot'
+        self.state.get_build_type_bootloader_environment_variables = Mock(
+            return_value=[]
+        )
+        self.state.get_build_type_bootloader_kernel_flavors = Mock(
+            return_value=['default', 'kvmsmall']
+        )
+        self.firmware.efi_mode = Mock(return_value='')
+
+        self.bootloader.setup_disk_image_config_on_tree(root_dir, 'splash')
+
+        assert not mock_Command_run.called
+        assert not mock_copy_grub_config_to_efi_path.called
+        config = (tmp_path / 'boot' / 'grub2' / 'grub.cfg').read_text()
+        assert 'search --no-floppy --file --set=root /boot/mbrid\n' in config
+        assert 'linux ($root)/usr/lib/modules/6.12-default/vmlinuz' in config
+        assert 'linux ($root)/usr/lib/modules/6.12-kvmsmall/vmlinuz' in config
+        assert 'initrd ($root)/boot/initrd-6.12-kvmsmall\n' in config
+        assert '(kvmsmall)"' in config
+
+    @patch('kiwi.bootloader.config.grub2.BootImageBase')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    def test_setup_disk_image_config_on_tree_template_error(
+        self,
+        mock_setup_default_grub,
+        mock_get_boot_path,
+        mock_BootImageBase,
+        tmp_path,
+    ):
+        root_dir = self._setup_disk_image_config_on_tree(
+            tmp_path, mock_BootImageBase
+        )
+        mock_get_boot_path.return_value = '/boot'
+        self.bootloader.grub2 = Mock()
+        self.bootloader.grub2.get_disk_template.return_value.substitute.side_effect = KeyError(
+            'title'
+        )
+        with raises(KiwiTemplateError):
+            self.bootloader.setup_disk_image_config_on_tree(root_dir, 'splash')
+
+    @patch.object(BootLoaderConfigGrub2, '_write_disk_config_on_tree')
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_disk_image_config_on_tree_uki(
+        self,
+        mock_Command_run,
+        mock_copy_grub_config_to_efi_path,
+        mock_setup_default_grub,
+        mock_write_disk_config_on_tree,
+    ):
+        self.state.get_dracut_config = Mock(
+            return_value=DracutT(uefi=True, modules=[], drivers=[])
+        )
+        self.state.get_build_type_bootloader_environment_variables = Mock(
+            return_value=[]
+        )
+        self.firmware.efi_mode = Mock(return_value='uefi')
+        self.bootloader.early_boot_script_efi = 'efi/EFI/BOOT/grub.cfg'
+        boot_image = Mock()
+        boot_image.create_uki.return_value = 'kiwi.efi'
+
+        self.bootloader.setup_disk_image_config_on_tree(
+            'staging', 'splash', boot_image
+        )
+
+        boot_image.create_uki.assert_called_once_with('splash')
+        mock_Command_run.assert_called_once_with(
+            ['mv', 'kiwi.efi', 'staging/boot/efi/EFI/Linux/']
+        )
+        assert not mock_write_disk_config_on_tree.called
+        mock_copy_grub_config_to_efi_path.assert_called_once_with(
+            'staging/boot/efi', 'efi/EFI/BOOT/grub.cfg'
+        )
+
+        # without boot image no UKI is created
+        mock_Command_run.reset_mock()
+        self.bootloader.setup_disk_image_config_on_tree('staging', 'splash')
+        assert not mock_Command_run.called
 
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Path.which')
