@@ -490,6 +490,119 @@ class TestSystemdRepart:
             'Compression=lzo\n'
         )
 
+    @patch('kiwi.storage.repart.Path.wipe')
+    @patch('kiwi.storage.repart.Command.run')
+    @patch('kiwi.storage.repart.Temporary')
+    def test_create_mkfs_options(
+        self, mock_Temporary, mock_Command_run, mock_wipe, tmp_path
+    ):
+        mock_Temporary.return_value.new_dir.return_value.name = str(tmp_path)
+        mock_Command_run.return_value = Mock(output='[]')
+        repart = SystemdRepart('disk.raw', 'x86_64', 512)
+        repart.add_partition(
+            RepartPartition(
+                name='efi',
+                partition_type='esp',
+                label='EFI',
+                uuid='c5c167b6-18d4-4a2a-bd63-35fd3799c2bc',
+                filesystem='vfat',
+            )
+        )
+        repart.add_partition(
+            RepartPartition(
+                name='root',
+                partition_type='root',
+                label='ROOT',
+                uuid='e8871034-3f7f-4cb3-a772-4646679a9ecd',
+                filesystem='ext4',
+                mkfs_options=['-O', '^has_journal', '-E', 'stride=8'],
+            )
+        )
+        with patch.dict(
+            'os.environ',
+            {'SYSTEMD_REPART_MKFS_OPTIONS_EXT4': '-I 256'},
+            clear=True,
+        ):
+            repart.create(42)
+        # the extended options are passed in one -E option together
+        # with the ones systemd-repart passes with its own -E option
+        assert mock_Command_run.call_args[1]['custom_env'] == {
+            'SYSTEMD_REPART_MKFS_OPTIONS_EXT4': (
+                '-I 256 -O ^has_journal '
+                '-E nodiscard,lazy_itable_init=1,stride=8'
+            ),
+        }
+        # the mkfs definitions are not affected
+        assert 'stride' not in (tmp_path / '02-root.conf').read_text()
+
+        # reproducible build: the extended options follow the hash seed
+        mock_Command_run.side_effect = lambda call, **kwargs: (
+            Mock(error='mke2fs 1.47.3 (8-Jul-2025)\n')
+            if call[0] == 'mke2fs'
+            else Mock(output='[]')
+        )
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}, clear=True):
+            repart.create(42)
+        assert mock_Command_run.call_args[1]['custom_env'] == {
+            'SOURCE_DATE_EPOCH': '0',
+            'SYSTEMD_REPART_MKFS_OPTIONS_VFAT': '--invariant -i 07D331C2',
+            'SYSTEMD_REPART_MKFS_OPTIONS_EXT4': (
+                '-O ^has_journal -E nodiscard,lazy_itable_init=1,'
+                'hash_seed=eb272619-2296-4fd3-b9a5-9151b07c10ed,stride=8'
+            ),
+        }
+
+    @patch('kiwi.storage.repart.Path.wipe')
+    @patch('kiwi.storage.repart.Command.run')
+    @patch('kiwi.storage.repart.Temporary')
+    def test_create_mkfs_options_xfs(
+        self, mock_Temporary, mock_Command_run, mock_wipe, tmp_path
+    ):
+        mock_Temporary.return_value.new_dir.return_value.name = str(tmp_path)
+        mock_Command_run.return_value = Mock(output='[]')
+        repart = SystemdRepart('disk.raw', 'x86_64', 512)
+        repart.add_partition(
+            RepartPartition(
+                name='root',
+                partition_type='root',
+                label='ROOT',
+                uuid='e8871034-3f7f-4cb3-a772-4646679a9ecd',
+                filesystem='xfs',
+                mkfs_options=['-i', 'size=512', '-E', 'value'],
+            )
+        )
+        with patch.dict('os.environ', {}, clear=True):
+            repart.create(42)
+        # the options are passed unchanged, -E is no mke2fs option here
+        assert mock_Command_run.call_args[1]['custom_env'] == {
+            'SYSTEMD_REPART_MKFS_OPTIONS_XFS': '-i size=512 -E value',
+        }
+
+    def test_get_custom_mkfs_options(self):
+        partition = RepartPartition(
+            name='root',
+            partition_type='root',
+            label='ROOT',
+            uuid='e8871034-3f7f-4cb3-a772-4646679a9ecd',
+            filesystem='ext3',
+        )
+        assert SystemdRepart._get_custom_mkfs_options(partition) == ([], [])
+        partition = partition._replace(
+            mkfs_options=[
+                '-E',
+                'stride=8',
+                '-b',
+                '1024',
+                '-Estripe_width=16',
+                '-E',
+            ]
+        )
+        # an incomplete -E option at the end is kept for mke2fs to fail
+        assert SystemdRepart._get_custom_mkfs_options(partition) == (
+            ['-b', '1024', '-E'],
+            ['stride=8', 'stripe_width=16'],
+        )
+
     def test_get_subvolume_setup(self):
         partition = RepartPartition(
             name='root',

@@ -26,6 +26,7 @@ from typing import Dict, List, Literal, NamedTuple, Optional, Tuple
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
+import kiwi.defaults as defaults
 from kiwi.path import Path
 from kiwi.utils.temporary import Temporary
 from kiwi.utils.command_capabilities import CommandCapabilities
@@ -115,6 +116,8 @@ class RepartPartition(NamedTuple):
     :param int compression_level:
         compression level of the compression algorithm, only
         effective with compression
+    :param list mkfs_options:
+        additional options for the mkfs tool of the filesystem
     """
 
     name: str
@@ -131,6 +134,7 @@ class RepartPartition(NamedTuple):
     default_subvolume: Optional[str] = None
     compression: Optional[str] = None
     compression_level: Optional[int] = None
+    mkfs_options: Optional[List[str]] = None
 
 
 class RepartBtrfsVolume(NamedTuple):
@@ -515,7 +519,10 @@ class SystemdRepart:
         appends the content of the SYSTEMD_REPART_MKFS_OPTIONS_<FS>
         environment variable to the mkfs call of each filesystem of
         type <FS>. The partitions of the disk builder use each of
-        these filesystem types at most once. If SOURCE_DATE_EPOCH
+        these filesystem types at most once. The mkfs options of
+        a partition, see _get_custom_mkfs_options, are passed this
+        way, as well as the subvolume setup of btrfs, see
+        _get_subvolume_setup. If SOURCE_DATE_EPOCH
         is set and a btrfs or XFS filesystem is created,
         DETERMINISTIC_SEED is set, see _get_reproducible_mkfs_options
 
@@ -528,11 +535,24 @@ class SystemdRepart:
         deterministic_seed = False
         for partition in self.partitions:
             options = self._get_subvolume_setup(partition)[1]
+            custom_options, extended_options = self._get_custom_mkfs_options(
+                partition
+            )
+            options += custom_options
             if reproducible:
                 self._check_mkfs_source_date_epoch_support(partition.filesystem)
-                options += self._get_reproducible_mkfs_options(partition)
+                options += self._get_reproducible_mkfs_options(
+                    partition, extended_options
+                )
                 if partition.filesystem in REPART_DETERMINISTIC_SEED:
                     deterministic_seed = True
+            elif extended_options:
+                options += [
+                    '-E',
+                    ','.join(
+                        defaults.REPART_EXT_EXTENDED_OPTIONS + extended_options
+                    ),
+                ]
             if options:
                 mkfs_options.setdefault(partition.filesystem, []).extend(
                     options
@@ -550,7 +570,56 @@ class SystemdRepart:
         return custom_env
 
     @staticmethod
-    def _get_reproducible_mkfs_options(partition: RepartPartition) -> List[str]:
+    def _get_custom_mkfs_options(
+        partition: RepartPartition,
+    ) -> Tuple[List[str], List[str]]:
+        """
+        mkfs options of the given partition, split into the options
+        and the extended options of mke2fs.
+
+        systemd-repart appends the options from the environment to
+        its own mkfs call, an option given there therefore overrides
+        the same option systemd-repart sets. This does not work for
+        the -E option of mke2fs. mke2fs only uses the last -E option
+        given, which would drop the extended options systemd-repart
+        or kiwi pass with their own -E option. For the filesystems
+        created by mke2fs the values of the -E options are therefore
+        taken out of the options, to be passed together with the
+        other extended options in one -E option. The value of -E
+        can be given as separate argument or attached to it, e.g
+        -E stride=8 or -Estride=8
+
+        :param RepartPartition partition: partition
+
+        :return: tuple of mkfs options and extended options
+
+        :rtype: tuple
+        """
+        mkfs_options = list(partition.mkfs_options or [])
+        if partition.filesystem not in defaults.REPART_EXT_FILESYSTEMS:
+            return (mkfs_options, [])
+        options: List[str] = []
+        extended_options: List[str] = []
+        arguments = iter(mkfs_options)
+        for argument in arguments:
+            if argument == '-E':
+                value = next(arguments, None)
+                if value is None:
+                    # incomplete option, left for mke2fs to report
+                    options.append(argument)
+                else:
+                    extended_options.append(value)
+            elif argument.startswith('-E'):
+                extended_options.append(argument[2:])
+            else:
+                options.append(argument)
+        return (options, extended_options)
+
+    @staticmethod
+    def _get_reproducible_mkfs_options(
+        partition: RepartPartition,
+        extended_options: Optional[List[str]] = None,
+    ) -> List[str]:
         """
         mkfs options to create the filesystem of the given partition
         reproducible. systemd-repart passes SOURCE_DATE_EPOCH to the
@@ -564,13 +633,16 @@ class SystemdRepart:
         * mke2fs creates a random directory hash seed, the filesystem
           UUID is used as seed. mke2fs only uses the last -E option
           given, the options systemd-repart passes with its own -E
-          option are therefore repeated
+          option are therefore repeated, followed by the given
+          extended options
         * mkfs.btrfs and mkfs.xfs create random UUIDs for internal
           structures, e.g. device and subvolume UUIDs or inode
           generation numbers, unless the DETERMINISTIC_SEED environment
           variable is set to 1. No mkfs option is needed for them
 
         :param RepartPartition partition: partition
+        :param list extended_options:
+            extended options for mke2fs, see _get_custom_mkfs_options
 
         :return: list of mkfs options
 
@@ -579,11 +651,15 @@ class SystemdRepart:
         if partition.filesystem == 'vfat':
             fs_uuid = SystemdRepart._get_filesystem_uuid(partition)
             return ['--invariant', '-i', fs_uuid.hex[:8].upper()]
-        if partition.filesystem in ('ext2', 'ext3', 'ext4'):
+        if partition.filesystem in defaults.REPART_EXT_FILESYSTEMS:
             fs_uuid = SystemdRepart._get_filesystem_uuid(partition)
             return [
                 '-E',
-                f'nodiscard,lazy_itable_init=1,hash_seed={fs_uuid}',
+                ','.join(
+                    defaults.REPART_EXT_EXTENDED_OPTIONS
+                    + [f'hash_seed={fs_uuid}']
+                    + (extended_options or [])
+                ),
             ]
         return []
 

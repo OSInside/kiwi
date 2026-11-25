@@ -64,6 +64,8 @@ are:
   :ref:`repart_btrfs_volumes`.
 * Btrfs compression, requested with `btrfs_compression`, see
   :ref:`repart_btrfs_compression`.
+* Filesystem create options for the root filesystem, set by
+  `fscreateoptions`, see :ref:`repart_fscreateoptions`.
 * A swap partition, requested with `<oem-swap>` and `<oem-swapsize>`
   in the `<oemconfig>` section.
 * The `disk.sh`, `pre_disk_sync.sh` and `editbootconfig` scripts.
@@ -74,8 +76,8 @@ Not supported are LVM volume management, Btrfs quota groups
 (`btrfs_quota_groups` and the `quota` volume attribute), volumes
 with `copy_on_write="false"`, software RAID, LUKS encryption,
 dm-integrity, dm-verity, `overlayroot`, custom and spare partitions,
-an extra boot partition, partition clones, filesystem create options,
-an unpartitioned area and the `editbootinstall` script.
+an extra boot partition, partition clones, an unpartitioned area and
+the `editbootinstall` script.
 
 How the Disk Is Created
 -----------------------
@@ -116,6 +118,44 @@ builder run in a staging directory instead:
 The root tree itself is not changed by these steps. The initrd is
 still created with `dracut` in a chroot of the root tree, which bind
 mounts :file:`/dev` and :file:`/proc` as for every image type.
+
+.. _repart_fscreateoptions:
+
+Filesystem Create Options
+-------------------------
+
+`systemd-repart` has no partition setting for custom mkfs options.
+Instead it appends the content of the
+`SYSTEMD_REPART_MKFS_OPTIONS_<FS>` environment variable, with `<FS>`
+being the filesystem name in upper case, for example
+`SYSTEMD_REPART_MKFS_OPTIONS_EXT4`, to the mkfs call of each
+filesystem of that type. {kiwi} passes the options set by
+`fscreateoptions` for the root filesystem through this variable.
+Options already set in the variable are kept and come first:
+
+.. code:: xml
+
+   <type image="oem" filesystem="ext4" firmware="uefi"
+         fscreateoptions="-O ^has_journal -E stride=8"
+         disk_builder="systemd-repart">
+       <bootloader name="systemd_boot"/>
+   </type>
+
+The options are passed without further validation and follow the
+options `systemd-repart` sets itself. An option given in
+`fscreateoptions` therefore overrides the same option of
+`systemd-repart`. Options that control the label, the UUID, the
+sector size or the source directory the filesystem is populated from
+must not be set, {kiwi} and `systemd-repart` rely on them.
+
+`mke2fs` only uses the last `-E` option given. `systemd-repart`
+passes its own extended options, `nodiscard,lazy_itable_init=1`,
+with `-E`, and so does {kiwi} for a reproducible build, see
+:ref:`reproducible_builds`. Therefore {kiwi} takes the values of the
+`-E` options in `fscreateoptions` for an ext2, ext3 or ext4 root
+filesystem and passes them together with these extended options in
+one `-E` option. In the example above `mke2fs` is called with
+`-O ^has_journal -E nodiscard,lazy_itable_init=1,stride=8`.
 
 Filesystem UUIDs
 ----------------

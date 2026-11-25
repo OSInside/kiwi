@@ -140,6 +140,19 @@ REPART_BOOTLOADERS = ['systemd_boot', 'grub2']
 # volumes are created as btrfs subvolumes by systemd-repart
 REPART_VOLUME_MANAGERS = [None, 'btrfs']
 
+# filesystems created by mke2fs.
+# In case of these filesystems systemd-repart passes along
+# custom options on its own. We cary a copy of them in
+# REPART_EXT_EXTENDED_OPTIONS in case kiwi defines its
+# own fscreateoptions for the following ext filesystems.
+REPART_EXT_FILESYSTEMS = ['ext2', 'ext3', 'ext4']
+
+# extended options systemd-repart passes to mke2fs with its own -E
+# option. They are repeated in the -E option passed through the
+# SYSTEMD_REPART_MKFS_OPTIONS_EXT<N> environment variable, which
+# replaces the one of systemd-repart
+REPART_EXT_EXTENDED_OPTIONS = ['nodiscard', 'lazy_itable_init=1']
+
 # OS platform name to EFI architecture name
 EFI_ARCHITECTURES = {
     'x86_64': 'x64',

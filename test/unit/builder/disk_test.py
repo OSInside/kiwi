@@ -2375,6 +2375,9 @@ class TestDiskBuilder:
     def test_check_repart_requirements(self):
         self._setup_repart_builder()
         self.disk_builder._check_repart_requirements()
+        # filesystem create options are passed to the mkfs tool
+        self.disk_builder.custom_root_creation_args = ['-O', '^has_journal']
+        self.disk_builder._check_repart_requirements()
         self.firmware.get_partition_table_type.return_value = 'msdos'
         with raises(KiwiDiskBuilderRepartError) as issue:
             self.disk_builder._check_repart_requirements()
@@ -2555,6 +2558,7 @@ class TestDiskBuilder:
         self.disk_builder.bootloader = 'grub2'
         self.disk_builder.swap_mbytes = 0
         self.disk_builder.btrfs_compression = BtrfsCompressionT('zstd', 3)
+        self.disk_builder.custom_root_creation_args = ['--nodesize', '16k']
         mock_os_path_isdir.return_value = False
         temporary_dirs = iter(['staging', 'snapshots'])
         mock_Temporary.return_value.new_dir.side_effect = (
@@ -2600,8 +2604,10 @@ class TestDiskBuilder:
         assert root.default_subvolume == '/@/.snapshots/1/snapshot'
         assert root.compression == 'zstd'
         assert root.compression_level == 3
+        assert root.mkfs_options == ['--nodesize', '16k']
         efi = partitions[0]
         assert efi.compression is None
+        assert efi.mkfs_options is None
         assert self.fstab.add_entry.call_args_list == [
             call(f'PARTUUID={efi.uuid} /boot/efi vfat defaults 0 0'),
             call(f'PARTUUID={root.uuid} / btrfs noatime,ro 0 0'),
