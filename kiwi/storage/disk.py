@@ -19,7 +19,7 @@ import os
 import logging
 from collections import OrderedDict
 from types import TracebackType
-from typing import Dict, NamedTuple, Tuple, Optional, Type, Union
+from typing import Dict, NamedTuple, Tuple, Optional, Type, Union, List
 
 # project
 from kiwi.defaults import Defaults
@@ -40,6 +40,7 @@ class ptable_entry_type(NamedTuple):
     partition_id: Optional[int]
     mountpoint: str
     filesystem: str
+    filesystem_create_options: List[str]
     label: str
 
 

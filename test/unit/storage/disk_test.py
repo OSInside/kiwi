@@ -143,6 +143,7 @@ class TestDisk:
                     partition_id=None,
                     mountpoint='/var',
                     filesystem='ext3',
+                    filesystem_create_options=[],
                     label='var',
                 ),
                 'data': ptable_entry_type(
@@ -153,6 +154,7 @@ class TestDisk:
                     partition_id=None,
                     mountpoint='/data',
                     filesystem='ext3',
+                    filesystem_create_options=[],
                     label='data',
                 ),
             }
@@ -331,6 +333,7 @@ class TestDisk:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
+                filesystem_create_options=[],
                 label='var',
             )
         }
@@ -370,6 +373,7 @@ class TestDisk:
                 partition_id=42,
                 mountpoint='/var',
                 filesystem='ext3',
+                filesystem_create_options=[],
                 label='var',
             )
         }
@@ -408,6 +412,7 @@ class TestDisk:
                 partition_id=None,
                 mountpoint='/',
                 filesystem='ext3',
+                filesystem_create_options=[],
                 label='root',
             )
         }

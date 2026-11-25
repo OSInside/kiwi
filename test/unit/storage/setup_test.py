@@ -220,6 +220,7 @@ class TestDiskSetup:
             partition_id=None,
             mountpoint='/var',
             filesystem='ext3',
+            filesystem_create_options='',
             label='var',
         )
         assert (

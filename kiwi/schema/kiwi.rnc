@@ -2861,6 +2861,17 @@ div {
             ]
         ]
     ]
+    sch:pattern [
+        abstract = "true"
+        id = "partition_fscreateoptions_requirement"
+        sch:rule [
+            context = "partition[@fscreateoptions]"
+            sch:assert [
+                test = "@filesystem"
+                "Attribute fscreateoptions is not supported without a filesystem"
+            ]
+        ]
+    ]
     k.partition.name.attribute =
         ## Partition map name. The name of the partition as handled
         ## by KIWI. Note, that there are the following reserved
@@ -2893,6 +2904,13 @@ div {
         attribute filesystem {
             "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs" | "fat32" | "fat16"
         }
+    k.partition.fscreateoptions.attribute =
+        ## Specifies options to create the filesystem for this partition
+        attribute fscreateoptions { text }
+        >> sch:pattern [
+            id = "partition_no_filesystem"
+            is-a = "partition_fscreateoptions_requirement"
+        ]
     k.partition.clone.attribute =
         ## Clone this partition N times
         attribute clone { number-type }
@@ -2910,6 +2928,7 @@ div {
         k.partition.partition_type.attribute? &
         k.partition.mountpoint.attribute? &
         k.partition.filesystem.attribute? &
+        k.partition.fscreateoptions.attribute? &
         k.partition.label.attribute? &
         k.partition.clone.attribute?
     k.partition =

@@ -4299,6 +4299,11 @@ scsi CD or an ide CD drive</a:documentation>
         <sch:assert test="not(contains('$reserved', @name))">partition(name) is reserved Reserved names are '$reserved'</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="partition_fscreateoptions_requirement">
+      <sch:rule context="partition[@fscreateoptions]">
+        <sch:assert test="@filesystem">Attribute fscreateoptions is not supported without a filesystem</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.partition.name.attribute">
       <attribute name="name">
         <a:documentation>Partition map name. The name of the partition as handled
@@ -4357,6 +4362,12 @@ Allowed values are: t.linux</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.partition.fscreateoptions.attribute">
+      <attribute name="fscreateoptions">
+        <a:documentation>Specifies options to create the filesystem for this partition</a:documentation>
+      </attribute>
+      <sch:pattern id="partition_no_filesystem" is-a="partition_fscreateoptions_requirement"/>
+    </define>
     <define name="k.partition.clone.attribute">
       <attribute name="clone">
         <a:documentation>Clone this partition N times</a:documentation>
@@ -4392,6 +4403,9 @@ Allowed values are: t.linux</a:documentation>
         </optional>
         <optional>
           <ref name="k.partition.filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.fscreateoptions.attribute"/>
         </optional>
         <optional>
           <ref name="k.partition.label.attribute"/>

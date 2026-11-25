@@ -1942,6 +1942,7 @@ class XMLState:
                         partition_id=Optional[int],
                         mountpoint=str,
                         filesystem=str,
+                        filesystem_create_options=List[str],
                         label=str
                     )
                 }
@@ -1954,6 +1955,7 @@ class XMLState:
             return partitions
         for partition in partitions_section.get_partition():
             name = partition.get_name()
+            create_options = partition.get_fscreateoptions() or ''
             partition_name = partition.get_partition_name() or f'p.lx{name}'
             partitions[name] = ptable_entry_type(
                 mbsize=cast(int, self._to_mega_byte(partition.get_size())),
@@ -1969,6 +1971,7 @@ class XMLState:
                 ),
                 mountpoint=partition.get_mountpoint(),
                 filesystem=partition.get_filesystem(),
+                filesystem_create_options=create_options.split(),
                 label=partition.get_label() or '',
             )
         return partitions

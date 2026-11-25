@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-XEM4Fy69-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-Btua-i95-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -10751,6 +10751,7 @@ class partition(GeneratedsSuper):
         partition_type=None,
         mountpoint=None,
         filesystem=None,
+        fscreateoptions=None,
         label=None,
         clone=None,
     ):
@@ -10762,6 +10763,7 @@ class partition(GeneratedsSuper):
         self.partition_type = _cast(None, partition_type)
         self.mountpoint = _cast(None, mountpoint)
         self.filesystem = _cast(None, filesystem)
+        self.fscreateoptions = _cast(None, fscreateoptions)
         self.label = _cast(None, label)
         self.clone = _cast(None, clone)
 
@@ -10818,6 +10820,12 @@ class partition(GeneratedsSuper):
 
     def set_filesystem(self, filesystem):
         self.filesystem = filesystem
+
+    def get_fscreateoptions(self):
+        return self.fscreateoptions
+
+    def set_fscreateoptions(self, fscreateoptions):
+        self.fscreateoptions = fscreateoptions
 
     def get_label(self):
         return self.label
@@ -11015,6 +11023,22 @@ class partition(GeneratedsSuper):
                     ),
                 )
             )
+        if (
+            self.fscreateoptions is not None
+            and 'fscreateoptions' not in already_processed
+        ):
+            already_processed.add('fscreateoptions')
+            outfile.write(
+                ' fscreateoptions=%s'
+                % (
+                    self.gds_encode(
+                        self.gds_format_string(
+                            quote_attrib(self.fscreateoptions),
+                            input_name='fscreateoptions',
+                        )
+                    ),
+                )
+            )
         if self.label is not None and 'label' not in already_processed:
             already_processed.add('label')
             outfile.write(
@@ -11091,6 +11115,10 @@ class partition(GeneratedsSuper):
             already_processed.add('filesystem')
             self.filesystem = value
             self.filesystem = ' '.join(self.filesystem.split())
+        value = find_attr_value_('fscreateoptions', node)
+        if value is not None and 'fscreateoptions' not in already_processed:
+            already_processed.add('fscreateoptions')
+            self.fscreateoptions = value
         value = find_attr_value_('label', node)
         if value is not None and 'label' not in already_processed:
             already_processed.add('label')

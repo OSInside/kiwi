@@ -505,6 +505,7 @@ class TestXMLState:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
+                filesystem_create_options=[],
                 label='',
             ),
             # a custom partition number arrives from the parser as a
@@ -517,6 +518,7 @@ class TestXMLState:
                 partition_id=3,
                 mountpoint='/home',
                 filesystem='ext3',
+                filesystem_create_options=['-N', '1024'],
                 label='',
             ),
         }

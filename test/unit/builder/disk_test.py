@@ -538,6 +538,7 @@ class TestDiskBuilder:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
+                filesystem_create_options=['-N', '1024'],
                 label='var',
             )
         }
@@ -568,6 +569,17 @@ class TestDiskBuilder:
         volume_manager.umount_volumes.call_args_list[
             0
         ].assert_called_once_with()
+        # the create options of the custom partition reach the
+        # filesystem as list, the way the filesystem classes use them
+        assert (
+            call(
+                'ext3',
+                self.device_map['var'],
+                'root_dir/var/',
+                custom_args={'create_options': ['-N', '1024']},
+            )
+            in mock_fs.call_args_list
+        )
 
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')
@@ -622,6 +634,7 @@ class TestDiskBuilder:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
+                filesystem_create_options=[],
                 label='var',
             )
         }
@@ -1824,6 +1837,7 @@ class TestDiskBuilder:
                 partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
+                filesystem_create_options=[],
                 label='var',
             ),
             'spare': ptable_entry_type(
@@ -1834,6 +1848,7 @@ class TestDiskBuilder:
                 partition_id=None,
                 mountpoint='/spare',
                 filesystem='squashfs',
+                filesystem_create_options=[],
                 label='',
             ),
         }
