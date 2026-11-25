@@ -164,6 +164,7 @@ class ArchiveTar:
             options = []
         if not xz_options:
             xz_options = Defaults.get_xz_compression_options()
+        xz_options = Reproducible.get_xz_options(xz_options)
         bash_command = (
             ['tar', '-C', source_dir]
             + options

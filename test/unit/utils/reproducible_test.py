@@ -51,3 +51,40 @@ class TestReproducible:
         assert sub_dir.stat().st_mtime == 42
         assert tmp_path.stat().st_mtime == 42
         assert os.lstat(link).st_mtime == 42
+
+    @patch('kiwi.utils.reproducible.os.cpu_count')
+    @patch('kiwi.utils.reproducible.CommandCapabilities.check_version')
+    def test_get_xz_options(self, mock_check_version, mock_cpu_count):
+        options = ['--threads=0', '-9']
+        mock_cpu_count.return_value = 8
+        with patch.dict('os.environ', {}, clear=True):
+            # without SOURCE_DATE_EPOCH the options are kept as they are
+            result = Reproducible.get_xz_options(options)
+            assert result == options
+            assert result is not options
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+            # explicit threads count, xz output is independent of the host
+            assert Reproducible.get_xz_options(['--threads=4']) == [
+                '--threads=4'
+            ]
+            assert not mock_check_version.called
+            # xz >= 5.4 always uses multi-threaded mode for --threads=0
+            mock_check_version.return_value = True
+            assert Reproducible.get_xz_options(options) == options
+            mock_check_version.assert_called_once_with(
+                'xz', (5, 4), raise_on_error=False
+            )
+            # older xz uses single-threaded mode for --threads=0 on a
+            # host with one CPU, an explicit thread count is used
+            mock_check_version.return_value = False
+            for threads in (['--threads=0'], ['-T0'], ['-T', '0']):
+                assert Reproducible.get_xz_options(
+                    ['-9'] + threads + ['--threads', '0', '-e']
+                ) == ['-9', '--threads=8', '--threads=8', '-e']
+            # at least two threads are needed for multi-threaded mode
+            for cpu_count in (1, None):
+                mock_cpu_count.return_value = cpu_count
+                assert Reproducible.get_xz_options(options) == [
+                    '--threads=2',
+                    '-9',
+                ]

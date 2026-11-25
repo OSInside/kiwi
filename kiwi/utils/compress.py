@@ -65,6 +65,7 @@ class Compress:
         if not options:
             options = Defaults.get_xz_compression_options()
         assert options
+        options = Reproducible.get_xz_options(options)
         if self.keep_source:
             options.append('--keep')
         Command.run(['xz', '-f'] + options + [self.source_filename])
