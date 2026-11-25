@@ -2,6 +2,7 @@ from collections import namedtuple
 from unittest.mock import patch, Mock
 from pytest import raises
 
+from kiwi.defaults import Defaults
 from kiwi.volume_manager.base import VolumeManagerBase
 
 from kiwi.exceptions import KiwiVolumeManagerSetupError
@@ -120,6 +121,90 @@ class TestVolumeManagerBase:
         volume_list = self.volume_manager.get_canonical_volume_list()
         assert volume_list.volumes[0].name == 'LVetc'
         assert volume_list.full_size_volume.name == 'LVRoot'
+
+    def test_get_canonical_volume_list_raw_volume(self):
+        raw_volume = self.volume_type(
+            name='metadata',
+            size='size:300',
+            realpath='',
+            mountpoint=None,
+            fullsize=False,
+            attributes=['raw'],
+            is_root_volume=False,
+        )
+        self.volume_manager.volumes.insert(0, raw_volume)
+        volume_list = self.volume_manager.get_canonical_volume_list()
+        # raw volumes have no path and are added after the volume tree
+        assert [volume.name for volume in volume_list.volumes] == [
+            'LVetc',
+            'metadata',
+        ]
+        assert volume_list.full_size_volume.name == 'LVRoot'
+
+    @patch('kiwi.volume_manager.base.SystemSize')
+    @patch('os.path.exists')
+    def test_get_volume_mbsize_raw_volume(self, mock_os_path_exists, mock_size):
+        mock_os_path_exists.return_value = True
+        raw_volume = self.volume_type(
+            name='metadata',
+            size='size:300',
+            realpath='',
+            mountpoint=None,
+            fullsize=False,
+            attributes=['raw'],
+            is_root_volume=False,
+        )
+        volumes = [raw_volume] + self.volume_manager.volumes
+        # a raw volume has no data, the requested size is used as it is
+        assert (
+            self.volume_manager.get_volume_mbsize(raw_volume, volumes, 'ext3')
+            == 300
+        )
+        assert (
+            self.volume_manager.get_volume_mbsize(
+                raw_volume._replace(size='freespace:300'), volumes, 'ext3'
+            )
+            == 300
+        )
+        # with resize on boot the volume is resized at first boot
+        assert self.volume_manager.get_volume_mbsize(
+            raw_volume, volumes, 'ext3', True
+        ) == Defaults.get_min_volume_mbytes('ext3')
+        assert not mock_size.called
+
+    @patch('kiwi.volume_manager.base.SystemSize')
+    @patch('os.path.exists')
+    def test_get_volume_mbsize_root_volume_with_raw_volume(
+        self, mock_os_path_exists, mock_size
+    ):
+        mock_os_path_exists.return_value = True
+        size = Mock()
+        size.customize = Mock(return_value=42)
+        mock_size.return_value = size
+        root_volume = self.volume_type(
+            name='LVRoot',
+            size='freespace:100',
+            realpath='/',
+            mountpoint='/',
+            fullsize=False,
+            attributes=[],
+            is_root_volume=True,
+        )
+        volumes = [
+            root_volume,
+            self.volume_type(
+                name='metadata',
+                size='size:300',
+                realpath='',
+                mountpoint=None,
+                fullsize=False,
+                attributes=['raw'],
+                is_root_volume=False,
+            ),
+        ]
+        self.volume_manager.get_volume_mbsize(root_volume, volumes, 'ext3')
+        # the raw volume has no data path, nothing is excluded for it
+        size.accumulate_mbyte_file_sizes.assert_called_once_with([])
 
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('os.path.exists')

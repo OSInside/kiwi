@@ -4420,6 +4420,15 @@ Allowed values are: t.linux</a:documentation>
         <sch:assert test="not(@quota) or ../../@filesystem='btrfs'">quota attribute is only available for the following image filesystem: btrfs</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="lvm_raw_volume">
+      <sch:rule context="volume[@raw='true' or @raw='1']">
+        <sch:assert test="parent::systemdisk">raw volumes are only supported in the systemdisk section</sch:assert>
+        <sch:assert test="not(parent::systemdisk) or ../@preferlvm='true' or not(../../@filesystem='btrfs')">raw volumes are only supported with the LVM volume manager, set preferlvm='true' for the btrfs filesystem</sch:assert>
+        <sch:assert test="not(@mountpoint or @label or @parent or @quota or @copy_on_write or @filesystem_check)">raw volumes have no filesystem, the attributes mountpoint, label, parent, quota, copy_on_write and filesystem_check are not supported</sch:assert>
+        <sch:assert test="@size or @freespace">raw volumes require the size or freespace attribute</sch:assert>
+        <sch:assert test="not(contains(@name, '/')) and not(starts-with(@name, '@root'))">the name of a raw volume is the LVM volume name, it must not contain a slash and can't be the @root volume</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.volume.freespace.attribute">
       <attribute name="freespace">
         <a:documentation>free space to be added to this volume. The value is
@@ -4489,6 +4498,18 @@ The latter is the default.</a:documentation>
         <a:documentation>filesystem label name of the volume.</a:documentation>
       </attribute>
     </define>
+    <define name="k.volume.raw.attribute">
+      <attribute name="raw">
+        <a:documentation>Create the volume as raw volume. A raw volume is created
+with its configured size but has no filesystem, it is not
+mounted and has no entry in the fstab of the image. The
+volume name is used as LVM volume name. Raw volumes are
+only supported with the LVM volume manager. By default
+volumes are not raw</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="raw_volume" is-a="lvm_raw_volume"/>
+    </define>
     <define name="k.volume.arch.attribute">
       <ref name="k.arch.attribute"/>
     </define>
@@ -4511,6 +4532,9 @@ The latter is the default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.volume.label.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.volume.raw.attribute"/>
         </optional>
         <ref name="k.volume.name.attribute"/>
         <optional>

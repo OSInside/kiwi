@@ -275,16 +275,22 @@ class VolumeManagerBase(DeviceProvider):
             'canonical_volume_type', ['volumes', 'full_size_volume']
         )
         volume_paths = {}
+        raw_volumes = []
         full_size_volume = None
         for volume in self.volumes:
             if volume.fullsize:
                 full_size_volume = volume
+            elif 'raw' in volume.attributes:
+                # raw volumes have no path, they are not part of
+                # the volume hierarchy and are added at the end
+                raw_volumes.append(volume)
             elif volume.realpath:
                 volume_paths[volume.realpath] = volume
 
         volume_list = []
         for realpath in Path.sort_by_hierarchy(sorted(volume_paths.keys())):
             volume_list.append(volume_paths[realpath])
+        volume_list += raw_volumes
         return canonical_volume_type(
             volumes=volume_list, full_size_volume=full_size_volume
         )
@@ -330,11 +336,17 @@ class VolumeManagerBase(DeviceProvider):
             size_type = 'freespace'
             mbsize = Defaults.get_min_volume_mbytes(filesystem_name)
 
+        if 'raw' in volume.attributes:
+            # a raw volume has no data, the requested size or
+            # freespace is the size of the volume
+            return mbsize
+
         if size_type == 'freespace' and os.path.exists(lookup_abspath):
             exclude_paths = []
             for volume in all_volumes:
                 volume_path = volume.realpath
-                if lookup_path == volume_path:
+                if not volume_path or lookup_path == volume_path:
+                    # skip volumes without data path, e.g raw volumes
                     continue
                 if lookup_path == os.sep:
                     # exclude any sub volume path if lookup_path is /

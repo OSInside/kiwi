@@ -160,7 +160,9 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         Create configured lvm volumes and filesystems
 
-        All volumes receive the same filesystem
+        All volumes receive the same filesystem, except for raw
+        volumes which are created without filesystem and are not
+        mounted
 
         :param str filesystem_name: volumes filesystem name
         """
@@ -188,8 +190,12 @@ class VolumeManagerLVM(VolumeManagerBase):
                     self.volume_group,
                 ],
             )
-            self.apply_attributes_on_volume(self.root_dir, volume)
             self._add_to_volume_map(volume.name)
+            if 'raw' in volume.attributes:
+                # raw volumes have no filesystem and are not mounted
+                log.info('--> raw volume %s', volume.name)
+                continue
+            self.apply_attributes_on_volume(self.root_dir, volume)
             if volume.label != 'SWAP':
                 self._create_filesystem(
                     volume.name, volume.label, filesystem_name
@@ -211,12 +217,15 @@ class VolumeManagerLVM(VolumeManagerBase):
                 ],
             )
             self._add_to_volume_map(full_size_volume.name)
-            self._create_filesystem(
-                full_size_volume.name, full_size_volume.label, filesystem_name
-            )
-            self._add_to_mount_list(
-                full_size_volume.name, full_size_volume.realpath
-            )
+            if 'raw' not in full_size_volume.attributes:
+                self._create_filesystem(
+                    full_size_volume.name,
+                    full_size_volume.label,
+                    filesystem_name,
+                )
+                self._add_to_mount_list(
+                    full_size_volume.name, full_size_volume.realpath
+                )
 
         # re-order mount_list by mountpoint hierarchy
         # This is needed because the handling of the fullsize volume and

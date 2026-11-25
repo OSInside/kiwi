@@ -66,6 +66,11 @@ function grow_filesystem {
             return 0
         fi
     ;;
+    unknown)
+        # no filesystem on this device, e.g a raw volume
+        warn "No filesystem exists on ${device}... resize skipped"
+        return 0
+    ;;
     *)
         # don't know how to resize this filesystem
         warn "Don't know how to resize ${fstype}... skipped"

@@ -380,6 +380,114 @@ class TestVolumeManagerLVM:
         ]
         self.volume_manager.volume_group = None
 
+    @patch('os.path.exists')
+    @patch('kiwi.path.Path.create')
+    @patch('kiwi.volume_manager.base.SystemSize')
+    @patch('kiwi.volume_manager.lvm.Command.run')
+    @patch('kiwi.volume_manager.lvm.FileSystem.new')
+    @patch('kiwi.volume_manager.lvm.MappedDevice')
+    @patch('kiwi.volume_manager.lvm.MountManager')
+    @patch(
+        'kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume'
+    )
+    def test_create_volumes_raw(
+        self,
+        mock_attrs,
+        mock_mount,
+        mock_mapped_device,
+        mock_fs,
+        mock_command,
+        mock_size,
+        mock_create,
+        mock_os_exists,
+    ):
+        root_volume = volume_type(
+            name='LVRoot',
+            parent='',
+            size='freespace:100',
+            realpath='/',
+            mountpoint=None,
+            fullsize=False,
+            label=None,
+            attributes=[],
+            is_root_volume=True,
+        )
+        volumes = [
+            root_volume,
+            volume_type(
+                name='metadata',
+                parent='',
+                size='size:300',
+                realpath='',
+                mountpoint=None,
+                fullsize=False,
+                label=None,
+                attributes=['raw'],
+                is_root_volume=False,
+            ),
+            volume_type(
+                name='spare',
+                parent='',
+                size=None,
+                realpath='',
+                mountpoint=None,
+                fullsize=True,
+                label=None,
+                attributes=['raw'],
+                is_root_volume=False,
+            ),
+        ]
+        volume_manager = VolumeManagerLVM(
+            self.device_map, 'root_dir', volumes, {}
+        )
+        volume_manager.mountpoint = 'tmpdir'
+        volume_manager.volume_group = 'volume_group'
+        mock_os_exists.return_value = True
+        mock_mapped_device.return_value = 'mapped_device'
+        size = Mock()
+        size.customize = Mock(return_value=42)
+        mock_size.return_value = size
+        filesystem = Mock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+
+        volume_manager.create_volumes('ext3')
+
+        root_size = 100 + 42 + Defaults.get_min_volume_mbytes('ext3')
+        lvcreate = ['lvcreate'] + volume_manager.lvm_tool_options + ['-Zn']
+        vgscan = call(
+            ['vgscan'] + volume_manager.lvm_tool_options + ['--mknodes']
+        )
+        # the raw volumes are created with their requested size
+        assert mock_command.call_args_list == [
+            call(
+                lvcreate
+                + ['-L', format(root_size), '-n', 'LVRoot', 'volume_group']
+            ),
+            vgscan,
+            call(lvcreate + ['-L', '300', '-n', 'metadata', 'volume_group']),
+            vgscan,
+            call(lvcreate + ['-l', '+100%FREE', '-n', 'spare', 'volume_group']),
+            vgscan,
+        ]
+        assert volume_manager.volume_map == {
+            'LVRoot': '/dev/volume_group/LVRoot',
+            'metadata': '/dev/volume_group/metadata',
+            'spare': '/dev/volume_group/spare',
+        }
+        # but they get no filesystem, no attributes and are not mounted
+        assert filesystem.create_on_device.call_args_list == [
+            call(label='ROOT')
+        ]
+        mock_attrs.assert_called_once_with('root_dir', root_volume)
+        assert mock_mount.call_args_list == [
+            call(device='/dev/volume_group/LVRoot', mountpoint='tmpdir')
+        ]
+        # the mount list is the source of the fstab entries
+        assert volume_manager.mount_list == [mock_mount.return_value]
+        # and no path is created for them in the root directory
+        assert not mock_create.called
+        volume_manager.volume_group = None
+
     @patch('kiwi.volume_manager.lvm.Path')
     def test_mount_volumes(self, mock_path):
         volume_mount = Mock()

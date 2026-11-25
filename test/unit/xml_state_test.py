@@ -676,6 +676,61 @@ class TestXMLState:
             )
         ]
 
+    def test_get_volumes_raw(self):
+        description = XMLDescription(
+            '../data/example_lvm_raw_volume_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        volume_type = self.volume_type
+        assert state.get_volumes() == [
+            volume_type(
+                name='home',
+                parent='',
+                size='size:200',
+                realpath='home',
+                mountpoint='home',
+                fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=False,
+            ),
+            # raw volumes keep their name and have no path
+            volume_type(
+                name='metadata',
+                parent='',
+                size='size:1024',
+                realpath='',
+                mountpoint=None,
+                fullsize=False,
+                label=None,
+                attributes=['raw'],
+                is_root_volume=False,
+            ),
+            volume_type(
+                name='scratch',
+                parent='',
+                size='freespace:100',
+                realpath='',
+                mountpoint=None,
+                fullsize=False,
+                label=None,
+                attributes=['raw'],
+                is_root_volume=False,
+            ),
+            volume_type(
+                name='LVRoot',
+                parent='',
+                size=None,
+                realpath='/',
+                mountpoint=None,
+                fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=True,
+            ),
+        ]
+
     def test_get_volumes_btrfs_quota(self):
         description = XMLDescription('../data/example_btrfs_vol_config.xml')
         xml_data = description.load()

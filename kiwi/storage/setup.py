@@ -355,10 +355,17 @@ class DiskSetup:
         # configured volume sizes because the image is used directly
         # as it is without being deployed and resized on a target disk
         for volume in self.volumes:
-            if volume.realpath and not volume.realpath == '/' and volume.size:
+            raw_volume = 'raw' in volume.attributes
+            if (
+                (volume.realpath or raw_volume)
+                and not volume.realpath == '/'
+                and volume.size
+            ):
                 [size_type, req_size] = volume.size.split(':')
                 disk_add_mbytes = 0
-                if size_type == 'freespace':
+                if size_type == 'freespace' or raw_volume:
+                    # a raw volume has no data, its requested size
+                    # is added as it is, like a freespace request
                     disk_add_mbytes += int(req_size)
                 else:
                     disk_add_mbytes += (
@@ -382,8 +389,8 @@ class DiskSetup:
                     raise KiwiVolumeTooSmallError(
                         message.format(
                             req_size,
-                            volume.realpath,
-                            data_volume_mbytes.volume[volume.realpath],
+                            volume.realpath or volume.name,
+                            data_volume_mbytes.volume.get(volume.realpath, 0),
                         )
                     )
 
