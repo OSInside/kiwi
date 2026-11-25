@@ -115,6 +115,13 @@ class ContainerSetupBase:
         :param string name: systemd service name
         """
         service_file = self.root_dir + '/usr/lib/systemd/system/' + name
+        if os.path.islink(service_file) and (
+            os.readlink(service_file) == '/dev/null'
+        ):
+            # service is already deactivated, e.g by a former
+            # container setup on the same root tree. Replacing the
+            # link would change its timestamp in the container
+            return
         if os.path.exists(service_file):
             try:
                 Command.run(['ln', '-s', '-f', '/dev/null', service_file])
@@ -147,9 +154,16 @@ class ContainerSetupBase:
     def _update_config(
         self, filename: str, update_record: Dict[str, str]
     ) -> None:
-        data = []
+        """
+        Update the given config file with the given records. The
+        file is only written if its content changes, such that a
+        container setup on an already setup root tree, e.g by
+        kiwi system create after kiwi system build, does not
+        change the data and the timestamp of the file
+        """
         with open(filename, 'r') as config:
-            data = config.read().rsplit('\n')
+            current_data = config.read()
+        data = current_data.splitlines()
 
         sorted_record = collections.OrderedDict(sorted(update_record.items()))
         for current_value, new_value in list(sorted_record.items()):
@@ -162,5 +176,7 @@ class ContainerSetupBase:
             if not entry_found:
                 data.append(new_value)
 
-        with open(filename, 'w') as config:
-            config.write('%s\n' % '\n'.join(data))
+        new_data = '%s\n' % '\n'.join(data)
+        if new_data != current_data:
+            with open(filename, 'w') as config:
+                config.write(new_data)
