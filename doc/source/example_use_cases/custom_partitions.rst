@@ -71,6 +71,13 @@ filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs|fat32|fat16"
   Optional filesystem configuration to create one of the supported
   filesystems on the partition.
 
+fscreateoptions="option_string"
+  Optional options to create the filesystem set by `filesystem`.
+  The attribute behaves the same as the
+  :ref:`fscreateoptions <preferences-type-fscreateoptions>` attribute
+  of the `type` element, but applies to the filesystem of this
+  partition.
+
 label="string"
   Optional filesystem label if a filesystem is provided. If no
   label is specified, the `name` identifier in uppercase letters is set

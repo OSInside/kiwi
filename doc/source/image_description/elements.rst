@@ -703,6 +703,8 @@ fsmountoptions="option_string":
   via the `-o` flag to :command:`mount` and are included in
   :file:`/etc/fstab`.
 
+.. _preferences-type-fscreateoptions:
+
 fscreateoptions="option_string":
   Specifies the filesystem options used to create the
   filesystem. In {kiwi}, the filesystem utility to create a filesystem is

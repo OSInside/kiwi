@@ -1663,6 +1663,9 @@ class DiskBuilder:
                         ptable_entry.filesystem,
                         device_map[map_name],
                         f'{self.root_dir}{ptable_entry.mountpoint}/',
+                        custom_args={
+                            'create_options': ptable_entry.filesystem_create_options
+                        },
                     ) as filesystem:
                         if ptable_entry.filesystem == 'squashfs':
                             squashed_root_file = Temporary().new_file()
