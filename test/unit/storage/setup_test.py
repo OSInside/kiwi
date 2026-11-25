@@ -6,7 +6,7 @@ import unittest.mock as mock
 import kiwi
 
 from kiwi.storage.setup import DiskSetup
-from kiwi.xml_state import XMLState
+from kiwi.xml_state import XMLState, volume_type
 from kiwi.xml_description import XMLDescription
 from kiwi.defaults import Defaults
 from kiwi.storage.disk import ptable_entry_type
@@ -203,6 +203,38 @@ class TestDiskSetup:
     def test_get_disksize_mbytes_volumes(self, mock_exists):
         mock_exists.side_effect = lambda path: path != 'root_dir/newfolder'
         assert self.setup_volumes.get_disksize_mbytes() == 2144
+
+    @patch('os.path.exists')
+    def test_get_disksize_mbytes_volumes_raw_volume(self, mock_exists):
+        mock_exists.side_effect = lambda path: path != 'root_dir/newfolder'
+        raw_volume = volume_type(
+            name='metadata',
+            parent='',
+            size='size:300',
+            realpath='',
+            mountpoint=None,
+            fullsize=False,
+            label=None,
+            attributes=['raw'],
+            is_root_volume=False,
+        )
+        volumes = list(self.setup_volumes.volumes)
+        # a raw volume has no data, its size is added as it is
+        raw_volume_mbytes = 300 + Defaults.get_min_volume_mbytes('ext3')
+        for size in ('size:300', 'freespace:300'):
+            self.setup_volumes.volumes = volumes + [
+                raw_volume._replace(size=size)
+            ]
+            assert (
+                self.setup_volumes.get_disksize_mbytes()
+                == 2144 + raw_volume_mbytes
+            )
+        self.setup_volumes.volumes = volumes + [
+            raw_volume._replace(size='size:0')
+        ]
+        with raises(KiwiVolumeTooSmallError) as issue:
+            self.setup_volumes.get_disksize_mbytes()
+        assert "Requested volume size 0MB for 'metadata'" in format(issue.value)
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_partitions(self, mock_exists):

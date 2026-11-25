@@ -90,6 +90,28 @@ attributes:
   filesystem check, which results in this filesystem never being checked.
   The latter is the default.
 
+- `raw`: Optional attribute for the LVM volume manager only. If set to
+  `true`, the volume is created as a raw volume with the size requested
+  by `size` or `freespace`, one of them is required. A raw volume has
+  no filesystem, is not mounted and has no entry in :file:`/etc/fstab`.
+  It can be used, for example, to store data that is managed by an
+  application directly on the block device. The `name` attribute is
+  used as the volume name as it is, it can't contain a slash and the
+  `mountpoint`, `label`, `parent`, `quota`, `copy_on_write` and
+  `filesystem_check` attributes are not supported. A raw volume can
+  take the rest space with `size="all"`. In this case the root volume
+  gets the size needed to store its data plus the minimum free space,
+  unless a size is set for the `@root` volume. If the disk is
+  resized on first boot, a raw volume is resized like all other
+  volumes, but no filesystem is resized on it:
+
+  .. code:: xml
+
+     <volume name="metadata" size="1G" raw="true"/>
+
+  The volume is available as :file:`/dev/<volume_group>/metadata` in the
+  system, e.g. :file:`/dev/systemVG/metadata`.
+
 - `arch`: Optional attribute to create the volume only if it matches
   the specified host architecture. Multiple architecture names can
   be specified as a comma-separated list.

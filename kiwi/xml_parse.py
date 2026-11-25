@@ -11151,6 +11151,7 @@ class volume(GeneratedsSuper):
         freespace=None,
         mountpoint=None,
         label=None,
+        raw=None,
         name=None,
         parent=None,
         size=None,
@@ -11163,6 +11164,7 @@ class volume(GeneratedsSuper):
         self.freespace = _cast(None, freespace)
         self.mountpoint = _cast(None, mountpoint)
         self.label = _cast(None, label)
+        self.raw = _cast(bool, raw)
         self.name = _cast(None, name)
         self.parent = _cast(None, parent)
         self.size = _cast(None, size)
@@ -11215,6 +11217,12 @@ class volume(GeneratedsSuper):
 
     def set_label(self, label):
         self.label = label
+
+    def get_raw(self):
+        return self.raw
+
+    def set_raw(self, raw):
+        self.raw = raw
 
     def get_name(self):
         return self.name
@@ -11402,6 +11410,12 @@ class volume(GeneratedsSuper):
                     ),
                 )
             )
+        if self.raw is not None and 'raw' not in already_processed:
+            already_processed.add('raw')
+            outfile.write(
+                ' raw="%s"'
+                % self.gds_format_boolean(self.raw, input_name='raw')
+            )
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(
@@ -11495,6 +11509,15 @@ class volume(GeneratedsSuper):
         if value is not None and 'label' not in already_processed:
             already_processed.add('label')
             self.label = value
+        value = find_attr_value_('raw', node)
+        if value is not None and 'raw' not in already_processed:
+            already_processed.add('raw')
+            if value in ('true', '1'):
+                self.raw = True
+            elif value in ('false', '0'):
+                self.raw = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')

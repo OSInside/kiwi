@@ -2122,7 +2122,9 @@ class XMLState:
           is set the volume name is used as data path.
         * mountpoint: volume mount point and volume data path
         * fullsize: takes all space True|False
-        * attributes: list of volume attributes handled via chattr
+        * attributes: list of volume attributes, e.g handled via chattr.
+          A raw volume has the attribute raw, it has no filesystem,
+          no mountpoint and an empty realpath
 
         :return:
             Contains list of volume_type tuples
@@ -2187,7 +2189,15 @@ class XMLState:
                     # check is requested the attribute is handled
                     attributes.append('enable-for-filesystem-check')
 
-                if '@root' in name:
+                if volume.get_raw() is True:
+                    # setup raw volume. A raw volume has no filesystem
+                    # and is not mounted, thus there is no mountpoint
+                    # and no system path to lookup volume data. The
+                    # name is used as volume name as it is
+                    attributes.append('raw')
+                    mountpoint = None
+                    realpath = ''
+                elif '@root' in name:
                     # setup root volume, it takes an optional volume
                     # name if specified as @root=name and has no specific
                     # mountpoint. The default name is set to
