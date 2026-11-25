@@ -22,6 +22,7 @@ import os
 from kiwi.system.result import Result
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
+import kiwi.defaults as defaults
 from kiwi.storage.subformat.template.vmware_settings import (
     VmwareSettingsTemplate,
 )
@@ -60,7 +61,9 @@ class DiskFormatVmdk(DiskFormatBase):
         """
         Store result files of the vmdk format conversion into the
         provided result instance. This includes the vmdk image file
-        and the VMware settings file
+        and the VMware settings file. In monolithicFlat subformat the
+        vmdk image file is a descriptor and the disk data is stored
+        in an extent file, which is stored as well
 
         :param object result: Instance of Result
         """
@@ -74,12 +77,31 @@ class DiskFormatVmdk(DiskFormatBase):
             compress=compression,
             shasum=True,
         )
+        if 'subformat=monolithicFlat' in self.options:
+            result.add(
+                key='disk_format_image_extent',
+                filename=self._get_flat_extent_file_path(),
+                use_for_bundle=True,
+                compress=compression,
+                shasum=True,
+            )
         result.add(
             key='disk_format_machine_settings',
             filename=self.get_target_file_path_for_format('vmx'),
             use_for_bundle=True,
             compress=False,
             shasum=False,
+        )
+
+    def _get_flat_extent_file_path(self) -> str:
+        """
+        Path of the extent file qemu-img creates next to the vmdk
+        descriptor in monolithicFlat subformat, the vmdk file name
+        with the .vmdk extension replaced by -flat.vmdk
+        """
+        vmdk_file = self.get_target_file_path_for_format('vmdk')
+        return ''.join(
+            [vmdk_file[: -len('.vmdk')], defaults.VMDK_FLAT_EXTENT_SUFFIX]
         )
 
     def _create_vmware_settings_file(self) -> None:

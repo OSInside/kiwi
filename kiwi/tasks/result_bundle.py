@@ -30,6 +30,7 @@ from kiwi.path import Path
 from kiwi.utils.compress import Compress
 from kiwi.privileges import Privileges
 from kiwi.command import Command
+import kiwi.defaults as defaults
 
 from kiwi.exceptions import KiwiBundleError
 
@@ -269,7 +270,17 @@ class ResultBundleTask(CliTask):
             extension = f'tar.{result_file.filename.split(".").pop()}'
         else:
             extension = result_file.filename.split('.').pop()
-        if bundle_file_format_name:
+        if bundle_file_format_name and result_file.filename.endswith(
+            defaults.VMDK_FLAT_EXTENT_SUFFIX
+        ):
+            # The extent file of a monolithicFlat vmdk has the same
+            # extension as the vmdk descriptor. It keeps its suffix to
+            # not overwrite the descriptor. The reference to it in the
+            # descriptor is updated along with the rename
+            bundle_file_basename = ''.join(
+                [bundle_file_format_name, defaults.VMDK_FLAT_EXTENT_SUFFIX]
+            )
+        elif bundle_file_format_name:
             bundle_file_basename = '.'.join(
                 [bundle_file_format_name, extension]
             )

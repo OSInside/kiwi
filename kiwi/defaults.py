@@ -153,6 +153,11 @@ REPART_EXT_FILESYSTEMS = ['ext2', 'ext3', 'ext4']
 # replaces the one of systemd-repart
 REPART_EXT_EXTENDED_OPTIONS = ['nodiscard', 'lazy_itable_init=1']
 
+# suffix qemu-img appends to the name of a vmdk file in monolithicFlat
+# subformat to name the extent file which holds the disk data. The vmdk
+# file itself is a text descriptor which references the extent file
+VMDK_FLAT_EXTENT_SUFFIX = '-flat.vmdk'
+
 # OS platform name to EFI architecture name
 EFI_ARCHITECTURES = {
     'x86_64': 'x64',
