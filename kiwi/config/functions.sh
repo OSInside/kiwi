@@ -605,43 +605,6 @@ function suseStripKernel {
     baseStripKernel
 }
 
-function suseSetupProduct {
-    # /.../
-    # This function creates the /etc/products.d/baseproduct
-    # link pointing to the product referenced by either
-    # /etc/SuSE-brand or /etc/os-release or the latest .prod file
-    # available in /etc/products.d
-    # ----
-    local prod=undef
-    if [ -f /etc/SuSE-brand ];then
-        prod=$(head /etc/SuSE-brand -n 1)
-    elif [ -f /etc/os-release ];then
-        prod=$(while read -r line; do if [[ $line =~ ^NAME ]]; then echo "$line"; fi; done < /etc/os-release | cut -d '=' -f 2 | cut -d '"' -f 2)
-    fi
-    if [ -d /etc/products.d ];then
-        pushd /etc/products.d || return
-        if [ -f "${prod}.prod" ];then
-            ln -sf "${prod}.prod" baseproduct
-        elif [ -f "SUSE_${prod}.prod" ];then
-            ln -sf "SUSE_${prod}.prod" baseproduct
-        else
-            find_prod() {
-                for f in *; do
-                    if [[ $f =~ \.prod$ ]]; then
-                        echo "$f"
-                    fi
-                done
-            }
-            prod=$(find_prod | tail -n 1)
-            if [ -f "${prod}" ];then
-                ln -sf "${prod}" baseproduct
-            fi
-        fi
-        popd || return
-    fi
-}
-
-
 #======================================
 # Helper methods
 #--------------------------------------
@@ -869,6 +832,13 @@ function suseImportBuildKey {
 	Signing keys are imported into the image by kiwi.
 	Use the <signing key="..."/> element of the
 	repository source or the --signing-key option
+	EOF
+}
+
+function suseSetupProduct {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	The SUSE specific baseproduct link is setup by the
+	installation of the respective release package.
 	EOF
 }
 
