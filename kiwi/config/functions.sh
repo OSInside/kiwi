@@ -161,50 +161,6 @@ function baseService {
     fi
 }
 
-#======================================
-# suseImportBuildKey
-#--------------------------------------
-function suseImportBuildKey {
-    # /.../
-    # Add missing gpg keys to rpm database
-    # ----
-    local KEY
-    local TDIR
-    local KFN
-    local dumpsigs=/usr/lib/rpm/gnupg/dumpsigs
-    TDIR=$(mktemp -d)
-    if [ ! -d "${TDIR}" ]; then
-        echo "suseImportBuildKey: Failed to create temp dir"
-        return
-    fi
-    if [ -d "/usr/lib/rpm/gnupg/keys" ];then
-        pushd "/usr/lib/rpm/gnupg/keys" || return
-    else
-        pushd "${TDIR}" || return
-        if [ -x "${dumpsigs}" ];then
-            ${dumpsigs} /usr/lib/rpm/gnupg/suse-build-key.gpg
-        fi
-    fi
-    for KFN in gpg-pubkey-*.asc; do
-        if [ ! -e "${KFN}" ];then
-            #
-            # check if file exists because if the glob match did
-            # not find files bash will use the glob string as
-            # result and we just continue in this case
-            #
-            continue
-        fi
-        KEY=$(basename "${KFN}" .asc)
-        if rpm -q "${KEY}" >/dev/null; then
-            continue
-        fi
-        echo "Importing ${KEY} to rpm database"
-        rpm --import "${KFN}"
-    done
-    popd || return
-    rm -rf "${TDIR}"
-}
-
 function baseStripLocales {
     local keepLocales="$*"
     find /usr/lib/locale -mindepth 1 -maxdepth 1 -type d 2>/dev/null |\
@@ -905,6 +861,14 @@ function baseMount {
     deprecated "${FUNCNAME[0]}" <<- EOF
 	Mounting of kernel and other base filesystems are a
 	responsibility of the kiwi code
+	EOF
+}
+
+function suseImportBuildKey {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Signing keys are imported into the image by kiwi.
+	Use the <signing key="..."/> element of the
+	repository source or the --signing-key option
 	EOF
 }
 
