@@ -21,6 +21,7 @@ from typing import Dict, List, Optional, TypedDict
 
 # project
 from kiwi.utils.compress import Compress
+from kiwi.utils.reproducible import Reproducible
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.oci_tools import OCI
@@ -209,6 +210,10 @@ class ContainerImageOCI(ContainerImageBase):
             oci.export_container_image(
                 filename, self.archive_transport, image_ref, additional_refs
             )
+            if self.archive_transport == 'oci-archive':
+                # skopeo stores the time of the export as modification
+                # time of all members of an oci-archive
+                Reproducible.clamp_archive_mtime(filename)
 
         if compress_archive:
             compress = Compress(filename)

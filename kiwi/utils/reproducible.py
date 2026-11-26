@@ -19,6 +19,7 @@ import os
 import uuid
 import hashlib
 import logging
+import tarfile
 from typing import List, Optional
 
 # project
@@ -112,6 +113,45 @@ class Reproducible:
         for entry in entries:
             if os.lstat(entry).st_mtime > sde:
                 os.utime(entry, (sde, sde), follow_symlinks=False)
+
+    @staticmethod
+    def clamp_archive_mtime(filename: str) -> None:
+        """
+        Set the modification time of all members of the given tar
+        archive which are newer than SOURCE_DATE_EPOCH to
+        SOURCE_DATE_EPOCH. The archive is rewritten with the same
+        members in the same order. This is used for archives created
+        by tools which store the time of the archive creation for all
+        members, e.g skopeo for oci-archive container images
+
+        :param str filename: tar archive file path
+        """
+        sde = Reproducible.get_source_date_epoch()
+        if sde is None:
+            return
+        log.info(f'Clamping mtime in {filename} to SOURCE_DATE_EPOCH:{sde}')
+        clamped_filename = filename + '.clamped'
+        try:
+            with tarfile.open(filename) as archive:
+                with tarfile.open(
+                    clamped_filename, 'w', format=tarfile.PAX_FORMAT
+                ) as clamped_archive:
+                    for member in archive:
+                        if member.mtime > sde:
+                            member.mtime = sde
+                        clamped_archive.addfile(
+                            member,
+                            (
+                                archive.extractfile(member)
+                                if member.isfile()
+                                else None
+                            ),
+                        )
+        except Exception:
+            if os.path.exists(clamped_filename):
+                os.unlink(clamped_filename)
+            raise
+        os.replace(clamped_filename, filename)
 
     @staticmethod
     def get_xz_options(options: List[str]) -> List[str]:

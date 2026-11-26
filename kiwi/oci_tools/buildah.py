@@ -27,6 +27,8 @@ from kiwi.oci_tools.base import OCIBase
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.defaults import Defaults
+from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.utils.reproducible import Reproducible
 from kiwi.exceptions import KiwiBuildahError
 
 log = logging.getLogger('kiwi')
@@ -266,12 +268,59 @@ class OCIBuildah(OCIBase):
                 '--rm',
                 '--format',
                 'oci',
+            ]
+            + self._get_reproducible_commit_options()
+            + [
                 self.working_container,
                 self.working_image,
             ]
         )
         self.working_image = output.output.rstrip()
         self.working_container = None
+
+    @staticmethod
+    def _get_reproducible_commit_options() -> List[str]:
+        """
+        buildah commit options to create the image reproducible if
+        SOURCE_DATE_EPOCH is set
+
+        Without options buildah writes the current time as creation
+        date into the image configuration, the manifest and the
+        history. Since buildah 1.40 the --source-date-epoch option
+        sets the creation date, and --rewrite-timestamp clamps the
+        timestamps of the layer content newer than SOURCE_DATE_EPOCH,
+        like it is done for the umoci based container creation.
+        Older versions provide the --timestamp option, which sets the
+        creation date and the timestamps of all layer content to
+        SOURCE_DATE_EPOCH
+
+        :return: list of buildah commit options
+
+        :rtype: list
+        """
+        sde = Reproducible.get_source_date_epoch()
+        if sde is None:
+            return []
+        if CommandCapabilities.has_option_in_help(
+            'buildah',
+            '--source-date-epoch',
+            ['commit', '--help'],
+            raise_on_error=False,
+        ):
+            return ['--source-date-epoch', format(sde), '--rewrite-timestamp']
+        if CommandCapabilities.has_option_in_help(
+            'buildah', '--timestamp', ['commit', '--help'], raise_on_error=False
+        ):
+            log.info(
+                'buildah < 1.40 found, all files in the container '
+                'are set to the time of SOURCE_DATE_EPOCH'
+            )
+            return ['--timestamp', format(sde)]
+        log.warning(
+            'buildah commit does not support --timestamp, '
+            'the container is not reproducible'
+        )
+        return []
 
     @classmethod
     def _process_oci_config_to_arguments(

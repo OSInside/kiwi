@@ -166,6 +166,43 @@ class TestOCIBuildah:
             ]
         )
 
+    @patch('kiwi.oci_tools.buildah.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.oci_tools.buildah.random.choice')
+    @patch('kiwi.oci_tools.buildah.Command.run')
+    def test_post_process_reproducible(
+        self, mock_cmd_run, mock_choice, mock_has_option_in_help
+    ):
+        mock_choice.return_value = 'x'
+
+        def commit(supported_flags):
+            mock_has_option_in_help.side_effect = (
+                lambda call, flag, *args, **kwargs: flag in supported_flags
+            )
+            mock_cmd_run.reset_mock()
+            self.oci.working_image = None
+            self.oci.working_container = 'kiwi-container'
+            with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+                self.oci.post_process()
+            return mock_cmd_run.call_args[0][0][5:-2]
+
+        # buildah >= 1.40 clamps the timestamps of the layer content
+        assert commit(['--source-date-epoch', '--timestamp']) == [
+            '--source-date-epoch',
+            '42',
+            '--rewrite-timestamp',
+        ]
+        # older buildah sets all timestamps to SOURCE_DATE_EPOCH
+        with self._caplog.at_level(logging.INFO):
+            assert commit(['--timestamp']) == ['--timestamp', '42']
+        assert 'buildah < 1.40 found' in self._caplog.text
+        # buildah without support for a fixed timestamp
+        with self._caplog.at_level(logging.WARNING):
+            assert commit([]) == []
+        assert 'the container is not reproducible' in self._caplog.text
+        mock_has_option_in_help.assert_called_with(
+            'buildah', '--timestamp', ['commit', '--help'], raise_on_error=False
+        )
+
     def test_post_processi_fail(self):
         with raises(KiwiBuildahError):
             self.oci.working_container = None

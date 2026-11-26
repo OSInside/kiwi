@@ -127,10 +127,13 @@ class TestContainerImageOCI:
         m_open.assert_called_once_with('/.buildenv')
         assert 'labels' not in container.oci_config
 
+    @patch('kiwi.container.oci.Reproducible.clamp_archive_mtime')
     @patch('kiwi.container.oci.OCI')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
     @patch('kiwi.container.oci.Compress')
-    def test_create_oci_archive(self, mock_Compress, mock_cache, mock_OCI):
+    def test_create_oci_archive(
+        self, mock_Compress, mock_cache, mock_OCI, mock_clamp_archive_mtime
+    ):
         compress = Mock()
         mock_Compress.return_value = compress
         mock_cache.return_value = 'var/cache/kiwi'
@@ -178,13 +181,18 @@ class TestContainerImageOCI:
         mock_oci.export_container_image.assert_called_once_with(
             'result.tar', 'oci-archive', 'foo/bar:latest', []
         )
+        # skopeo stores the export time for all oci-archive members
+        mock_clamp_archive_mtime.assert_called_once_with('result.tar')
         compress.xz.assert_called_once_with(
             self.runtime_config.get_xz_options.return_value
         )
 
+    @patch('kiwi.container.oci.Reproducible.clamp_archive_mtime')
     @patch('kiwi.container.oci.OCI')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
-    def test_create_derived_docker_archive(self, mock_cache, mock_OCI):
+    def test_create_derived_docker_archive(
+        self, mock_cache, mock_OCI, mock_clamp_archive_mtime
+    ):
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = mock_oci
@@ -234,3 +242,4 @@ class TestContainerImageOCI:
             'foo/bar:latest',
             ['foo/bar:current', 'name:foobar', 'newname:latest'],
         )
+        assert not mock_clamp_archive_mtime.called
