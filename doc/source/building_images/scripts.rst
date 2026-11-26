@@ -146,11 +146,6 @@ baseVagrantSetup
   ssh settings, starts the ssh daemon and creates the shared folder
   :file:`/vagrant`.
 
-suseSetupProduct
-  Creates the link :file:`/etc/products.d/baseproduct` to the product
-  referenced by :file:`/etc/SuSE-brand`, :file:`/etc/os-release` or the
-  latest `.prod` file in :file:`/etc/products.d`.
-
 suseInsertService, suseRemoveService, suseService
   Call the respective `base` function, for compatibility only.
 
