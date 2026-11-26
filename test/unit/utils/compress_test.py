@@ -41,6 +41,20 @@ class TestCompress:
         )
         assert self.compress.compressed_filename == 'some-file.xz'
 
+    @patch('kiwi.utils.reproducible.CommandCapabilities.check_version')
+    @patch('kiwi.utils.reproducible.os.cpu_count')
+    @patch('kiwi.command.Command.run')
+    def test_xz_reproducible_with_old_xz(
+        self, mock_command, mock_cpu_count, mock_check_version
+    ):
+        mock_cpu_count.return_value = 1
+        mock_check_version.return_value = False
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '42'}):
+            self.compress.xz()
+        mock_command.assert_called_once_with(
+            ['xz', '-f', '--threads=2', '--keep', 'some-file']
+        )
+
     @patch('kiwi.command.Command.run')
     def test_gzip(self, mock_command):
         assert self.compress.gzip() == 'some-file.gz'

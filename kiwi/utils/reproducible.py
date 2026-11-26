@@ -19,7 +19,10 @@ import os
 import uuid
 import hashlib
 import logging
-from typing import Optional
+from typing import List, Optional
+
+# project
+from kiwi.utils.command_capabilities import CommandCapabilities
 
 log = logging.getLogger('kiwi')
 
@@ -109,3 +112,54 @@ class Reproducible:
         for entry in entries:
             if os.lstat(entry).st_mtime > sde:
                 os.utime(entry, (sde, sde), follow_symlinks=False)
+
+    @staticmethod
+    def get_xz_options(options: List[str]) -> List[str]:
+        """
+        xz options which create the same output on every build host
+
+        xz writes a different stream in single-threaded mode than in
+        multi-threaded mode. With --threads=0 xz before version 5.4
+        uses single-threaded mode on a host with only one CPU, and
+        multi-threaded mode on all other hosts. Since version 5.4
+        --threads=0 always uses multi-threaded mode. If
+        SOURCE_DATE_EPOCH is set and an older xz is used, the request
+        for --threads=0 is replaced by an explicit number of at least
+        two threads. In multi-threaded mode the output does not depend
+        on the number of threads
+
+        :param list options: xz options
+
+        :return: list of xz options
+
+        :rtype: list
+        """
+        if Reproducible.get_source_date_epoch() is None:
+            return list(options)
+        thread_option = '--threads={0}'.format(max(2, os.cpu_count() or 1))
+        result = []
+        threads_requested = False
+        index = 0
+        while index < len(options):
+            option = options[index]
+            if option in ('--threads=0', '-T0'):
+                threads_requested = True
+                result.append(thread_option)
+                index += 1
+            elif option in ('--threads', '-T') and (
+                options[index + 1 : index + 2] == ['0']
+            ):
+                threads_requested = True
+                result.append(thread_option)
+                index += 2
+            else:
+                result.append(option)
+                index += 1
+        if not threads_requested or CommandCapabilities.check_version(
+            'xz', (5, 4), raise_on_error=False
+        ):
+            return list(options)
+        log.info(
+            f'xz < 5.4 found, using {thread_option} for reproducible output'
+        )
+        return result

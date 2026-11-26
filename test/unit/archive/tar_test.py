@@ -200,6 +200,20 @@ class TestArchiveTar:
             ]
         )
 
+    @patch('kiwi.archive.tar.Reproducible.get_xz_options')
+    @patch('kiwi.archive.tar.Command.run')
+    @patch('os.listdir')
+    def test_create_xz_compressed_reproducible_xz_options(
+        self, mock_os_dir, mock_command, mock_get_xz_options
+    ):
+        mock_os_dir.return_value = ['foo']
+        mock_get_xz_options.return_value = ['--threads=2']
+        self.archive.create_xz_compressed('source-dir')
+        mock_get_xz_options.assert_called_once_with(['--threads=0'])
+        assert '| xz -f --threads=2 > foo.tar.xz' in (
+            mock_command.call_args[0][0][2]
+        )
+
     @patch('kiwi.archive.tar.Command.run')
     @patch('os.listdir')
     def test_create_xz_compressed_with_custom_xz_options(
