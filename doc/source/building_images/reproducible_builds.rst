@@ -112,9 +112,29 @@ longer change from build to build:
        or later.
    * - gzip compressed files
      - The original file name and timestamp are not stored.
+   * - xz compressed files
+     - `xz` writes a different result in single and multi threaded
+       mode. {kiwi} calls `xz` with `--threads=0` by default, which
+       uses the multi threaded mode on every build host since xz 5.4.
+       With older `xz` versions, {kiwi} replaces `--threads=0` by an
+       explicit number of threads, at least two, such that the result
+       does not depend on the number of CPUs of the build host. This
+       also applies to `--threads=0` set in the `options` of the `xz`
+       section in the :ref:`runtime_config`.
    * - OCI and Docker containers
      - With the default `umoci` container tool, the creation date and
-       the history entries use `SOURCE_DATE_EPOCH`.
+       the history entries use `SOURCE_DATE_EPOCH`. If `buildah` is set
+       as `archive_tool` in the `oci` section of the
+       :ref:`runtime_config`, {kiwi} passes `SOURCE_DATE_EPOCH` to
+       `buildah commit`. With buildah 1.40 or later, it sets the
+       creation date and the history entries, and timestamps of the
+       container content newer than `SOURCE_DATE_EPOCH` are clamped to
+       it. Older buildah versions set the creation date, the history
+       entries and the timestamps of all container content to
+       `SOURCE_DATE_EPOCH`.
+       `skopeo`, which exports the container, stores the time of the
+       export for all members of an OCI archive. {kiwi} clamps these
+       times to `SOURCE_DATE_EPOCH`.
 
 Known Limitations
 -----------------
@@ -167,11 +187,6 @@ Software RAID
    `mdadm` creates a random array UUID and stores timestamps in the
    RAID superblock.
 
-Containers built with `buildah`
-   If `buildah` is set as `archive_tool` in the `oci` section of the
-   :ref:`runtime_config`, {kiwi} does not pass the creation date to
-   it.
-
 dm-integrity
    {kiwi} does not set any identifiers for `integritysetup`. It has
    not been verified whether its result is deterministic.
@@ -184,10 +199,14 @@ Disk formats created with `qemu-img`
    format and the raw disk image are not affected.
 
 xz compression
-   The output of `xz` depends on the version of `xz`, and can depend
-   on whether `xz` runs in single or multi threaded mode. {kiwi} calls
-   `xz` with `--threads=0` by default. To use a fixed setting, set the
-   `options` of the `xz` section in the :ref:`runtime_config`.
+   The output of `xz` depends on the version of `xz` and the caller
+   options with regards to thread usage. {kiwi} makes explicit `xz`
+   calls in the build deterministic but tools which compress data
+   themselves, use their own `xz` settings. {kiwi} covers this
+   for known tools in the process like `dracut` or `mksquashfs`.
+   Should there be other tools part of the build process running
+   a `xz` based compression task, this will make the build no
+   longer deterministic.
 
 Order of directory entries in the EFI FAT image
    `mcopy` copies files in the order the filesystem of the build host

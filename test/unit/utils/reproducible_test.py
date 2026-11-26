@@ -1,5 +1,8 @@
+import io
 import os
+import tarfile
 from unittest.mock import patch
+from pytest import raises
 
 from kiwi.utils.reproducible import Reproducible
 
@@ -88,3 +91,69 @@ class TestReproducible:
                     '--threads=2',
                     '-9',
                 ]
+
+    def _create_archive(self, filename, members):
+        with tarfile.open(filename, 'w') as archive:
+            for name, mtime, data in members:
+                member = tarfile.TarInfo(name)
+                member.mtime = mtime
+                if data is None:
+                    member.type = tarfile.DIRTYPE
+                    archive.addfile(member)
+                else:
+                    member.size = len(data)
+                    archive.addfile(member, io.BytesIO(data))
+
+    def test_clamp_archive_mtime(self, tmp_path):
+        filename = str(tmp_path / 'image.oci.tar')
+        self._create_archive(
+            filename,
+            [
+                ('oci-layout', 2000, b'layout'),
+                ('blobs', 2000, None),
+                ('blobs/old', 500, b'old data'),
+            ],
+        )
+        with open(filename, 'rb') as archive:
+            original = archive.read()
+        with patch.dict('os.environ', {}, clear=True):
+            Reproducible.clamp_archive_mtime(filename)
+        with open(filename, 'rb') as archive:
+            assert archive.read() == original
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '1000'}):
+            Reproducible.clamp_archive_mtime(filename)
+        with tarfile.open(filename) as archive:
+            members = archive.getmembers()
+            # same members in the same order, only newer times clamped
+            assert [
+                (member.name, member.mtime, member.isdir())
+                for member in members
+            ] == [
+                ('oci-layout', 1000, False),
+                ('blobs', 1000, True),
+                ('blobs/old', 500, False),
+            ]
+            assert archive.extractfile('oci-layout').read() == b'layout'
+            assert archive.extractfile('blobs/old').read() == b'old data'
+        assert os.listdir(tmp_path) == ['image.oci.tar']
+
+    def test_clamp_archive_mtime_invalid_archive(self, tmp_path):
+        filename = tmp_path / 'image.oci.tar'
+        filename.write_bytes(b'no tar archive')
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '1000'}):
+            with raises(tarfile.TarError):
+                Reproducible.clamp_archive_mtime(str(filename))
+        # the archive is kept as it is, no partial result is left
+        assert filename.read_bytes() == b'no tar archive'
+        assert os.listdir(tmp_path) == ['image.oci.tar']
+        # an archive which breaks while the members are copied
+        self._create_archive(
+            str(filename), [('blobs/data', 2000, b'x' * 100000)]
+        )
+        truncated = filename.read_bytes()[:50000]
+        filename.write_bytes(truncated)
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '1000'}):
+            with raises(tarfile.TarError):
+                Reproducible.clamp_archive_mtime(str(filename))
+        assert filename.read_bytes() == truncated
+        assert os.listdir(tmp_path) == ['image.oci.tar']
