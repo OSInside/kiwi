@@ -527,7 +527,7 @@ Requires:       python%{python3_pkgversion}-typer >= 0.19.0
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-xmltodict
-Requires:       python%{python3_pkgversion}-progressbar2
+Requires:       python%{python3_pkgversion}-rich
 %if 0%{?suse_version}
 Requires:       python%{python3_pkgversion}-Cerberus
 %else

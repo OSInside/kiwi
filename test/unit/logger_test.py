@@ -14,17 +14,6 @@ class TestLogger:
     def setup_method(self, cls):
         self.setup()
 
-    @patch('sys.stdout')
-    def test_progress(self, mock_stdout):
-        self.log.progress(50, 100, 'foo')
-        mock_stdout.write.assert_called_once_with(
-            '\rfoo: [####################                    ] 50%'
-        )
-        mock_stdout.flush.assert_called_once_with()
-
-    def test_progress_raise(self):
-        assert self.log.progress(50, 0, 'foo') is None
-
     @patch('logging.FileHandler')
     def test_set_logfile(self, mock_file_handler):
         self.log.set_logfile('logfile')

@@ -1,5 +1,5 @@
 import logging
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 from pytest import raises, fixture
 from builtins import bytes
 
@@ -88,6 +88,62 @@ class TestCommandProcess:
         with self._caplog.at_level(logging.DEBUG):
             process.poll_show_progress(['a', 'b'], match_method, True)
             assert 'system: data' in self._caplog.text
+
+    @patch('kiwi.command_process.Progress')
+    @patch('kiwi.command.Command')
+    def test_poll_show_progress_rich_progress(
+        self, mock_command, mock_Progress
+    ):
+        progress = mock_Progress.return_value.__enter__.return_value
+        task = progress.add_task.return_value
+        match_method = CommandProcess(mock_command).create_match_method(
+            self.fake_matcher
+        )
+        process = CommandProcess(mock_command)
+        process.command.command.process.poll = self.flow
+        process.command.command.output_available = self.flow_out_available
+        process.command.command.error_available = self.flow_err_available
+        process.command.command.output.read = self.flow_out
+        process.command.command.error.read = self.flow_err
+        process.command.command.process.returncode = 0
+        with patch.object(
+            logging.getLogger('kiwi'), 'getLogLevel', create=True
+        ) as mock_getLogLevel:
+            mock_getLogLevel.return_value = logging.INFO
+            process.poll_show_progress(['a', 'b'], match_method, True)
+        assert mock_Progress.call_args.kwargs == {'disable': False}
+        progress.add_task.assert_called_once_with('Processing', total=2)
+        # every matching line completes an item, up to the number of
+        # items. The progress is complete once the process is done
+        assert progress.update.call_args_list == [
+            call(task, completed=1),
+            call(task, completed=2),
+            call(task, completed=2),
+        ]
+
+        # the progress is not shown in debug mode, it would be
+        # mixed with the debug output of the process
+        mock_Progress.reset_mock()
+        self.setup()
+        process = CommandProcess(mock_command)
+        process.command.command.process.poll = self.flow
+        process.command.command.output_available = self.flow_out_available
+        process.command.command.error_available = self.flow_err_available
+        process.command.command.output.read = self.flow_out
+        process.command.command.error.read = self.flow_err
+        process.command.command.process.returncode = 0
+        with patch.object(
+            logging.getLogger('kiwi'), 'getLogLevel', create=True
+        ) as mock_getLogLevel:
+            mock_getLogLevel.return_value = logging.DEBUG
+            process.poll_show_progress([], match_method)
+        assert mock_Progress.call_args.kwargs == {'disable': True}
+        # without items the progress is complete with the process
+        progress = mock_Progress.return_value.__enter__.return_value
+        progress.add_task.assert_called_once_with('Processing', total=1)
+        progress.update.assert_called_once_with(
+            progress.add_task.return_value, completed=1
+        )
 
     @patch('kiwi.command.Command')
     def test_poll_show_progress_raises(self, mock_command):

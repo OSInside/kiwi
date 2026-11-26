@@ -20,14 +20,20 @@ import logging
 from collections import namedtuple
 from kiwi.command import CommandCallT
 from typing import Any, NamedTuple, List, Callable
+from rich.progress import (
+    BarColumn,
+    Progress,
+    TaskID,
+    TaskProgressColumn,
+    TextColumn,
+)
 
 # project
 from kiwi.utils.codec import Codec
-from kiwi.logger import Logger
 
 from kiwi.exceptions import KiwiCommandError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class PollT(NamedTuple):
@@ -74,19 +80,37 @@ class CommandProcess:
         Iterate over process and show progress in percent
         raise on error and log output
 
+        The progress is not shown in debug mode, the debug log
+        information of the process output would break up the
+        progress display
+
         :param list items_to_complete: all items
         :param function match_method: method matching item
         """
-        self._init_progress()
-        for lineT in self.command:
-            lines = [lineT.stdout_line]
-            if with_stderr:
-                lines.append(lineT.stderr_line)
-            for line in lines:
-                if line:
-                    log.debug('%s: %s', self.log_topic, line)
-                    self._update_progress(match_method, items_to_complete, line)
-        self._stop_progress()
+        total = len(items_to_complete) or 1
+        with Progress(
+            TextColumn('[ INFO    ]: Processing'),
+            BarColumn(),
+            TaskProgressColumn(),
+            disable=log.getLogLevel() == logging.DEBUG,
+        ) as progress:
+            task = progress.add_task('Processing', total=total)
+            for lineT in self.command:
+                lines = [lineT.stdout_line]
+                if with_stderr:
+                    lines.append(lineT.stderr_line)
+                for line in lines:
+                    if line:
+                        log.debug('%s: %s', self.log_topic, line)
+                        self._update_progress(
+                            progress,
+                            task,
+                            match_method,
+                            items_to_complete,
+                            line,
+                        )
+            # the process is done, all items are complete
+            progress.update(task, completed=total)
         if self.command.get_error_code() != 0:
             raise KiwiCommandError(self.command.get_error_output())
 
@@ -134,14 +158,10 @@ class CommandProcess:
     def returncode(self) -> int:
         return self.command.get_error_code()
 
-    def _init_progress(self) -> None:
-        Logger.progress(0, 100, '[ INFO    ]: Processing')
-
-    def _stop_progress(self) -> None:
-        Logger.progress(100, 100, '[ INFO    ]: Processing')
-
     def _update_progress(
         self,
+        progress: Progress,
+        task: TaskID,
         match_method: Callable,
         items_to_complete: List[str],
         command_output: str,
@@ -151,11 +171,7 @@ class CommandProcess:
             if match_method(item, command_output):
                 self.items_processed += 1
                 if self.items_processed <= items_count:
-                    Logger.progress(
-                        self.items_processed,
-                        items_count,
-                        '[ INFO    ]: Processing',
-                    )
+                    progress.update(task, completed=self.items_processed)
 
 
 class CommandIterator:

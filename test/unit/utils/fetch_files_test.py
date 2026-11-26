@@ -1,7 +1,7 @@
 import io
 import requests
 from pytest import raises
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock, call, patch
 
 from kiwi.utils.fetch_files import FetchFiles
 from kiwi.exceptions import KiwiUriOpenError
@@ -14,52 +14,82 @@ class TestFetchFiles:
     def setup_method(self, cls):
         self.setup()
 
+    @patch('kiwi.utils.fetch_files.TransferSpeedColumn')
+    @patch('kiwi.utils.fetch_files.TimeRemainingColumn')
+    @patch('kiwi.utils.fetch_files.TaskProgressColumn')
+    @patch('kiwi.utils.fetch_files.BarColumn')
+    @patch('kiwi.utils.fetch_files.TextColumn')
+    @patch('kiwi.utils.fetch_files.Progress')
     @patch('kiwi.utils.fetch_files.requests')
-    @patch('kiwi.utils.fetch_files.progressbar')
-    def test_wget(self, mock_progressbar, mock_requests):
+    def test_wget(
+        self,
+        mock_requests,
+        mock_Progress,
+        mock_TextColumn,
+        mock_BarColumn,
+        mock_TaskProgressColumn,
+        mock_TimeRemainingColumn,
+        mock_TransferSpeedColumn,
+    ):
         response = Mock()
-        response.headers.get.return_value = 4
-        response.iter_content.return_value = [b'data']
+        response.headers.get.return_value = 8
+        response.iter_content.return_value = [b'data', b'', b'more']
         mock_requests.request.return_value = response
+        progress = mock_Progress.return_value.__enter__.return_value
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.fetcher.wget('http://foo', 'bar')
             mock_open.assert_called_once_with('bar', 'wb')
-            file_handle.write.assert_called_once_with(b'data')
-            mock_progressbar.ProgressBar.assert_called_once_with(
-                maxval=4,
-                widgets=[
-                    'Loading: ',
-                    mock_progressbar.Percentage.return_value,
-                    ' ',
-                    mock_progressbar.Bar(marker='#', left='[', right=']'),
-                    ' ',
-                    mock_progressbar.ETA.return_value,
-                    ' ',
-                    mock_progressbar.FileTransferSpeed.return_value,
-                ],
-            )
+            assert file_handle.write.call_args_list == [
+                call(b'data'),
+                call(b'more'),
+            ]
+        mock_TextColumn.assert_called_once_with('Loading:')
+        mock_Progress.assert_called_once_with(
+            mock_TextColumn.return_value,
+            mock_BarColumn.return_value,
+            mock_TaskProgressColumn.return_value,
+            mock_TimeRemainingColumn.return_value,
+            mock_TransferSpeedColumn.return_value,
+        )
+        progress.add_task.assert_called_once_with('Loading', total=8)
+        # the progress advances by the size of each written chunk
+        assert progress.update.call_args_list == [
+            call(progress.add_task.return_value, advance=4),
+            call(progress.add_task.return_value, advance=4),
+        ]
 
+    @patch('kiwi.utils.fetch_files.TransferSpeedColumn')
+    @patch('kiwi.utils.fetch_files.DownloadColumn')
+    @patch('kiwi.utils.fetch_files.TextColumn')
+    @patch('kiwi.utils.fetch_files.Progress')
     @patch('kiwi.utils.fetch_files.requests.request')
-    @patch('kiwi.utils.fetch_files.progressbar')
-    def test_wget_unknown_length(self, mock_progressbar, mock_request):
+    def test_wget_unknown_length(
+        self,
+        mock_request,
+        mock_Progress,
+        mock_TextColumn,
+        mock_DownloadColumn,
+        mock_TransferSpeedColumn,
+    ):
         response = Mock()
         response.headers.get.return_value = None
         response.iter_content.return_value = [b'data']
         mock_request.return_value = response
+        progress = mock_Progress.return_value.__enter__.return_value
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.fetcher.wget('http://foo', 'bar')
             file_handle.write.assert_called_once_with(b'data')
-            mock_progressbar.ProgressBar.assert_called_once_with(
-                maxval=mock_progressbar.UnknownLength,
-                widgets=[
-                    'Loading: ',
-                    mock_progressbar.FileTransferSpeed.return_value,
-                ],
-            )
+        # without the content size, the downloaded size is shown
+        mock_Progress.assert_called_once_with(
+            mock_TextColumn.return_value,
+            mock_DownloadColumn.return_value,
+            mock_TransferSpeedColumn.return_value,
+        )
+        progress.add_task.assert_called_once_with('Loading', total=None)
 
     @patch('kiwi.utils.fetch_files.requests.request')
     def test_wget_http_error(self, mock_request):
