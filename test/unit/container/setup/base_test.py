@@ -60,7 +60,7 @@ class TestContainerSetupBase:
             'root_dir/etc/sysconfig/boot', 'r'
         )
         assert m_open.return_value.write.call_args_list == [
-            call('\nROOTFS_BLKDEV="/dev/null"\n')
+            call('ROOTFS_BLKDEV="/dev/null"\n')
         ]
 
     @patch('os.path.exists')
@@ -77,6 +77,21 @@ class TestContainerSetupBase:
                 'root_dir/usr/lib/systemd/system/my.service',
             ]
         )
+
+    @patch('os.readlink')
+    @patch('os.path.islink')
+    @patch('kiwi.container.setup.base.Command.run')
+    def test_deactivate_systemd_service_already_deactivated(
+        self, mock_command, mock_islink, mock_readlink
+    ):
+        mock_islink.return_value = True
+        mock_readlink.return_value = '/dev/null'
+        self.container.deactivate_systemd_service('my.service')
+        mock_readlink.assert_called_once_with(
+            'root_dir/usr/lib/systemd/system/my.service'
+        )
+        # the existing link is kept as it is
+        assert not mock_command.called
 
     @patch('os.path.exists')
     @patch('kiwi.container.setup.base.Command.run')
@@ -99,4 +114,29 @@ class TestContainerSetupBase:
             call('root_dir/etc/securetty', 'r'),
             call('root_dir/etc/securetty', 'w'),
         ]
-        assert m_open.return_value.write.call_args_list == [call('\nconsole\n')]
+        assert m_open.return_value.write.call_args_list == [call('console\n')]
+
+    def test_update_config_unchanged(self):
+        # a config file which is already setup, e.g by a former
+        # container setup on the same root tree, is not written
+        m_open = mock_open(read_data='console\ntty1\n')
+        with patch('builtins.open', m_open, create=True):
+            self.container._update_config(
+                'root_dir/etc/securetty', {'console': 'console'}
+            )
+        assert m_open.call_args_list == [call('root_dir/etc/securetty', 'r')]
+        assert not m_open.return_value.write.called
+
+    def test_update_config_changed(self):
+        m_open = mock_open(
+            read_data='LOADER_TYPE="grub2"\nLOADER_LOCATION="mbr"\n'
+        )
+        with patch('builtins.open', m_open, create=True):
+            self.container._update_config(
+                'root_dir/etc/sysconfig/bootloader',
+                {'LOADER_TYPE': 'LOADER_TYPE="none"'},
+            )
+        # the file keeps its layout, no empty line is added
+        assert m_open.return_value.write.call_args_list == [
+            call('LOADER_TYPE="none"\nLOADER_LOCATION="mbr"\n')
+        ]
