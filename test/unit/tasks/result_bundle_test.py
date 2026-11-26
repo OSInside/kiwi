@@ -365,6 +365,93 @@ class TestResultBundleTask:
     @patch('os.unlink')
     @patch('os.symlink')
     @patch('os.readlink')
+    def test_process_result_bundle_with_bundle_format_for_flat_vmdk(
+        self,
+        mock_os_readlink,
+        mock_os_symlink,
+        mock_os_unlink,
+        mock_os_path_islink,
+        mock_exists,
+        mock_path_create,
+        mock_command,
+        mock_load,
+    ):
+        self.xml_state.profiles = None
+        self.xml_state.host_architecture = 'x86_64'
+        self.xml_state.get_build_type_name = Mock(return_value='oem')
+        self.xml_state.xml_data.get_name = Mock(return_value='Leap-15.2')
+
+        result = Result(self.xml_state)
+        result.add_bundle_format('%N-%T')
+        result.add(
+            key='disk_format_image',
+            filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.vmdk',
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
+        )
+        result.add(
+            key='disk_format_image_extent',
+            filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2-flat.vmdk',
+            use_for_bundle=True,
+            compress=False,
+            shasum=False,
+        )
+
+        mock_exists.return_value = False
+        mock_os_path_islink.return_value = False
+        mock_os_readlink.side_effect = lambda link: {
+            os.sep.join(
+                [self.abs_bundle_dir, 'Leap-15.2.x86_64-1.15.2.vmdk']
+            ): os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem.vmdk']),
+            os.sep.join(
+                [self.abs_bundle_dir, 'Leap-15.2.x86_64-1.15.2-flat.vmdk']
+            ): os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem-flat.vmdk']),
+        }[link]
+        mock_command.return_value.output = 'ASCII text'
+        mock_load.return_value = result
+        self._init_command_args()
+
+        self.task.process()
+
+        descriptor = os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem.vmdk'])
+        extent = os.sep.join([self.abs_bundle_dir, 'Leap-15.2-oem-flat.vmdk'])
+        # the extent file keeps its suffix and does not overwrite
+        # the descriptor which has the same extension
+        assert mock_command.call_args_list[0:2] == [
+            call(
+                ['cp', '/tmp/mytest/Leap-15.2.x86_64-1.15.2.vmdk', descriptor]
+            ),
+            call(
+                [
+                    'cp',
+                    '/tmp/mytest/Leap-15.2.x86_64-1.15.2-flat.vmdk',
+                    extent,
+                ]
+            ),
+        ]
+        # the reference to the extent file is renamed in the descriptor
+        assert (
+            call(
+                [
+                    'sed',
+                    '-ie',
+                    's/Leap-15.2.x86_64-1.15.2-flat.vmdk/'
+                    'Leap-15.2-oem-flat.vmdk/g',
+                    descriptor,
+                ]
+            )
+            in mock_command.call_args_list
+        )
+
+    @patch('kiwi.tasks.result_bundle.Result.load')
+    @patch('kiwi.tasks.result_bundle.Command.run')
+    @patch('kiwi.tasks.result_bundle.Path.create')
+    @patch('os.path.exists')
+    @patch('os.path.islink')
+    @patch('os.unlink')
+    @patch('os.symlink')
+    @patch('os.readlink')
     def test_process_result_bundle_with_bundle_format_for_vagrant_types(
         self,
         mock_os_readlink,

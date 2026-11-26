@@ -106,6 +106,36 @@ class TestDiskFormatVmdk:
             ),
         ]
 
+    def test_store_to_result_monolithic_flat(self):
+        result = Mock()
+        self.disk_format.options = ['-o', 'subformat=monolithicFlat']
+        self.disk_format.store_to_result(result)
+        # the vmdk file is a descriptor of the extent file which
+        # holds the disk data, both are needed to use the image
+        assert result.add.call_args_list == [
+            call(
+                compress=True,
+                filename='target_dir/some-disk-image.x86_64-1.2.3.vmdk',
+                key='disk_format_image',
+                shasum=True,
+                use_for_bundle=True,
+            ),
+            call(
+                compress=True,
+                filename='target_dir/some-disk-image.x86_64-1.2.3-flat.vmdk',
+                key='disk_format_image_extent',
+                shasum=True,
+                use_for_bundle=True,
+            ),
+            call(
+                compress=False,
+                filename='target_dir/some-disk-image.x86_64-1.2.3.vmx',
+                key='disk_format_machine_settings',
+                shasum=False,
+                use_for_bundle=True,
+            ),
+        ]
+
     def test_store_to_result_with_luks(self):
         result = Mock()
         self.xml_state.get_luks_credentials = Mock(return_value='foo')
