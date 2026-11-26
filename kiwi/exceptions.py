@@ -965,6 +965,13 @@ class KiwiBoxChecksumError(KiwiError):
     """
 
 
+class KiwiBoxSignatureError(KiwiError):
+    """
+    Exception raised in case the signature of a box checksum
+    file could not be verified
+    """
+
+
 class KiwiBoxDownloadError(KiwiError):
     """
     Exception raised in case of a box download issue

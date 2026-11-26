@@ -428,6 +428,12 @@ Requires:       qemu-kvm
 Requires:       qemu
 %endif
 %endif
+# sqv verifies the signatures of the box checksum files
+%if 0%{?ubuntu} || 0%{?debian}
+Requires:       sqv
+%else
+Requires:       sequoia-sqv
+%endif
 Recommends:     sshfs
 Recommends:     virtiofsd >= 1.10
 Recommends:     podman

@@ -90,7 +90,11 @@ class TestBoxConfig:
     def test_get_box_files(self):
         assert self.box_config.get_box_files() == [
             'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz',
-            'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz.sha256',
             'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2',
+        ]
+
+    def test_get_box_checksum_files(self):
+        assert self.box_config.get_box_checksum_files() == [
+            'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz.sha256',
             'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2.sha256',
         ]

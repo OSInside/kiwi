@@ -77,11 +77,10 @@ class BoxConfig:
         return packages_file
 
     def get_box_files(self) -> List[str]:
-        source_files = []
-        for vm_file in self.box_arch_config.get('boxfiles') or []:
-            source_files.append(vm_file)
-            source_files.append(f'{vm_file}.sha256')
-        return source_files
+        return list(self.box_arch_config.get('boxfiles') or [])
+
+    def get_box_checksum_files(self) -> List[str]:
+        return list(self.box_arch_config.get('boxchecksums') or [])
 
     def use_initrd(self) -> bool:
         return bool(self.box_arch_config.get('use_initrd'))

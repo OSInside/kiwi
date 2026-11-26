@@ -68,6 +68,11 @@ schema = {
                                 'required': True,
                                 'nullable': False,
                             },
+                            'boxchecksums': {
+                                'type': 'list',
+                                'required': True,
+                                'nullable': False,
+                            },
                             'container': {
                                 'type': 'string',
                                 'required': True,
