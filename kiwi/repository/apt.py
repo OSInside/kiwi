@@ -374,7 +374,7 @@ class RepositoryApt(RepositoryBase):
                 self._install_keyring(key, image_keyrings_dir, keyring_name)
                 keyring = os.sep.join([self.image_keyrings_dir, keyring_name])
                 keyrings.append(keyring)
-                log.info(f'--> Keyring: {keyring}')
+                log.info(f'Keyring: {keyring}')
         self.repository_keyrings[name] = keyrings
 
     def delete_trusted_keys(self) -> None:

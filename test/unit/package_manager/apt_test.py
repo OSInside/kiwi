@@ -7,6 +7,8 @@ from kiwi.package_manager.apt import PackageManagerApt
 
 import kiwi.defaults as defaults
 
+from kiwi.utils.install_progress import PackageManagerEventT
+
 from kiwi.exceptions import (
     KiwiDebianBootstrapError,
     KiwiRequestError,
@@ -423,12 +425,53 @@ class TestPackageManagerApt:
         self.manager.process_plus_recommended()
         assert '--no-install-recommends' not in self.manager.custom_args
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', 'Unpacking foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        assert event(
+            '0 upgraded, 300 newly installed, 0 to remove and 0 not upgraded.'
+        ) == PackageManagerEventT('total', total=300)
+        assert event(
+            'Get:2 file:/repos/Ubuntu:26.04/standard resolute/main amd64 '
+            'libc-gconv-modules-extra amd64 2.43-2ubuntu2 [1361 kB]'
+        ) == PackageManagerEventT(
+            'download', 'Downloading libc-gconv-modules-extra', 2
+        )
+        assert event(
+            'Get:207 file:/repos/Staging/xUbuntu_26.04_x86_64 ./ '
+            'dracut-kiwi-lib 11.1.22-1.1 [349 kB]'
+        ) == PackageManagerEventT(
+            'download', 'Downloading dracut-kiwi-lib', 207
+        )
+        # repository metadata is not a package download
+        assert (
+            event(
+                'Get:4 file:/repos/Ubuntu:26.04/universe resolute Release [388 B]'
+            )
+            is None
+        )
+        # unpacking and setting up both count for the installation
+        assert event(
+            'Unpacking gcc-16-base:amd64 (16-20260322-1ubuntu1) ...'
+        ) == PackageManagerEventT(
+            'install', 'Unpacking gcc-16-base', 0, 600, 'gcc-16-base'
+        )
+        assert event(
+            'Setting up libaudit-common (1:4.1.2-1build1) ...'
+        ) == PackageManagerEventT(
+            'install', 'Setting up libaudit-common', 0, 600, 'libaudit-common'
+        )
+        assert event('Removing vim (2:9.1-1) ...') == PackageManagerEventT(
+            'install', 'Removing vim', 0, 600, 'vim', True
+        )
+        assert event(
+            'Processing triggers for libc-bin (2.43-2ubuntu2) ...'
+        ) == PackageManagerEventT(
+            'script',
+            'Processing triggers for libc-bin',
+            package='libc-bin triggers',
+        )
+        assert event('Reading package lists...') is None
 
     def test_clean_leftovers(self):
         self.manager.clean_leftovers()
         self.manager.repository.delete_trusted_keys.assert_called_once_with()
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', 'Removing foo')

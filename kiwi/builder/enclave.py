@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -31,7 +31,7 @@ from kiwi.command import Command
 
 from kiwi.exceptions import KiwiEnclaveFormatError, KiwiEnclaveBootImageError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class EnclaveBuilder:
@@ -116,7 +116,8 @@ class EnclaveBuilder:
             )
 
         # Create initrd
-        self.boot_image_task.create_initrd()
+        with log.step('Creating boot image'):
+            self.boot_image_task.create_initrd()
 
         # extract kernel from boot system
         kernel = Kernel(self.boot_image_task.boot_root_directory)
@@ -139,21 +140,22 @@ class EnclaveBuilder:
 
         self.initrd = os.path.basename(self.boot_image_task.initrd_filename)
 
-        if self.format == 'aws-nitro':
-            self.enclave = self.image_name + ".eif"
-            Command.run(
-                [
-                    'eif_build',
-                    '--kernel',
-                    '/'.join([self.target_dir, self.kernel_filename]),
-                    '--ramdisk',
-                    '/'.join([self.target_dir, self.initrd]),
-                    '--cmdline',
-                    self.custom_cmdline,
-                    '--output',
-                    self.enclave,
-                ]
-            )
+        with log.step(f'Creating {self.format} enclave image'):
+            if self.format == 'aws-nitro':
+                self.enclave = self.image_name + ".eif"
+                Command.run(
+                    [
+                        'eif_build',
+                        '--kernel',
+                        '/'.join([self.target_dir, self.kernel_filename]),
+                        '--ramdisk',
+                        '/'.join([self.target_dir, self.initrd]),
+                        '--cmdline',
+                        self.custom_cmdline,
+                        '--output',
+                        self.enclave,
+                    ]
+                )
 
         Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(), self.initrd

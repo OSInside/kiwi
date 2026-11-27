@@ -34,7 +34,7 @@ import kiwi.defaults as defaults
 
 from kiwi.exceptions import KiwiBundleError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class ResultBundleTask(CliTask):
@@ -70,6 +70,7 @@ class ResultBundleTask(CliTask):
                 'Bundle directory must be different from target directory'
             )
 
+        log.phase('Bundle results')
         log.info('Bundle build results from %s', result_directory)
         result: Result = Result.load(result_directory + '/kiwi.result')
 
@@ -135,45 +136,54 @@ class ResultBundleTask(CliTask):
         # copy result files
         origin_files = []
         copied_files = []
-        for result_file in list(ordered_results.values()):
-            if result_file.use_for_bundle:
-                bundle_file_basename = self._get_bundle_file_basename(
-                    result, result_file, bundle_file_format_name
-                )
-                log.info('Creating %s', bundle_file_basename)
-                bundle_file = ''.join(
-                    [bundle_directory, '/', bundle_file_basename]
-                )
-                Command.run(['cp', result_file.filename, bundle_file])
-                copied_files.append(bundle_file)
-                result_file_basename = os.path.basename(result_file.filename)
-                if result_file_basename != bundle_file_basename:
-                    symlink_orignal_name = (
-                        f'{bundle_directory}/{result_file_basename}'
+        with log.step('Copying result files'):
+            for result_file in list(ordered_results.values()):
+                if result_file.use_for_bundle:
+                    bundle_file_basename = self._get_bundle_file_basename(
+                        result, result_file, bundle_file_format_name
                     )
-                    if os.path.islink(symlink_orignal_name):
-                        os.unlink(symlink_orignal_name)
-                    os.symlink(bundle_file, symlink_orignal_name)
-                    origin_files.append(symlink_orignal_name)
+                    log.info('Creating %s', bundle_file_basename)
+                    bundle_file = ''.join(
+                        [bundle_directory, '/', bundle_file_basename]
+                    )
+                    Command.run(['cp', result_file.filename, bundle_file])
+                    copied_files.append(bundle_file)
+                    result_file_basename = os.path.basename(
+                        result_file.filename
+                    )
+                    if result_file_basename != bundle_file_basename:
+                        symlink_orignal_name = (
+                            f'{bundle_directory}/{result_file_basename}'
+                        )
+                        if os.path.islink(symlink_orignal_name):
+                            os.unlink(symlink_orignal_name)
+                        os.symlink(bundle_file, symlink_orignal_name)
+                        origin_files.append(symlink_orignal_name)
 
         # check and fix file references due to possible bundle_format renames
-        for origin_file in origin_files:
-            origin_file_basename = os.path.basename(origin_file)
-            bundle_file_basename = os.path.basename(os.readlink(origin_file))
-            log.info(f'Checking file references for {origin_file_basename}')
-            for result_file in copied_files:
-                if 'text' in Command.run(['file', result_file]).output:
-                    log.info(f'--> {result_file}')
-                    Command.run(
-                        [
-                            'sed',
-                            '-ie',
-                            f's/{origin_file_basename}/{bundle_file_basename}/g',
-                            result_file,
-                        ]
+        if origin_files:
+            with log.step('Checking file references'):
+                for origin_file in origin_files:
+                    origin_file_basename = os.path.basename(origin_file)
+                    bundle_file_basename = os.path.basename(
+                        os.readlink(origin_file)
                     )
-                    os.unlink(f'{result_file}e')
-            os.unlink(origin_file)
+                    log.info(
+                        f'Checking file references for {origin_file_basename}'
+                    )
+                    for result_file in copied_files:
+                        if 'text' in Command.run(['file', result_file]).output:
+                            log.info(f'{result_file}')
+                            Command.run(
+                                [
+                                    'sed',
+                                    '-ie',
+                                    f's/{origin_file_basename}/{bundle_file_basename}/g',
+                                    result_file,
+                                ]
+                            )
+                            os.unlink(f'{result_file}e')
+                    os.unlink(origin_file)
 
         # finalize result data, checksums, compressions
         for result_file in list(ordered_results.values()):
@@ -181,71 +191,77 @@ class ResultBundleTask(CliTask):
                 bundle_file_basename = self._get_bundle_file_basename(
                     result, result_file, bundle_file_format_name
                 )
-                log.info(f'Finalizing {bundle_file_basename}')
-                bundle_file = ''.join(
-                    [bundle_directory, '/', bundle_file_basename]
-                )
-                if (
-                    result_file.compress
-                    and not self.command_args['--no-compress']
-                ):
-                    log.info('--> Compressing')
-                    compress = Compress(bundle_file)
-                    bundle_file = compress.xz(
-                        self.runtime_config.get_xz_options()
+                with log.step(f'Finalizing {bundle_file_basename}'):
+                    bundle_file = ''.join(
+                        [bundle_directory, '/', bundle_file_basename]
                     )
-
-                if self.command_args['--zsync-source'] and result_file.shasum:
-                    # Files with a checksum are considered to be image files
-                    # and are therefore eligible to be provided via the
-                    # requested Partial/differential file download based on
-                    # zsync
-                    zsyncmake = Path.which('zsyncmake', access_mode=os.X_OK)
-                    if zsyncmake:
-                        log.info('--> Creating zsync control file')
-                        Command.run(
-                            [
-                                zsyncmake,
-                                '-e',
-                                '-u',
-                                os.sep.join(
-                                    [
-                                        self.command_args['--zsync-source'],
-                                        os.path.basename(bundle_file),
-                                    ]
-                                ),
-                                '-o',
-                                bundle_file + '.zsync',
-                                bundle_file,
-                            ]
-                        )
-                    else:
-                        log.warning(
-                            '--> zsyncmake missing, zsync setup skipped'
+                    if (
+                        result_file.compress
+                        and not self.command_args['--no-compress']
+                    ):
+                        log.info('Compressing')
+                        compress = Compress(bundle_file)
+                        bundle_file = compress.xz(
+                            self.runtime_config.get_xz_options()
                         )
 
-                if result_file.shasum:
-                    checksum = self.runtime_config.get_checksum_handler(
-                        source_filename=bundle_file, bundle_lookup=True
-                    )
-                    log.info(f'--> Creating {checksum.suffix} sum')
-                    with open(f'{bundle_file}{checksum.suffix}', 'w') as shasum:
-                        shasum.write(
-                            '{0}  {1}{2}'.format(
-                                checksum.digest(),
-                                os.path.basename(bundle_file),
-                                os.linesep,
+                    if (
+                        self.command_args['--zsync-source']
+                        and result_file.shasum
+                    ):
+                        # Files with a checksum are considered to be image files
+                        # and are therefore eligible to be provided via the
+                        # requested Partial/differential file download based on
+                        # zsync
+                        zsyncmake = Path.which('zsyncmake', access_mode=os.X_OK)
+                        if zsyncmake:
+                            log.info('Creating zsync control file')
+                            Command.run(
+                                [
+                                    zsyncmake,
+                                    '-e',
+                                    '-u',
+                                    os.sep.join(
+                                        [
+                                            self.command_args['--zsync-source'],
+                                            os.path.basename(bundle_file),
+                                        ]
+                                    ),
+                                    '-o',
+                                    bundle_file + '.zsync',
+                                    bundle_file,
+                                ]
                             )
+                        else:
+                            log.warning(
+                                'zsyncmake missing, zsync setup skipped'
+                            )
+
+                    if result_file.shasum:
+                        checksum = self.runtime_config.get_checksum_handler(
+                            source_filename=bundle_file, bundle_lookup=True
                         )
+                        log.info(f'Creating {checksum.suffix} sum')
+                        with open(
+                            f'{bundle_file}{checksum.suffix}', 'w'
+                        ) as shasum:
+                            shasum.write(
+                                '{0}  {1}{2}'.format(
+                                    checksum.digest(),
+                                    os.path.basename(bundle_file),
+                                    os.linesep,
+                                )
+                            )
 
         if self.command_args['--package-as-rpm']:
-            ResultBundleTask._build_rpm_package(
-                bundle_directory,
-                bundle_file_format_name or image_name,
-                image_version,
-                image_description.specification,
-                list(glob.iglob(f'{bundle_directory}/*')),
-            )
+            with log.step('Packaging results as rpm'):
+                ResultBundleTask._build_rpm_package(
+                    bundle_directory,
+                    bundle_file_format_name or image_name,
+                    image_version,
+                    image_description.specification,
+                    list(glob.iglob(f'{bundle_directory}/*')),
+                )
 
     def _get_bundle_file_basename(
         self,

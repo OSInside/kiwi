@@ -93,7 +93,10 @@ Virtual Machine
      - The kernel console. Default: the console of the box, `hvc0` for
        the {kiwi} boxes.
    * - ``--box-debug``
-     - Keep the virtual machine running after the build.
+     - Keep the virtual machine running after the build and show the
+       boot messages of the virtual machine and a trace of the build
+       script in the box. Without this option the console shows the
+       output of the build and kernel error messages only.
    * - ``--machine <qemu_machine>``
      - The QEMU machine type, required for cross architecture builds and
        for architectures without a default, such as Arm. `virt` is a good

@@ -584,11 +584,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         kernel_count = len(self.get_kernel_flavors())
         custom_template_path = self._get_custom_template()
         if custom_template_path:
-            log.info('--> Using custom boot template')
+            log.info('Using custom boot template')
             with open(custom_template_path) as custom_template_file:
                 template = Template(custom_template_file.read())
         elif self.multiboot:
-            log.info('--> Using multiboot install template')
+            log.info('Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_install_template(
                 self.failsafe_boot,
@@ -599,7 +599,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 kernel_count=kernel_count,
             )
         else:
-            log.info('--> Using standard boot install template')
+            log.info('Using standard boot install template')
             template = self.grub2.get_install_template(
                 self.failsafe_boot,
                 has_graphics,
@@ -673,11 +673,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         kernel_count = len(self.get_kernel_flavors())
         custom_template_path = self._get_custom_template()
         if custom_template_path:
-            log.info('--> Using custom boot template')
+            log.info('Using custom boot template')
             with open(custom_template_path) as custom_template_file:
                 template = Template(custom_template_file.read())
         elif self.multiboot:
-            log.info('--> Using multiboot template')
+            log.info('Using multiboot template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_iso_template(
                 self.failsafe_boot,
@@ -688,7 +688,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 kernel_count=kernel_count,
             )
         else:
-            log.info('--> Using standard boot template')
+            log.info('Using standard boot template')
             template = self.grub2.get_iso_template(
                 self.failsafe_boot,
                 has_graphics,
@@ -761,7 +761,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # the identifier is calculated by the image builder
         mbrid_id = mbrid.get_id()
         assert mbrid_id is not None
-        log.info('--> Creating identifier file %s', mbrid_id)
+        log.info('Creating identifier file %s', mbrid_id)
         grub_boot_path = self._get_grub2_boot_path()
         Path.create(grub_boot_path)
         mbrid.write(self.boot_dir + '/boot/' + mbrid_id)
@@ -787,7 +787,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 lookup_path=lookup_path, mbrid=mbrid, target_type='iso'
             )
 
-        log.info('--> Creating loopback config')
+        log.info('Creating loopback config')
         loopback_file = os.path.normpath(
             os.sep.join([grub_boot_path, 'loopback.cfg'])
         )
@@ -1101,7 +1101,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     sorted(grub_default_entries.items())
                 )
                 for key, value in list(grub_default_entries_sorted.items()):
-                    log.info('--> {0}:{1}'.format(key, value))
+                    log.info('{0}:{1}'.format(key, value))
                     grub_default[key] = value
                 grub_default_if_not_set_entries_sorted = OrderedDict(
                     sorted(grub_default_if_not_set_entries.items())
@@ -1110,7 +1110,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     grub_default_if_not_set_entries_sorted.items()
                 ):
                     if not grub_default.get(key):
-                        log.info('--> {0}:{1}'.format(key, value))
+                        log.info('{0}:{1}'.format(key, value))
                         grub_default[key] = value
                 grub_default.write()
 
@@ -1161,7 +1161,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                         [self.efi_boot_path, grub_image.targetname]
                     )
                 if not self._efi_file_exists(target_grub_image_name):
-                    log.info(f'--> Using grub image: {grub_image.filename}')
+                    log.info(f'Using grub image: {grub_image.filename}')
                     Command.run(
                         ['cp', grub_image.filename, target_grub_image_name]
                     )
@@ -1171,7 +1171,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     [self.efi_boot_path, shim_image.binaryname]
                 )
                 if not self._efi_file_exists(target_efi_image_name):
-                    log.info(f'--> Using shim image: {shim_image.filename}')
+                    log.info(f'Using shim image: {shim_image.filename}')
                     Command.run(
                         ['cp', shim_image.filename, target_efi_image_name]
                     )
@@ -1183,7 +1183,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     [self.efi_boot_path, os.path.basename(mok_manager)]
                 )
                 if not self._efi_file_exists(target_mok_manager):
-                    log.info(f'--> Using mok image: {mok_manager}')
+                    log.info(f'Using mok image: {mok_manager}')
                     Command.run(['cp', mok_manager, self.efi_boot_path])
         self._create_efi_config_search(uuid, efi_uuid, mbrid)
 
@@ -1237,14 +1237,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if grub_images and can_write is not False:
             assert self.efi_boot_path is not None
             for grub_image in grub_images:
-                log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
+                log.info(f'Using prebuilt unsigned efi image: {grub_image}')
                 target_grub_image_name = os.sep.join(
                     [self.efi_boot_path, grub_image.targetname]
                 )
                 Command.run(['cp', grub_image.filename, target_grub_image_name])
             self._create_efi_config_search(uuid, efi_uuid, mbrid)
         else:
-            log.info('--> Creating unsigned efi image')
+            log.info('Creating unsigned efi image')
             self._create_efi_image(uuid, efi_uuid, mbrid, lookup_path)
 
     def _setup_chrp_config(self, mbrid: SystemIdentifier) -> None:
@@ -1289,9 +1289,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path = self.boot_dir
         grub_image = Defaults.get_grub_platform_core_loader(lookup_path)
         if grub_image:
-            log.info(f'--> Using prebuilt bios image: {grub_image}')
+            log.info(f'Using prebuilt bios image: {grub_image}')
         else:
-            log.info('--> Creating bios image')
+            log.info('Creating bios image')
             self._create_platform_image(mbrid, lookup_path)
         if Defaults.is_ppc64_arch(Defaults.get_platform_name()):
             self._setup_chrp_config(mbrid)

@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import List
+from typing import Any, List
 
 # project
 from kiwi.tasks.base import CliTask
@@ -28,7 +28,7 @@ from kiwi.boxbuild.boxes_config import BoxesConfig
 
 from kiwi.exceptions import KiwiBoxBuildError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemBoxbuildTask(CliTask):
@@ -66,13 +66,18 @@ class SystemBoxbuildTask(CliTask):
                     boxname=self.command_args['--box'],
                     arch=self._get_box_arch(),
                 )
-                box_container_build.run(
-                    self._get_kiwi_build_command(),
-                    keep_open,
-                    kiwi_version,
-                    shared_path,
-                    kiwi_git,
-                )
+                with log.step(
+                    'Building in {0} container box'.format(
+                        self.command_args['--box']
+                    )
+                ):
+                    box_container_build.run(
+                        self._get_kiwi_build_command(),
+                        keep_open,
+                        kiwi_version,
+                        shared_path,
+                        kiwi_git,
+                    )
             else:
                 request_update_check = not self.command_args.get(
                     '--no-update-check'
@@ -93,15 +98,18 @@ class SystemBoxbuildTask(CliTask):
                     ssh_port=self.command_args.get('--ssh-port') or '',
                     accel=not bool(self.command_args.get('--no-accel')),
                 )
-                box_build.run(
-                    self._get_kiwi_build_command(),
-                    request_update_check,
-                    request_snapshot_mode,
-                    keep_open,
-                    kiwi_version,
-                    shared_path,
-                    kiwi_git,
-                )
+                with log.step(
+                    'Building in {0} box'.format(self.command_args['--box'])
+                ):
+                    box_build.run(
+                        self._get_kiwi_build_command(),
+                        request_update_check,
+                        request_snapshot_mode,
+                        keep_open,
+                        kiwi_version,
+                        shared_path,
+                        kiwi_git,
+                    )
 
     def _help(self) -> bool:
         if self.command_args.get('help'):

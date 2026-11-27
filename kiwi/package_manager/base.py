@@ -22,6 +22,7 @@ from kiwi.api_helper import decommissioned
 from kiwi.command import CommandCallT
 from kiwi.system.root_bind import RootBind
 from kiwi.repository.base import RepositoryBase
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class PackageManagerBase:
@@ -174,39 +175,28 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    #: Phases of a package manager run the progress is counted for
+    #: in this order, e.g download and install, see InstallProgress
+    progress_phases: List[str] = []
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of package manager output, e.g the
+        download or installation of a package, or a package script
 
-        Implementation in specialized package manager class
+        Implementation in specialized package manager class. Without
+        an implementation no progress is shown, only that the package
+        manager is processing
 
-        :param str package_name: unused
-        :param str package_manager_output: unused
+        :param str package_manager_output: line of output
 
-        :return: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        raise NotImplementedError
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        Implementation in specialized package manager class
-
-        :param str package_name: unused
-        :param str package_manager_output: unused
-
-        :return: True|False
-
-        :rtype: bool
-        """
-        raise NotImplementedError
+        return None
 
     @decommissioned
     def database_consistent(self) -> None:

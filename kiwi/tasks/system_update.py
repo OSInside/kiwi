@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from typing import Union
+from typing import Any, Union
 import logging
 
 # project
@@ -25,7 +25,7 @@ from kiwi.privileges import Privileges
 from kiwi.help import Help
 from kiwi.system.prepare import SystemPrepare
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemUpdateTask(CliTask):
@@ -62,7 +62,7 @@ class SystemUpdateTask(CliTask):
         if self.command_args['--delete-package']:
             package_requests = True
 
-        log.info('Updating system')
+        log.phase('Update root system')
         with SystemPrepare(
             self.xml_state, abs_root_path, allow_existing=True
         ) as system:

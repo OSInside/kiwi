@@ -93,11 +93,12 @@ class TestSystemBuildTask:
         self.task.command_args['--ca-cert'] = []
         self.task.command_args['--ca-target-distribution'] = None
 
+    @patch('kiwi.tasks.system_build.ImageSummary')
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
     @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build(
-        self, mock_SystemPrepare, mock_keys, mock_log
+        self, mock_SystemPrepare, mock_keys, mock_log, mock_ImageSummary
     ):
         manager = MagicMock()
         system_prepare = Mock()
@@ -107,6 +108,10 @@ class TestSystemBuildTask:
         self._init_command_args()
         self.task.command_args['build'] = True
         self.task.process()
+        mock_ImageSummary.assert_called_once_with(
+            self.task.xml_state, self.task.config_file, None
+        )
+        mock_ImageSummary.return_value.print_summary.assert_called_once_with()
         self.runtime_checker.check_boot_description_exists.assert_called_once_with()
         self.runtime_checker.check_initrd_selection_required.assert_called_once_with()
         self.runtime_checker.check_consistent_kernel_in_boot_and_system_image.assert_called_once_with()

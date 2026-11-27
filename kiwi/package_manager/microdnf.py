@@ -20,6 +20,7 @@ import logging
 from typing import List, Dict, Optional
 
 # project
+from kiwi.utils.install_progress import PackageManagerEventT
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
@@ -33,6 +34,13 @@ from kiwi.repository.dnf4 import RepositoryDnf4
 from kiwi.exceptions import KiwiRequestError
 
 log = logging.getLogger('kiwi')
+
+
+# microdnf output lines read for the progress information
+MICRODNF_TOTAL = re.compile(
+    r'^(?:Installing|Upgrading|Removing)\s*:\s*(\d+) packages?$'
+)
+MICRODNF_PACKAGE = re.compile(r'^(Installing|Upgrading|Removing)\s*:\s*(\S+)')
 
 
 class PackageManagerMicroDnf(PackageManagerBase):
@@ -301,50 +309,39 @@ class PackageManagerMicroDnf(PackageManagerBase):
         if '--setopt=install_weak_deps=0' in self.custom_args:
             self.custom_args.remove('--setopt=install_weak_deps=0')
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    progress_phases = ['install']
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of microdnf output
 
-        This match for the package to be installed in the output
-        of the microdnf command is not 100% accurate. There might
-        be false positives due to sub package names starting with
-        the same base package name
+        microdnf reports each package of the transaction, e.g
+        Installing  : bash-5.1-1.x86_64, and the number of packages
+        in the transaction summary, e.g Installing: 12 packages
 
-        :param str package_name: package_name
-        :param str package_manager_output: microdnf status line
+        :param str package_manager_output: line of output
 
-        :returns: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        return bool(
-            re.match(
-                '.*Installing  : {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        line = package_manager_output.strip()
+        match = MICRODNF_TOTAL.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='total', total=int(match.group(1))
             )
-        )
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        :param str package_name: package_name
-        :param str package_manager_output: microdnf status line
-
-        :returns: True|False
-
-        :rtype: bool
-        """
-        return bool(
-            re.match(
-                '.*Removing: {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        match = MICRODNF_PACKAGE.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='install',
+                description=f'{match.group(1)} {match.group(2)}',
+                package=match.group(2),
+                removed=match.group(1) == 'Removing',
             )
-        )
+        return None
 
     def post_process_install_requests_bootstrap(
         self, root_bind: Optional[RootBind] = None, delta_root: bool = False

@@ -151,9 +151,9 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         :param list lvcreate_args: list of lvcreate arguments.
         """
-        log.debug('--> running "lvcreate -Zn %s"', " ".join(lvcreate_args))
+        log.debug('running "lvcreate -Zn %s"', " ".join(lvcreate_args))
         Command.run(['lvcreate'] + lvm_tool_options + ['-Zn'] + lvcreate_args)
-        log.debug('--> running "vgscan --mknodes" to create missing nodes')
+        log.debug('running "vgscan --mknodes" to create missing nodes')
         Command.run(['vgscan'] + lvm_tool_options + ['--mknodes'])
 
     def create_volumes(self, filesystem_name: str) -> None:
@@ -178,7 +178,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                 filesystem_name,
                 self.custom_args['resize_on_boot'],
             )
-            log.info('--> volume %s with %s MB', volume.name, volume_mbsize)
+            log.info('volume %s with %s MB', volume.name, volume_mbsize)
             assert self.volume_group is not None
             self._create_volume_no_zero(
                 self.lvm_tool_options,
@@ -193,7 +193,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             self._add_to_volume_map(volume.name)
             if 'raw' in volume.attributes:
                 # raw volumes have no filesystem and are not mounted
-                log.info('--> raw volume %s', volume.name)
+                log.info('raw volume %s', volume.name)
                 continue
             self.apply_attributes_on_volume(self.root_dir, volume)
             if volume.label != 'SWAP':
@@ -204,7 +204,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         if canonical_volume_list.full_size_volume:
             full_size_volume = canonical_volume_list.full_size_volume
-            log.info('--> fullsize volume %s', full_size_volume.name)
+            log.info('fullsize volume %s', full_size_volume.name)
             assert self.volume_group is not None
             self._create_volume_no_zero(
                 self.lvm_tool_options,

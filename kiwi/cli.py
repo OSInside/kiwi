@@ -249,13 +249,6 @@ class Cli:
     @staticmethod
     @cli.callback()
     def main(
-        color_output: Annotated[
-            bool,
-            typer.Option(
-                '--color-output',
-                help='use colors for warning and error messages',
-            ),
-        ] = False,
         config: Annotated[
             Optional[Path],
             typer.Option(
@@ -380,7 +373,6 @@ class Cli:
         # start from a clean state, get_command_args() merges the
         # subcommand arguments into the global arguments
         Cli.global_args = {}
-        Cli.global_args['--color-output'] = color_output
         Cli.global_args['--config'] = Cli._as_path_name(config)
         Cli.global_args['--debug'] = debug
         Cli.global_args['--debug-run-scripts-in-screen'] = (

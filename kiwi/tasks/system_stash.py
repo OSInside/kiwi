@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import Any
 from textwrap import dedent
 
 # project
@@ -33,7 +34,7 @@ from kiwi.stackbuild.defaults import StackBuildDefaults
 
 from kiwi.exceptions import KiwiStackBuildContainerNameInvalid
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemStashTask(CliTask):
@@ -73,6 +74,7 @@ class SystemStashTask(CliTask):
         if self.command_args.get('--root'):
             Privileges.check_for_root_permissions()
 
+            log.phase('Create stash')
             log.info('Reading Image description')
             kiwi_description = os.path.join(
                 self.command_args['--root'], 'image', 'config.xml'
@@ -116,34 +118,34 @@ class SystemStashTask(CliTask):
             container_config = StackBuildDefaults.get_container_config(
                 image_name, stash_container_tag, contact_info.author
             )
-            log.info('Initializing stash container')
-            oci = OCI.new()
-            if os.path.isfile(stash_container_file_name):
-                log.info('--> Adding new layer on existing stash')
-                oci.import_container_image(
-                    f'oci-archive:{stash_container_file_name}:'
-                    f'{image_name}:{stash_container_tag}'
-                )
-            else:
-                log.info('--> Creating initial layer')
-                oci.init_container()
+            with log.step('Creating stash container'):
+                oci = OCI.new()
+                if os.path.isfile(stash_container_file_name):
+                    log.info('Adding new layer on existing stash')
+                    oci.import_container_image(
+                        f'oci-archive:{stash_container_file_name}:'
+                        f'{image_name}:{stash_container_tag}'
+                    )
+                else:
+                    log.info('Creating initial layer')
+                    oci.init_container()
 
-            oci.unpack()
-            oci.sync_rootfs(
-                self.command_args['--root'],
-                StackBuildDefaults.get_stash_exclude_list(),
-            )
-            oci.repack(container_config)
-            oci.set_config(container_config)
-            oci.post_process()
-            log.info('Exporting stash container')
-            oci.export_container_image(
-                stash_container_file_name,
-                'oci-archive',
-                f'{image_name}:{stash_container_tag}',
-            )
-            log.info('Importing stash to local registry')
-            Command.run(['podman', 'load', '-i', stash_container_file_name])
+                oci.unpack()
+                oci.sync_rootfs(
+                    self.command_args['--root'],
+                    StackBuildDefaults.get_stash_exclude_list(),
+                )
+                oci.repack(container_config)
+                oci.set_config(container_config)
+                oci.post_process()
+            with log.step('Exporting stash container'):
+                oci.export_container_image(
+                    stash_container_file_name,
+                    'oci-archive',
+                    f'{image_name}:{stash_container_tag}',
+                )
+            with log.step('Importing stash to local registry'):
+                Command.run(['podman', 'load', '-i', stash_container_file_name])
 
     @staticmethod
     def _create_stash_target_dir(image_name: str) -> str:

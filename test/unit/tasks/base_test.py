@@ -21,7 +21,6 @@ class TestCliTask:
     @patch('kiwi.logger.Logger.setLogFlag')
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.logger.Logger.set_log_socket')
-    @patch('kiwi.logger.Logger.set_color_format')
     @patch('kiwi.cli.Cli.load_command')
     @patch('kiwi.cli.Cli.get_command_args')
     @patch('kiwi.cli.Cli.get_global_args')
@@ -32,7 +31,6 @@ class TestCliTask:
         mock_global_args,
         mock_command_args,
         mock_load_command,
-        mock_color,
         mock_set_log_socket,
         mock_setlog,
         mock_setLogFlag,
@@ -45,7 +43,6 @@ class TestCliTask:
             '--logfile': 'stdout',
             '--logsocket': 'log_socket',
             '--loglevel': None,
-            '--color-output': True,
             '--profile': ['vmxFlavour'],
             '--setenv': ['SOURCE_DATE_EPOCH=42'],
             '--type': None,
@@ -71,7 +68,6 @@ class TestCliTask:
         ]
         mock_setLogFlag.assert_called_once_with('run-scripts-in-screen')
         mock_setlog.assert_called_once_with('stdout')
-        mock_color.assert_called_once_with()
         mock_runtime_config.assert_called_once_with()
 
         mock_setLogLevel.reset_mock()
@@ -81,7 +77,6 @@ class TestCliTask:
             '--logfile': 'some',
             '--logsocket': 'log_socket',
             '--loglevel': None,
-            '--color-output': True,
             '--profile': ['vmxFlavour'],
             '--setenv': [],
             '--type': None,
@@ -96,7 +91,6 @@ class TestCliTask:
     @patch('kiwi.logger.Logger.setLogFlag')
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.logger.Logger.set_log_socket')
-    @patch('kiwi.logger.Logger.set_color_format')
     @patch('kiwi.cli.Cli.load_command')
     @patch('kiwi.cli.Cli.get_command_args')
     @patch('kiwi.cli.Cli.get_global_args')
@@ -108,7 +102,6 @@ class TestCliTask:
         mock_global_args,
         mock_command_args,
         mock_load_command,
-        mock_color,
         mock_set_log_socket,
         mock_setlog,
         mock_setLogFlag,
@@ -135,7 +128,6 @@ class TestCliTask:
             '--logfile': None,
             '--logsocket': None,
             '--debug-run-scripts-in-screen': None,
-            '--color-output': None,
             '--loglevel': '10',
             '--setenv': [],
         }
@@ -161,7 +153,6 @@ class TestCliTask:
             '--logfile': None,
             '--logsocket': None,
             '--debug-run-scripts-in-screen': None,
-            '--color-output': None,
             '--loglevel': 'bogus',
             '--setenv': [],
         }

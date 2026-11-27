@@ -20,6 +20,7 @@ import re
 from typing import List, Dict, Optional
 
 # project
+from kiwi.utils.install_progress import PackageManagerEventT
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
@@ -30,6 +31,16 @@ from kiwi.path import Path
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import KiwiRequestError
+
+
+# dnf output lines read for the progress information
+DNF4_DOWNLOAD = re.compile(r'^\(\s*(\d+)/(\d+)\): (\S+)')
+DNF4_TRANSACTION = re.compile(
+    r'^(Installing|Upgrading|Downgrading|Reinstalling|Erasing|Obsoleting)'
+    r'\s*:\s*(\S+)\s+(\d+)/(\d+)$'
+)
+DNF4_SCRIPT = re.compile(r'^Running scriptlet\s*:\s*(\S+)\s+\d+/\d+$')
+DNF4_VERIFY = re.compile(r'^Verifying\s*:\s*(\S+)\s+(\d+)/(\d+)$')
 
 
 class PackageManagerDnf4(PackageManagerBase):
@@ -317,50 +328,61 @@ class PackageManagerDnf4(PackageManagerBase):
         if '--setopt=install_weak_deps=False' in self.custom_args:
             self.custom_args.remove('--setopt=install_weak_deps=False')
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    progress_phases = ['download', 'install', 'verify']
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of dnf output
 
-        This match for the package to be installed in the output
-        of the dnf command is not 100% accurate. There might
-        be false positives due to sub package names starting with
-        the same base package name
+        dnf reports the position of each package in the download,
+        e.g (12/148): bash-5.1-1.x86_64.rpm, in the transaction, e.g
+        Installing : bash-5.1-1.x86_64  12/148, and in the
+        verification. Package scripts are reported when they run,
+        e.g Running scriptlet: bash-5.1-1.x86_64  12/148
 
-        :param str package_name: package_name
-        :param str package_manager_output: dnf status line
+        :param str package_manager_output: line of output
 
-        :returns: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        return bool(
-            re.match(
-                '.*Installing.*: {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        line = package_manager_output.strip()
+        match = DNF4_TRANSACTION.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='install',
+                description=f'{match.group(1)} {match.group(2)}',
+                current=int(match.group(3)),
+                total=int(match.group(4)),
+                package=match.group(2),
+                removed=match.group(1) == 'Erasing',
             )
-        )
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        :param str package_name: package_name
-        :param str package_manager_output: dnf status line
-
-        :returns: True|False
-
-        :rtype: bool
-        """
-        return bool(
-            re.match(
-                '.*Removing.*: {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        match = DNF4_SCRIPT.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='script',
+                description=f'Running scriptlet {match.group(1)}',
+                package=match.group(1),
             )
-        )
+        match = DNF4_VERIFY.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='verify',
+                description=f'Verifying {match.group(1)}',
+                current=int(match.group(2)),
+                total=int(match.group(3)),
+            )
+        match = DNF4_DOWNLOAD.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='download',
+                description=f'Downloading {match.group(3)}',
+                current=int(match.group(1)),
+                total=int(match.group(2)),
+            )
+        return None
 
     def post_process_install_requests_bootstrap(
         self, root_bind: Optional[RootBind] = None, delta_root: bool = False

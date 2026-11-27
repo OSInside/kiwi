@@ -180,15 +180,13 @@ class TestImageResizeTask:
             image_format.resize_raw_disk.assert_called_once_with(42)
             assert 'Loading XML description' in self._caplog.text
             assert (
-                '--> loaded {0}'.format(
+                'loaded {0}'.format(
                     os.sep.join([self.abs_root_dir, 'image', 'config.xml'])
                 )
                 in self._caplog.text
             )
-            assert '--> Selected build type: oem' in self._caplog.text
-            assert (
-                '--> Selected profiles: vmxSimpleFlavour' in self._caplog.text
-            )
+            assert 'Selected build type: oem' in self._caplog.text
+            assert 'Selected profiles: vmxSimpleFlavour' in self._caplog.text
             assert 'Resizing raw disk to 42 bytes' in self._caplog.text
             assert 'Raw disk is already at 42 bytes' in self._caplog.text
 

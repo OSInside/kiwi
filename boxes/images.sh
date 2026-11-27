@@ -8,8 +8,6 @@ exit $?
 # The code of interest starts here
 #!/bin/bash
 
-set -x
-
 function is_container {
     test -e /container.cmdline
 }
@@ -41,7 +39,9 @@ function run_build {
         # Also other restrictions drives us crazy when building
         # images. Therefore in the boxes we don't need this
         # sort of security
-        setenforce 0
+        if [ "$(getenforce 2>/dev/null)" = "Enforcing" ]; then
+            setenforce 0
+        fi
     fi
     echo 1 > "${exit_code_file}"
     options=$(cut -f2 -d\" "${cmdline_file}")
@@ -295,6 +295,12 @@ function finish {
 }
 
 # main
+if grep -q kiwi-no-halt "$(get_cmdline_file)"; then
+    # trace the script in debug mode only, see boxbuild --box-debug,
+    # such that the console shows the output of the build
+    set -x
+fi
+
 declare custom_mount=${custom_mount}
 declare kiwi_version=${kiwi_version}
 declare kiwi_git_repo=${kiwi_git_repo}

@@ -32,7 +32,6 @@ class TestCli:
             '--logfile': None,
             '--logsocket': None,
             '--loglevel': None,
-            '--color-output': False,
             '--debug': False,
             '--debug-run-scripts-in-screen': False,
             'result': False,

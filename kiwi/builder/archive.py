@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -29,7 +29,7 @@ from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiArchiveSetupError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class ArchiveBuilder:
@@ -90,26 +90,26 @@ class ArchiveBuilder:
             )
 
         if self.requested_archive_type == 'tbz':
-            log.info('Creating XZ compressed tar archive')
             self.filename = self._target_file_for('tar.xz')
-            ArchiveTar(self._target_file_for('tar')).create_xz_compressed(
-                self.root_dir,
-                xz_options=self.xz_options,
-                exclude=Defaults.get_exclude_list_for_root_data_sync()
-                + Defaults.get_exclude_list_from_custom_exclude_files(
-                    self.root_dir
-                ),
-            )
+            with log.step('Creating XZ compressed tar archive'):
+                ArchiveTar(self._target_file_for('tar')).create_xz_compressed(
+                    self.root_dir,
+                    xz_options=self.xz_options,
+                    exclude=Defaults.get_exclude_list_for_root_data_sync()
+                    + Defaults.get_exclude_list_from_custom_exclude_files(
+                        self.root_dir
+                    ),
+                )
         if self.requested_archive_type == 'cpio':
-            log.info('Creating CPIO archive')
             self.filename = self._target_file_for('cpio')
-            ArchiveCpio(self.filename).create(
-                self.root_dir,
-                exclude=Defaults.get_exclude_list_for_root_data_sync()
-                + Defaults.get_exclude_list_from_custom_exclude_files(
-                    self.root_dir
-                ),
-            )
+            with log.step('Creating CPIO archive'):
+                ArchiveCpio(self.filename).create(
+                    self.root_dir,
+                    exclude=Defaults.get_exclude_list_for_root_data_sync()
+                    + Defaults.get_exclude_list_from_custom_exclude_files(
+                        self.root_dir
+                    ),
+                )
         if self.filename:
             Result.verify_image_size(
                 self.runtime_config.get_max_size_constraint(), self.filename

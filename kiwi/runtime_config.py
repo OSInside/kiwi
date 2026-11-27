@@ -32,7 +32,7 @@ from kiwi.exceptions import (
     KiwiRuntimeConfigFileError,
 )
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 RUNTIME_CONFIG: Optional[Dict[str, Any]] = None
 
@@ -102,13 +102,15 @@ class RuntimeConfig:
                 config_files.append(config_file)
             # read and merge all config files...
             RUNTIME_CONFIG = {}
-            for config_file in config_files:
-                log.info(f'Reading runtime config file: {config_file!r}')
-                with open(config_file, 'r') as config:
-                    next_config = yaml.safe_load(config) or {}
-                    RUNTIME_CONFIG = RuntimeConfig._merge(
-                        RUNTIME_CONFIG, next_config
-                    )
+            if config_files:
+                with log.step('Reading runtime config files'):
+                    for config_file in config_files:
+                        log.info(config_file)
+                        with open(config_file, 'r') as config:
+                            next_config = yaml.safe_load(config) or {}
+                            RUNTIME_CONFIG = RuntimeConfig._merge(
+                                RUNTIME_CONFIG, next_config
+                            )
 
     def get_credentials_verification_metadata_signing_key_file(self) -> str:
         """

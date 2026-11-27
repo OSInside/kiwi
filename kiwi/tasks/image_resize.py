@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import Any
 
 # project
 from kiwi.firmware import FirmWare
@@ -29,7 +30,7 @@ from kiwi.utils.size import StringToSize
 
 from kiwi.exceptions import KiwiImageResizeError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class ImageResizeTask(CliTask):
@@ -65,6 +66,7 @@ class ImageResizeTask(CliTask):
         self.load_xml_description(image_root, self.global_args['--kiwi-file'])
 
         disk_format = self.xml_state.build_type.get_format()
+        log.phase('Resize image')
 
         with DiskFormat.new(
             disk_format or 'raw',
@@ -82,23 +84,23 @@ class ImageResizeTask(CliTask):
             new_disk_size = StringToSize.to_bytes(self.command_args['--size'])
 
             # resize raw disk
-            log.info(f'Resizing raw disk to {new_disk_size} bytes')
-            resize_result = image_format.resize_raw_disk(new_disk_size)
+            with log.step(f'Resizing raw disk to {new_disk_size} bytes'):
+                resize_result = image_format.resize_raw_disk(new_disk_size)
 
-            # resize raw disk partition table
-            firmware = FirmWare(self.xml_state)
-            with LoopDevice(image_format.diskname) as loop_provider:
-                loop_provider.create(overwrite=False)
-                partitioner = Partitioner.new(
-                    firmware.get_partition_table_type(), loop_provider
-                )
-                partitioner.resize_table()
+                # resize raw disk partition table
+                firmware = FirmWare(self.xml_state)
+                with LoopDevice(image_format.diskname) as loop_provider:
+                    loop_provider.create(overwrite=False)
+                    partitioner = Partitioner.new(
+                        firmware.get_partition_table_type(), loop_provider
+                    )
+                    partitioner.resize_table()
 
             # resize disk format from resized raw disk
             if disk_format and resize_result is True:
-                log.info(
+                with log.step(
                     f'Creating {disk_format} disk format from resized raw disk'
-                )
-                image_format.create_image_format()
+                ):
+                    image_format.create_image_format()
             elif resize_result is False:
                 log.info(f'Raw disk is already at {new_disk_size} bytes')

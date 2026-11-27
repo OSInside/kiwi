@@ -20,6 +20,7 @@ import logging
 from typing import List, Dict, Optional
 
 # project
+from kiwi.utils.install_progress import PackageManagerEventT
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
@@ -28,6 +29,17 @@ from kiwi.exceptions import KiwiRequestError
 from kiwi.path import Path
 
 log = logging.getLogger('kiwi')
+
+
+# pacman output lines read for the progress information
+PACMAN_TOTAL = re.compile(r'^Packages \((\d+)\)')
+PACMAN_DOWNLOAD = re.compile(r'^(\S+) downloading\.\.\.$')
+PACMAN_PACKAGE = re.compile(
+    r'^(?:\(\s*(\d+)/(\d+)\)\s+)?'
+    r'(installing|upgrading|reinstalling|downgrading|removing) (\S+)\.\.\.$'
+)
+PACMAN_HOOK = re.compile(r'^\(\s*(\d+)/(\d+)\)\s+(.+?)\.\.\.$')
+PACMAN_HOOKS = ':: Running post-transaction hooks'
 
 
 class PackageManagerPacman(PackageManagerBase):
@@ -233,47 +245,59 @@ class PackageManagerPacman(PackageManagerBase):
         """
         pass
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    progress_phases = ['download', 'install', 'script']
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of pacman output
 
-        This match for the package to be installed in the output
-        of the pacman command is not 100% accurate. There might
-        be false positives due to sub package names starting with
-        the same base package name
+        pacman reports the number of packages up front, e.g
+        Packages (108) acl-2.4.0-1 ..., and each package when it is
+        downloaded and installed, e.g installing bash...
+        The hooks run after the installation are reported with
+        their position, e.g (2/14) Creating system user accounts...
 
-        :param str package_name: package_name
-        :param str package_manager_output: dnf status line
+        :param str package_manager_output: line of output
 
-        :returns: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        return bool(
-            re.match(
-                '.* installing {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        line = package_manager_output.strip()
+        match = PACMAN_PACKAGE.match(line)
+        if match:
+            action, name = match.group(3), match.group(4)
+            return PackageManagerEventT(
+                phase='install',
+                description=f'{action.capitalize()} {name}',
+                current=int(match.group(1) or 0),
+                total=int(match.group(2) or 0),
+                package=name,
+                removed=action == 'removing',
             )
-        )
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        :param str package_name: package_name
-        :param str package_manager_output: pacman status line
-
-        :returns: True|False
-
-        :rtype: bool
-        """
-        return bool(
-            re.match(
-                '.* removing {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        match = PACMAN_DOWNLOAD.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='download', description=f'Downloading {match.group(1)}'
             )
-        )
+        match = PACMAN_HOOK.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='script',
+                description=match.group(3),
+                current=int(match.group(1)),
+                total=int(match.group(2)),
+                package=match.group(3),
+            )
+        if line.startswith(PACMAN_HOOKS):
+            return PackageManagerEventT(
+                phase='script', description='Running post-transaction hooks'
+            )
+        match = PACMAN_TOTAL.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='total', total=int(match.group(1))
+            )
+        return None

@@ -88,14 +88,14 @@ class DiskSetup:
         if root_clone:
             root_clone += 1
             log.info(
-                '--> root partition is clone: {0}*{1} MB'.format(
+                'root partition is clone: {0}*{1} MB'.format(
                     root_clone, root_filesystem_mbytes
                 )
             )
             root_filesystem_mbytes *= root_clone
         calculated_disk_mbytes += root_filesystem_mbytes
         log.info(
-            '--> system data with filesystem overhead needs %s MB',
+            'system data with filesystem overhead needs %s MB',
             root_filesystem_mbytes,
         )
         if self.custom_partitions:
@@ -103,25 +103,25 @@ class DiskSetup:
             if partition_mbytes:
                 calculated_disk_mbytes += partition_mbytes
                 log.info(
-                    '--> partition(s) size setup adding %s MB', partition_mbytes
+                    'partition(s) size setup adding %s MB', partition_mbytes
                 )
         if self.volume_manager and self.volume_manager == 'lvm':
             lvm_overhead_mbytes = Defaults.get_lvm_overhead_mbytes()
-            log.info('--> LVM overhead adding %s MB', lvm_overhead_mbytes)
+            log.info('LVM overhead adding %s MB', lvm_overhead_mbytes)
             calculated_disk_mbytes += lvm_overhead_mbytes
             volume_mbytes = self._accumulate_volume_size(root_filesystem_mbytes)
             if volume_mbytes:
                 calculated_disk_mbytes += volume_mbytes
-                log.info('--> volume(s) size setup adding %s MB', volume_mbytes)
+                log.info('volume(s) size setup adding %s MB', volume_mbytes)
         elif self.swap_mbytes:
             calculated_disk_mbytes += self.swap_mbytes
-            log.info('--> swap partition adding %s MB', self.swap_mbytes)
+            log.info('swap partition adding %s MB', self.swap_mbytes)
 
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
             calculated_disk_mbytes += legacy_bios_mbytes
             log.info(
-                '--> legacy bios boot partition adding %s MB',
+                'legacy bios boot partition adding %s MB',
                 legacy_bios_mbytes,
             )
 
@@ -130,33 +130,33 @@ class DiskSetup:
             if boot_clone:
                 boot_clone += 1
                 log.info(
-                    '--> boot partition is clone: {0}*{1} MB'.format(
+                    'boot partition is clone: {0}*{1} MB'.format(
                         boot_clone, boot_mbytes
                     )
                 )
                 boot_mbytes *= boot_clone
             calculated_disk_mbytes += boot_mbytes
-            log.info('--> boot partition adding %s MB', boot_mbytes)
+            log.info('boot partition adding %s MB', boot_mbytes)
 
         if self.spare_part_mbytes:
             calculated_disk_mbytes += self.spare_part_mbytes
-            log.info('--> spare partition adding %s MB', self.spare_part_mbytes)
+            log.info('spare partition adding %s MB', self.spare_part_mbytes)
 
         efi_mbytes = self.firmware.get_efi_partition_size()
         if efi_mbytes:
             calculated_disk_mbytes += efi_mbytes
-            log.info('--> EFI partition adding %s MB', efi_mbytes)
+            log.info('EFI partition adding %s MB', efi_mbytes)
 
         prep_mbytes = self.firmware.get_prep_partition_size()
         if prep_mbytes:
             calculated_disk_mbytes += prep_mbytes
-            log.info('--> PReP partition adding %s MB', prep_mbytes)
+            log.info('PReP partition adding %s MB', prep_mbytes)
 
         recovery_mbytes = self._inplace_recovery_partition_size()
         if recovery_mbytes:
             calculated_disk_mbytes += recovery_mbytes
             log.info(
-                '--> In-place recovery partition adding: %s MB', recovery_mbytes
+                'In-place recovery partition adding: %s MB', recovery_mbytes
             )
 
         if not self.configured_size:
@@ -181,7 +181,7 @@ class DiskSetup:
             )
             if self.configured_size.mbytes < calculated_disk_mbytes:
                 log.warning(
-                    '--> Configured size smaller than calculated size: %d MB',
+                    'Configured size smaller than calculated size: %d MB',
                     calculated_disk_mbytes,
                 )
             return self.configured_size.mbytes
@@ -305,7 +305,7 @@ class DiskSetup:
                     if partition_clone:
                         partition_clone += 1
                         log.info(
-                            '--> {0} partition is clone: {1}*{2} MB'.format(
+                            '{0} partition is clone: {1}*{2} MB'.format(
                                 map_name, partition_clone, disk_add_mbytes
                             )
                         )

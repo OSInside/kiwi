@@ -110,13 +110,24 @@ class TestImageInfoTask:
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         mock_out.assert_called_once_with({'image': 'LimeJeOS'})
 
+    @patch('kiwi.tasks.image_info.Path.which')
+    @patch('kiwi.tasks.image_info.KiwiConsole.colors_enabled')
     @patch('kiwi.tasks.image_info.DataOutput')
-    def test_process_image_info_color_output(self, mock_out):
+    def test_process_image_info_colored(
+        self, mock_out, mock_colors_enabled, mock_which
+    ):
         self._init_command_args()
         self.task.command_args['info'] = True
-        self.task.global_args['--color-output'] = True
+        mock_colors_enabled.return_value = True
+        mock_which.return_value = '/usr/bin/pjson'
         self.task.process()
         mock_out.assert_called_once_with({'image': 'LimeJeOS'}, style='color')
+        mock_which.assert_called_once_with('pjson')
+        # without pjson the standard output is used
+        mock_out.reset_mock()
+        mock_which.return_value = None
+        self.task.process()
+        mock_out.assert_called_once_with({'image': 'LimeJeOS'})
 
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info_list_profiles(self, mock_out):

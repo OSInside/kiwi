@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from typing import Union
+from typing import Any, Union
 import logging
 
 # project
@@ -24,7 +24,7 @@ from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.system.result import Result
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class ResultListTask(CliTask):
@@ -46,6 +46,7 @@ class ResultListTask(CliTask):
             return
 
         result_directory = os.path.abspath(self.command_args['--target-dir'])
+        log.phase('Results')
         log.info('Listing results from %s', result_directory)
         result: Result = Result.load(result_directory + '/kiwi.result')
         result.print_results()

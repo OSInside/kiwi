@@ -161,7 +161,7 @@ class VolumeManagerBase(DeviceProvider):
         for attribute in volume.attributes:
             if attribute == 'no-copy-on-write':
                 log.info(
-                    '--> setting {0} for {1}'.format(attribute, volume.realpath)
+                    'setting {0} for {1}'.format(attribute, volume.realpath)
                 )
                 Command.run(
                     [

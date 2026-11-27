@@ -110,7 +110,7 @@ class SystemSetup:
                     after_services.add('container-snap.service')
 
         if container_files_to_load:
-            log.info('--> Setup kiwi_containers.service import unit')
+            log.info('Setup kiwi_containers.service import unit')
             service = BuilderTemplateSystemdUnit()
             unit_template = service.get_container_import_template(
                 container_files_to_load,
@@ -142,9 +142,7 @@ class SystemSetup:
         description = os.path.join(
             self.root_dir, defaults.IMAGE_METADATA_DIR, 'config.xml'
         )
-        log.info(
-            '--> Importing state XML description to {0}'.format(description)
-        )
+        log.info('Importing state XML description to {0}'.format(description))
         Path.create(os.path.join(self.root_dir, defaults.IMAGE_METADATA_DIR))
         with open(description, 'w', encoding='utf-8') as config:
             config.write('<?xml version="1.0" encoding="utf-8"?>')
@@ -221,41 +219,40 @@ class SystemSetup:
                 )
                 if not repo_alias:
                     repo_alias = uri.alias()
-                log.info(
-                    'Setting up image repository {0}'.format(
-                        Uri.print_sensitive(repo_source)
+                with log.step(
+                    'Setting up image repository '
+                    f'{Uri.print_sensitive(repo_source)}'
+                ):
+                    log.info('Type: {0}'.format(repo_type))
+                    log.info(
+                        'Translated: {0}'.format(
+                            Uri.print_sensitive(repo_source_translated)
+                        )
                     )
-                )
-                log.info('--> Type: {0}'.format(repo_type))
-                log.info(
-                    '--> Translated: {0}'.format(
-                        Uri.print_sensitive(repo_source_translated)
+                    log.info('Alias: {0}'.format(repo_alias))
+                    repo_signing_keys = (
+                        self.xml_state.get_repository_signing_keys(xml_repo)
                     )
-                )
-                log.info('--> Alias: {0}'.format(repo_alias))
-                repo_signing_keys = self.xml_state.get_repository_signing_keys(
-                    xml_repo
-                )
-                if repo_signing_keys:
-                    repo.import_repository_signing_keys(
-                        repo_alias, repo_signing_keys
+                    if repo_signing_keys:
+                        repo.import_repository_signing_keys(
+                            repo_alias, repo_signing_keys
+                        )
+                    repo.add_repo(
+                        repo_alias,
+                        repo_source_translated,
+                        repo_type,
+                        repo_priority,
+                        repo_dist,
+                        repo_components,
+                        repo_user,
+                        repo_secret,
+                        uri.credentials_file_name(),
+                        repo_repository_gpgcheck,
+                        repo_package_gpgcheck,
+                        repo_sourcetype,
+                        repo_customization_script,
+                        repo_architectures,
                     )
-                repo.add_repo(
-                    repo_alias,
-                    repo_source_translated,
-                    repo_type,
-                    repo_priority,
-                    repo_dist,
-                    repo_components,
-                    repo_user,
-                    repo_secret,
-                    uri.credentials_file_name(),
-                    repo_repository_gpgcheck,
-                    repo_package_gpgcheck,
-                    repo_sourcetype,
-                    repo_customization_script,
-                    repo_architectures,
-                )
 
     def import_cdroot_files(self, target_dir: str) -> None:
         """
@@ -559,7 +556,7 @@ class SystemSetup:
             )
 
             group_msg = (
-                '--> Primary group for user {0}: {1}'.format(
+                'Primary group for user {0}: {1}'.format(
                     user_name, user_groups[0]
                 )
                 if len(user_groups)
@@ -567,19 +564,17 @@ class SystemSetup:
             )
 
             if user_exists:
-                log.info('--> Modifying user: {0}'.format(user_name))
+                log.info('Modifying user: {0}'.format(user_name))
                 if group_msg:
                     log.info(group_msg)
                 system_users.user_modify(user_name, options)
             else:
-                log.info('--> Adding user: {0}'.format(user_name))
+                log.info('Adding user: {0}'.format(user_name))
                 if group_msg:
                     log.info(group_msg)
                 system_users.user_add(user_name, options)
                 if home_path:
-                    log.info(
-                        '--> Setting permissions for {0}'.format(home_path)
-                    )
+                    log.info('Setting permissions for {0}'.format(home_path))
                     # Emtpy group string assumes the login or default group
                     system_users.setup_home_for_user(
                         user_name,
@@ -602,6 +597,7 @@ class SystemSetup:
                 splash_section_content = preferences.get_bootsplash_theme()
                 if splash_section_content:
                     splash_theme = splash_section_content[0]
+                    log.info(f'Setting up splash theme: {splash_theme}')
                     Command.run(
                         ['chroot', self.root_dir, theme_setup, splash_theme]
                     )
@@ -930,6 +926,7 @@ class SystemSetup:
         Create file list of packages to be used by flake-pilot
         """
         if self.xml_state.build_type.get_provide_system_files():
+            log.info('Creating system files list')
             self.export_flake_pilot_system_file_list(
                 self.root_dir, Defaults.get_system_files_name()
             )
@@ -1027,7 +1024,7 @@ class SystemSetup:
         with open(metadata['partition_filesystem'], 'w') as partfs:
             partfs.write('{0}'.format(recovery_filesystem))
         log.info(
-            '--> Recovery partition filesystem: {0}'.format(recovery_filesystem)
+            'Recovery partition filesystem: {0}'.format(recovery_filesystem)
         )
         # recovery.tar.files
         bash_comand = ['tar', '-tf', metadata['archive_name'], '|', 'wc', '-l']
@@ -1035,18 +1032,18 @@ class SystemSetup:
         tar_files_count = int(tar_files_call.output.rstrip('\n'))
         with open(metadata['archive_filecount'], 'w') as files:
             files.write('{0}{1}'.format(tar_files_count, os.linesep))
-        log.info('--> Recovery file count: {0} files'.format(tar_files_count))
+        log.info('Recovery file count: {0} files'.format(tar_files_count))
         # recovery.tar.size
         recovery_archive_size_bytes = os.path.getsize(metadata['archive_name'])
         with open(metadata['archive_size'], 'w') as size:
             size.write('{0}'.format(recovery_archive_size_bytes))
         log.info(
-            '--> Recovery uncompressed size: {0} mbytes'.format(
+            'Recovery uncompressed size: {0} mbytes'.format(
                 int(recovery_archive_size_bytes / 1048576)
             )
         )
         # recovery.tar.gz
-        log.info('--> Compressing recovery archive')
+        log.info('Compressing recovery archive')
         compress = Compress(self.root_dir + '/recovery.tar')
         compress.gzip()
         # recovery.partition.size
@@ -1060,7 +1057,7 @@ class SystemSetup:
         with open(metadata['partition_size'], 'w') as gzsize:
             gzsize.write('{0}'.format(recovery_partition_mbytes))
         log.info(
-            '--> Recovery partition size: {0} mbytes'.format(
+            'Recovery partition size: {0} mbytes'.format(
                 recovery_partition_mbytes
             )
         )
@@ -1070,7 +1067,7 @@ class SystemSetup:
         # is preserved in order to be able to check if enough space
         # is available on the disk to create the recovery archive.
         if self.oemconfig['recovery_inplace']:
-            log.info('--> Inplace recovery requested, deleting archive')
+            log.info('Inplace recovery requested, deleting archive')
             Path.wipe(metadata['archive_name'] + '.gz')
 
     def _process_user_options(
@@ -1123,7 +1120,7 @@ class SystemSetup:
                 self.root_dir, defaults.IMAGE_METADATA_DIR
             )
             log.info(
-                '--> Importing {0} archive to {1}'.format(
+                'Importing {0} archive to {1}'.format(
                     cdroot_archive, archive_file
                 )
             )
@@ -1162,7 +1159,7 @@ class SystemSetup:
 
             if file_exists:
                 log.info(
-                    '--> Importing {0} file to {1}'.format(
+                    'Importing {0} file to {1}'.format(
                         file_file, file_target_dir
                     )
                 )
@@ -1204,7 +1201,7 @@ class SystemSetup:
 
             if archive_exists:
                 log.info(
-                    '--> Importing {0} archive to {1}'.format(
+                    'Importing {0} archive to {1}'.format(
                         archive_file, archive_target_dir
                     )
                 )
@@ -1282,7 +1279,7 @@ class SystemSetup:
                 if os.path.exists(script_file):
                     script_target_file = os.path.join(script_target_dir, name)
                     log.info(
-                        '--> Importing {0} script to {1}'.format(
+                        'Importing {0} script to {1}'.format(
                             script.filepath, script_target_file
                         )
                     )
@@ -1296,7 +1293,7 @@ class SystemSetup:
                     )
 
         if need_script_helper_functions:
-            log.info('--> Importing script helper functions')
+            log.info('Importing script helper functions')
             Command.run(
                 [
                     'cp',
@@ -1341,15 +1338,16 @@ class SystemSetup:
                 caller_environment = copy.deepcopy(os.environ)
                 caller_environment.update(profile.get_settings())
                 config_script = Command.call(command, caller_environment)
-                process = CommandProcess(
-                    command=config_script,
-                    log_topic='Calling ' + name + ' script',
-                )
-                result = process.poll_and_watch()
-                if result.returncode != 0:
-                    raise KiwiScriptFailed(
-                        f'{name} failed with: {result.stderr}'
+                with log.step(f'Calling {name} script'):
+                    process = CommandProcess(
+                        command=config_script,
+                        log_topic='Calling ' + name + ' script',
                     )
+                    result = process.poll_and_watch()
+                    if result.returncode != 0:
+                        raise KiwiScriptFailed(
+                            f'{name} failed with: {result.stderr}'
+                        )
                 # if configured, assign SELinux labels
                 self.setup_selinux_file_contexts()
 
@@ -1395,14 +1393,16 @@ class SystemSetup:
                 config_script = Command.call(
                     ['bash', '-c', ' '.join(bash_command)], caller_environment
                 )
-            process = CommandProcess(
-                command=config_script, log_topic='Calling ' + name + ' script'
-            )
-            result = process.poll_and_watch()
-            if result.returncode != 0:
-                raise KiwiScriptFailed(
-                    '{0} failed: {1}'.format(name, result.stderr)
+            with log.step(f'Calling {name} script'):
+                process = CommandProcess(
+                    command=config_script,
+                    log_topic='Calling ' + name + ' script',
                 )
+                result = process.poll_and_watch()
+                if result.returncode != 0:
+                    raise KiwiScriptFailed(
+                        '{0} failed: {1}'.format(name, result.stderr)
+                    )
 
     def _create_passwd_hash(self, password: str) -> str:
         openssl = Command.run(
@@ -1640,7 +1640,7 @@ class SystemSetup:
                 target_name = os.path.normpath(
                     os.sep.join([target_name, target])
                 )
-            log.info(f'--> file: {file_file} -> {target_name}')
+            log.info(f'file: {file_file} -> {target_name}')
             if target_owner:
                 Command.run(
                     [

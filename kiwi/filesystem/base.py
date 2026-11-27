@@ -297,13 +297,9 @@ class FileSystemBase:
             on_file_name or self.device_provider.get_device(), blocks
         )
         log.info(
-            '--> Creating dm verity hash ({0} blocks)...'.format(
-                blocks or 'all'
-            )
+            'Creating dm verity hash ({0} blocks)...'.format(blocks or 'all')
         )
-        log.debug(
-            '--> dm verity metadata: {0}'.format(self.veritysetup.format())
-        )
+        log.debug('dm verity metadata: {0}'.format(self.veritysetup.format()))
 
     def create_verification_metadata(self, device_node: str = '') -> None:
         """
@@ -314,9 +310,9 @@ class FileSystemBase:
             from this instance is used
         """
         if self.veritysetup:
-            log.info('--> Creating verification metadata...')
+            log.info('Creating verification metadata...')
             self.veritysetup.create_verity_verification_metadata()
-            log.info('--> Signing verification metadata...')
+            log.info('Signing verification metadata...')
             self.veritysetup.sign_verification_metadata()
             self.veritysetup.write_verification_metadata(
                 device_node or self.device_provider.get_device()
@@ -498,7 +494,7 @@ class FileSystemBase:
             if attribute_map.get(attribute):
                 assert self.filesystem_mount is not None
                 log.info(
-                    '--> setting {0} for {1}'.format(
+                    'setting {0} for {1}'.format(
                         attribute, self.filesystem_mount.mountpoint
                     )
                 )

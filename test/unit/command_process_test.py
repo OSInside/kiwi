@@ -4,6 +4,8 @@ from pytest import raises, fixture
 from builtins import bytes
 
 from kiwi.command_process import CommandProcess, CommandIterator
+from kiwi.logger_console import KiwiConsole
+from kiwi.utils.install_progress import PackageManagerEventT
 
 from kiwi.exceptions import KiwiCommandError
 
@@ -12,9 +14,6 @@ class TestCommandProcess:
     @fixture(autouse=True)
     def inject_fixtures(self, caplog):
         self._caplog = caplog
-
-    def fake_matcher(self, item, output):
-        return True
 
     def poll(self):
         return self.data_flow.pop()
@@ -75,9 +74,13 @@ class TestCommandProcess:
 
     @patch('kiwi.command.Command')
     def test_poll_show_progress(self, mock_command):
-        match_method = CommandProcess(mock_command).create_match_method(
-            self.fake_matcher
-        )
+        process = self._process(mock_command)
+        with self._caplog.at_level(logging.DEBUG):
+            process.poll_show_progress(lambda line: None, [], True)
+            assert 'system: data' in self._caplog.text
+            assert 'system: error' in self._caplog.text
+
+    def _process(self, mock_command):
         process = CommandProcess(mock_command)
         process.command.command.process.poll = self.flow
         process.command.command.output_available = self.flow_out_available
@@ -85,71 +88,59 @@ class TestCommandProcess:
         process.command.command.output.read = self.flow_out
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 0
-        with self._caplog.at_level(logging.DEBUG):
-            process.poll_show_progress(['a', 'b'], match_method, True)
-            assert 'system: data' in self._caplog.text
+        return process
 
     @patch('kiwi.command_process.Progress')
     @patch('kiwi.command.Command')
-    def test_poll_show_progress_rich_progress(
-        self, mock_command, mock_Progress
-    ):
+    def test_poll_show_progress_no_events(self, mock_command, mock_Progress):
         progress = mock_Progress.return_value.__enter__.return_value
         task = progress.add_task.return_value
-        match_method = CommandProcess(mock_command).create_match_method(
-            self.fake_matcher
-        )
-        process = CommandProcess(mock_command)
-        process.command.command.process.poll = self.flow
-        process.command.command.output_available = self.flow_out_available
-        process.command.command.error_available = self.flow_err_available
-        process.command.command.output.read = self.flow_out
-        process.command.command.error.read = self.flow_err
-        process.command.command.process.returncode = 0
-        with patch.object(
-            logging.getLogger('kiwi'), 'getLogLevel', create=True
-        ) as mock_getLogLevel:
-            mock_getLogLevel.return_value = logging.INFO
-            process.poll_show_progress(['a', 'b'], match_method, True)
-        assert mock_Progress.call_args.kwargs == {'disable': False}
-        progress.add_task.assert_called_once_with('Processing', total=2)
-        # every matching line completes an item, up to the number of
-        # items. The progress is complete once the process is done
-        assert progress.update.call_args_list == [
-            call(task, completed=1),
-            call(task, completed=2),
-            call(task, completed=2),
-        ]
+        process = self._process(mock_command)
+        with self._caplog.at_level(logging.INFO):
+            process.poll_show_progress(lambda line: None, ['install'], True)
+        # the progress is written to the console of the log messages
+        # and replaced by the summary when done
+        assert mock_Progress.call_args.kwargs == {
+            'console': KiwiConsole.stdout,
+            'transient': True,
+            'disable': not KiwiConsole.stdout.is_terminal,
+        }
+        progress.add_task.assert_called_once_with('Processing', total=1000)
+        # without progress events the progress is complete at the end
+        assert progress.update.call_args_list == [call(task, completed=1000)]
+        assert 'installed' not in self._caplog.text
 
-        # the progress is not shown in debug mode, it would be
-        # mixed with the debug output of the process
-        mock_Progress.reset_mock()
-        self.setup()
-        process = CommandProcess(mock_command)
-        process.command.command.process.poll = self.flow
-        process.command.command.output_available = self.flow_out_available
-        process.command.command.error_available = self.flow_err_available
-        process.command.command.output.read = self.flow_out
-        process.command.command.error.read = self.flow_err
-        process.command.command.process.returncode = 0
-        with patch.object(
-            logging.getLogger('kiwi'), 'getLogLevel', create=True
-        ) as mock_getLogLevel:
-            mock_getLogLevel.return_value = logging.DEBUG
-            process.poll_show_progress([], match_method)
-        assert mock_Progress.call_args.kwargs == {'disable': True}
-        # without items the progress is complete with the process
+    @patch('kiwi.command_process.Progress')
+    @patch('kiwi.command.Command')
+    def test_poll_show_progress_events(self, mock_command, mock_Progress):
         progress = mock_Progress.return_value.__enter__.return_value
-        progress.add_task.assert_called_once_with('Processing', total=1)
-        progress.update.assert_called_once_with(
-            progress.add_task.return_value, completed=1
-        )
+        task = progress.add_task.return_value
+        process = self._process(mock_command)
+        events = {
+            'data': PackageManagerEventT(
+                phase='install',
+                description='Installing data',
+                current=1,
+                total=2,
+                package='data',
+            ),
+            'error': PackageManagerEventT(
+                phase='script',
+                description='Running %post(data)',
+                package='%post(data)',
+            ),
+        }
+        with self._caplog.at_level(logging.INFO):
+            process.poll_show_progress(events.get, ['install'], True)
+        assert progress.update.call_args_list == [
+            call(task, description='1/2 Installing data', completed=500),
+            call(task, description='Running %post(data)', completed=500),
+            call(task, completed=1000),
+        ]
+        assert '1 package installed, 1 script run' in self._caplog.text
 
     @patch('kiwi.command.Command')
     def test_poll_show_progress_raises(self, mock_command):
-        match_method = CommandProcess(mock_command).create_match_method(
-            self.fake_matcher
-        )
         process = CommandProcess(mock_command)
         process.command.command.process.poll = self.flow
         process.command.command.output_available = self.flow_out_available
@@ -158,7 +149,7 @@ class TestCommandProcess:
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 1
         with raises(KiwiCommandError):
-            process.poll_show_progress(['a', 'b'], match_method)
+            process.poll_show_progress(lambda line: None, [])
 
     @patch('kiwi.command.Command')
     def test_poll(self, mock_command):
@@ -201,13 +192,6 @@ class TestCommandProcess:
             assert 'data' in self._caplog.text
             assert '--------------out stop--------------' in self._caplog.text
             assert result.stderr == 'error\n'
-
-    @patch('kiwi.command.Command')
-    def test_create_match_method(self, mock_command):
-        match_method = CommandProcess(mock_command).create_match_method(
-            self.fake_matcher
-        )
-        assert match_method('a', 'b') is True
 
     def test_command_iterator(self):
         iterator = CommandIterator(Mock())

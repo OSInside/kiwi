@@ -103,7 +103,7 @@ class TestSat:
         self.selection.isempty = Mock(return_value=True)
         with self._caplog.at_level(logging.INFO):
             self.sat.solve(packages, skip_missing=True)
-            assert '--> Package vim not found: skipped' in self._caplog.text
+            assert 'Package vim not found: skipped' in self._caplog.text
 
     def test_solve_package_not_found_raises(self):
         packages = ['vim']
@@ -130,7 +130,4 @@ class TestSat:
         self.selection.jobs = Mock(return_value=packages)
         with self._caplog.at_level(logging.INFO):
             self.sat.solve(packages)
-            assert (
-                '--> Using capability match for kernel-base'
-                in self._caplog.text
-            )
+            assert 'Using capability match for kernel-base' in self._caplog.text

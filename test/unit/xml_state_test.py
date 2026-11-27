@@ -464,14 +464,65 @@ class TestXMLState:
 
     def test_build_type_not_found(self):
         xml_data = self.description.load()
-        with raises(KiwiTypeNotFound):
+        # no profile provides the build type
+        with raises(KiwiTypeNotFound) as issue:
             XMLState(xml_data, ['vmxFlavour'], 'foo')
+        assert str(issue.value) == (
+            "Build type 'foo' not found for applied profiles: ['vmxFlavour']"
+        )
+        # profiles providing the build type are shown
+        with raises(KiwiTypeNotFound) as issue:
+            XMLState(xml_data, ['vmxFlavour'], 'docker')
+        assert str(issue.value) == (
+            "Build type 'docker' not found for applied profiles: "
+            "['vmxFlavour']. Select one of the following profiles "
+            "with --profile:\n"
+            "  - xenDom0Flavour (docker): Disk Dom0\n"
+            "  - containerFlavour (docker): Container image\n"
+            "  - derivedContainer (docker): Container from a base"
+        )
 
     def test_build_type_not_found_no_default_type(self):
         description = XMLDescription('../data/example_no_default_type.xml')
         xml_data = description.load()
-        with raises(KiwiTypeNotFound):
+        with raises(KiwiTypeNotFound) as issue:
             XMLState(xml_data, ['minimal'])
+        # the profile with a build type is misspelled in the
+        # preferences section, no profile can be selected
+        assert str(issue.value) == (
+            "No build type defined with applied profiles: ['minimal']"
+        )
+
+    def test_get_selectable_profiles_hint(self):
+        state = XMLState(self.description.load(), ['vmxFlavour'])
+        assert state._get_selectable_profiles_hint() == (
+            '. Select one of the following profiles with --profile:\n'
+            '  - xenDom0Flavour (oem, docker): Disk Dom0\n'
+            '  - xenDomUFlavour (oem): Disk DomU\n'
+            '  - ec2Flavour (oem): Disk EC2\n'
+            '  - vmxFlavour (oem): Disk\n'
+            '  - vmxSimpleFlavour (oem, iso): Disk no resize\n'
+            '  - containerFlavour (docker): Container image\n'
+            '  - derivedContainer (docker): Container from a base\n'
+            '  - composedProfile (oem, iso): Composed profile'
+        )
+        profile = state.xml_data.get_profiles()[0].get_profile()[0]
+        with patch.object(profile, 'get_description', return_value=None):
+            assert '  - xenDom0Flavour (oem, docker)\n' in (
+                state._get_selectable_profiles_hint()
+            )
+        # profiles and preferences of another architecture are skipped
+        state.host_architecture = 'aarch64'
+        assert '  - vmxFlavour' not in state._get_selectable_profiles_hint()
+        with patch.object(
+            state, 'preferences_matches_host_architecture', return_value=False
+        ):
+            assert state._get_selectable_profiles_hint() == ''
+        # profiles with broken dependencies can't be selected
+        with patch.object(
+            state, '_used_profiles', side_effect=KiwiProfileNotFound('issue')
+        ):
+            assert state._get_selectable_profiles_hint() == ''
 
     def test_profile_not_found(self):
         xml_data = self.description.load()

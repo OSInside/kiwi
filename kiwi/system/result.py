@@ -179,12 +179,11 @@ class Result:
         Print results human readable
         """
         if self.result_files:
-            log.info('Result files:')
             for key, value in sorted(list(self.result_files.items())):
                 if key == 'bundle_format':
-                    log.info('--> {0}: {1}'.format(key, value.get('pattern')))
+                    log.info('{0}: {1}'.format(key, value.get('pattern')))
                 else:
-                    log.info('--> {0}: {1}'.format(key, value.filename))
+                    log.info('{0}: {1}'.format(key, value.filename))
 
     def dump(self, filename: str, portable: bool = True) -> None:
         """

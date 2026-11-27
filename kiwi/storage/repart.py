@@ -194,8 +194,8 @@ class RepartBtrfsLayout:
             # same default and deprecation warning as the
             # btrfs volume manager
             log.warning('Implicitly creating root volume')
-            log.warning('--> Future versions of kiwi will not do this anymore')
-            log.warning('--> Please specify btrfs_root_is_subvolume true|false')
+            log.warning('Future versions of kiwi will not do this anymore')
+            log.warning('Please specify btrfs_root_is_subvolume true|false')
             root_is_subvolume = True
         self.root_volume_name = '/'
         if root_is_subvolume:

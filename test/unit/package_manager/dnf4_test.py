@@ -5,6 +5,7 @@ import unittest.mock as mock
 from kiwi.package_manager.dnf4 import PackageManagerDnf4
 
 from kiwi.exceptions import KiwiRequestError
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class TestPackageManagerDnf4:
@@ -228,11 +229,45 @@ class TestPackageManagerDnf4:
             '--setopt=install_weak_deps=False' not in self.manager.custom_args
         )
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', 'Installing  : foo')
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', 'Removing: foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        assert event(
+            '(12/148): glibc-2.34-100.el9.x86_64.rpm  1.0 MB/s | 2.0 MB'
+        ) == PackageManagerEventT(
+            'download', 'Downloading glibc-2.34-100.el9.x86_64.rpm', 12, 148
+        )
+        assert event(
+            '  Installing       : glibc-2.34-100.el9.x86_64       12/148 '
+        ) == PackageManagerEventT(
+            'install',
+            'Installing glibc-2.34-100.el9.x86_64',
+            12,
+            148,
+            'glibc-2.34-100.el9.x86_64',
+        )
+        assert event('  Erasing          : vim-9.0-1.el9.x86_64    1/2') == (
+            PackageManagerEventT(
+                'install',
+                'Erasing vim-9.0-1.el9.x86_64',
+                1,
+                2,
+                'vim-9.0-1.el9.x86_64',
+                True,
+            )
+        )
+        assert event(
+            '  Running scriptlet: glibc-2.34-100.el9.x86_64       12/148 '
+        ) == PackageManagerEventT(
+            'script',
+            'Running scriptlet glibc-2.34-100.el9.x86_64',
+            package='glibc-2.34-100.el9.x86_64',
+        )
+        assert event(
+            '  Verifying        : glibc-2.34-100.el9.x86_64        1/148 '
+        ) == PackageManagerEventT(
+            'verify', 'Verifying glibc-2.34-100.el9.x86_64', 1, 148
+        )
+        assert event('Complete!') is None
 
     @patch('kiwi.package_manager.dnf4.RpmDataBase')
     def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):

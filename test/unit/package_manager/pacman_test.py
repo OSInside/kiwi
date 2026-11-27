@@ -5,6 +5,7 @@ import unittest.mock as mock
 from kiwi.package_manager.pacman import PackageManagerPacman
 
 from kiwi.exceptions import KiwiRequestError
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class TestPackageManagerPacman:
@@ -189,8 +190,34 @@ class TestPackageManagerPacman:
             ['env'],
         )
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', ' installing foo')
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', ' removing foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        assert event(
+            'Packages (108) acl-2.4.0-1  attr-2.6.0-1  audit-4.2.1-1'
+        ) == PackageManagerEventT('total', total=108)
+        assert event(' util-linux downloading...') == PackageManagerEventT(
+            'download', 'Downloading util-linux'
+        )
+        assert event('installing linux-api-headers...') == (
+            PackageManagerEventT(
+                'install',
+                'Installing linux-api-headers',
+                package='linux-api-headers',
+            )
+        )
+        assert event('( 2/9) removing vim...') == PackageManagerEventT(
+            'install', 'Removing vim', 2, 9, 'vim', True
+        )
+        assert event(':: Running post-transaction hooks...') == (
+            PackageManagerEventT('script', 'Running post-transaction hooks')
+        )
+        assert event('( 4/14) Creating system user accounts...') == (
+            PackageManagerEventT(
+                'script',
+                'Creating system user accounts',
+                4,
+                14,
+                'Creating system user accounts',
+            )
+        )
+        assert event(':: Retrieving packages...') is None

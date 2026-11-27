@@ -132,7 +132,7 @@ class LuksDevice(DeviceProvider):
             random_passphrase = LuksDevice.create_random_keyfile(keyfile_path)
 
         if randomize:
-            log.info('--> Randomizing...')
+            log.info('Randomizing...')
             storage_size_mbytes = (
                 self.storage_provider.get_byte_size(storage_device) / 1048576
             )
@@ -146,7 +146,7 @@ class LuksDevice(DeviceProvider):
                 ]
             )
 
-        log.info('--> Creating LUKS map')
+        log.info('Creating LUKS map')
 
         if passphrase and passphrase == 'random':
             # In random mode use the generated keyfile as the only

@@ -6,6 +6,7 @@ from kiwi.path import Path
 from kiwi.package_manager.zypper import PackageManagerZypper
 
 from kiwi.exceptions import KiwiRequestError
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class TestPackageManagerZypper:
@@ -181,11 +182,60 @@ class TestPackageManagerZypper:
         self.manager.process_plus_recommended()
         assert '--no-recommends' not in self.manager.custom_args
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', 'Installing: foo')
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', 'Removing: foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        assert event(
+            'Retrieving: glibc-2.44-4.1.x86_64 (repo) (12/148),   2.2 MiB    '
+        ) == PackageManagerEventT(
+            'download', 'Downloading glibc-2.44-4.1.x86_64', 12, 148
+        )
+        assert event(
+            '( 12/148) Installing: glibc-2.44-4.1.x86_64 [.'
+        ) == PackageManagerEventT(
+            'install',
+            'Installing glibc-2.44-4.1.x86_64',
+            12,
+            148,
+            'glibc-2.44-4.1.x86_64',
+        )
+        assert event('(1/2) Removing vim-9.1-1.x86_64 [..done]') == (
+            PackageManagerEventT(
+                'install',
+                'Removing vim-9.1-1.x86_64',
+                1,
+                2,
+                'vim-9.1-1.x86_64',
+                True,
+            )
+        )
+        assert event('Running post-transaction scripts [..') == (
+            PackageManagerEventT('script', 'Running post-transaction scripts')
+        )
+        assert event(
+            '%posttrans(udev-262.2-1.1.x86_64) script output:'
+        ) == PackageManagerEventT(
+            'script',
+            'Running %posttrans(udev-262.2-1.1.x86_64)',
+            package='%posttrans(udev-262.2-1.1.x86_64)',
+        )
+        # packages downloaded in advance are counted against the
+        # number of packages from the summary
+        assert event('15 new packages to install.') == (
+            PackageManagerEventT('total', total=15)
+        )
+        assert event(
+            '2 packages to upgrade, 3 new, 1 to reinstall, 1 to remove.'
+        ) == PackageManagerEventT('total', total=6)
+        assert event('1 package to remove.') == (
+            PackageManagerEventT('total', total=0)
+        )
+        assert event(
+            'Preloading: zstd-1.5.7-6.1.x86_64.rpm [done]'
+        ) == PackageManagerEventT(
+            'download', 'Downloading zstd-1.5.7-6.1.x86_64'
+        )
+        assert event('Preloading Packages [..') is None
+        assert event('Checking for file conflicts: [....done]') is None
 
     @patch('kiwi.package_manager.zypper.RpmDataBase')
     def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):

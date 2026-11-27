@@ -195,7 +195,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 # part of the setup procedure
                 pass
             else:
-                log.info('--> sub volume %s', volume.realpath)
+                log.info('sub volume %s', volume.realpath)
                 assert self.mountpoint is not None
                 toplevel = os.path.normpath(
                     self.mountpoint + os.sep + self.root_volume_name
@@ -455,8 +455,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             # in the future. Print a deprecation message to inform
             # the user about a potential behavior change
             log.warning("Implicitly creating root volume")
-            log.warning("--> Future versions of kiwi will not do this anymore")
-            log.warning("--> Please specify btrfs_root_is_subvolume true|false")
+            log.warning("Future versions of kiwi will not do this anymore")
+            log.warning("Please specify btrfs_root_is_subvolume true|false")
             has_root_volume = True
         return has_root_volume
 
