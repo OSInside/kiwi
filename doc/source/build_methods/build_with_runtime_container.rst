@@ -64,7 +64,7 @@ in the box. The following example builds the same image as the
    $ git clone https://github.com/OSInside/kiwi-descriptions.git
 
    $ kiwi-boxbuild --profile Virtual --box leap kiwi \
-         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-16.0 \
          --target-dir /tmp/myimage
 
 The available boxes are listed with:
@@ -142,7 +142,7 @@ the host directory available at `BOX_PATH` inside of the box instead:
 .. code:: bash
 
    $ kiwi-boxbuild --box leap --shared-path /data/repos:/repos kiwi \
-         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-16.0 \
          --target-dir /tmp/myimage
 
 The location of the shared path inside of the box must not interfere
@@ -167,7 +167,7 @@ listing the boxes:
    $ kiwi-boxbuild --boxbuild-config my_boxes.yml --list-boxes
 
    $ kiwi-boxbuild --boxbuild-config my_boxes.yml --box mybox kiwi \
-         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-16.0 \
          --target-dir /tmp/myimage
 
 Configuring the runtime container
@@ -289,7 +289,7 @@ in PowerShell:
 .. code:: powershell
 
    > kiwi-boxbuild --profile Virtual --box leap kiwi `
-         --description C:\work\suse-leap-15.6 `
+         --description C:\work\suse-leap-16.0 `
          --target-dir C:\work\result
 
 WSL2 mounts the Windows drives below :file:`/mnt`, for example

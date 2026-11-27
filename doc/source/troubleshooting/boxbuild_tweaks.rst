@@ -36,7 +36,7 @@ To do so, follow these steps:
 
       $ kiwi-ng --debug --profile="Disk" --type oem system boxbuild --no-snapshot \
       --box-memory=32G --box-smp-cpus=16 --box-debug --box ubuntu kiwi \
-      --description ./ubuntu-jammy --target-dir /build/kiwi/outputs/
+      --description ./ubuntu-resolute --target-dir /build/kiwi/outputs/
 
 3. When the build fails and drops you into the VM console, you will
    need to extend the partition of the VM's rootfs, then resize it with

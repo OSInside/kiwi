@@ -87,7 +87,7 @@ how to build an example from the `kiwi-descriptions` repo:
    $ git clone https://github.com/OSInside/kiwi-descriptions.git
 
    $ kiwi-ng --profile Virtual system boxbuild --box leap kiwi \
-         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-16.0 \
          --target-dir /tmp/myimage
 
 For compatibility with the former `kiwi-boxed-plugin`, the `--` separator
@@ -166,7 +166,7 @@ container:
 .. code:: bash
 
    $ kiwi-ng --profile Virtual system boxbuild --container --box leap kiwi \
-         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-16.0 \
          --target-dir /tmp/myimage
 
 .. note::

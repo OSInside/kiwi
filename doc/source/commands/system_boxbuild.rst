@@ -197,5 +197,5 @@ Example
 
    $ git clone https://github.com/OSInside/kiwi-descriptions
    $ kiwi-ng --profile Virtual system boxbuild --box leap kiwi \
-       --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+       --description kiwi-descriptions/suse/x86_64/suse-leap-16.0 \
        --target-dir /tmp/myimage
