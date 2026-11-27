@@ -212,39 +212,6 @@ class Logger(logging.Logger):
         """
         return self.logfile
 
-    @staticmethod
-    def progress(
-        current: int, total: int, prefix: str, bar_length: int = 40
-    ) -> None:
-        """
-        Custom progress log information. progress information is
-        intentionally only logged to stdout and will bypass any
-        handlers. We don't want this information to show up in
-        the log file
-
-        :param int current: current item
-        :param int total: total number of items
-        :param string prefix: prefix name
-        :param int bar_length: length of progress bar
-        """
-        try:
-            percent = float(current) / total
-        except Exception:
-            # we don't want the progress to raise an exception
-            # In case of any error e.g division by zero the current
-            # way out is to skip the progress update
-            return
-        hashes = '#' * int(round(percent * bar_length))
-        spaces = ' ' * (bar_length - len(hashes))
-        sys.stdout.write(
-            '\r{0}: [{1}] {2}%'.format(
-                prefix, hashes + spaces, int(round(percent * 100))
-            )
-        )
-        if current == 100:
-            sys.stdout.write('\n')
-        sys.stdout.flush()
-
     def _add_stream_handler(
         self,
         handler_type: str,

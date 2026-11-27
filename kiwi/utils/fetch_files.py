@@ -15,13 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import requests
+from typing import List, Optional
 
-try:
-    import progressbar2 as progressbar
-except ImportError:
-    import progressbar
+import requests
 import requests.packages.urllib3
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    ProgressColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+    TransferSpeedColumn,
+)
 
 from kiwi.exceptions import KiwiUriOpenError
 
@@ -51,34 +58,33 @@ class FetchFiles:
             )
             response.raise_for_status()
             content_length = response.headers.get('Content-Length')
+            total: Optional[int]
+            columns: List[ProgressColumn]
             if content_length:
-                widgets = [
-                    'Loading: ',
-                    progressbar.Percentage(),
-                    ' ',
-                    progressbar.Bar(marker='#', left='[', right=']'),
-                    ' ',
-                    progressbar.ETA(),
-                    ' ',
-                    progressbar.FileTransferSpeed(),
+                total = int(content_length)
+                columns = [
+                    TextColumn('Loading:'),
+                    BarColumn(),
+                    TaskProgressColumn(),
+                    TimeRemainingColumn(),
+                    TransferSpeedColumn(),
                 ]
-                maxval = int(content_length)
             else:
                 # server did not send the size of the content
-                widgets = ['Loading: ', progressbar.FileTransferSpeed()]
-                maxval = progressbar.UnknownLength
-            progress = progressbar.ProgressBar(
-                maxval=maxval, widgets=widgets
-            ).start()
-            processed = 0
-            with open(filename, 'wb') as data:
-                for chunk in response.iter_content(chunk_size=chunk_size):
-                    if chunk:
-                        data.write(chunk)
-                        data.flush()
-                        processed += len(chunk)
-                        progress.update(processed)
-            progress.finish()
+                total = None
+                columns = [
+                    TextColumn('Loading:'),
+                    DownloadColumn(),
+                    TransferSpeedColumn(),
+                ]
+            with Progress(*columns) as progress:
+                task = progress.add_task('Loading', total=total)
+                with open(filename, 'wb') as data:
+                    for chunk in response.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            data.write(chunk)
+                            data.flush()
+                            progress.update(task, advance=len(chunk))
         except requests.exceptions.RequestException as issue:
             raise KiwiUriOpenError(
                 f'Download of {url} failed: {type(issue).__name__}: {issue}'
