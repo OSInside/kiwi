@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="540" viewBox="0 0 820 540" version="1.1">
+  <defs>
+    <style>
+      .step-box { fill: #E0F2FE; stroke: #0EA5E9; stroke-width: 2; rx: 12; ry: 12; }
+      .result-box { fill: #F0FDF4; stroke: #16A34A; stroke-width: 2; rx: 12; ry: 12; }
+      .panel-box { fill: #ffffff; stroke: #64748b; stroke-width: 2; stroke-dasharray: 6 4; rx: 12; ry: 12; }
+      .item-box { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; rx: 8; ry: 8; }
+      .title { font-family: Helvetica, Arial, sans-serif; font-size: 22px; font-weight: bold; fill: #0f172a; }
+      .label { font-family: Helvetica, Arial, sans-serif; font-size: 17px; font-weight: bold; fill: #0f172a; }
+      .item-label { font-family: Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #0f172a; }
+      .subtext { font-family: Helvetica, Arial, sans-serif; font-size: 13px; fill: #475569; }
+      .code { font-family: "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 12px; fill: #475569; }
+      .arrow { stroke: #475569; stroke-width: 2.5; fill: none; }
+      .arrow-head { fill: #475569; }
+      .center { text-anchor: middle; dominant-baseline: middle; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" class="arrow-head" />
+    </marker>
+  </defs>
+
+  <text x="410" y="36" class="title center">kiwi-boxbuild build steps</text>
+
+  <!-- Step 1 -->
+  <rect x="40" y="70" width="340" height="80" class="step-box" />
+  <text x="210" y="100" class="label center">1. Pull the runtime container</text>
+  <text x="210" y="126" class="subtext center">Only if a newer version is available</text>
+
+  <line x1="210" y1="150" x2="210" y2="188" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Step 2 -->
+  <rect x="40" y="190" width="340" height="80" class="step-box" />
+  <text x="210" y="220" class="label center">2. Start the runtime container</text>
+  <text x="210" y="246" class="subtext center">Mount the host directories into it</text>
+
+  <line x1="210" y1="270" x2="210" y2="308" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Step 3 -->
+  <rect x="40" y="310" width="340" height="80" class="step-box" />
+  <text x="210" y="340" class="label center">3. Call kiwi-ng system boxbuild</text>
+  <text x="210" y="366" class="subtext center">Starts the box and runs the build in it</text>
+
+  <line x1="210" y1="390" x2="210" y2="428" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Step 4 -->
+  <rect x="40" y="430" width="340" height="80" class="result-box" />
+  <text x="210" y="460" class="label center">4. Check the build result</text>
+  <text x="210" y="486" class="subtext center">result.code and result.log in the target dir</text>
+
+  <!-- Mounted host directories -->
+  <line x1="440" y1="230" x2="382" y2="230" class="arrow" marker-end="url(#arrowhead)" />
+  <text x="411" y="216" class="subtext center">mount</text>
+
+  <rect x="440" y="170" width="350" height="256" class="panel-box" />
+  <text x="615" y="194" class="item-label center">Host directories</text>
+
+  <rect x="460" y="212" width="310" height="46" class="item-box" />
+  <text x="475" y="231" class="item-label">Image description</text>
+  <text x="475" y="249" class="code">--description</text>
+
+  <rect x="460" y="264" width="310" height="46" class="item-box" />
+  <text x="475" y="283" class="item-label">Target directory</text>
+  <text x="475" y="301" class="code">--target-dir</text>
+
+  <rect x="460" y="316" width="310" height="46" class="item-box" />
+  <text x="475" y="335" class="item-label">Box cache directory</text>
+  <text x="475" y="353" class="code">~/.kiwi_boxes or $KIWI_BOXED_CACHE_DIR</text>
+
+  <rect x="460" y="368" width="310" height="46" class="item-box" />
+  <text x="475" y="387" class="item-label">Shared path (optional)</text>
+  <text x="475" y="405" class="code">--shared-path</text>
+</svg>
