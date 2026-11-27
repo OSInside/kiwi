@@ -4,7 +4,7 @@ from unittest.mock import call, patch, mock_open, Mock, MagicMock, ANY
 from pytest import raises, fixture
 import kiwi.builder.disk
 
-from ..test_helper import argv_kiwi_tests
+from ..test_helper import argv_kiwi_tests, load_description
 
 from collections import OrderedDict
 from collections import namedtuple
@@ -53,7 +53,6 @@ class TestDiskBuilder:
                 return True
 
         mock_exists.side_effect = side_effect
-        description = XMLDescription('../data/example_disk_config.xml')
         self.device_map = {
             'root': MappedDevice('/dev/root-device', Mock()),
             'swap': MappedDevice('/dev/swap-device', Mock()),
@@ -151,7 +150,9 @@ class TestDiskBuilder:
         kiwi.builder.disk.LuksDevice = Mock(return_value=self.luks_root)
         self.fstab = Mock()
         kiwi.builder.disk.Fstab = Mock(return_value=self.fstab)
-        self.xml_state = XMLState(description.load())
+        self.xml_state = XMLState(
+            load_description('../data/example_disk_config.xml')
+        )
         self.disk_builder = DiskBuilder(
             self.xml_state,
             'target_dir',
@@ -180,9 +181,10 @@ class TestDiskBuilder:
 
     def test_setup_ix86(self):
         Defaults.set_platform_name('i686')
-        description = XMLDescription('../data/example_disk_config.xml')
         disk_builder = DiskBuilder(
-            XMLState(description.load()), 'target_dir', 'root_dir'
+            XMLState(load_description('../data/example_disk_config.xml')),
+            'target_dir',
+            'root_dir',
         )
         assert disk_builder.arch == 'ix86'
 
@@ -224,9 +226,10 @@ class TestDiskBuilder:
         self, mock_get_efimountoptions
     ):
         mock_get_efimountoptions.return_value = 'umask=0077,shortname=winnt'
-        description = XMLDescription('../data/example_disk_config.xml')
         disk_builder = DiskBuilder(
-            XMLState(description.load()), 'target_dir', 'root_dir'
+            XMLState(load_description('../data/example_disk_config.xml')),
+            'target_dir',
+            'root_dir',
         )
         assert disk_builder.custom_efi_mount_args == [
             'umask=0077,shortname=winnt'

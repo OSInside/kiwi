@@ -4,11 +4,11 @@ from pytest import raises, fixture
 
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
-from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import KiwiBootLoaderTargetError
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.storage.disk import ptable_entry_type
+from ...test_helper import load_description
 
 
 class BootLoaderConfigTestImpl(BootLoaderConfigBase):
@@ -58,8 +58,7 @@ class TestBootLoaderConfigBase:
 
     def setup(self):
         Defaults.set_platform_name('x86_64')
-        description = XMLDescription('../data/example_config.xml')
-        self.state = XMLState(description.load())
+        self.state = XMLState(load_description('../data/example_config.xml'))
         self.bootloader = BootLoaderConfigTestImpl(self.state, 'root_dir')
 
     def setup_method(self, cls):

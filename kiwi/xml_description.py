@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 import os
 import logging
 from xml.dom import minidom
@@ -60,6 +60,10 @@ class XMLDescription:
     :param str derived_from: path to base description file
     """
 
+    # Validators compiled from the schema by schema file and schematron
+    # module, see _get_validators
+    _validators: Dict[Tuple[str, str], Tuple[Any, Any]] = {}
+
     def __init__(
         self, description: str = '', derived_from: Optional[str] = None
     ):
@@ -80,23 +84,7 @@ class XMLDescription:
 
         :rtype: object
         """
-        isoschematron = None
-        schematron = None
-        try:
-            isoschematron = importlib.import_module(
-                Defaults.get_schematron_module_name()
-            )
-        except Exception as error:
-            log.warning(f"schematron validation skipped: {error}")
-        try:
-            schema_doc = etree.parse(Defaults.get_schema_file())
-            relaxng = etree.RelaxNG(schema_doc)
-            if isoschematron:
-                schematron = isoschematron.Schematron(
-                    schema_doc, store_report=True
-                )
-        except Exception as issue:
-            raise KiwiSchemaImportError(issue)
+        relaxng, schematron = XMLDescription._get_validators()
         try:
             description = etree.parse(self.description)
             validation_rng = relaxng.validate(description)
@@ -222,6 +210,42 @@ class XMLDescription:
             log.warning('For detailed schema validation report, install: jing')
             log.info('Showing only raw library error log:')
             log.info('{0}'.format(error_log))
+
+    @staticmethod
+    def _get_validators() -> Tuple[Any, Any]:
+        """
+        RelaxNG and schematron validator for the kiwi schema
+
+        Compiling the schematron rules of the schema takes most of
+        the time to load a description. Thus the validators are
+        compiled once and used for all descriptions
+
+        :return: RelaxNG validator and schematron validator, None if
+            the schematron module is not available
+
+        :rtype: tuple
+        """
+        isoschematron = None
+        schematron_module = Defaults.get_schematron_module_name()
+        try:
+            isoschematron = importlib.import_module(schematron_module)
+        except Exception as error:
+            log.warning(f"schematron validation skipped: {error}")
+        schema_file = Defaults.get_schema_file()
+        key = (schema_file, schematron_module if isoschematron else '')
+        if key not in XMLDescription._validators:
+            try:
+                schema_doc = etree.parse(schema_file)
+                relaxng = etree.RelaxNG(schema_doc)
+                schematron = None
+                if isoschematron:
+                    schematron = isoschematron.Schematron(
+                        schema_doc, store_report=True
+                    )
+            except Exception as issue:
+                raise KiwiSchemaImportError(issue)
+            XMLDescription._validators[key] = (relaxng, schematron)
+        return XMLDescription._validators[key]
 
     @staticmethod
     def _get_schematron_validation_details(

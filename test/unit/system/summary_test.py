@@ -2,13 +2,13 @@ import logging
 from unittest.mock import patch, call
 
 from kiwi.system.summary import ImageSummary
-from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
+from ..test_helper import load_description
 
 
 class TestImageSummary:
     def setup(self):
-        self.xml_data = XMLDescription('../data/example_config.xml').load()
+        self.xml_data = load_description('../data/example_config.xml')
 
     def setup_method(self, cls):
         self.setup()

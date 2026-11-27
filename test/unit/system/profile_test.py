@@ -6,7 +6,7 @@ import os
 
 from kiwi.system.profile import Profile
 from kiwi.xml_state import XMLState
-from kiwi.xml_description import XMLDescription
+from ..test_helper import load_description
 
 
 class TestProfile:
@@ -17,12 +17,14 @@ class TestProfile:
         self.profile_file = str(tmp_path / 'tmpfile.profile')
 
     def setup(self):
-        description = XMLDescription('../data/example_dot_profile_config.xml')
-        self.profile = Profile(XMLState(description.load()))
-        live_description = XMLDescription(
-            '../data/example_dot_profile_live_config.xml'
+        self.profile = Profile(
+            XMLState(load_description('../data/example_dot_profile_config.xml'))
         )
-        self.live_profile = Profile(XMLState(live_description.load()))
+        self.live_profile = Profile(
+            XMLState(
+                load_description('../data/example_dot_profile_live_config.xml')
+            )
+        )
 
     def setup_method(self, cls):
         self.setup()
@@ -165,8 +167,9 @@ class TestProfile:
     @patch('kiwi.path.Path.which')
     def test_create_displayname_is_image_name(self, mock_which):
         mock_which.side_effect = ['cp', 'bash']
-        description = XMLDescription('../data/example_pxe_config.xml')
-        profile = Profile(XMLState(description.load()))
+        profile = Profile(
+            XMLState(load_description('../data/example_pxe_config.xml'))
+        )
         profile.create(self.profile_file)
         os.remove(self.profile_file)
         assert (
@@ -176,8 +179,13 @@ class TestProfile:
     @patch('kiwi.path.Path.which')
     def test_create_cpio(self, mock_which):
         mock_which.side_effect = ['cp', 'bash']
-        description = XMLDescription('../data/example_dot_profile_config.xml')
-        profile = Profile(XMLState(description.load(), None, 'cpio'))
+        profile = Profile(
+            XMLState(
+                load_description('../data/example_dot_profile_config.xml'),
+                None,
+                'cpio',
+            )
+        )
         profile.create(self.profile_file)
         os.remove(self.profile_file)
         assert profile.dot_profile['kiwi_cpio_name'] == 'LimeJeOS-openSUSE-13.2'

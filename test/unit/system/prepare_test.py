@@ -14,8 +14,8 @@ from kiwi.exceptions import (
 
 from kiwi.defaults import Defaults
 from kiwi.system.prepare import SystemPrepare
-from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
+from ..test_helper import load_description
 
 
 class TestSystemPrepare:
@@ -29,12 +29,10 @@ class TestSystemPrepare:
     def setup(self, mock_get_logfile, mock_root_bind, mock_root_init):
         Defaults.set_platform_name('x86_64')
         mock_get_logfile.return_value = None
-        description = XMLDescription(
-            description='../data/example_config.xml',
-            derived_from='derived/description',
+        self.description_dir = os.path.dirname('../data/example_config.xml')
+        self.xml = load_description(
+            '../data/example_config.xml', 'derived/description'
         )
-        self.description_dir = os.path.dirname(description.description_origin)
-        self.xml = description.load()
 
         self.manager = MagicMock(return_value=MagicMock())
         self.manager.package_requests = ['foo']
@@ -72,11 +70,9 @@ class TestSystemPrepare:
         self, mock_get_logfile, mock_root_bind, mock_root_init, mock_root_import
     ):
         mock_get_logfile.return_value = 'logfile'
-        description = XMLDescription(
-            description='../data/example_config.xml',
-            derived_from='derived/description',
+        xml = load_description(
+            '../data/example_config.xml', 'derived/description'
         )
-        xml = description.load()
 
         root_init = MagicMock()
         mock_root_init.return_value = root_init
@@ -115,11 +111,9 @@ class TestSystemPrepare:
         self, mock_get_logfile, mock_root_bind, mock_root_init, mock_root_import
     ):
         mock_get_logfile.return_value = 'logfile'
-        description = XMLDescription(
-            description='../data/example_config.xml',
-            derived_from='derived/description',
+        xml = load_description(
+            '../data/example_config.xml', 'derived/description'
         )
-        xml = description.load()
 
         root_init = MagicMock()
         mock_root_init.return_value = root_init
@@ -361,10 +355,7 @@ class TestSystemPrepare:
         self, mock_tar, mock_poll, mock_root_bind, mock_root_init
     ):
         Defaults.set_platform_name('x86_64')
-        description = XMLDescription(
-            description='../data/example_config_target_dir.xml'
-        )
-        self.xml = description.load()
+        self.xml = load_description('../data/example_config_target_dir.xml')
         root_bind = MagicMock()
         root_bind.root_dir = 'root_dir'
         mock_root_bind.return_value = root_bind

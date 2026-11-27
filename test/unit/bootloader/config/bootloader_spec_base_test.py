@@ -3,9 +3,9 @@ from pytest import raises, fixture
 
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
-from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.exceptions import KiwiKernelLookupError
+from ...test_helper import load_description
 
 
 class TestBootLoaderSpecBase:
@@ -16,8 +16,7 @@ class TestBootLoaderSpecBase:
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
     def setup(self, mock_FirmWare):
         Defaults.set_platform_name('x86_64')
-        description = XMLDescription('../data/example_config.xml')
-        self.state = XMLState(description.load())
+        self.state = XMLState(load_description('../data/example_config.xml'))
         self.bootloader = BootLoaderSpecBase(self.state, 'root_dir')
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')

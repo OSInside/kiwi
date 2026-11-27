@@ -3,7 +3,7 @@ from unittest.mock import patch
 import unittest.mock as mock
 from builtins import bytes
 from lxml import etree
-from pytest import raises
+from pytest import mark, raises
 from collections import namedtuple
 from kiwi.utils.temporary import Temporary
 from pytest import fixture
@@ -153,6 +153,15 @@ class TestSchema:
     def setup_method(self, cls):
         self.setup()
 
+    @fixture
+    def uncached_validators(self):
+        # The validators are compiled once, see
+        # XMLDescription._get_validators. Mocked validators must not
+        # be taken from the cache nor stay in it
+        XMLDescription._validators.clear()
+        yield
+        XMLDescription._validators.clear()
+
     def test_load_schema_from_xml_content(self):
         schema = etree.parse('../../kiwi/schema/kiwi.rng')
         lookup = '{http://relaxng.org/ns/structure/1.0}attribute'
@@ -164,6 +173,7 @@ class TestSchema:
         parsed = self.description_from_data.load()
         assert parsed.get_schemaversion() == schemaversion
 
+    @mark.usefixtures('uncached_validators')
     @patch('lxml.etree.RelaxNG')
     def test_load_schema_import_error(self, mock_relax):
         mock_relax.side_effect = KiwiSchemaImportError('ImportError')
@@ -179,6 +189,7 @@ class TestSchema:
             self.description_from_data.load()
             assert 'schematron validation skipped:' in self._caplog.text
 
+    @mark.usefixtures('uncached_validators')
     @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
@@ -194,6 +205,7 @@ class TestSchema:
         with raises(KiwiValidationError):
             self.description_from_file.load()
 
+    @mark.usefixtures('uncached_validators')
     @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
@@ -227,6 +239,7 @@ class TestSchema:
         with raises(KiwiDescriptionInvalid):
             self.description_from_file.load()
 
+    @mark.usefixtures('uncached_validators')
     @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
@@ -263,6 +276,7 @@ class TestSchema:
         with raises(KiwiDescriptionInvalid):
             self.description_from_data.load()
 
+    @mark.usefixtures('uncached_validators')
     @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
@@ -282,6 +296,7 @@ class TestSchema:
         with raises(KiwiDescriptionInvalid):
             self.description_from_data.load()
 
+    @mark.usefixtures('uncached_validators')
     @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
