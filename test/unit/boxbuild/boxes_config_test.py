@@ -44,6 +44,10 @@ class TestBoxesConfig:
                             'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz',
                             'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2',
                         ],
+                        'boxchecksums': [
+                            'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz.sha256',
+                            'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2.sha256',
+                        ],
                         'container': 'some',
                         'use_initrd': True,
                     }
@@ -69,6 +73,10 @@ class TestBoxesConfig:
                             'Universal-Box.x86_64-1.1.2-Kernel-BuildBox.tar.xz',
                             'Universal-Box.x86_64-1.1.2-System-BuildBox.qcow2',
                         ],
+                        'boxchecksums': [
+                            'Universal-Box.x86_64-1.1.2-Kernel-BuildBox.tar.xz.sha256',
+                            'Universal-Box.x86_64-1.1.2-System-BuildBox.qcow2.sha256',
+                        ],
                         'container': 'some',
                         'use_initrd': True,
                     },
@@ -88,6 +96,12 @@ class TestBoxesConfig:
                             'Kernel-BuildBox.tar.xz',
                             'Universal-Box.aarch64-1.1.2-'
                             'System-BuildBox.qcow2',
+                        ],
+                        'boxchecksums': [
+                            'Universal-Box.aarch64-1.1.2-'
+                            'Kernel-BuildBox.tar.xz.sha256',
+                            'Universal-Box.aarch64-1.1.2-'
+                            'System-BuildBox.qcow2.sha256',
                         ],
                         'container': 'some',
                         'use_initrd': True,

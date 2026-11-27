@@ -1,8 +1,10 @@
-import io
 from pytest import raises
-from unittest.mock import patch, Mock, MagicMock, call
+from unittest.mock import patch, Mock, call
 
-from kiwi.exceptions import KiwiBoxChecksumError
+from kiwi.exceptions import (
+    KiwiBoxChecksumError,
+    KiwiBoxSignatureError,
+)
 from kiwi.boxbuild.box_download import BoxDownload, vm_setup_type
 
 
@@ -63,228 +65,239 @@ class TestBoxDownload:
             BoxDownload('suse', 'x86_64')
         mock_Path.create.assert_called_once_with('/some/custom/dir/suse')
 
-    @patch('kiwi.boxbuild.box_download.Command.run')
-    @patch('kiwi.boxbuild.box_download.Uri')
-    @patch('kiwi.boxbuild.box_download.SolverRepository.new')
-    @patch('kiwi.boxbuild.box_download.Checksum')
-    @patch('os.path.exists')
-    @patch('os.chdir')
-    @patch('kiwi.boxbuild.box_download.FetchFiles')
-    def test_fetch_image_checksum_failed(
+    BOX_DIR = 'HOME/.kiwi_boxes/suse'
+    KERNEL = 'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz'
+    SYSTEM = 'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2'
+    PACKAGES = 'SUSE-Box.x86_64-1.42.1-System-BuildBox.report'
+    CHECKSUM_FILES = [f'{KERNEL}.sha256', f'{SYSTEM}.sha256']
+    DOWNLOAD_FILES = [
+        KERNEL,
+        SYSTEM,
+        f'{KERNEL}.sha256',
+        f'{SYSTEM}.sha256',
+        f'{KERNEL}.sha256.asc',
+        f'{SYSTEM}.sha256.asc',
+    ]
+
+    def _fetch(
         self,
-        mock_FetchFiles,
-        mock_os_chdir,
-        mock_os_path_exist,
-        mock_Checksum,
-        mock_SolverRepository,
-        mock_Uri,
-        mock_Command_run,
+        update_check=True,
+        snapshot=True,
+        files_exist=True,
+        packages_changed=False,
+        verify_error=None,
     ):
-
-        def matches(shasum, filename):
-            if filename.endswith('.qcow2.sha256'):
-                return False
-            return True
-
+        """
+        Run fetch with all external operations mocked. The box files
+        exist in the cache if files_exist is set, the packages file
+        of the box changed if packages_changed is set. Staged files
+        are named after the file in the cache with a .tmp suffix
+        """
+        self.box_stage.register.side_effect = lambda name: f'{name}.tmp'
         checksum = Mock()
-        checksum.matches.side_effect = matches
         checksum.sha256.return_value = 'sum'
-        mock_Checksum.return_value = checksum
-        with patch('builtins.open', create=True):
-            with raises(KiwiBoxChecksumError):
-                self.box.fetch(update_check=True)
-
-    @patch('kiwi.boxbuild.box_download.Command.run')
-    @patch('kiwi.boxbuild.box_download.Uri')
-    @patch('kiwi.boxbuild.box_download.SolverRepository.new')
-    @patch('kiwi.boxbuild.box_download.Checksum')
-    @patch('os.path.exists')
-    @patch('os.chdir')
-    @patch('kiwi.boxbuild.box_download.FetchFiles')
-    def test_fetch_kernel_checksum_failed(
-        self,
-        mock_FetchFiles,
-        mock_os_chdir,
-        mock_os_path_exist,
-        mock_Checksum,
-        mock_SolverRepository,
-        mock_Uri,
-        mock_Command_run,
-    ):
-
-        def matches(shasum, filename):
-            if filename.endswith('.tar.xz.sha256'):
-                return False
-            return True
-
-        checksum = Mock()
-        checksum.matches.side_effect = matches
-        checksum.sha256.return_value = 'sum'
-        mock_Checksum.return_value = checksum
-        with patch('builtins.open', create=True):
-            with raises(KiwiBoxChecksumError):
-                self.box.fetch(update_check=True)
-
-    @patch('kiwi.boxbuild.box_download.Command.run')
-    @patch('kiwi.boxbuild.box_download.Uri')
-    @patch('kiwi.boxbuild.box_download.SolverRepository.new')
-    @patch('kiwi.boxbuild.box_download.Checksum')
-    @patch('os.path.exists')
-    @patch('os.chdir')
-    @patch('kiwi.boxbuild.box_download.FetchFiles')
-    @patch.object(BoxDownload, '_checksum_ok')
-    def test_fetch_sbom_checksum_did_not_match(
-        self,
-        mock__checksum_ok,
-        mock_FetchFiles,
-        mock_os_chdir,
-        mock_os_path_exist,
-        mock_Checksum,
-        mock_SolverRepository,
-        mock_Uri,
-        mock_Command_run,
-    ):
-        mock__checksum_ok.return_value = True
-        fetcher = Mock()
-        mock_FetchFiles.return_value = fetcher
-        checksum = Mock()
-        checksum.matches.return_value = False
-        checksum.sha256.return_value = 'sum'
-        mock_Checksum.return_value = checksum
+        checksum.matches.return_value = not packages_changed
         repo = Mock()
         repo._get_mime_typed_uri.return_value = 'uri://'
-        mock_SolverRepository.return_value = repo
-        mock_os_path_exist.return_value = False
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
+        self.fetcher = Mock()
+        self.verified_checksums = {'some': 'sum'}
+        with patch(
+            'kiwi.boxbuild.box_download.FetchFiles',
+            return_value=self.fetcher,
+        ), patch(
+            'kiwi.boxbuild.box_download.SolverRepository.new',
+            return_value=repo,
+        ), patch(
+            'kiwi.boxbuild.box_download.Uri'
+        ), patch(
+            'kiwi.boxbuild.box_download.Checksum', return_value=checksum
+        ), patch(
+            'os.path.exists', return_value=files_exist
+        ), patch(
+            'os.unlink'
+        ) as self.mock_unlink, patch(
+            'kiwi.boxbuild.box_download.Command.run'
+        ) as self.mock_Command_run, patch.object(
+            BoxDownload,
+            '_get_verified_checksums',
+            return_value=self.verified_checksums,
+        ) as self.mock_get_verified_checksums, patch.object(
+            BoxDownload, '_verify_checksum', side_effect=verify_error
+        ) as self.mock_verify_checksum, patch(
+            'builtins.open', create=True
+        ):
             with patch.dict('os.environ', {'HOME': 'HOME'}):
-                assert self.box.fetch(update_check=True) == self.result
-            assert self.box_stage.register.call_args_list == [
-                call(
-                    'HOME/.kiwi_boxes/suse/'
-                    'SUSE-Box.x86_64-1.42.1-System-BuildBox.report'
-                ),
-                call(
-                    'HOME/.kiwi_boxes/suse/'
-                    'SUSE-Box.x86_64-1.42.1-System-BuildBox.report.sha256'
-                ),
-                call(
-                    'HOME/.kiwi_boxes/suse/'
-                    'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz'
-                ),
-                call(
-                    'HOME/.kiwi_boxes/suse/'
-                    'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz.sha256'
-                ),
-                call(
-                    'HOME/.kiwi_boxes/suse/'
-                    'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2'
-                ),
-                call(
-                    'HOME/.kiwi_boxes/suse/'
-                    'SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2.sha256'
-                ),
-            ]
-            mock_open.assert_called_once_with(
-                self.box_stage.register.return_value, 'w'
-            )
-            file_handle.write.assert_called_once_with('sum')
-            repo.download_from_repository.assert_called_once_with(
-                'SUSE-Box.x86_64-1.42.1-System-BuildBox.report',
-                self.box_stage.register.return_value,
-            )
-            assert fetcher.wget.call_args_list == [
-                call(
-                    url='uri:///SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz',
-                    filename='register_file',
-                ),
-                call(
-                    url='uri:///SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz.sha256',
-                    filename='register_file',
-                ),
-                call(
-                    url='uri:///SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2',
-                    filename='register_file',
-                ),
-                call(
-                    url='uri:///SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2.sha256',
-                    filename='register_file',
-                ),
-            ]
-            self.box_stage.commit.assert_called_once_with()
-            assert mock_Command_run.call_args_list == [
-                call(
-                    [
-                        'tar',
-                        '-C',
-                        'HOME/.kiwi_boxes/suse',
-                        '--transform',
-                        's/.*/kernel.x86_64/',
-                        '--wildcards',
-                        '-xf',
-                        'HOME/.kiwi_boxes/suse/'
-                        'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz',
-                        '*.kernel',
-                    ]
-                ),
-                call(
-                    [
-                        'tar',
-                        '-C',
-                        'HOME/.kiwi_boxes/suse',
-                        '--transform',
-                        's/.*/initrd.x86_64/',
-                        '--wildcards',
-                        '-xf',
-                        'HOME/.kiwi_boxes/suse/'
-                        'SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz',
-                        '*.initrd',
-                    ]
-                ),
-            ]
+                return self.box.fetch(
+                    update_check=update_check, snapshot=snapshot
+                )
 
-    @patch('kiwi.boxbuild.box_download.Command.run')
-    @patch('kiwi.boxbuild.box_download.Uri')
-    @patch('kiwi.boxbuild.box_download.SolverRepository.new')
-    @patch('kiwi.boxbuild.box_download.Checksum')
-    @patch('os.path.exists')
-    def test_fetch_checksum_matches(
-        self,
-        mock_os_path_exist,
-        mock_Checksum,
-        mock_SolverRepository,
-        mock_Uri,
-        mock_Command_run,
-    ):
-        checksum = Mock()
-        checksum.matches.return_value = True
-        checksum.sha256.return_value = 'sum'
-        mock_Checksum.return_value = checksum
-        repo = Mock()
-        mock_SolverRepository.return_value = repo
-        mock_os_path_exist.return_value = True
-        assert self.box.fetch(update_check=True) == self.result
-        repo.download_from_repository.assert_called_once_with(
-            'SUSE-Box.x86_64-1.42.1-System-BuildBox.report',
-            self.box_stage.register.return_value,
+    def _verified_box_files(self):
+        return [
+            verify_call.args[0]
+            for verify_call in self.mock_verify_checksum.call_args_list
+        ]
+
+    def test_fetch_download(self):
+        assert self._fetch(packages_changed=True) == self.result
+        # box files, checksum files and their signatures are downloaded
+        assert self.fetcher.wget.call_args_list == [
+            call(
+                url=f'uri:///{name}',
+                filename=f'{self.BOX_DIR}/{name}.tmp',
+            )
+            for name in self.DOWNLOAD_FILES
+        ]
+        # the downloaded files are verified before they are committed
+        local_files = {
+            name: f'{self.BOX_DIR}/{name}.tmp' for name in self.DOWNLOAD_FILES
+        }
+        self.mock_get_verified_checksums.assert_called_once_with(
+            self.CHECKSUM_FILES, local_files
+        )
+        assert self.mock_verify_checksum.call_args_list == [
+            call(name, f'{self.BOX_DIR}/{name}.tmp', self.verified_checksums)
+            for name in (self.KERNEL, self.SYSTEM)
+        ]
+        self.box_stage.commit.assert_called_once_with()
+        # the kernel and initrd are extracted from the cache
+        assert [
+            run_call.args[0][-2]
+            for run_call in self.mock_Command_run.call_args_list
+        ] == [f'{self.BOX_DIR}/{self.KERNEL}', f'{self.BOX_DIR}/{self.KERNEL}']
+
+    def test_fetch_download_missing_files_without_update_check(self):
+        # files missing in the cache are downloaded and verified
+        # also if no update check is requested
+        assert self._fetch(update_check=False, files_exist=False) == (
+            self.result
+        )
+        assert len(self.fetcher.wget.call_args_list) == 6
+        assert self._verified_box_files() == [self.KERNEL, self.SYSTEM]
+        self.box_stage.commit.assert_called_once_with()
+
+    def test_fetch_download_without_snapshot(self):
+        # a downloaded system image is verified, also if it is not
+        # used in snapshot mode
+        self._fetch(snapshot=False, packages_changed=True)
+        assert self._verified_box_files() == [self.KERNEL, self.SYSTEM]
+
+    def test_fetch_download_verification_failed(self):
+        with raises(KiwiBoxChecksumError):
+            self._fetch(
+                packages_changed=True,
+                verify_error=KiwiBoxChecksumError('Checksum failed'),
+            )
+        # the box files in the cache are not replaced and the
+        # downloaded files are deleted
+        assert not self.box_stage.commit.called
+        assert sorted(
+            unlink_call.args[0]
+            for unlink_call in self.mock_unlink.call_args_list
+        ) == sorted(
+            f'{self.BOX_DIR}/{name}.tmp' for name in self.DOWNLOAD_FILES
         )
 
+    def test_fetch_cached(self):
+        assert self._fetch() == self.result
+        assert not self.fetcher.wget.called
+        assert not self.box_stage.commit.called
+        # the box files from the cache are verified
+        local_files = {
+            name: f'{self.BOX_DIR}/{name}' for name in self.DOWNLOAD_FILES
+        }
+        self.mock_get_verified_checksums.assert_called_once_with(
+            self.CHECKSUM_FILES, local_files
+        )
+        assert self.mock_verify_checksum.call_args_list == [
+            call(name, f'{self.BOX_DIR}/{name}', self.verified_checksums)
+            for name in (self.KERNEL, self.SYSTEM)
+        ]
+
+    def test_fetch_cached_without_snapshot(self):
+        # the system image changes when it is not used in snapshot
+        # mode, it can't be verified from the cache
+        self._fetch(snapshot=False)
+        assert self._verified_box_files() == [self.KERNEL]
+
+    def test_fetch_cached_update_check_disabled(self):
+        assert self._fetch(update_check=False) == self.result
+        assert not self.fetcher.wget.called
+        assert not self.mock_get_verified_checksums.called
+        assert not self.mock_verify_checksum.called
+
+    @patch('kiwi.boxbuild.box_download.BoxBuildDefaults.get_box_keyring_file')
     @patch('kiwi.boxbuild.box_download.Command.run')
-    @patch('kiwi.boxbuild.box_download.Uri')
-    @patch('kiwi.boxbuild.box_download.SolverRepository.new')
-    @patch('kiwi.boxbuild.box_download.Checksum')
-    @patch('os.path.exists')
-    def test_fetch_update_check_disabled(
-        self,
-        mock_os_path_exist,
-        mock_Checksum,
-        mock_SolverRepository,
-        mock_Uri,
-        mock_Command_run,
+    def test_get_verified_checksums(
+        self, mock_Command_run, mock_get_box_keyring_file, tmp_path
     ):
-        mock_os_path_exist.return_value = True
-        assert self.box.fetch(update_check=False) == self.result
+        mock_get_box_keyring_file.return_value = '/etc/kiwi_boxed_plugin.gpg'
+        mock_Command_run.return_value = Mock(returncode=0)
+        kernel_sums = tmp_path / 'kernel.sha256'
+        kernel_sums.write_text(f'aaa  {self.KERNEL}\n')
+        # a checksum file of a manual build, created by sha256sum for
+        # more than one file, in binary mode and with a path
+        system_sums = tmp_path / 'system.sha256'
+        system_sums.write_text(f'bbb *build/{self.SYSTEM}\nccc  other.file\n\n')
+        local_files = {
+            f'{self.KERNEL}.sha256': str(kernel_sums),
+            f'{self.KERNEL}.sha256.asc': 'kernel.asc',
+            f'{self.SYSTEM}.sha256': str(system_sums),
+            f'{self.SYSTEM}.sha256.asc': 'system.asc',
+        }
+        assert self.box._get_verified_checksums(
+            self.CHECKSUM_FILES, local_files
+        ) == {self.KERNEL: 'aaa', self.SYSTEM: 'bbb', 'other.file': 'ccc'}
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'sqv',
+                    '--keyring',
+                    '/etc/kiwi_boxed_plugin.gpg',
+                    'kernel.asc',
+                    str(kernel_sums),
+                ],
+                raise_on_error=False,
+            ),
+            call(
+                [
+                    'sqv',
+                    '--keyring',
+                    '/etc/kiwi_boxed_plugin.gpg',
+                    'system.asc',
+                    str(system_sums),
+                ],
+                raise_on_error=False,
+            ),
+        ]
+
+    @patch('kiwi.boxbuild.box_download.Command.run')
+    def test_get_verified_checksums_bad_signature(self, mock_Command_run):
+        mock_Command_run.return_value = Mock(
+            returncode=1, error='Message has been manipulated'
+        )
+        with raises(KiwiBoxSignatureError) as issue:
+            self.box._get_verified_checksums(
+                ['box.sha256'],
+                {'box.sha256': 'box.sha256', 'box.sha256.asc': 'box.asc'},
+            )
+        assert format(issue.value) == (
+            'Signature verification failed for box.sha256: '
+            'Message has been manipulated'
+        )
+
+    @patch('kiwi.boxbuild.box_download.Checksum')
+    def test_verify_checksum(self, mock_Checksum):
+        mock_Checksum.return_value.sha256.return_value = 'aaa'
+        self.box._verify_checksum('box.qcow2', 'local', {'box.qcow2': 'aaa'})
+        mock_Checksum.assert_called_once_with('local')
+        with raises(KiwiBoxChecksumError) as issue:
+            self.box._verify_checksum('box.qcow2', 'local', {'box.qcow2': 'b'})
+        assert format(issue.value) == 'Checksum failed for box.qcow2'
+        with raises(KiwiBoxChecksumError) as issue:
+            self.box._verify_checksum('box.qcow2', 'local', {'other': 'aaa'})
+        assert format(issue.value) == (
+            'No checksum for box.qcow2 found in the box checksum files'
+        )
 
     @patch('os.system')
     def test_fetch_container(self, mock_os_system):

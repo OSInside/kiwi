@@ -59,32 +59,63 @@ class BoxBuildDefaults:
             4. /etc/kiwi_boxed_plugin.yml
             5. Resource (default config, coming with kiwi)
         """
-        config_name = 'kiwi_boxed_plugin.yml'
+        return BoxBuildDefaults._get_box_resource_file(
+            'kiwi_boxed_plugin.yml', 'KIWI_BOXED_PLUGIN_CFG'
+        )
 
+    @staticmethod
+    def get_box_keyring_file() -> str:
+        """
+        Keyring file name: `kiwi_boxed_plugin.gpg`
+
+        The keyring holds the trusted public keys, the signatures
+        of the box checksum files are verified with. The keyring
+        coming with kiwi holds the signing key of the open build
+        service project Virtualization:Appliances, which builds
+        the boxes of the default config. Boxes signed with other
+        keys require a custom keyring. Locations are searched in
+        the same order as for the config file:
+            1. ENV variable: $KIWI_BOXED_PLUGIN_KEYRING
+               full path to file, name is freely selectable
+            2. $PWD/kiwi_boxed_plugin.gpg
+            3. $HOME/.config/kiwi/kiwi_boxed_plugin.gpg
+            4. /etc/kiwi_boxed_plugin.gpg
+            5. Resource (default keyring, coming with kiwi)
+        """
+        # an absolute path, such that the keyring used for the
+        # signature verification is clearly identified in the log
+        return os.path.abspath(
+            BoxBuildDefaults._get_box_resource_file(
+                'kiwi_boxed_plugin.gpg', 'KIWI_BOXED_PLUGIN_KEYRING'
+            )
+        )
+
+    @staticmethod
+    def _get_box_resource_file(name: str, env_name: str) -> str:
         # 1.
-        config_path_env: str = os.environ.get('KIWI_BOXED_PLUGIN_CFG') or ''
-        if config_path_env and os.path.exists(config_path_env):
-            return config_path_env
+        path_env: str = os.environ.get(env_name) or ''
+        if path_env and os.path.exists(path_env):
+            return path_env
 
         # 2.
-        config_path_pwd = os.path.abspath(config_name)
-        if os.path.exists(config_path_pwd):
-            return config_path_pwd
+        path_pwd = os.path.abspath(name)
+        if os.path.exists(path_pwd):
+            return path_pwd
 
         # 3.
-        config_path_home: pathlib.Path = pathlib.Path.home().joinpath(
-            f'.config/kiwi/{config_name}'
+        path_home: pathlib.Path = pathlib.Path.home().joinpath(
+            f'.config/kiwi/{name}'
         )
-        if config_path_home.exists():
-            return config_path_home.as_posix()
+        if path_home.exists():
+            return path_home.as_posix()
 
         # 4.
-        config_path_system = f'/etc/{config_name}'
-        if os.path.exists(config_path_system):
-            return config_path_system
+        path_system = f'/etc/{name}'
+        if os.path.exists(path_system):
+            return path_system
 
         # 5.
-        return Defaults.project_file(f'config/{config_name}')
+        return Defaults.project_file(f'config/{name}')
 
     @staticmethod
     def get_local_box_cache_dir() -> str:

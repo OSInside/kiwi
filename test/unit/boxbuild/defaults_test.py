@@ -67,6 +67,30 @@ class TestBoxBuildDefaults:
             == '/etc/kiwi_boxed_plugin.yml'
         )
 
+    @patch.dict(os.environ, {}, clear=True)
+    @patch('pathlib.Path.home')
+    @patch('os.path.exists')
+    def test_get_box_keyring_file(self, mock_os_path_exists, mock_Path_home):
+        mock_os_path_exists.return_value = False
+        mock_Path_home.return_value.joinpath.return_value.exists.return_value = (
+            False
+        )
+        # the keyring coming with kiwi
+        keyring = BoxBuildDefaults.get_box_keyring_file()
+        assert keyring == Defaults.project_file('config/kiwi_boxed_plugin.gpg')
+        assert os.path.isabs(keyring)
+        mock_Path_home.return_value.joinpath.assert_called_once_with(
+            '.config/kiwi/kiwi_boxed_plugin.gpg'
+        )
+
+    @patch('os.path.exists', lambda f: True)
+    @patch.dict(os.environ, KIWI_BOXED_PLUGIN_KEYRING='custom.gpg')
+    def test_get_box_keyring_file_env(self):
+        # the keyring is reported with its absolute path
+        assert BoxBuildDefaults.get_box_keyring_file() == os.path.abspath(
+            'custom.gpg'
+        )
+
     @patch('os.path.isdir')
     def test_get_local_box_cache_dir(self, mock_os_path_isdir):
         mock_os_path_isdir.return_value = True

@@ -111,6 +111,55 @@ Virtual Machine
    * - ``--ssh-port <port>``
      - The host port for the ssh port of the box. Default: `10022`.
 
+.. _db_kiwi_system_boxbuild_verification:
+
+Box Verification
+----------------
+
+The files of a virtual machine box are verified with signed checksum
+files. For each architecture of a box, the box configuration file lists
+the box files in `boxfiles` and the checksum files in `boxchecksums`:
+
+.. code:: yaml
+
+   boxfiles:
+     - TumbleWeed-Box.x86_64-Kernel.tar.xz
+     - TumbleWeed-Box.x86_64-System.qcow2
+   boxchecksums:
+     - TumbleWeed-Box.x86_64-Kernel.tar.xz.sha256
+     - TumbleWeed-Box.x86_64-System.qcow2.sha256
+
+A checksum file contains the sha256 checksum and the name of one or
+more box files, as written by `sha256sum`. Its signature is the
+detached signature in the file with the name of the checksum file and
+the `.asc` extension appended, for example
+:file:`TumbleWeed-Box.x86_64-System.qcow2.sha256.asc`. The checksum
+files and their signatures are downloaded along with the box files.
+{kiwi} verifies the signatures with `sqv`, the signature verification
+tool of the Sequoia OpenPGP project, and the keys of the keyring set by
+`KIWI_BOXED_PLUGIN_KEYRING`, and each box file with the checksum of its
+name. If a signature or a checksum does not match, the command
+fails.
+
+Downloaded box files are verified before they replace the box files
+in :file:`$KIWI_BOXED_CACHE_DIR`. Box files from the cache are verified
+unless ``--no-update-check`` is set. With ``--no-snapshot``, the
+system image of the box changes when it is used and is only verified
+when it is downloaded.
+
+The Open Build Service creates the checksum files and signs them with
+the key of the project. The keyring that comes with {kiwi} contains the
+key of the `Virtualization:Appliances` project, which builds the boxes
+of the default box configuration. For a box built in another way, sign
+its checksum files and provide a keyring with the public key, for
+example:
+
+.. code:: bash
+
+   $ sha256sum My-Box.x86_64-Kernel.tar.xz > My-Box.x86_64-Kernel.tar.xz.sha256
+   $ gpg --armor --detach-sign My-Box.x86_64-Kernel.tar.xz.sha256
+   $ gpg --export KEY_ID > ~/.config/kiwi/kiwi_boxed_plugin.gpg
+
 .. _db_kiwi_system_boxbuild_env:
 
 Environment
@@ -129,6 +178,12 @@ Environment
        :file:`$PWD/kiwi_boxed_plugin.yml`,
        :file:`$HOME/.config/kiwi/kiwi_boxed_plugin.yml` and
        :file:`/etc/kiwi_boxed_plugin.yml`, or the {kiwi} default.
+   * - `KIWI_BOXED_PLUGIN_KEYRING`
+     - The keyring to verify the box checksum files with, see
+       :ref:`db_kiwi_system_boxbuild_verification`. Default: the first
+       existing file of :file:`$PWD/kiwi_boxed_plugin.gpg`,
+       :file:`$HOME/.config/kiwi/kiwi_boxed_plugin.gpg` and
+       :file:`/etc/kiwi_boxed_plugin.gpg`, or the {kiwi} default.
 
 .. _db_kiwi_system_boxbuild_example:
 
