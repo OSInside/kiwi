@@ -17,7 +17,7 @@
 #
 import logging
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 # project
 from kiwi.filesystem import FileSystem
@@ -32,7 +32,7 @@ from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiFileSystemSetupError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class FileSystemBuilder:
@@ -117,16 +117,16 @@ class FileSystemBuilder:
 
         :rtype: instance of :class:`Result`
         """
-        log.info('Creating %s filesystem', self.requested_filesystem)
         supported_filesystems = Defaults.get_filesystem_image_types()
         if self.requested_filesystem not in supported_filesystems:
             raise KiwiFileSystemSetupError(
                 f'Unknown filesystem: {self.requested_filesystem}'
             )
-        if self.requested_filesystem not in self.filesystems_no_device_node:
-            self._operate_on_loop()
-        else:
-            self._operate_on_file()
+        with log.step(f'Creating {self.requested_filesystem} filesystem'):
+            if self.requested_filesystem not in self.filesystems_no_device_node:
+                self._operate_on_loop()
+            else:
+                self._operate_on_file()
         Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(), self.filename
         )
@@ -185,7 +185,7 @@ class FileSystemBuilder:
                     loop_provider.get_device()
                 )
                 log.info(
-                    '--> Syncing data to filesystem on {0}'.format(
+                    'Syncing data to filesystem on {0}'.format(
                         loop_provider.get_device()
                     )
                 )

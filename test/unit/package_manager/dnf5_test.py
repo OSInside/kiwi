@@ -5,6 +5,7 @@ import unittest.mock as mock
 from kiwi.package_manager.dnf5 import PackageManagerDnf5
 
 from kiwi.exceptions import KiwiRequestError
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class TestPackageManagerDnf5:
@@ -207,11 +208,43 @@ class TestPackageManagerDnf5:
             '--setopt=group_package_types=mandatory',
         ]
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', 'Installing  : foo')
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', 'Removing: foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        assert event(
+            '[  2/148] dnf5-0:5.2.18.0-7.fc43.x86_64 100% | 126.8 MiB/s'
+        ) == PackageManagerEventT(
+            'download', 'Downloading dnf5-0:5.2.18.0-7.fc43.x86_64', 2, 148
+        )
+        assert event(
+            '[  1/150] Verify package files          100% | 415.0   B/s'
+        ) == PackageManagerEventT('install', 'Verify package files', 1, 150)
+        assert event(
+            '[  3/150] Installing libgcc-0:15.3.1-1. 100% |  43.7 MiB/s'
+        ) == PackageManagerEventT(
+            'install',
+            'Installing libgcc-0:15.3.1-1',
+            3,
+            150,
+            '3:libgcc-0:15.3.1-1',
+        )
+        assert event('[ 4/9] Removing vim-2:9.1-1.fc43.x86_64 100%') == (
+            PackageManagerEventT(
+                'install',
+                'Removing vim-2:9.1-1.fc43.x86_64',
+                4,
+                9,
+                '4:vim-2:9.1-1.fc43.x86_64',
+                True,
+            )
+        )
+        assert event(
+            '>>> Running %post scriptlet: systemd-udev-0:258.11-1.fc43.x86_64'
+        ) == PackageManagerEventT(
+            'script',
+            'Running %post scriptlet systemd-udev-0:258.11-1.fc43.x86_64',
+            package='%post(systemd-udev-0:258.11-1.fc43.x86_64)',
+        )
+        assert event('>>> Finished %post scriptlet: systemd-udev') is None
 
     @patch('kiwi.package_manager.dnf5.RpmDataBase')
     def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):

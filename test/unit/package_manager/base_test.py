@@ -67,13 +67,9 @@ class TestPackageManagerBase:
         with raises(NotImplementedError):
             self.manager.process_plus_recommended()
 
-    def test_match_package_installed(self):
-        with raises(NotImplementedError):
-            self.manager.match_package_installed('package_name', 'log')
-
-    def test_match_package_deleted(self):
-        with raises(NotImplementedError):
-            self.manager.match_package_deleted('package_name', 'log')
+    def test_get_progress_event(self):
+        assert self.manager.get_progress_event('anything') is None
+        assert self.manager.progress_phases == []
 
     def test_database_consistent(self):
         with raises(DeprecationWarning):

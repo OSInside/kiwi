@@ -1,5 +1,6 @@
+import logging
 from unittest.mock import patch, Mock, call
-from pytest import raises
+from pytest import fixture, raises
 
 from kiwi.boxbuild.box_build import BoxBuild
 import kiwi.boxbuild.defaults as defaults
@@ -40,6 +41,45 @@ class TestBoxBuild:
     @patch('kiwi.boxbuild.box_build.BoxDownload')
     def setup_method(self, cls, mock_BoxDownload):
         self.setup()
+
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
+    @patch('os.environ')
+    @patch('os.system')
+    @patch('kiwi.boxbuild.box_build.BoxBuildDefaults.create_build_target_dir')
+    @patch('kiwi.boxbuild.box_build.Path.which')
+    def test_run_logs_vm_start(
+        self,
+        mock_path_which,
+        mock_create_build_target_dir,
+        mock_os_system,
+        mock_os_environ,
+    ):
+        mock_path_which.return_value = 'qemu-system-x86_64'
+        command = [
+            'system',
+            'build',
+            '--description',
+            'desc',
+            '--target-dir',
+            'target',
+        ]
+        with self._caplog.at_level(logging.INFO):
+            self.build.run(list(command))
+        assert 'Starting box in KVM' in self._caplog.text
+        assert 'Memory: 4096M, CPUs: 4' in self._caplog.text
+        self._caplog.clear()
+        # without acceleration the box runs in QEMU emulation and
+        # without a box CPU setup qemu uses its default
+        self.vm_setup.smp = None
+        self.build.accel = False
+        self.build.ram = '3G'
+        with self._caplog.at_level(logging.INFO):
+            self.build.run(list(command))
+        assert 'Starting box in QEMU' in self._caplog.text
+        assert 'Memory: 3G\n' in self._caplog.text
 
     @patch('os.environ')
     @patch('os.system')
@@ -210,6 +250,7 @@ class TestBoxBuild:
         )
         assert (
             '-append "console=hvc0 kiwi=\\"--type oem system build\\"'
+            ' loglevel=4 systemd.show_status=no rd.systemd.show_status=no'
             ' kiwi_git_repo=_https://github.com/OSInside/kiwi_'
             ' kiwi_git_branch=_some_branch_'
             ' sharing_backend=_9p_" '

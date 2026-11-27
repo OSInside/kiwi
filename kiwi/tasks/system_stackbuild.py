@@ -19,7 +19,7 @@ import os
 import sys
 import logging
 from unittest.mock import patch
-from typing import List
+from typing import Any, List
 
 # project
 from kiwi.help import Help
@@ -37,7 +37,7 @@ from kiwi.exceptions import (
     KiwiStackBuildRootSyncFailed,
 )
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemStackbuildTask(CliTask):
@@ -72,43 +72,54 @@ class SystemStackbuildTask(CliTask):
                     f'image root dir: {image_root_dir!r} already exists'
                 )
             Path.create(image_root_dir)
+            log.phase('Prepare root system from stashes')
 
             for stash_name in self.command_args['--stash']:
-                if self.command_args.get('--from-registry'):
-                    log.info(
-                        'Fetching stash {0!r} from registry {1!r}'.format(
-                            stash_name, self.command_args['--from-registry']
+                with log.step(f'Syncing stash {stash_name!r}'):
+                    if self.command_args.get('--from-registry'):
+                        log.info(
+                            'Fetching stash {0!r} from registry {1!r}'.format(
+                                stash_name, self.command_args['--from-registry']
+                            )
                         )
-                    )
-                    Command.run(
-                        [
-                            'podman',
-                            'pull',
-                            os.path.join(
-                                self.command_args['--from-registry'], stash_name
-                            ),
-                        ]
-                    )
-                try:
-                    log.info(f'Mounting stash: {stash_name!r}')
-                    stash_mount_point = Command.run(
-                        ['podman', 'image', 'mount', stash_name]
-                    ).output.strip()
-                    root = DataSync(stash_mount_point + os.sep, image_root_dir)
-                    log.info(
-                        'Syncing stash root {0!r} to image root {1!r}'.format(
-                            stash_mount_point, image_root_dir
+                        Command.run(
+                            [
+                                'podman',
+                                'pull',
+                                os.path.join(
+                                    self.command_args['--from-registry'],
+                                    stash_name,
+                                ),
+                            ]
                         )
-                    )
-                    root.sync_data(options=Defaults.get_sync_options())
-                except Exception as issue:
-                    raise KiwiStackBuildRootSyncFailed(issue)
-                finally:
-                    log.info(f'Umount stash: {stash_name!r}')
-                    Command.run(
-                        ['podman', 'image', 'umount', '--force', stash_name],
-                        raise_on_error=False,
-                    )
+                    try:
+                        log.info(f'Mounting stash: {stash_name!r}')
+                        stash_mount_point = Command.run(
+                            ['podman', 'image', 'mount', stash_name]
+                        ).output.strip()
+                        root = DataSync(
+                            stash_mount_point + os.sep, image_root_dir
+                        )
+                        log.info(
+                            'Syncing stash root {0!r} to image root {1!r}'.format(
+                                stash_mount_point, image_root_dir
+                            )
+                        )
+                        root.sync_data(options=Defaults.get_sync_options())
+                    except Exception as issue:
+                        raise KiwiStackBuildRootSyncFailed(issue)
+                    finally:
+                        log.info(f'Umount stash: {stash_name!r}')
+                        Command.run(
+                            [
+                                'podman',
+                                'image',
+                                'umount',
+                                '--force',
+                                stash_name,
+                            ],
+                            raise_on_error=False,
+                        )
 
             kiwi_task: CliTask
             if self.command_args.get('--description'):

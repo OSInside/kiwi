@@ -23,6 +23,7 @@ import pathlib
 from typing import List, Dict, Optional
 
 # project
+from kiwi.utils.install_progress import PackageManagerEventT
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.path import Path
@@ -40,6 +41,30 @@ from kiwi.exceptions import (
 )
 
 log = logging.getLogger('kiwi')
+
+
+# apt output lines read for the progress information
+APT_TOTAL = re.compile(
+    r'^(\d+) upgraded, (\d+) newly installed, (\d+) to remove'
+)
+APT_DOWNLOAD = re.compile(r'^Get:(\d+) .*\[[^\]]*\]$')
+APT_PACKAGE = re.compile(
+    r'^(Unpacking|Setting up|Removing|Processing triggers for) '
+    r'([^\s:]+)(?::\S+)? \('
+)
+# architecture names in the download output of apt
+APT_ARCHITECTURES = (
+    'all',
+    'amd64',
+    'arm64',
+    'armel',
+    'armhf',
+    'i386',
+    'ppc64el',
+    'riscv64',
+    's390x',
+    'loong64',
+)
 
 
 class PackageManagerApt(PackageManagerBase):
@@ -462,50 +487,70 @@ class PackageManagerApt(PackageManagerBase):
             self.custom_args.remove('--no-install-recommends')
         self.deboostrap_minbase = False
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    progress_phases = ['download', 'install']
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of apt-get output
 
-        This match for the package to be installed in the output
-        of the apt-get command is not 100% accurate. There might
-        be false positives due to sub package names starting with
-        the same base package name
+        apt-get reports the number of packages to process up front,
+        e.g 0 upgraded, 300 newly installed, 0 to remove. Each package
+        is downloaded, e.g Get:12 ... bash amd64 5.2-1 [1361 kB], then
+        unpacked and set up, e.g Setting up bash (5.2-1) ... dpkg
+        unpacks and sets up the packages in batches, the installation
+        progress therefore counts both for each package. Triggers are
+        reported when they run, e.g Processing triggers for libc-bin
 
-        :param str package_name: package_name
-        :param str package_manager_output: apt-get status line
+        :param str package_manager_output: line of output
 
-        :returns: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        return bool(
-            re.match(
-                '.*Unpacking {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        line = package_manager_output.strip()
+        match = APT_PACKAGE.match(line)
+        if match:
+            action, name = match.group(1), match.group(2)
+            if action == 'Processing triggers for':
+                return PackageManagerEventT(
+                    phase='script',
+                    description=f'Processing triggers for {name}',
+                    package=f'{name} triggers',
+                )
+            return PackageManagerEventT(
+                phase='install',
+                description=f'{action} {name}',
+                total=2 * getattr(self, 'progress_packages_total', 0),
+                package=name,
+                removed=action == 'Removing',
             )
-        )
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        :param str package_name: package_name
-        :param str package_manager_output: apt-get status line
-
-        :returns: True|False
-
-        :rtype: bool
-        """
-        return bool(
-            re.match(
-                '.*Removing {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        match = APT_DOWNLOAD.match(line)
+        if match:
+            fields = line[: line.rindex('[')].split()
+            # package downloads end with the name, the architecture in
+            # a pool repository, and the version of the package. The
+            # download of repository metadata has less fields
+            if len(fields) < 5:
+                return None
+            name = fields[-2]
+            if name in APT_ARCHITECTURES:
+                name = fields[-3]
+            return PackageManagerEventT(
+                phase='download',
+                description=f'Downloading {name}',
+                current=int(match.group(1)),
             )
-        )
+        match = APT_TOTAL.match(line)
+        if match:
+            self.progress_packages_total = sum(
+                int(number) for number in match.groups()
+            )
+            return PackageManagerEventT(
+                phase='total', total=self.progress_packages_total
+            )
+        return None
 
     def clean_leftovers(self) -> None:
         """

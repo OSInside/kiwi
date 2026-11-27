@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from typing import Union
+from typing import Any, Union
 import logging
 
 # project
@@ -24,10 +24,11 @@ from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.builder import ImageBuilder
 from kiwi.system.setup import SystemSetup
+from kiwi.system.summary import ImageSummary
 from kiwi.privileges import Privileges
 from kiwi.path import Path
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemCreateTask(CliTask):
@@ -70,7 +71,11 @@ class SystemCreateTask(CliTask):
             }
         )
 
-        log.info('Creating system image')
+        ImageSummary(
+            self.xml_state, self.config_file, self.global_args['--target-arch']
+        ).print_summary()
+
+        log.phase('Create image')
         if not os.path.exists(abs_target_dir_path):
             Path.create(abs_target_dir_path)
 
@@ -87,6 +92,7 @@ class SystemCreateTask(CliTask):
             },
         )
         result = image_builder.create()
+        log.phase('Results')
         result.print_results()
         result.dump(os.sep.join([abs_target_dir_path, 'kiwi.result']))
 

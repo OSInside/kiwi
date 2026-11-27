@@ -80,7 +80,4 @@ class PackageManager(metaclass=ABCMeta):
                     package_manager_name, issue
                 )
             )
-        log.info(
-            'Using package manager backend: {0}'.format(package_manager_name)
-        )
         return manager

@@ -1,8 +1,10 @@
 import sys
-from unittest.mock import patch, call, Mock
+import logging
+from unittest.mock import patch, Mock
 from pytest import raises
 
 from kiwi.logger import Logger
+from kiwi.logger_console import ConsoleHandler
 
 from kiwi.exceptions import KiwiLogFileSetupFailed, KiwiLogSocketSetupFailed
 
@@ -33,23 +35,79 @@ class TestLogger:
         mock_stream_handler.assert_called_once_with(sys.__stdout__)
         assert self.log.get_logfile() is None
 
-    @patch('kiwi.logger.ColorFormatter')
-    def test_set_color_format(self, mock_color_format):
-        self.log.set_color_format()
-        assert sorted(mock_color_format.call_args_list) == [
-            call(
-                '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-                '%H:%M:%S',
-            ),
-            call(
-                '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-                '%H:%M:%S',
-            ),
-            call(
-                '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-                '%H:%M:%S',
-            ),
+    def test_console_handlers(self):
+        # the console handlers keep their names, setLogLevel uses them
+        assert sorted(self.log.log_handlers) == [
+            'debug',
+            'error',
+            'info',
+            'warning',
         ]
+        assert isinstance(self.log.log_handlers['info'], ConsoleHandler)
+        assert self.log.log_handlers['error'].channel == 'stderr'
+
+    def _records(self):
+        handler = logging.Handler()
+        handler.emit = Mock()
+        self.log.addHandler(handler)
+        self.log.setLevel(logging.DEBUG)
+        return handler.emit
+
+    def test_phase(self):
+        emit = self._records()
+        self.log.phase('Prepare root system')
+        record = emit.call_args.args[0]
+        assert record.getMessage() == 'Prepare root system'
+        assert record.kiwi_role == 'phase'
+        assert self.log.get_tree_position() == (True, 0)
+
+    def test_item(self):
+        emit = self._records()
+        self.log.item('Type', 'oem')
+        self.log.item('Features', 'LVM', checked=False)
+        self.log.item('Features', 'Install ISO', checked=True)
+        item, unchecked, checked = [
+            emit_call.args[0] for emit_call in emit.call_args_list
+        ]
+        # the plain message is used for the log file
+        assert item.getMessage() == 'Type: oem'
+        assert item.kiwi_role == 'item'
+        assert item.kiwi_key == 'Type'
+        assert item.kiwi_value == 'oem'
+        assert item.kiwi_checked is None
+        assert unchecked.getMessage() == 'Features: [ ] LVM'
+        assert unchecked.kiwi_checked is False
+        assert checked.getMessage() == 'Features: [x] Install ISO'
+
+    @patch('kiwi.logger.time.monotonic')
+    def test_step(self, mock_monotonic):
+        mock_monotonic.side_effect = [10.0, 35.0]
+        emit = self._records()
+        depths = []
+        with self.log.step('Installing bootstrap packages'):
+            depths.append(self.log.step_depth)
+        assert depths == [1]
+        assert self.log.step_depth == 0
+        start, end = [emit_call.args[0] for emit_call in emit.call_args_list]
+        assert start.getMessage() == 'Installing bootstrap packages'
+        assert start.kiwi_role == 'step_start'
+        # the plain message is used for the log file
+        assert end.getMessage() == 'Installing bootstrap packages: done (25s)'
+        assert end.kiwi_role == 'step_done'
+        assert end.kiwi_title == 'Installing bootstrap packages'
+        assert end.kiwi_duration == 25.0
+
+    @patch('kiwi.logger.time.monotonic')
+    def test_step_failed(self, mock_monotonic):
+        mock_monotonic.side_effect = [10.0, 12.5]
+        emit = self._records()
+        with raises(KiwiLogFileSetupFailed):
+            with self.log.step('Calling config.sh script'):
+                raise KiwiLogFileSetupFailed('issue')
+        assert self.log.step_depth == 0
+        end = emit.call_args.args[0]
+        assert end.getMessage() == 'Calling config.sh script: failed (2.5s)'
+        assert end.kiwi_role == 'step_failed'
 
     @patch('logging.FileHandler')
     def test_set_logfile_raise(self, mock_file_handler):

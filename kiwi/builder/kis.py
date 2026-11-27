@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 # project
 from kiwi.defaults import Defaults
@@ -33,7 +33,7 @@ from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiKisBootImageError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class KisBuilder:
@@ -126,14 +126,14 @@ class KisBuilder:
         :rtype: instance of :class:`Result`
         """
         if self.filesystem:
-            log.info('Creating root filesystem image')
-            self.filesystem.create()
+            with log.step('Creating root filesystem image'):
+                self.filesystem.create()
             os.rename(self.filesystem.filename, self.image_name)
             self.image = self.image_name
             if self.compressed:
-                log.info('xz compressing root filesystem image')
-                compress = Compress(self.image)
-                self.image = compress.xz(self.xz_options)
+                with log.step('Compressing root filesystem image'):
+                    compress = Compress(self.image)
+                    self.image = compress.xz(self.xz_options)
 
             shasum = self.runtime_config.get_checksum_handler(
                 source_filename=self.image,
@@ -142,13 +142,13 @@ class KisBuilder:
                     self.runtime_config.get_checksum_handler(self.image).suffix,
                 ),
             )
-            log.info(f'Creating root filesystem {shasum.suffix} checksum')
-            shasum.digest()
+            with log.step(f'Creating root filesystem {shasum.suffix} checksum'):
+                shasum.digest()
 
         # prepare initrd
         if self.boot_image_task.has_initrd_support():
-            log.info('Creating boot image')
-            self.boot_image_task.prepare()
+            with log.step('Preparing boot system'):
+                self.boot_image_task.prepare()
 
         # export modprobe configuration to boot image
         self.system_setup.export_modprobe_setup(

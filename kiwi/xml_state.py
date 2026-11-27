@@ -3524,6 +3524,7 @@ class XMLState:
                 'Build type {0!r} not found for applied profiles: {1!r}'.format(
                     build_type, self.profiles
                 )
+                + self._get_selectable_profiles_hint(build_type)
             )
 
         # lookup if build type matches primary type
@@ -3538,7 +3539,81 @@ class XMLState:
             'No build type defined with applied profiles: {0!r}'.format(
                 self.profiles
             )
+            + self._get_selectable_profiles_hint()
         )
+
+    def _get_selectable_profiles_hint(
+        self, build_type: Optional[str] = None
+    ) -> str:
+        """
+        Hint which profiles can be selected to get a build type
+
+        :param str build_type:
+            the build type the profiles must provide, any build
+            type if not set
+
+        :return: hint text, empty if no profile provides a build type
+
+        :rtype: str
+        """
+        hints = []
+        for profiles_section in self.xml_data.get_profiles():
+            for profile in profiles_section.get_profile():
+                if not self.profile_matches_host_architecture(profile):
+                    continue
+                name = profile.get_name()
+                try:
+                    used_profiles = self._used_profiles([name])
+                except KiwiProfileNotFound:
+                    # broken profile dependencies, can't be selected
+                    continue
+                image_types = self._get_profiled_build_types(
+                    used_profiles, build_type
+                )
+                if image_types:
+                    hint = '{0} ({1})'.format(name, ', '.join(image_types))
+                    if profile.get_description():
+                        hint += f': {profile.get_description()}'
+                    hints.append(hint)
+        if not hints:
+            return ''
+        return ''.join(
+            ['. Select one of the following profiles with --profile:']
+            + [f'\n  - {hint}' for hint in hints]
+        )
+
+    def _get_profiled_build_types(
+        self, profiles: List[str], build_type: Optional[str] = None
+    ) -> List[str]:
+        """
+        Build types provided by the preferences sections of the given
+        profiles which match the host architecture. Preferences sections
+        without a profile are not taken into account, they are used with
+        any profile selection
+
+        :param list profiles: profile names
+        :param str build_type: only look for this build type if set
+
+        :return: list of build type names
+
+        :rtype: list
+        """
+        image_types: List[str] = []
+        for preferences in self.xml_data.get_preferences():
+            section_profiles = preferences.get_profiles()
+            if not section_profiles:
+                continue
+            if not set(section_profiles.split(',')).intersection(profiles):
+                continue
+            if not self.preferences_matches_host_architecture(preferences):
+                continue
+            for image_type in preferences.get_type():
+                image = image_type.get_image()
+                if build_type and image != build_type:
+                    continue
+                if image not in image_types:
+                    image_types.append(image)
+        return image_types
 
     def _profiled(self, xml_abstract: List) -> List:
         """

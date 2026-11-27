@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from typing import Any, List, Optional
 from itertools import zip_longest
 from urllib.parse import urlparse
@@ -24,6 +25,8 @@ from urllib.parse import urlparse
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.utils.output import DataOutput
+from kiwi.logger_console import KiwiConsole
+from kiwi.path import Path
 from kiwi.solver.sat import Sat
 from kiwi.solver.repository import SolverRepository
 from kiwi.solver.repository.base import SolverRepositoryBase
@@ -31,6 +34,9 @@ from kiwi.system.uri import Uri
 from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
 import kiwi.defaults as defaults
+
+
+log: Any = logging.getLogger('kiwi')
 
 
 class ImageInfoTask(CliTask):
@@ -85,42 +91,50 @@ class ImageInfoTask(CliTask):
                     result['profile_names'].append(profile.get_name())
 
         if self.command_args['--resolve-package-list']:
-            solver = self._setup_solver()
-            boostrap_package_list = self.xml_state.get_bootstrap_packages()
-            package_list = (
-                boostrap_package_list + self.xml_state.get_system_packages()
-            )
-            bootstrap_collection_type = (
-                self.xml_state.get_bootstrap_collection_type()
-            )
-            system_collection_type = self.xml_state.get_system_collection_type()
-            bootstrap_packages = solver.solve(
-                boostrap_package_list,
-                False,
-                True if bootstrap_collection_type == 'onlyRequired' else False,
-            )
-            solved_packages = solver.solve(
-                self.xml_state.get_system_packages(),
-                False,
-                True if system_collection_type == 'onlyRequired' else False,
-            )
-            solved_packages.update(bootstrap_packages)
-            package_info = {}
-            for package, metadata in sorted(list(solved_packages.items())):
-                if package in package_list:
-                    status = 'listed_in_kiwi_description'
-                else:
-                    status = 'added_by_dependency_solver'
-                package_info[package] = {
-                    'source': metadata.uri,
-                    'installsize_bytes': int(metadata.installsize_bytes),
-                    'arch': metadata.arch,
-                    'version': metadata.version,
-                    'status': status,
-                }
-            result['resolved-packages'] = package_info
+            with log.step('Resolving package list'):
+                solver = self._setup_solver()
+                boostrap_package_list = self.xml_state.get_bootstrap_packages()
+                package_list = (
+                    boostrap_package_list + self.xml_state.get_system_packages()
+                )
+                bootstrap_collection_type = (
+                    self.xml_state.get_bootstrap_collection_type()
+                )
+                system_collection_type = (
+                    self.xml_state.get_system_collection_type()
+                )
+                bootstrap_packages = solver.solve(
+                    boostrap_package_list,
+                    False,
+                    (
+                        True
+                        if bootstrap_collection_type == 'onlyRequired'
+                        else False
+                    ),
+                )
+                solved_packages = solver.solve(
+                    self.xml_state.get_system_packages(),
+                    False,
+                    True if system_collection_type == 'onlyRequired' else False,
+                )
+                solved_packages.update(bootstrap_packages)
+                package_info = {}
+                for package, metadata in sorted(list(solved_packages.items())):
+                    if package in package_list:
+                        status = 'listed_in_kiwi_description'
+                    else:
+                        status = 'added_by_dependency_solver'
+                    package_info[package] = {
+                        'source': metadata.uri,
+                        'installsize_bytes': int(metadata.installsize_bytes),
+                        'arch': metadata.arch,
+                        'version': metadata.version,
+                        'status': status,
+                    }
+                result['resolved-packages'] = package_info
 
-        if self.global_args['--color-output']:
+        # colors are used on a terminal if the pjson tool is installed
+        if KiwiConsole.colors_enabled() and Path.which('pjson'):
             DataOutput(result, style='color').display()
         else:
             DataOutput(result).display()

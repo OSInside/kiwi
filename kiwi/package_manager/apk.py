@@ -20,6 +20,7 @@ import logging
 from typing import List, Dict, Optional
 
 # project
+from kiwi.utils.install_progress import PackageManagerEventT
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
@@ -27,6 +28,15 @@ from kiwi.system.root_bind import RootBind
 from kiwi.exceptions import KiwiBootStrapPhaseFailed
 
 log = logging.getLogger('kiwi')
+
+
+# apk output lines read for the progress information
+APK_PACKAGE = re.compile(
+    r'^\(\s*(\d+)/(\d+)\)\s+'
+    r'(Installing|Upgrading|Downgrading|Reinstalling|Replacing|Purging)'
+    r'\s+(\S+)'
+)
+APK_SCRIPT = re.compile(r'^Executing (\S+)')
 
 
 class PackageManagerApk(PackageManagerBase):
@@ -221,47 +231,40 @@ class PackageManagerApk(PackageManagerBase):
         """
         pass
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    progress_phases = ['install']
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of apk output
 
-        This match for the package to be installed in the output
-        of the apk command is not 100% accurate. There might
-        be false positives due to sub package names starting with
-        the same base package name
+        apk reports the position of each package it installs, e.g
+        (12/48) Installing bash (5.2-r0), and the package scripts
+        it runs, e.g Executing bash-5.2-r0.post-install
 
-        :param str package_name: package_name
-        :param str package_manager_output: dnf status line
+        :param str package_manager_output: line of output
 
-        :returns: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        return bool(
-            re.match(
-                '.* Installing {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        line = package_manager_output.strip()
+        match = APK_PACKAGE.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='install',
+                description=f'{match.group(3)} {match.group(4)}',
+                current=int(match.group(1)),
+                total=int(match.group(2)),
+                package=match.group(4),
+                removed=match.group(3) == 'Purging',
             )
-        )
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        :param str package_name: package_name
-        :param str package_manager_output: apk status line
-
-        :returns: True|False
-
-        :rtype: bool
-        """
-        return bool(
-            re.match(
-                '.* Removing {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        match = APK_SCRIPT.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='script',
+                description=f'Executing {match.group(1)}',
+                package=match.group(1),
             )
-        )
+        return None

@@ -910,7 +910,7 @@ class TestResultBundleTask:
             with self._caplog.at_level(logging.WARNING):
                 self.task.process()
                 assert (
-                    '--> zsyncmake missing, zsync setup skipped'
+                    'zsyncmake missing, zsync setup skipped'
                     in self._caplog.text
                 )
 

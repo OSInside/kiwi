@@ -91,7 +91,7 @@ class Profile:
         with open(filename, 'w') as profile:
             for line in profile_environment:
                 profile.write(line + os.linesep)
-                log.debug('--> {0}'.format(line))
+                log.debug('{0}'.format(line))
 
     def _oemconfig_to_profile(self) -> None:
         # kiwi_oemvmcp_parmfile

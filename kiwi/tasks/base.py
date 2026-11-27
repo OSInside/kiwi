@@ -129,13 +129,10 @@ class CliTask:
             if self.global_args['--debug-run-scripts-in-screen']:
                 log.setLogFlag('run-scripts-in-screen')
 
-            if self.global_args['--color-output']:
-                log.set_color_format()
-
         if self.global_args['--setenv']:
             for setenv in self.global_args['--setenv']:
                 variable, value = self.attr_token(setenv)
-                log.info(f'--> Set Env[{variable}]="{value}"')
+                log.info(f'Set Env[{variable}]="{value}"')
                 os.environ[format(variable)] = format(value)
 
         # initialize runtime configuration
@@ -178,27 +175,29 @@ class CliTask:
                 f'no XML description found in {description_directory}'
             )
 
-        self.description = XMLDescription(config_file)
-        self.xml_data = self.description.load()
-        self.config_file = config_file.replace('//', '/')
-        self.xml_state = XMLState(
-            self.xml_data,
-            self.global_args['--profile'],
-            self.global_args['--type'],
-        )
-
-        log.info('--> loaded %s', self.config_file)
-        if self.xml_state.build_type:
-            log.info(
-                '--> Selected build type: %s',
-                self.xml_state.get_build_type_name(),
-            )
-        if self.xml_state.profiles:
-            log.info(
-                '--> Selected profiles: %s', ','.join(self.xml_state.profiles)
+        with log.step('Loading image description'):
+            self.description = XMLDescription(config_file)
+            self.xml_data = self.description.load()
+            self.config_file = config_file.replace('//', '/')
+            self.xml_state = XMLState(
+                self.xml_data,
+                self.global_args['--profile'],
+                self.global_args['--type'],
             )
 
-        self.runtime_checker = RuntimeChecker(self.xml_state)
+            log.info('loaded %s', self.config_file)
+            if self.xml_state.build_type:
+                log.info(
+                    'Selected build type: %s',
+                    self.xml_state.get_build_type_name(),
+                )
+            if self.xml_state.profiles:
+                log.info(
+                    'Selected profiles: %s',
+                    ','.join(self.xml_state.profiles),
+                )
+
+            self.runtime_checker = RuntimeChecker(self.xml_state)
 
     def eleventuple_token(
         self, option: str

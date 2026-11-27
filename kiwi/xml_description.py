@@ -216,12 +216,12 @@ class XMLDescription:
             Command.run(['jing', schema_file, description_file])
         except KiwiCommandError as issue:
             log.info('RelaxNG validation failed. See jing report:')
-            log.info('--> {0}'.format(issue))
+            log.info('{0}'.format(issue))
         except KiwiCommandNotFound as issue:
             log.warning(issue)
             log.warning('For detailed schema validation report, install: jing')
             log.info('Showing only raw library error log:')
-            log.info('--> {0}'.format(error_log))
+            log.info('{0}'.format(error_log))
 
     @staticmethod
     def _get_schematron_validation_details(
@@ -237,7 +237,7 @@ class XMLDescription:
         for msg in validation_report.xpath(
             '//svrl:failed-assert/svrl:text', namespaces=nspaces
         ):
-            log.info('--> %s', msg.text)
+            log.info('%s', msg.text)
 
     def _parse(self) -> Any:
         try:

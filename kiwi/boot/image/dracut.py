@@ -228,7 +228,7 @@ class BootImageDracut(BootImageBase):
         Create UKI EFI binary
         """
         if self.is_prepared():
-            log.info('Creating generic UKI EFI binary')
+            log.info('Creating UKI EFI binary')
             self._create_profile_environment()
             kernel_info = Kernel(self.boot_root_directory)
             kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
@@ -342,7 +342,7 @@ class BootImageDracut(BootImageBase):
         """
         if self.is_prepared():
             log.info(
-                'Creating generic dracut initrd archive{0}'.format(
+                'Creating dracut initrd archive{0}'.format(
                     f' for kernel flavor {flavor}' if flavor else ''
                 )
             )

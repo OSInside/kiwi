@@ -4,6 +4,7 @@ from pytest import fixture, raises
 from kiwi.package_manager.apk import PackageManagerApk
 
 from kiwi.exceptions import KiwiBootStrapPhaseFailed
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class TestPackageManagerApk:
@@ -137,8 +138,21 @@ class TestPackageManagerApk:
             ['chroot', '/root-dir', 'apk', 'upgrade'], ['env']
         )
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', ' Installing foo')
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', ' Removing foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        assert event('(12/48) Installing busybox (1.36.1-r15)') == (
+            PackageManagerEventT(
+                'install', 'Installing busybox', 12, 48, 'busybox'
+            )
+        )
+        assert event('(1/2) Purging vim (9.1-r0)') == PackageManagerEventT(
+            'install', 'Purging vim', 1, 2, 'vim', True
+        )
+        assert event('Executing busybox-1.36.1-r15.post-install') == (
+            PackageManagerEventT(
+                'script',
+                'Executing busybox-1.36.1-r15.post-install',
+                package='busybox-1.36.1-r15.post-install',
+            )
+        )
+        assert event('OK: 9 MiB in 15 packages') is None

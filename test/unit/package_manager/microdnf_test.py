@@ -5,6 +5,7 @@ import unittest.mock as mock
 from kiwi.package_manager.microdnf import PackageManagerMicroDnf
 
 from kiwi.exceptions import KiwiRequestError
+from kiwi.utils.install_progress import PackageManagerEventT
 
 
 class TestPackageManagerMicroDnf:
@@ -200,11 +201,27 @@ class TestPackageManagerMicroDnf:
         self.manager.process_plus_recommended()
         assert '--setopt=install_weak_deps=0' not in self.manager.custom_args
 
-    def test_match_package_installed(self):
-        assert self.manager.match_package_installed('foo', 'Installing  : foo')
-
-    def test_match_package_deleted(self):
-        assert self.manager.match_package_deleted('foo', 'Removing: foo')
+    def test_get_progress_event(self):
+        event = self.manager.get_progress_event
+        # the transaction summary is not a package
+        assert event('Installing:       12 packages') == PackageManagerEventT(
+            'total', total=12
+        )
+        assert event('Installing  : bash-5.1.8-6.el9.x86_64') == (
+            PackageManagerEventT(
+                'install',
+                'Installing bash-5.1.8-6.el9.x86_64',
+                package='bash-5.1.8-6.el9.x86_64',
+            )
+        )
+        assert event('Removing: vim-9.0-1.el9.x86_64') == PackageManagerEventT(
+            'install',
+            'Removing vim-9.0-1.el9.x86_64',
+            package='vim-9.0-1.el9.x86_64',
+            removed=True,
+        )
+        assert event('Downloading metadata...') is None
+        assert self.manager.progress_phases == ['install']
 
     @patch('kiwi.package_manager.microdnf.RpmDataBase')
     def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):

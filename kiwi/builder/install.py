@@ -17,7 +17,7 @@
 #
 import os
 import logging
-from typing import Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union, cast
 import shutil
 
 # project
@@ -47,7 +47,7 @@ from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiInstallBootImageError
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class InstallImageBuilder:
@@ -198,8 +198,8 @@ class InstallImageBuilder:
                 self.runtime_config.get_checksum_handler(self.diskname).suffix,
             ),
         )
-        log.info(f'Creating disk image {shasum.suffix} checksum')
-        shasum.digest()
+        with log.step(f'Creating disk image {shasum.suffix} checksum'):
+            shasum.digest()
 
         # the system image name is stored in a config file
         self._write_install_image_info_to_iso_image()
@@ -207,83 +207,87 @@ class InstallImageBuilder:
             self._write_install_image_info_to_boot_image()
 
         # the system image is stored as squashfs or erofs embedded file
-        log.info(f'Creating {self.container_filesystem} embedded disk image')
-        Command.run(
-            [
-                'cp',
-                '-l',
-                self.diskname,
-                self.squashed_contents.name + '/' + self.squashed_diskname,
-            ]
-        )
-        squashed_image_file = ''.join(
-            [
-                self.target_dir,
-                '/',
-                self.squashed_diskname,
-                '.',
-                self.container_filesystem,
-            ]
-        )
-        if self.container_filesystem == 'erofs':
-            compression = self.xml_state.build_type.get_erofscompression()
-        else:
-            compression = self.xml_state.build_type.get_squashfscompression()
-        with FileSystem.new(
-            name=self.container_filesystem,
-            device_provider=DeviceProvider(),
-            root_dir=self.squashed_contents.name,
-            custom_args={
-                'compression': compression,
-                'create_options': (
-                    self.xml_state.get_install_container_create_option_list()
-                ),
-            },
-        ) as squashed_image:
-            squashed_image.create_on_file(squashed_image_file)
-        Command.run(['mv', squashed_image_file, self.media_dir.name])
-
-        log.info('Setting up install image bootloader configuration')
-        with self._create_bootloader_instance() as bootloader_config:
-            bootloader_config.setup_install_boot_images(
-                mbrid=self.mbrid,
-                lookup_path=self.boot_image_task.boot_root_directory,
+        with log.step(
+            f'Creating {self.container_filesystem} embedded disk image'
+        ):
+            Command.run(
+                [
+                    'cp',
+                    '-l',
+                    self.diskname,
+                    self.squashed_contents.name + '/' + self.squashed_diskname,
+                ]
             )
-            IsoToolsBase.setup_media_loader_directory(
-                self.boot_image_task.boot_root_directory,
-                self.media_dir.name,
-                bootloader_config.get_boot_theme(),
+            squashed_image_file = ''.join(
+                [
+                    self.target_dir,
+                    '/',
+                    self.squashed_diskname,
+                    '.',
+                    self.container_filesystem,
+                ]
             )
-            bootloader_config.write_meta_data()
-            bootloader_config.setup_install_image_config(mbrid=self.mbrid)
-            bootloader_config.write()
-
-            # create initrd for install image
-            log.info('Creating install image boot image')
-            self._create_iso_install_kernel_and_initrd()
-
-            # the system image initrd is stored to allow kexec
-            self._copy_system_image_initrd_to_iso_image()
-
-            if self.firmware.efi_mode():
-                efi_loader = Temporary(
-                    prefix='efi-loader.', path=self.target_dir
-                ).new_file()
-                bootloader_config._create_embedded_fat_efi_image(
-                    efi_loader.name
+            if self.container_filesystem == 'erofs':
+                compression = self.xml_state.build_type.get_erofscompression()
+            else:
+                compression = (
+                    self.xml_state.build_type.get_squashfscompression()
                 )
-                self.custom_iso_args['meta_data'][
-                    'efi_loader'
-                ] = efi_loader.name
+            with FileSystem.new(
+                name=self.container_filesystem,
+                device_provider=DeviceProvider(),
+                root_dir=self.squashed_contents.name,
+                custom_args={
+                    'compression': compression,
+                    'create_options': (
+                        self.xml_state.get_install_container_create_option_list()
+                    ),
+                },
+            ) as squashed_image:
+                squashed_image.create_on_file(squashed_image_file)
+            Command.run(['mv', squashed_image_file, self.media_dir.name])
+
+        with log.step('Setting up install image bootloader configuration'):
+            with self._create_bootloader_instance() as bootloader_config:
+                bootloader_config.setup_install_boot_images(
+                    mbrid=self.mbrid,
+                    lookup_path=self.boot_image_task.boot_root_directory,
+                )
+                IsoToolsBase.setup_media_loader_directory(
+                    self.boot_image_task.boot_root_directory,
+                    self.media_dir.name,
+                    bootloader_config.get_boot_theme(),
+                )
+                bootloader_config.write_meta_data()
+                bootloader_config.setup_install_image_config(mbrid=self.mbrid)
+                bootloader_config.write()
+
+                # create initrd for install image
+                with log.step('Creating install image boot image'):
+                    self._create_iso_install_kernel_and_initrd()
+
+                # the system image initrd is stored to allow kexec
+                self._copy_system_image_initrd_to_iso_image()
+
+                if self.firmware.efi_mode():
+                    efi_loader = Temporary(
+                        prefix='efi-loader.', path=self.target_dir
+                    ).new_file()
+                    bootloader_config._create_embedded_fat_efi_image(
+                        efi_loader.name
+                    )
+                    self.custom_iso_args['meta_data'][
+                        'efi_loader'
+                    ] = efi_loader.name
 
         # create iso filesystem from media_dir
-        log.info('Creating ISO filesystem')
-        with FileSystemIsoFs(
-            device_provider=DeviceProvider(),
-            root_dir=self.media_dir.name,
-            custom_args=self.custom_iso_args,
-        ) as iso_image:
-            iso_image.create_on_file(self.isoname)
+        with log.step('Creating ISO filesystem'):
+            with FileSystemIsoFs(
+                device_provider=DeviceProvider(),
+                root_dir=self.media_dir.name,
+                custom_args=self.custom_iso_args,
+            ) as iso_image:
+                iso_image.create_on_file(self.isoname)
         self.boot_image_task.cleanup()
 
     def create_install_pxe_archive(self) -> None:
@@ -307,15 +311,15 @@ class InstallImageBuilder:
             prefix='kiwi_pxe_install_media.', path=self.target_dir
         ).new_dir()
         # the system image is transfered as xz compressed variant
-        log.info('xz compressing disk image')
         pxe_image_filename = ''.join(
             [self.pxe_dir.name, '/', self.pxename, '.xz']
         )
-        compress = Compress(
-            source_filename=self.diskname, keep_source_on_compress=True
-        )
-        xz_archive = compress.xz(self.xz_options)
-        Command.run(['mv', xz_archive, pxe_image_filename])
+        with log.step('xz compressing disk image'):
+            compress = Compress(
+                source_filename=self.diskname, keep_source_on_compress=True
+            )
+            xz_archive = compress.xz(self.xz_options)
+            Command.run(['mv', xz_archive, pxe_image_filename])
 
         # the system image transfer is checked against a checksum
         shasum = self.runtime_config.get_checksum_handler(
@@ -326,8 +330,8 @@ class InstallImageBuilder:
                 self.runtime_config.get_checksum_handler(self.diskname).suffix,
             ),
         )
-        log.info(f'Creating disk image {shasum.suffix} checksum')
-        shasum.digest()
+        with log.step(f'Creating disk image {shasum.suffix} checksum'):
+            shasum.digest()
 
         # the install image name is stored in a config file
         if self.initrd_system == 'kiwi':
@@ -368,8 +372,8 @@ class InstallImageBuilder:
             append.write(f'{cmdline}\n')
 
         # create initrd for pxe install
-        log.info('Creating pxe install boot image')
-        self._create_pxe_install_kernel_and_initrd()
+        with log.step('Creating pxe install boot image'):
+            self._create_pxe_install_kernel_and_initrd()
 
         # create pxe image bound boot config file, contents can be
         # changed but presence is required.
@@ -381,10 +385,9 @@ class InstallImageBuilder:
         )
 
         # create pxe install tarball
-        log.info('Creating pxe install archive')
-        archive = ArchiveTar(self.pxetarball)
-
-        archive.create(self.pxe_dir.name)
+        with log.step('Creating pxe install archive'):
+            archive = ArchiveTar(self.pxetarball)
+            archive.create(self.pxe_dir.name)
         self.boot_image_task.cleanup()
 
     def _create_bootloader_instance(

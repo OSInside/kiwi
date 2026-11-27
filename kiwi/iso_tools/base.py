@@ -140,7 +140,7 @@ class IsoToolsBase:
 
         log.debug('Copying loader files to {0}'.format(loader_data))
         for loader_file in loader_files:
-            log.debug('--> Copying {0}'.format(loader_file))
+            log.debug('Copying {0}'.format(loader_file))
             shutil.copy(loader_file, loader_data)
 
         bash_command = ' '.join(

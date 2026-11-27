@@ -90,7 +90,7 @@ class FileSystemSetup:
             )
             if self.configured_size.mbytes < filesystem_mbytes:
                 log.warning(
-                    '--> Configured size smaller than calculated size: %d MB',
+                    'Configured size smaller than calculated size: %d MB',
                     filesystem_mbytes,
                 )
             return self.configured_size.mbytes

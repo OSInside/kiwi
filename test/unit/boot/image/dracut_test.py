@@ -372,7 +372,7 @@ class TestBootImageKiwi:
                 flavor='rt', delete_included_files=False
             )
         assert (
-            'Creating generic dracut initrd archive for kernel flavor rt'
+            'Creating dracut initrd archive for kernel flavor rt'
             in self._caplog.text
         )
         kernel.get_kernel.assert_called_once_with(

@@ -85,20 +85,6 @@ class PackageManagerDnf(PackageManagerBase):
     def process_plus_recommended(self) -> None:
         pass  # pragma: no cover
 
-    @no_type_check
-    @decommissioned
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        pass  # pragma: no cover
-
-    @no_type_check
-    @decommissioned
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        pass  # pragma: no cover
-
     @decommissioned
     def post_process_install_requests_bootstrap(
         self, root_bind: Optional[RootBind] = None, delta_root: bool = False

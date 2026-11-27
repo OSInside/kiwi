@@ -15,13 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import Dict, Optional, List, TextIO
+from contextlib import contextmanager
+from typing import Dict, Iterator, Optional, List, Tuple
 import logging
+import time
 from kiwi.logger_socket import PlainTextSocketHandler
 import sys
 
 # project
-from kiwi.logger_color_formatter import ColorFormatter
+from kiwi.logger_console import (
+    ConsoleHandler,
+    ConsoleRenderer,
+    format_duration,
+)
 from kiwi.logger_filter import (
     LoggerSchedulerFilter,
     InfoFilter,
@@ -44,33 +50,111 @@ class Logger(logging.Logger):
         logging.Logger.__init__(self, name)
         self.log_handlers: Dict = {}
         self.logfile: Optional[str] = None
+        self.step_depth = 0
+        self.phase_active = False
+        renderer = ConsoleRenderer(self.get_tree_position)
         # log INFO to stdout
-        self._add_stream_handler(
-            'info',
-            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [InfoFilter(), LoggerSchedulerFilter()],
+        self._add_console_handler(
+            'info', renderer, [InfoFilter(), LoggerSchedulerFilter()]
         )
         # log WARNING messages to stdout
-        self._add_stream_handler(
-            'warning',
-            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [WarningFilter()],
-        )
+        self._add_console_handler('warning', renderer, [WarningFilter()])
         # log DEBUG messages to stdout
-        self._add_stream_handler(
-            'debug',
-            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [DebugFilter()],
-        )
+        self._add_console_handler('debug', renderer, [DebugFilter()])
         # log ERROR messages to stderr
-        self._add_stream_handler(
-            'error',
-            '[ %(levelname)-8s]: %(asctime)-8s | %(message)s',
-            [ErrorFilter()],
-            sys.__stderr__,
-        )
+        self._add_console_handler('error', renderer, [ErrorFilter()], 'stderr')
         self.log_level = self.level
         self.log_flags: Dict[str, bool] = {}
+
+    def phase(self, title: str) -> None:
+        """
+        Log the start of a phase of the build process, e.g the
+        preparation of the root system. On the console the phase
+        is shown as a headline
+
+        :param str title: name of the phase
+        """
+        self.info(title, extra={'kiwi_role': 'phase'})
+        self.phase_active = True
+
+    def get_tree_position(self) -> Tuple[bool, int]:
+        """
+        Position of the next message in the console output tree
+
+        :return: phase is active and number of active steps
+
+        :rtype: tuple
+        """
+        return (self.phase_active, self.step_depth)
+
+    def item(
+        self, key: str, value: str, checked: Optional[bool] = None
+    ) -> None:
+        """
+        Log an item of an information list, e.g the image summary.
+        On the console the items are shown as a table with the key
+        in the first column, consecutive items of the same key show
+        the key only once. An item with a checked state is shown as
+        a check list entry
+
+        :param str key: name of the item, e.g Repositories
+        :param str value: value of the item
+        :param bool checked: state of a check list entry
+        """
+        mark = ''
+        if checked is not None:
+            mark = '[x] ' if checked else '[ ] '
+        self.info(
+            f'{key}: {mark}{value}',
+            extra={
+                'kiwi_role': 'item',
+                'kiwi_key': key,
+                'kiwi_value': value,
+                'kiwi_checked': checked,
+            },
+        )
+
+    @contextmanager
+    def step(self, title: str) -> Iterator[None]:
+        """
+        Log a step of the build process
+
+        The start and the end of the step are logged, including the
+        time the step took. On the console the messages logged
+        within the step are shown indented below the step
+
+        .. code:: python
+
+            with log.step('Installing bootstrap packages'):
+                ...
+
+        :param str title: name of the step
+        """
+        started = time.monotonic()
+        self.info(title, extra={'kiwi_role': 'step_start'})
+        self.step_depth += 1
+        try:
+            yield
+        except BaseException:
+            self._end_step(title, started, failed=True)
+            raise
+        self._end_step(title, started)
+
+    def _end_step(
+        self, title: str, started: float, failed: bool = False
+    ) -> None:
+        self.step_depth = max(self.step_depth - 1, 0)
+        duration = time.monotonic() - started
+        self.info(
+            '{0}: {1} ({2})'.format(
+                title, 'failed' if failed else 'done', format_duration(duration)
+            ),
+            extra={
+                'kiwi_role': 'step_failed' if failed else 'step_done',
+                'kiwi_title': title,
+                'kiwi_duration': duration,
+            },
+        )
 
     def getLogLevel(self) -> int:
         """
@@ -128,26 +212,6 @@ class Logger(logging.Logger):
         :param str flag: name
         """
         self.log_flags[flag] = value
-
-    def set_color_format(self) -> None:
-        """
-        Set color format for all console handlers
-        """
-        for handler_type in self.log_handlers:
-            message_format = None
-            if handler_type == 'debug':
-                message_format = (
-                    '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s'
-                )
-            elif handler_type == 'warning' or handler_type == 'error':
-                message_format = (
-                    '$COLOR[ %(levelname)-8s]: %(asctime)-8s | %(message)s'
-                )
-
-            if message_format:
-                self.log_handlers[handler_type].setFormatter(
-                    ColorFormatter(message_format, '%H:%M:%S')
-                )
 
     def set_logfile(self, filename: str) -> None:
         """
@@ -212,15 +276,14 @@ class Logger(logging.Logger):
         """
         return self.logfile
 
-    def _add_stream_handler(
+    def _add_console_handler(
         self,
         handler_type: str,
-        message_format: str,
+        renderer: ConsoleRenderer,
         message_filter: List[logging.Filter],
-        channel: Optional[TextIO] = sys.__stdout__,
+        channel: str = 'stdout',
     ) -> None:
-        handler = logging.StreamHandler(channel)
-        handler.setFormatter(logging.Formatter(message_format, '%H:%M:%S'))
+        handler = ConsoleHandler(renderer, channel)
         for rule in message_filter:
             handler.addFilter(rule)
         self.addHandler(handler)

@@ -367,15 +367,15 @@ class BootImageBase:
         self.boot_xml_state = XMLState(
             boot_description.load(), [boot_image_profile, boot_kernel_profile]
         )
-        log.info('--> loaded %s', boot_config_file)
+        log.info('loaded %s', boot_config_file)
         if self.boot_xml_state.build_type:
             log.info(
-                '--> Selected build type: %s',
+                'Selected build type: %s',
                 self.boot_xml_state.get_build_type_name(),
             )
         if self.boot_xml_state.profiles:
             log.info(
-                '--> Selected boot profiles: image: %s, kernel: %s',
+                'Selected boot profiles: image: %s, kernel: %s',
                 boot_image_profile,
                 boot_kernel_profile,
             )

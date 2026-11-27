@@ -20,6 +20,7 @@ import os
 from typing import List, Dict, Optional
 
 # project
+from kiwi.utils.install_progress import PackageManagerEventT
 from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
@@ -29,6 +30,22 @@ from kiwi.utils.rpm import Rpm
 from kiwi.path import Path
 from kiwi.exceptions import KiwiRequestError
 from kiwi.defaults import Defaults
+
+
+# zypper output lines read for the progress information
+ZYPPER_DOWNLOAD = re.compile(
+    r'^Retrieving:? (?:package )?(\S+).*\(\s*(\d+)/(\d+)\)'
+)
+ZYPPER_PACKAGE = re.compile(
+    r'^\(\s*(\d+)/(\d+)\) (Installing|Removing):? (\S+)'
+)
+ZYPPER_PRELOAD = re.compile(r'^Preloading: (\S+?)(?:\.rpm)? \[')
+ZYPPER_SUMMARY = re.compile(r'^\d+ (?:new )?packages? to \w+')
+ZYPPER_SUMMARY_ITEM = re.compile(
+    r'^(\d+) (?:packages? )?(?:to )?(new|install|upgrade|downgrade|reinstall)'
+)
+ZYPPER_SCRIPT = re.compile(r'^(%\w+)\((\S+)\) script output:')
+ZYPPER_SCRIPTS = 'Running post-transaction scripts'
 
 
 class PackageManagerZypper(PackageManagerBase):
@@ -261,50 +278,73 @@ class PackageManagerZypper(PackageManagerBase):
         if '--no-recommends' in self.custom_args:
             self.custom_args.remove('--no-recommends')
 
-    def match_package_installed(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
+    progress_phases = ['download', 'install']
+
+    def get_progress_event(
+        self, package_manager_output: str
+    ) -> Optional[PackageManagerEventT]:
         """
-        Match expression to indicate a package has been installed
+        Progress event from a line of zypper output
 
-        This match for the package to be installed in the output
-        of the zypper command is not 100% accurate. There might
-        be false positives due to sub package names starting with
-        the same base package name
+        zypper reports the position of each package in the download
+        and in the installation, e.g (12/148) Installing: bash.
+        Packages downloaded in advance, e.g Preloading: bash.rpm [done],
+        are counted as download against the number of packages from
+        the summary of the transaction, e.g 148 new packages to install.
+        Package scripts run after the installation are reported
+        if they write output, e.g %posttrans(udev) script output:
 
-        :param str package_name: package_name
-        :param str package_manager_output: zypper status line
+        :param str package_manager_output: line of output
 
-        :returns: True|False
+        :return: progress event or None
 
-        :rtype: bool
+        :rtype: PackageManagerEventT
         """
-        return bool(
-            re.match(
-                '.*Installing: {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        line = package_manager_output.strip()
+        match = ZYPPER_PACKAGE.match(line)
+        if match:
+            removed = match.group(3) == 'Removing'
+            return PackageManagerEventT(
+                phase='install',
+                description=f'{match.group(3)} {match.group(4)}',
+                current=int(match.group(1)),
+                total=int(match.group(2)),
+                package=match.group(4),
+                removed=removed,
             )
-        )
-
-    def match_package_deleted(
-        self, package_name: str, package_manager_output: str
-    ) -> bool:
-        """
-        Match expression to indicate a package has been deleted
-
-        :param str package_name: package_name
-        :param str package_manager_output: zypper status line
-
-        :returns: True|False
-
-        :rtype: bool
-        """
-        return bool(
-            re.match(
-                '.*Removing: {0}.*'.format(re.escape(package_name)),
-                package_manager_output,
+        match = ZYPPER_DOWNLOAD.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='download',
+                description=f'Downloading {match.group(1)}',
+                current=int(match.group(2)),
+                total=int(match.group(3)),
             )
-        )
+        match = ZYPPER_PRELOAD.match(line)
+        if match:
+            return PackageManagerEventT(
+                phase='download', description=f'Downloading {match.group(1)}'
+            )
+        if ZYPPER_SUMMARY.match(line):
+            # e.g 2 packages to upgrade, 3 new, 1 to remove. Count the
+            # packages zypper downloads, removed packages are not
+            total = 0
+            for item in line.rstrip('.').split(', '):
+                match = ZYPPER_SUMMARY_ITEM.match(item)
+                if match:
+                    total += int(match.group(1))
+            return PackageManagerEventT(phase='total', total=total)
+        match = ZYPPER_SCRIPT.match(line)
+        if match:
+            script = f'{match.group(1)}({match.group(2)})'
+            return PackageManagerEventT(
+                phase='script', description=f'Running {script}', package=script
+            )
+        if line.startswith(ZYPPER_SCRIPTS):
+            return PackageManagerEventT(
+                phase='script', description=ZYPPER_SCRIPTS
+            )
+        return None
 
     def post_process_install_requests_bootstrap(
         self, root_bind: Optional[RootBind] = None, delta_root: bool = False

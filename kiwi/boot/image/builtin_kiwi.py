@@ -157,7 +157,7 @@ class BootImageKiwi(BootImageBase):
             boot_directory = temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)
             if mbrid:
-                log.info('--> Importing mbrid: %s', mbrid.get_id())
+                log.info('Importing mbrid: %s', mbrid.get_id())
                 Path.create(boot_directory)
                 image_identifier = boot_directory + '/mbrid'
                 mbrid.write(image_identifier)
@@ -186,7 +186,7 @@ class BootImageKiwi(BootImageBase):
                 source_dir=temp_boot_root_directory,
                 exclude=exclude_from_archive,
             )
-            log.info('--> xz compressing archive')
+            log.info('xz compressing archive')
             compress = Compress(
                 os.sep.join([self.target_dir, kiwi_initrd_basename])
             )

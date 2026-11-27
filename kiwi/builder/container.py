@@ -17,7 +17,7 @@
 #
 import logging
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 # project
 from kiwi.container import ContainerImage
@@ -30,7 +30,7 @@ from kiwi.exceptions import KiwiContainerBuilderError
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.xml_state import XMLState
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class ContainerBuilder:
@@ -133,13 +133,15 @@ class ContainerBuilder:
         :rtype: instance of :class:`Result`
         """
         if not self.base_image:
-            log.info('Setting up %s container', self.requested_container_type)
-            container_setup = ContainerSetup.new(
-                self.requested_container_type,
-                self.root_dir,
-                self.container_config,
-            )
-            container_setup.setup()
+            with log.step(
+                f'Setting up {self.requested_container_type} container'
+            ):
+                container_setup = ContainerSetup.new(
+                    self.requested_container_type,
+                    self.root_dir,
+                    self.container_config,
+                )
+                container_setup.setup()
         else:
             shasum = self.runtime_config.get_checksum_handler(
                 source_filename=self.base_image
@@ -154,22 +156,24 @@ class ContainerBuilder:
                     )
                 )
 
-        log.info('--> Creating container image')
-        container_image = ContainerImage.new(
-            self.requested_container_type, self.root_dir, self.container_config
-        )
-        self.filename = container_image.create(
-            self.filename,
-            self.base_image or '',
-            self.ensure_empty_tmpdirs,
-            (
-                self.runtime_config.get_container_compression()
-                # appx containers already contains a compressed root
-                # wsl containers recommends gzip and we default to it
-                if self.requested_container_type not in self.special_needs
-                else False
-            ),
-        )
+        with log.step('Creating container image'):
+            container_image = ContainerImage.new(
+                self.requested_container_type,
+                self.root_dir,
+                self.container_config,
+            )
+            self.filename = container_image.create(
+                self.filename,
+                self.base_image or '',
+                self.ensure_empty_tmpdirs,
+                (
+                    self.runtime_config.get_container_compression()
+                    # appx containers already contains a compressed root
+                    # wsl containers recommends gzip and we default to it
+                    if self.requested_container_type not in self.special_needs
+                    else False
+                ),
+            )
         Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(), self.filename
         )

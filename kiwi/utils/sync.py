@@ -105,11 +105,7 @@ class DataSync:
                 rsync_options.remove('--acls')
                 warn_me = True
             if warn_me:
-                log.warning(
-                    'Extended attributes not supported for target: {}'.format(
-                        self.target_dir
-                    )
-                )
+                log.warning('Extended attributes not supported for target')
         if exclude:
             for item in exclude:
                 exclude_options.append('--exclude')

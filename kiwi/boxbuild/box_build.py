@@ -21,7 +21,7 @@ import time
 import logging
 import platform
 from threading import Thread
-from typing import List, Optional
+from typing import Any, List, Optional
 
 # project
 from kiwi.path import Path
@@ -38,7 +38,7 @@ from kiwi.exceptions import (
     KiwiBoxBuildError,
 )
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class BoxBuild:
@@ -139,6 +139,16 @@ class BoxBuild:
             )
         if keep_open:
             vm_append.append('kiwi-no-halt')
+        else:
+            # Boot messages are shown in debug mode only, such that the
+            # console shows the output of the kiwi build in the box.
+            # Kernel errors are still shown, the kernel log level is
+            # the same as with quiet
+            vm_append += [
+                'loglevel=4',
+                'systemd.show_status=no',
+                'rd.systemd.show_status=no',
+            ]
         if kiwi_version:
             vm_append.append('kiwi_version=_{0}_'.format(kiwi_version))
         if kiwi_git:
@@ -265,10 +275,20 @@ class BoxBuild:
                 target=self._forward_host_ssh_to_guest, args=()
             )
             ssh_forward_thread.start()
-        log.debug('Calling Qemu: {0}'.format(vm_run))
-        os.system(' '.join(vm_run))
-        for virtiofsd_process in runtime.VIRTIOFSD_PROCESS_LIST:
-            virtiofsd_process.terminate()
+        with log.step(
+            'Starting box in {0}'.format('KVM' if self.accel else 'QEMU')
+        ):
+            # without a unit the memory size is in MiB for qemu
+            vm_info = 'Memory: {0}{1}'.format(
+                vm_memory, 'M' if vm_memory.isdigit() else ''
+            )
+            if vm_setup.smp:
+                vm_info += f', CPUs: {self.smp or vm_setup.smp}'
+            log.info(vm_info)
+            log.debug('Calling Qemu: {0}'.format(vm_run))
+            os.system(' '.join(vm_run))
+            for virtiofsd_process in runtime.VIRTIOFSD_PROCESS_LIST:
+                virtiofsd_process.terminate()
 
         exit_code_file = os.sep.join(
             [target_dir, BoxBuildDefaults.result_exitcode_name]

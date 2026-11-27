@@ -234,12 +234,10 @@ class Sat:
                 job_name, selection_name | selection_provides
             )
             if selection.flags & self.solv.Selection.SELECTION_PROVIDES:
-                log.info('--> Using capability match for {0}'.format(job_name))
+                log.info('Using capability match for {0}'.format(job_name))
             if selection.isempty():
                 if skip_missing:
-                    log.info(
-                        '--> Package {0} not found: skipped'.format(job_name)
-                    )
+                    log.info('Package {0} not found: skipped'.format(job_name))
                 else:
                     raise KiwiSatSolverJobError(
                         'Package {0} not found'.format(job_name)

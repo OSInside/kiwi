@@ -1,5 +1,5 @@
 import sys
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 import os
 
 import kiwi
@@ -69,10 +69,15 @@ class TestSystemCreateTask:
         self.task.command_args['--target-dir'] = 'some-target'
         self.task.command_args['--signing-key'] = ['some-key-file']
 
-    def test_process_system_create(self):
+    @patch('kiwi.tasks.system_create.ImageSummary')
+    def test_process_system_create(self, mock_ImageSummary):
         self._init_command_args()
         self.task.command_args['create'] = True
         self.task.process()
+        mock_ImageSummary.assert_called_once_with(
+            self.task.xml_state, self.task.config_file, None
+        )
+        mock_ImageSummary.return_value.print_summary.assert_called_once_with()
         self.runtime_checker.check_target_directory_not_in_shared_cache.assert_called_once_with(
             self.abs_root_dir
         )

@@ -19,17 +19,20 @@ import os
 import logging
 from collections import namedtuple
 from kiwi.command import CommandCallT
-from typing import Any, NamedTuple, List, Callable
+from typing import Any, NamedTuple, List, Callable, Optional
 from rich.progress import (
     BarColumn,
     Progress,
-    TaskID,
+    SpinnerColumn,
     TaskProgressColumn,
     TextColumn,
 )
+from rich.table import Column
 
 # project
 from kiwi.utils.codec import Codec
+from kiwi.logger_console import KiwiConsole, get_progress_indent
+from kiwi.utils.install_progress import InstallProgress, PackageManagerEventT
 
 from kiwi.exceptions import KiwiCommandError
 
@@ -57,7 +60,6 @@ class CommandProcess:
     ) -> None:
         self.command = CommandIterator(command)
         self.log_topic = log_topic
-        self.items_processed = 0
 
     def poll(self) -> None:
         """
@@ -72,45 +74,65 @@ class CommandProcess:
 
     def poll_show_progress(
         self,
-        items_to_complete: List[str],
-        match_method: Callable,
+        event_method: Callable[[str], Optional[PackageManagerEventT]],
+        progress_phases: List[str],
         with_stderr: bool = False,
     ) -> None:
         """
         Iterate over process and show progress in percent
         raise on error and log output
 
-        The progress is not shown in debug mode, the debug log
-        information of the process output would break up the
-        progress display
+        The event method reads progress events from the process
+        output, e.g the download and installation of a package or a
+        running package script, see InstallProgress
 
-        :param list items_to_complete: all items
-        :param function match_method: method matching item
+        :param function event_method: method reading progress events
+        :param list progress_phases: phases counted by the progress
+        :param bool with_stderr: read the stderr output too
         """
-        total = len(items_to_complete) or 1
+        install_progress = InstallProgress(progress_phases)
         with Progress(
-            TextColumn('[ INFO    ]: Processing'),
+            TextColumn(
+                get_progress_indent(*log.get_tree_position()), style='dim'
+            ),
+            SpinnerColumn(),
+            TextColumn(
+                '{task.description}',
+                table_column=Column(
+                    width=48, no_wrap=True, overflow='ellipsis'
+                ),
+            ),
             BarColumn(),
             TaskProgressColumn(),
-            disable=log.getLogLevel() == logging.DEBUG,
+            console=KiwiConsole.stdout,
+            transient=True,
+            # a progress display on a console which is not a terminal
+            # is not updated, the summary is logged instead
+            disable=not KiwiConsole.stdout.is_terminal,
         ) as progress:
-            task = progress.add_task('Processing', total=total)
+            task = progress.add_task('Processing', total=InstallProgress.TOTAL)
             for lineT in self.command:
                 lines = [lineT.stdout_line]
                 if with_stderr:
                     lines.append(lineT.stderr_line)
                 for line in lines:
-                    if line:
-                        log.debug('%s: %s', self.log_topic, line)
-                        self._update_progress(
-                            progress,
+                    if not line:
+                        continue
+                    log.debug('%s: %s', self.log_topic, line)
+                    event = event_method(line)
+                    if event:
+                        install_progress.update(event)
+                        progress.update(
                             task,
-                            match_method,
-                            items_to_complete,
-                            line,
+                            description=install_progress.description
+                            or 'Processing',
+                            completed=install_progress.completed,
                         )
-            # the process is done, all items are complete
-            progress.update(task, completed=total)
+            # the process is done
+            progress.update(task, completed=InstallProgress.TOTAL)
+        summary = install_progress.summary()
+        if summary:
+            log.info(f'{summary}')
         if self.command.get_error_code() != 0:
             raise KiwiCommandError(self.command.get_error_output())
 
@@ -119,7 +141,7 @@ class CommandProcess:
         Iterate over process don't raise on error and log
         stdout and stderr
         """
-        log.info(self.log_topic)
+        log.debug(self.log_topic)
         log.debug('--------------out start-------------')
         for lineT in self.command:
             line = lineT.stdout_line
@@ -137,41 +159,8 @@ class CommandProcess:
             log.debug('--------------err stop--------------')
         return result(stderr=error_output, returncode=error_code)
 
-    def create_match_method(
-        self, method: Callable[[str, str], bool]
-    ) -> Callable[[str, str], bool]:
-        """
-        create a matcher function pointer which calls the given
-        method as method(item_to_match, data) on dereference
-
-        :param function method: function reference
-
-        :return: function pointer
-        :rtype: object
-        """
-
-        def create_method(item_to_match: str, data: str) -> bool:
-            return method(item_to_match, data)
-
-        return create_method
-
     def returncode(self) -> int:
         return self.command.get_error_code()
-
-    def _update_progress(
-        self,
-        progress: Progress,
-        task: TaskID,
-        match_method: Callable,
-        items_to_complete: List[str],
-        command_output: str,
-    ) -> None:
-        items_count = len(items_to_complete)
-        for item in items_to_complete:
-            if match_method(item, command_output):
-                self.items_processed += 1
-                if self.items_processed <= items_count:
-                    progress.update(task, completed=self.items_processed)
 
 
 class CommandIterator:

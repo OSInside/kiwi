@@ -26,6 +26,7 @@ from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.system.prepare import SystemPrepare
 from kiwi.system.setup import SystemSetup
+from kiwi.system.summary import ImageSummary
 from kiwi.builder import ImageBuilder
 from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
@@ -88,7 +89,7 @@ class SystemBuildTask(CliTask):
         if self.command_args['--set-type-attr']:
             for set_type_attr in self.command_args['--set-type-attr']:
                 attribute, value = self.attr_token(set_type_attr)
-                log.info(f'--> Set <type ... {attribute}="{value}" .../>')
+                log.info(f'Set <type ... {attribute}="{value}" .../>')
                 try:
                     eval(
                         f'self.xml_state.build_type.set_{attribute}("{value}")'
@@ -99,7 +100,7 @@ class SystemBuildTask(CliTask):
 
         if self.command_args['--set-release-version']:
             release_version = self.command_args['--set-release-version']
-            log.info(f'--> Set <release-version> = {release_version}')
+            log.info(f'Set <release-version> = {release_version}')
             section_overwrite = False
             for preferences in self.xml_state.get_preferences_sections():
                 section = preferences.get_release_version()
@@ -179,7 +180,11 @@ class SystemBuildTask(CliTask):
 
         self.run_checks(self.checks_after_command_args)
 
-        log.info('Preparing new root system')
+        ImageSummary(
+            self.xml_state, self.config_file, self.global_args['--target-arch']
+        ).print_summary()
+
+        log.phase('Prepare root system')
         with SystemPrepare(
             self.xml_state,
             image_root,
@@ -220,17 +225,18 @@ class SystemBuildTask(CliTask):
                 defaults.to_profile(profile)
                 profile.create(Defaults.get_profile_file(image_root))
 
-                setup.import_overlay_files()
-                setup.import_image_identifier()
-                setup.setup_groups()
-                setup.setup_users()
-                setup.setup_keyboard_map()
-                setup.setup_locale()
-                setup.setup_plymouth_splash()
-                setup.setup_timezone()
-                setup.setup_permissions()
-                setup.import_files()
-                setup.setup_registry_import()
+                with log.step('Configuring the system'):
+                    setup.import_overlay_files()
+                    setup.import_image_identifier()
+                    setup.setup_groups()
+                    setup.setup_users()
+                    setup.setup_keyboard_map()
+                    setup.setup_locale()
+                    setup.setup_plymouth_splash()
+                    setup.setup_timezone()
+                    setup.setup_permissions()
+                    setup.import_files()
+                    setup.setup_registry_import()
 
                 # setup permanent image repositories after cleanup
                 setup.import_repositories_marked_as_imageinclude()
@@ -257,7 +263,7 @@ class SystemBuildTask(CliTask):
 
         setup.call_image_script()
 
-        log.info('Creating system image')
+        log.phase('Create image')
         self.run_checks(
             {
                 'check_dracut_module_versions_compatible_to_kiwi': [image_root],
@@ -275,6 +281,7 @@ class SystemBuildTask(CliTask):
             },
         )
         result = image_builder.create()
+        log.phase('Results')
         result.print_results()
         result.dump(os.sep.join([abs_target_dir_path, 'kiwi.result']))
 
