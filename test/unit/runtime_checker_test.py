@@ -4,13 +4,12 @@ from unittest.mock import patch, Mock
 from pytest import raises, fixture
 import pytest
 
-from .test_helper import argv_kiwi_tests
+from .test_helper import argv_kiwi_tests, load_description
 
 import kiwi
 
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
-from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
 from kiwi.exceptions import KiwiRuntimeError
 
@@ -25,10 +24,9 @@ class TestRuntimeChecker:
         Defaults.set_runtime_checker_metadata(
             '../data/runtime_checker_metadata.yml'
         )
-        self.description = XMLDescription(
-            '../data/example_runtime_checker_config.xml'
+        self.xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml')
         )
-        self.xml_state = XMLState(self.description.load())
         self.runtime_config = Mock()
         self.runtime_config.get_oci_archive_tool.return_value = 'umoci'
         kiwi.runtime_checker.RuntimeConfig = Mock(
@@ -177,20 +175,30 @@ class TestRuntimeChecker:
 
     def test_check_volume_setup_defines_reserved_labels(self):
         xml_state = XMLState(
-            self.description.load(), ['vmxSimpleFlavour'], 'oem'
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxSimpleFlavour'],
+            'oem',
         )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_volume_setup_defines_reserved_labels()
 
     def test_appx_invalid_name(self):
-        xml_state = XMLState(self.description.load(), ['wsl_launcher'], 'appx')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['wsl_launcher'],
+            'appx',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_appx_naming_conventions_valid()
 
     def test_appx_invalid_id(self):
-        xml_state = XMLState(self.description.load(), ['wsl_id'], 'appx')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['wsl_id'],
+            'appx',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_appx_naming_conventions_valid()
@@ -204,7 +212,11 @@ class TestRuntimeChecker:
             self.runtime_checker.check_volume_setup_has_no_root_definition()
 
     def test_check_partuuid_persistency_type_used_with_mbr(self):
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'iso',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_partuuid_persistency_type_used_with_mbr()
@@ -218,7 +230,11 @@ class TestRuntimeChecker:
     @patch('kiwi.runtime_checker.Path.which')
     def test_check_container_tool_chain_installed(self, mock_which):
         mock_which.return_value = False
-        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['docker'],
+            'docker',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -229,7 +245,11 @@ class TestRuntimeChecker:
     ):
         self.runtime_config.get_oci_archive_tool.return_value = 'budah'
         mock_which.return_value = False
-        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['docker'],
+            'docker',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -238,7 +258,11 @@ class TestRuntimeChecker:
     def test_check_container_tool_chain_installed_buildah(self, mock_which):
         self.runtime_config.get_oci_archive_tool.return_value = 'buildah'
         mock_which.return_value = False
-        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['docker'],
+            'docker',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -250,7 +274,11 @@ class TestRuntimeChecker:
     ):
         mock_which.return_value = True
         mock_cmdver.return_value = False
-        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['docker'],
+            'docker',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -264,7 +292,11 @@ class TestRuntimeChecker:
         mock_which.return_value = True
         mock_cmdver.return_value = True
         mock_cmdoptions.return_value = False
-        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['docker'],
+            'docker',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
@@ -274,34 +306,41 @@ class TestRuntimeChecker:
         self, mock_boot_path
     ):
         mock_boot_path.return_value = '../data'
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'oem',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_consistent_kernel_in_boot_and_system_image()
 
     def test_check_initrd_selection_required(self):
-        description = XMLDescription(
-            '../data/example_runtime_checker_no_initrd_system_reference.xml'
+        xml_state = XMLState(
+            load_description(
+                '../data/example_runtime_checker_no_initrd_system_reference.xml'
+            )
         )
-        xml_state = XMLState(description.load())
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_initrd_selection_required()
 
     def test_check_boot_description_exists_no_boot_ref(self):
-        description = XMLDescription(
-            '../data/example_runtime_checker_no_boot_reference.xml'
+        xml_state = XMLState(
+            load_description(
+                '../data/example_runtime_checker_no_boot_reference.xml'
+            )
         )
-        xml_state = XMLState(description.load())
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_boot_description_exists()
 
     def test_check_boot_description_exists_does_not_exist(self):
-        description = XMLDescription(
-            '../data/example_runtime_checker_boot_desc_not_found.xml'
+        xml_state = XMLState(
+            load_description(
+                '../data/example_runtime_checker_boot_desc_not_found.xml'
+            )
         )
-        xml_state = XMLState(description.load())
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_boot_description_exists()
@@ -326,7 +365,11 @@ class TestRuntimeChecker:
             self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
 
     def test_check_dracut_module_for_disk_overlay_in_package_list(self):
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'iso',
+        )
         xml_state.build_type.get_overlayroot = Mock(return_value=True)
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
@@ -346,7 +389,11 @@ class TestRuntimeChecker:
         mock_RuntimeConfig.return_value = runtime_config
 
         mock_which.return_value = False
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'iso',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError) as rt_err_ctx:
             runtime_checker.check_mediacheck_installed()
@@ -375,7 +422,11 @@ class TestRuntimeChecker:
         runtime_config.get_iso_media_tag_tool.return_value = 'checkmedia'
         mock_RuntimeConfig.return_value = runtime_config
         mock_which.return_value = True
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'iso',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError) as runtime_context:
             runtime_checker.check_checkmedia_used_with_msdos_table()
@@ -386,19 +437,31 @@ class TestRuntimeChecker:
         )
 
     def test_check_dracut_module_for_live_iso_in_package_list(self):
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'iso')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'iso',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_dracut_module_for_live_iso_in_package_list()
 
     def test_check_dracut_module_for_disk_oem_in_package_list(self):
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'oem',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_dracut_module_for_disk_oem_in_package_list()
 
     def test_check_dracut_module_for_oem_install_in_package_list(self):
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'oem',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_dracut_module_for_oem_install_in_package_list()
@@ -408,31 +471,41 @@ class TestRuntimeChecker:
             self.runtime_checker.check_volume_label_used_with_lvm()
 
     def test_check_swap_name_used_with_lvm(self):
-        xml_state = XMLState(self.description.load(), ['vmxFlavour'], 'oem')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['vmxFlavour'],
+            'oem',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_swap_name_used_with_lvm()
 
     def test_check_preferences_data_no_version(self):
-        xml_state = XMLState(self.description.load(), ['docker'], 'docker')
+        xml_state = XMLState(
+            load_description('../data/example_runtime_checker_config.xml'),
+            ['docker'],
+            'docker',
+        )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_image_version_provided()
 
     def test_check_image_type_unique(self):
-        description = XMLDescription(
-            '../data/example_runtime_checker_conflicting_types.xml'
+        xml_state = XMLState(
+            load_description(
+                '../data/example_runtime_checker_conflicting_types.xml'
+            )
         )
-        xml_state = XMLState(description.load())
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_image_type_unique()
 
     def test_check_include_references_unresolvable(self):
-        description = XMLDescription(
-            '../data/example_runtime_checker_include_nested_reference.xml'
+        xml_state = XMLState(
+            load_description(
+                '../data/example_runtime_checker_include_nested_reference.xml'
+            )
         )
-        xml_state = XMLState(description.load())
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_include_references_unresolvable()
@@ -448,8 +521,7 @@ class TestRuntimeChecker:
             self.runtime_checker.check_bootloader_env_compatible_with_loader()
 
     def test_check_kernel_flavor_supported(self):
-        description = XMLDescription('../data/example_kernel_flavor_config.xml')
-        xml_data = description.load()
+        xml_data = load_description('../data/example_kernel_flavor_config.xml')
         for profile in ['flavor', 'noFlavor']:
             RuntimeChecker(
                 XMLState(xml_data, [profile])
@@ -479,8 +551,7 @@ class TestRuntimeChecker:
         RuntimeChecker(xml_state).check_kernel_flavor_supported()
 
     def test_check_kernel_flavors_installed(self, tmp_path):
-        description = XMLDescription('../data/example_kernel_flavor_config.xml')
-        xml_data = description.load()
+        xml_data = load_description('../data/example_kernel_flavor_config.xml')
         runtime_checker = RuntimeChecker(XMLState(xml_data, ['flavor']))
         with raises(KiwiRuntimeError) as issue:
             runtime_checker.check_kernel_flavors_installed(str(tmp_path))

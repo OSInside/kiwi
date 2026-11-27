@@ -13,12 +13,12 @@ import kiwi
 from kiwi.defaults import Defaults
 from kiwi.defaults import grub_loader_type
 from kiwi.xml_state import XMLState
-from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.utils.sysconfig import SysConfig
 from kiwi.xml_state import DracutT
 from kiwi.boot.image.base import boot_names_type
+from ...test_helper import load_description
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
@@ -160,9 +160,7 @@ class TestBootLoaderConfigGrub2:
             return_value=self.grub2
         )
 
-        self.state = XMLState(
-            XMLDescription('../data/example_config.xml').load()
-        )
+        self.state = XMLState(load_description('../data/example_config.xml'))
         self.state.is_xen_server = Mock(return_value=False)
         self.state.is_xen_guest = Mock(return_value=False)
         self.state.get_build_type_bootloader_serial_line_setup = Mock(

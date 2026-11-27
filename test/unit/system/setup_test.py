@@ -6,10 +6,9 @@ from unittest.mock import ANY, DEFAULT, patch, call, Mock, MagicMock, mock_open
 from pytest import raises, fixture
 from collections import namedtuple
 
-from ..test_helper import argv_kiwi_tests
+from ..test_helper import argv_kiwi_tests, load_description
 
 from kiwi.system.setup import SystemSetup
-from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.defaults import Defaults
 
@@ -45,13 +44,14 @@ class TestSystemSetup:
         )
         self.xml_state.xml_data.description_dir = 'description_dir'
         self.setup = SystemSetup(self.xml_state, 'root_dir')
-        description = XMLDescription(
-            description='../data/example_config.xml',
-            derived_from='derived/description',
-        )
-        self.description_dir = os.path.dirname(description.description_origin)
+        self.description_dir = os.path.dirname('../data/example_config.xml')
         self.setup_with_real_xml = SystemSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_config.xml', 'derived/description'
+                )
+            ),
+            'root_dir',
         )
         command_run = namedtuple('command', ['output', 'error', 'returncode'])
         self.run_result = command_run(

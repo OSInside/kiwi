@@ -4,11 +4,10 @@ from pytest import raises
 
 import kiwi
 
-from ...test_helper import argv_kiwi_tests
+from ...test_helper import argv_kiwi_tests, load_description
 
 from kiwi.defaults import Defaults
 from kiwi.boot.image.builtin_kiwi import BootImageKiwi
-from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import KiwiConfigFileNotFound
@@ -25,8 +24,9 @@ class TestBootImageKiwi:
         mock_boot_path.return_value = '../data'
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
-        description = XMLDescription('../data/example_config.xml')
-        self.xml_state = XMLState(description.load())
+        self.xml_state = XMLState(
+            load_description('../data/example_config.xml')
+        )
         self.setup = Mock()
         self.profile = Mock()
         self.profile.dot_profile = dict()

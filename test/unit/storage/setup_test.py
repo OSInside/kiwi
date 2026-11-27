@@ -7,10 +7,10 @@ import kiwi
 
 from kiwi.storage.setup import DiskSetup
 from kiwi.xml_state import XMLState, volume_type
-from kiwi.xml_description import XMLDescription
 from kiwi.defaults import Defaults
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.exceptions import KiwiVolumeTooSmallError, KiwiPartitionTooSmallError
+from ..test_helper import load_description
 
 
 class TestDiskSetup:
@@ -25,63 +25,87 @@ class TestDiskSetup:
         self.size.accumulate_mbyte_file_sizes = mock.Mock(return_value=42)
         kiwi.storage.setup.SystemSize = mock.Mock(return_value=self.size)
 
-        description = XMLDescription('../data/example_disk_size_config.xml')
-        self.setup = DiskSetup(XMLState(description.load()), 'root_dir')
-
-        description = XMLDescription(
-            '../data/example_disk_size_volume_config.xml'
+        self.setup = DiskSetup(
+            XMLState(load_description('../data/example_disk_size_config.xml')),
+            'root_dir',
         )
-        self.setup_volumes = DiskSetup(XMLState(description.load()), 'root_dir')
 
-        description = XMLDescription(
-            '../data/example_disk_size_oem_volume_config.xml'
+        self.setup_volumes = DiskSetup(
+            XMLState(
+                load_description('../data/example_disk_size_volume_config.xml')
+            ),
+            'root_dir',
         )
+
         self.setup_oem_volumes = DiskSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_disk_size_oem_volume_config.xml'
+                )
+            ),
+            'root_dir',
         )
 
-        description = XMLDescription(
-            '../data/example_disk_size_volume_too_small_config.xml'
-        )
         self.setup_volume_too_small = DiskSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_disk_size_volume_too_small_config.xml'
+                )
+            ),
+            'root_dir',
         )
 
-        description = XMLDescription(
-            '../data/example_disk_size_partition_too_small_config.xml'
-        )
         self.setup_partition_too_small = DiskSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_disk_size_partition_too_small_config.xml'
+                )
+            ),
+            'root_dir',
         )
 
-        description = XMLDescription(
-            '../data/example_disk_size_empty_vol_config.xml'
-        )
         self.setup_empty_volumes = DiskSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_disk_size_empty_vol_config.xml'
+                )
+            ),
+            'root_dir',
         )
 
-        description = XMLDescription(
-            '../data/example_disk_size_vol_root_config.xml'
-        )
         self.setup_root_volume = DiskSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_disk_size_vol_root_config.xml'
+                )
+            ),
+            'root_dir',
         )
 
-        description = XMLDescription(
-            '../data/example_disk_size_partitions_config.xml'
-        )
         self.setup_partitions = DiskSetup(
-            XMLState(description.load()), 'root_dir'
+            XMLState(
+                load_description(
+                    '../data/example_disk_size_partitions_config.xml'
+                )
+            ),
+            'root_dir',
         )
 
         Defaults.set_platform_name('ppc64')
-        description = XMLDescription('../data/example_ppc_disk_size_config.xml')
-        self.setup_ppc = DiskSetup(XMLState(description.load()), 'root_dir')
+        self.setup_ppc = DiskSetup(
+            XMLState(
+                load_description('../data/example_ppc_disk_size_config.xml')
+            ),
+            'root_dir',
+        )
 
         Defaults.set_platform_name('arm64')
-        description = XMLDescription('../data/example_arm_disk_size_config.xml')
-        self.setup_arm = DiskSetup(XMLState(description.load()), 'root_dir')
+        self.setup_arm = DiskSetup(
+            XMLState(
+                load_description('../data/example_arm_disk_size_config.xml')
+            ),
+            'root_dir',
+        )
 
     def setup_method(self, cls):
         self.setup()

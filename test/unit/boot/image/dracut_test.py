@@ -5,9 +5,9 @@ from collections import namedtuple
 
 from kiwi.defaults import Defaults
 from kiwi.boot.image.dracut import BootImageDracut
-from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.boot.image.base import boot_names_type
+from ...test_helper import load_description
 
 
 class TestBootImageKiwi:
@@ -42,8 +42,9 @@ class TestBootImageKiwi:
             '''
             ),  # for cat modules.dep
         ]
-        description = XMLDescription('../data/example_config.xml')
-        self.xml_state = XMLState(description.load())
+        self.xml_state = XMLState(
+            load_description('../data/example_config.xml')
+        )
         self.boot_image = BootImageDracut(
             self.xml_state, 'some-target-dir', 'system-directory'
         )
